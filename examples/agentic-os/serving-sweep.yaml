@@ -1,0 +1,69 @@
+# Serving-configuration sweep for the co-located AgenticOS appliance.
+#
+# This is the optimisation channel: an AI engineer changes *this file*, not the
+# harness, to try a serving idea against the real graph-agent workload.  Each
+# variant restarts vLLM with its arguments/environment on the persistent lab
+# instance, runs the same frozen cells under the workload wrapper, and the
+# driver joins telemetry, decomposes every attempt, and writes a paired
+# comparison against `baseline`.
+#
+#   uv run --project . python3 scripts/benchmarks/sweep_agentic_os_serving.py \
+#     examples/agentic-os/serving-sweep.yaml --ssh-url ssh://root@host:port \
+#     --local-root .seocho/benchmarks/agentic-os/colocated-appliance/runs/lab-s1-try-XXXX/sweep
+#
+schema_version: seocho.agentic_os.serving_sweep.v1
+name: vllm-serving-v1
+model: Qwen/Qwen3.6-27B
+model_revision: 6a9e13bd6fc8f0983b9b99948120bc37f49c13e9
+
+workload:                      # what every variant runs (kept identical)
+  phase: gate                  # gate | main | all
+  prompt_profile: baseline     # PE arm held fixed inside a serving sweep
+  b0_criterion: attempted
+  max_output_tokens: 2048
+  token_budget: 16384
+  reasoning_modes: "false true"
+
+metrics_of_record:             # columns pulled from attempt-decomposition.csv per cell
+  - wall_s
+  - llm_s
+  - ttft_s_avg
+  - itl_ms_avg
+  - prefill_s_per_req
+  - decode_s_per_req
+  - prefix_hit_ratio
+  - turn_prefix_hit_mean
+  - gpu_busy_share
+  - gpu_energy_kj
+  - kv_usage_max_pct
+funnel_guard: [graph_queries, query_validated, nonempty_result]   # latency compared only when these match the baseline cell
+
+variants:
+  - id: baseline
+    description: current appliance defaults (prefix caching on, PIECEWISE cudagraphs)
+    vllm_args: []
+  - id: eager
+    description: control — no CUDA graphs, no torch.compile
+    vllm_args: ["--enforce-eager"]
+  - id: cudagraph-full
+    description: torch.compile + full CUDA graphs for batch-1 decode
+    vllm_args: ["--compilation-config", '{"cudagraph_mode":"FULL"}']
+  - id: no-prefix-cache
+    description: what prefix reuse buys on turns >= 2
+    vllm_args: ["--no-enable-prefix-caching"]
+  - id: ngram-spec
+    description: n-gram speculative decoding for repetitive query/repair text
+    vllm_args: ["--speculative-config", '{"method":"ngram","num_speculative_tokens":4,"prompt_lookup_max":4,"prompt_lookup_min":2}']
+  - id: chunked-2k
+    description: small prefill chunks
+    vllm_args: ["--max-num-batched-tokens", "2048"]
+  - id: kv-fp8
+    description: fp8 KV cache
+    vllm_args: ["--kv-cache-dtype", "fp8"]
+  - id: mamba-cache-none
+    description: disable the experimental Mamba prefix-cache path (Qwen3.6 hybrid layers)
+    vllm_args: ["--mamba-cache-mode", "none"]
+  # Environment-level ideas go through `env:`; e.g. attention backend or
+  # torch inductor knobs.  They are applied to the vLLM process only.
+  # - id: flashinfer
+  #   env: {VLLM_ATTENTION_BACKEND: FLASHINFER}

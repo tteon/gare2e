@@ -51,6 +51,7 @@ Local-only directories such as `.agents/`, `.beads/`, `.githooks/`, `.jules/`,
 The only `.claude/` exception is `.claude/skills/`: shared, reviewable project
 skills may be tracked there so Claude Code and Codex-adjacent users can run
 SEOCHO workflows without hand-building local setup.
+Work is tracked in the local beads tracker (`bd`); see `CLAUDE.md` "Work Tracking (beads)" for the claim/notes/close cadence.
 
 ## Module Playbook
 

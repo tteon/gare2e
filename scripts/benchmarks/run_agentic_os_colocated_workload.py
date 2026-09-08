@@ -1,0 +1,239 @@
+#!/usr/bin/env python3
+"""Run one co-located graph-agent workload with out-of-band local telemetry.
+
+The process is intended to run *inside* the Vast appliance.  vLLM, DozerDB,
+Oxigraph/agent code and samplers share the same host; sampler requests never
+occur on an agent's request critical path.  This wrapper does not start graph
+or model services: the appliance entrypoint owns their readiness and passes
+their PIDs here for attribution.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import platform
+import subprocess
+import sys
+import time
+from typing import Any
+
+from seocho.eval.agentic_os_observability import (
+    HostProcessSampler,
+    NvidiaSmiSampler,
+    PROCESS_TREE_SCOPE,
+    REQUIRED_VLLM_METRIC_NAMES,
+    VllmMetricsClient,
+    VllmMetricsSampler,
+    validate_gpu_samples,
+    validate_host_process_samples,
+    validate_vllm_metrics_samples,
+)
+
+
+def _parse_role_pid(raw: str) -> tuple[str, int]:
+    role, separator, pid_raw = raw.partition("=")
+    if not separator or not role or not pid_raw.isdigit() or int(pid_raw) <= 0:
+        raise argparse.ArgumentTypeError("--role-pid must be ROLE=POSITIVE_PID")
+    return role, int(pid_raw)
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _command_version(*command: str) -> str | None:
+    try:
+        result = subprocess.run(command, check=False, capture_output=True, text=True, timeout=5)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    text = (result.stdout or result.stderr).strip()
+    return text.splitlines()[0] if text else None
+
+
+def _hardware_receipt() -> dict[str, Any]:
+    mem_total = None
+    try:
+        for line in Path("/proc/meminfo").read_text(encoding="utf-8").splitlines():
+            if line.startswith("MemTotal:"):
+                mem_total = int(line.split()[1]) * 1024
+                break
+    except (OSError, ValueError, IndexError):
+        pass
+    cgroup_cpu_max = None
+    try:
+        cgroup_cpu_max = Path("/sys/fs/cgroup/cpu.max").read_text(encoding="utf-8").strip()
+    except OSError:
+        pass
+    return {
+        "schema_version": "agentic_os.colocated_hardware.v1",
+        "timestamp_unix_s": round(time.time(), 6),
+        "platform": platform.platform(),
+        "python": sys.version.split()[0],
+        "cpu_count": os.cpu_count(),
+        "mem_total_bytes": mem_total,
+        "cgroup_cpu_max": cgroup_cpu_max,
+        "vllm_version": _command_version("vllm", "--version"),
+        "java_version": _command_version("java", "-version"),
+        "nvidia_smi_version": _command_version("nvidia-smi", "--version"),
+    }
+
+
+def _write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def _telemetry_acceptance(validation: dict[str, Any]) -> dict[str, Any]:
+    blockers: list[str] = []
+    host = validation.get("host_process") or {}
+    if int(host.get("rows", 0)) < 1:
+        blockers.append("host_process_samples_missing")
+    if int(host.get("gap_count", 0)) != 0:
+        blockers.append("host_process_sampling_gaps")
+    required_roles = {"agent", "dozerdb", "vllm"}
+    missing_roles = sorted(required_roles - set(host.get("roles") or []))
+    if missing_roles:
+        blockers.append(f"host_process_roles_missing:{','.join(missing_roles)}")
+    role_scopes = host.get("role_scopes") or {}
+    non_tree_roles = sorted(
+        role for role in required_roles if role_scopes.get(role) != [PROCESS_TREE_SCOPE]
+    )
+    if non_tree_roles:
+        blockers.append(f"host_process_tree_scope_missing:{','.join(non_tree_roles)}")
+    member_counts = host.get("member_counts") or {}
+    roles_without_members = sorted(
+        role for role in required_roles if (member_counts.get(role) or {}).get("min") is None
+    )
+    if roles_without_members:
+        blockers.append(f"host_process_members_missing:{','.join(roles_without_members)}")
+
+    vllm = validation.get("vllm") or {}
+    if float(vllm.get("availability_ratio", 0.0)) != 1.0:
+        blockers.append("vllm_metrics_not_fully_available")
+    if int(vllm.get("gap_count", 0)) != 0:
+        blockers.append("vllm_metrics_sampling_gaps")
+    names = set(vllm.get("metric_names_present") or [])
+    missing_metrics = sorted(REQUIRED_VLLM_METRIC_NAMES - names)
+    if missing_metrics:
+        blockers.append(f"vllm_metric_families_missing:{','.join(missing_metrics)}")
+    cache_config = vllm.get("cache_config_info") or {}
+    if str(cache_config.get("enable_prefix_caching", "")).lower() != "true":
+        blockers.append("vllm_prefix_caching_not_enabled")
+
+    gpu = validation.get("gpu")
+    if gpu is not None:
+        if int(gpu.get("gpu_count", 0)) < 1 or int(gpu.get("row_count", 0)) < 1:
+            blockers.append("gpu_samples_missing")
+        if int(gpu.get("gap_count", 0)) != 0:
+            blockers.append("gpu_sampling_gaps")
+    return {
+        "schema_version": "agentic_os.telemetry_acceptance.v1",
+        "passed": not blockers,
+        "required_vllm_metrics": sorted(REQUIRED_VLLM_METRIC_NAMES),
+        "blockers": blockers,
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--artifacts", required=True, type=Path)
+    parser.add_argument("--vllm-metrics-url", default="http://127.0.0.1:8000/metrics")
+    parser.add_argument("--role-pid", action="append", type=_parse_role_pid, default=[])
+    parser.add_argument("--interval-s", type=float, default=1.0)
+    parser.add_argument("--max-gap-s", type=float, default=2.5)
+    parser.add_argument("--no-gpu", action="store_true", help="Testing-only: do not invoke nvidia-smi")
+    parser.add_argument("--workload", nargs=argparse.REMAINDER, required=True)
+    args = parser.parse_args()
+    if args.interval_s <= 0 or args.max_gap_s <= 0:
+        parser.error("--interval-s and --max-gap-s must be positive")
+    workload = list(args.workload)
+    if workload[:1] == ["--"]:
+        workload = workload[1:]
+    if not workload:
+        parser.error("--workload requires an executable and arguments")
+
+    roles = dict(args.role_pid)
+    if len(roles) != len(args.role_pid):
+        parser.error("--role-pid roles must be unique")
+    args.artifacts.mkdir(parents=True, exist_ok=True)
+    _write_json(args.artifacts / "hardware.json", _hardware_receipt())
+    started_unix_s = time.time()
+    started_monotonic_s = time.monotonic()
+    stdout_path = args.artifacts / "workload.stdout.private.log"
+    stderr_path = args.artifacts / "workload.stderr.private.log"
+    with stdout_path.open("w", encoding="utf-8") as stdout, stderr_path.open("w", encoding="utf-8") as stderr:
+        child = subprocess.Popen(workload, stdout=stdout, stderr=stderr, start_new_session=True)
+        if "agent" in roles and roles["agent"] != child.pid:
+            child.terminate()
+            parser.error("--role-pid agent must not be supplied; wrapper owns the agent PID")
+        roles["agent"] = child.pid
+        host_sampler = HostProcessSampler(
+            args.artifacts / "host-process.csv",
+            roles=roles,
+            interval_s=args.interval_s,
+            process_scope=PROCESS_TREE_SCOPE,
+        )
+        vllm_sampler = VllmMetricsSampler(
+            args.artifacts / "vllm-metrics.jsonl",
+            client=VllmMetricsClient(args.vllm_metrics_url),
+            interval_s=args.interval_s,
+        )
+        gpu_sampler = None if args.no_gpu else NvidiaSmiSampler(args.artifacts / "gpu.csv", interval_s=args.interval_s)
+        sampler_errors: list[str] = []
+        try:
+            host_sampler.start()
+            vllm_sampler.start()
+            if gpu_sampler:
+                gpu_sampler.start()
+            workload_exit_code = child.wait()
+        finally:
+            for sampler in (gpu_sampler, vllm_sampler, host_sampler):
+                if sampler is None:
+                    continue
+                try:
+                    sampler.stop()
+                except RuntimeError as exc:
+                    sampler_errors.append(str(exc))
+    ended_monotonic_s = time.monotonic()
+    ended_unix_s = time.time()
+    validation: dict[str, Any] = {
+        "host_process": validate_host_process_samples(args.artifacts / "host-process.csv", max_gap_s=args.max_gap_s),
+        "vllm": validate_vllm_metrics_samples(args.artifacts / "vllm-metrics.jsonl", max_gap_s=args.max_gap_s),
+    }
+    if not args.no_gpu:
+        validation["gpu"] = validate_gpu_samples(args.artifacts / "gpu.csv", max_gap_s=args.max_gap_s)
+    telemetry_acceptance = _telemetry_acceptance(validation)
+    files = sorted(path for path in args.artifacts.iterdir() if path.is_file())
+    receipt = {
+        "schema_version": "agentic_os.colocated_workload.v1",
+        "topology": "single_host_colocated",
+        "observer_mode": "same_host_background_sampler",
+        "critical_path_metrics_scrapes": 0,
+        "started_unix_s": round(started_unix_s, 6),
+        "ended_unix_s": round(ended_unix_s, 6),
+        "wall_s": round(ended_monotonic_s - started_monotonic_s, 6),
+        "workload_exit_code": workload_exit_code,
+        "role_pids": roles,
+        "role_process_scopes": {role: PROCESS_TREE_SCOPE for role in sorted(roles)},
+        "workload_argv_sha256": hashlib.sha256("\0".join(workload).encode()).hexdigest(),
+        "sampler_errors": sampler_errors,
+        "validation": validation,
+        "telemetry_acceptance": telemetry_acceptance,
+        "artifacts": [
+            {"path": path.name, "bytes": path.stat().st_size, "sha256": _sha256(path)}
+            for path in files
+        ],
+    }
+    _write_json(args.artifacts / "colocated-workload-receipt.json", receipt)
+    return 0 if workload_exit_code == 0 and not sampler_errors and telemetry_acceptance["passed"] else 3
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

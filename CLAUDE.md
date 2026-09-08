@@ -69,9 +69,30 @@ root compatibility surfaces just because imports currently allow it.
   use the `NEO4J_`-prefixed underscore form — raw dotted keys are silently
   ignored by the image.
 
+## Work Tracking (beads)
+
+All coding and experiment work in this repo is tracked in the local beads
+tracker (`bd` CLI, state in untracked `.beads/`). Do not start coding from
+chat context alone.
+
+- Session start: `bd ready` and `bd list --status in_progress`; pick up or
+  create the issue the request belongs to before editing code.
+- Before coding: `bd update <id> --claim` (or `bd create` a `task|bug|decision`
+  with `--deps discovered-from:<parent>` when it emerged from other work).
+- While working: `bd update <id> --append-notes "<date>: what changed, evidence
+  path>"` at each meaningful step; findings that change scope become their own
+  issue, not a chat aside.
+- Landing: reference the bead id in the PR body; `bd close <id>` only after the
+  change is merged and validated.
+- Async lab requests under `.agents/lab/requests/` carry a `bead:` field; a
+  request without one is not ready to execute.
+- `.beads/` itself stays untracked (see Public Repo Hygiene); the rule, not the
+  state, is what this file commits.
+
 ## Agent Behavior
 
-- Start from the user request and repo contracts, not from speculative cleanup.
+- Start from the user request and repo contracts, not from speculative cleanup;
+  bind the work to a beads issue first (see Work Tracking).
 - Keep one cohesive change per PR/commit unless the user explicitly asks for a
   broader sweep.
 - Surface tradeoffs when changing public SDK/runtime behavior.

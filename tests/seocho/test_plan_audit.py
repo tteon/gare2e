@@ -34,7 +34,13 @@ class _Meter:
 def test_profile_audit_attributes_scan_expand_and_cardinality_error() -> None:
     plan = {
         "operatorType": "ProduceResults",
-        "args": {"Rows": 1, "EstimatedRows": 1, "DbHits": 0},
+        "args": {
+            "Rows": 1,
+            "EstimatedRows": 1,
+            "DbHits": 0,
+            "PageCacheHits": 4,
+            "PageCacheMisses": 1,
+        },
         "children": [
             {
                 "operatorType": "EagerAggregation",
@@ -63,6 +69,8 @@ def test_profile_audit_attributes_scan_expand_and_cardinality_error() -> None:
         "variable_length_expansion",
     )
     assert audit.total_db_hits == 1903
+    assert audit.total_page_cache_hits == 4
+    assert audit.total_page_cache_misses == 1
     assert len(audit.fingerprint) == 16
 
 

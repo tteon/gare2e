@@ -20,6 +20,8 @@ class PlanOperator:
     estimated_rows: float | None = None
     actual_rows: float | None = None
     db_hits: float | None = None
+    page_cache_hits: float | None = None
+    page_cache_misses: float | None = None
 
     @property
     def cardinality_ratio(self) -> float | None:
@@ -34,6 +36,8 @@ class PlanAudit:
     operators: tuple[PlanOperator, ...]
     findings: tuple[str, ...]
     total_db_hits: float
+    total_page_cache_hits: float
+    total_page_cache_misses: float
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -41,6 +45,8 @@ class PlanAudit:
             "operators": [asdict(operator) for operator in self.operators],
             "findings": list(self.findings),
             "total_db_hits": self.total_db_hits,
+            "total_page_cache_hits": self.total_page_cache_hits,
+            "total_page_cache_misses": self.total_page_cache_misses,
         }
 
 
@@ -108,6 +114,18 @@ def _flatten(plan: Any) -> Iterable[PlanOperator]:
         estimated_rows=_number(arguments, "EstimatedRows", "estimatedRows"),
         actual_rows=_number(arguments, "Rows", "rows"),
         db_hits=_number(arguments, "DbHits", "DB Hits", "dbHits"),
+        page_cache_hits=_number(
+            arguments,
+            "PageCacheHits",
+            "Page Cache Hits",
+            "pageCacheHits",
+        ),
+        page_cache_misses=_number(
+            arguments,
+            "PageCacheMisses",
+            "Page Cache Misses",
+            "pageCacheMisses",
+        ),
     )
     for child in children:
         yield from _flatten(child)
@@ -141,6 +159,8 @@ def audit_profile(plan: Any, *, cardinality_ratio_threshold: float = 10.0) -> Pl
         operators=operators,
         findings=tuple(sorted(findings)),
         total_db_hits=sum(operator.db_hits or 0.0 for operator in operators),
+        total_page_cache_hits=sum(operator.page_cache_hits or 0.0 for operator in operators),
+        total_page_cache_misses=sum(operator.page_cache_misses or 0.0 for operator in operators),
     )
 
 
