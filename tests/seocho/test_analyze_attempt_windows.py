@@ -64,6 +64,10 @@ def test_decomposition_row_and_outputs(tmp_path: Path) -> None:
     assert len(rows) == 1
     row = rows[0]
     assert row["stratum"] == "easy" and row["case_id"] == "0"
+    labels = tmp_path / "grbench-difficulty.jsonl"
+    labels.write_text(json.dumps({"qid": "0", "lane": "grbench", "stratum": "medium"}) + "\n", encoding="utf-8")
+    relabelled = module.analyse(run_roots=[f["root"]], join_path=f["join"], gpu_path=f["gpu"], host_path=f["host"], vllm_path=f["vllm"], schedules=[sched], difficulty_labels=[labels])
+    assert relabelled[0]["stratum"] == "medium"  # label files win over the frozen schedule
     assert (row["lane"], row["topology"], row["reasoning"]) == ("GRBench", "single", "non_reasoning")
     assert row["wall_s"] == 4.0 and row["llm_s"] == 2.5 and row["tool_s"] == 1.4 and row["residual_s"] == 0.1
     assert row["gpu_busy_share"] == 0.5  # samples at 100.5..103.5 are in-window; two of four read 100 %

@@ -53,6 +53,7 @@ def test_grbench_templates_map_to_expected_strata() -> None:
         "Which is the most cited paper by author A.S. Rozhavsky?": ("most_cited_paper_of_author", "hard"),
         "Can you tell me the most frequently cited manuscript by T. Sekioka?": ("most_cited_paper_of_author", "hard"),
         "Can you tell me how many papers T Grycuk has written?": ("author_paper_count", "medium"),
+        "What is the number of papers written by author B. Akgun?": ("author_paper_count", "medium"),
         "Where did Changyong Song and Hyon Chol Kang mostly work together?": ("venue_of_collaboration", "hard"),
         "Which paper should be recommended to the reader of paper exact vortex nucleation?": ("paper_recommendation", "hard"),
     }

@@ -123,3 +123,20 @@ def test_lab_pass_runner_brackets_e2e_with_workload_wrapper_and_secret_file() ->
     assert "run_agentic_os_colocated_workload.py" in script and '--role-pid "vllm=$vllm_pid"' in script
     assert 'if [ -e "$SEOCHO_APPLIANCE_ARTIFACTS" ]; then' in script
     assert "pass-receipt.json" in script
+
+
+def test_e2e_supports_frozen_input_overrides_and_per_stratum_gate() -> None:
+    script = (ROOT / "scripts/benchmarks/run_agentic_os_colocated_e2e.sh").read_text(encoding="utf-8")
+    for var in ("SEOCHO_GRBENCH_SCHEDULE", "SEOCHO_GTSQA_SINGLE_SCHEDULE", "SEOCHO_GTSQA_MULTI_SCHEDULE", "SEOCHO_GRBENCH_DISCOVERY", "SEOCHO_GTSQA_DISCOVERY", "SEOCHO_GATE_STRATA"):
+        assert var in script, var
+    assert "grbench-single-tool-schedule.json\"" not in script.replace(': "${SEOCHO_GRBENCH_SCHEDULE:=grbench-single-tool-schedule.json}"', "")
+    assert 'gate_cells "$ROOT/strata/$stratum" --only-stratum "$stratum"' in script
+    assert 'SEOCHO_GATE_STRATA="${SEOCHO_GATE_STRATA//,/ }"' in script  # env-only channels cannot quote spaces
+    assert script.count('"$@"') >= 4  # every gate lane forwards the stratum filter
+
+
+def test_lab_queue_runner_is_unattended_and_exits_when_done() -> None:
+    script = (ROOT / "docker/agentic-os-appliance/run_lab_queue.sh").read_text(encoding="utf-8")
+    assert "sleep infinity" not in script
+    assert "queue-receipt.jsonl" in script and "SEOCHO_QUEUE_STOP_ON_FAIL" in script
+    assert 'env PASS_ID="$pass_id" $payload bash "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/run_lab_pass.sh"' in script

@@ -92,7 +92,7 @@ _GRBENCH_FAMILIES: tuple[tuple[str, re.Pattern[str], dict[str, Any]], ...] = (
      {"hops": 2, "anchors": 2, "patterns": 4, "aggregation": True, "value_filter": False, "argmax": True}),
     ("venue_of_collaboration", re.compile(r"(mostly work together|chief place of collaboration)", re.I),
      {"hops": 2, "anchors": 2, "patterns": 3, "aggregation": True, "value_filter": False, "argmax": True}),
-    ("author_paper_count", re.compile(r"how many papers .* (has|have) written", re.I),
+    ("author_paper_count", re.compile(r"(how many|number of) papers (written by|.*(has|have) written)|papers (has|have) .* written", re.I),
      {"hops": 1, "anchors": 1, "patterns": 1, "aggregation": True, "value_filter": False, "argmax": False}),
     ("most_cited_paper_of_author", re.compile(r"most (frequently )?(referenced|cited) (publication|paper|manuscript)", re.I),
      {"hops": 2, "anchors": 1, "patterns": 2, "aggregation": True, "value_filter": False, "argmax": True}),

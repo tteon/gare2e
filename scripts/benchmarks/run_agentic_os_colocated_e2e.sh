@@ -22,6 +22,19 @@ set -euo pipefail
 : "${SEOCHO_GRBENCH_LOAD_TIMEOUT_S:=1800}"
 : "${SEOCHO_PROMPT_PROFILE:=baseline}"
 : "${SEOCHO_GATE_B0_CRITERION:=validated}"
+# Frozen-input overrides (lab 007 strata cohorts live beside the gate-10 files).
+: "${SEOCHO_GRBENCH_SCHEDULE:=grbench-single-tool-schedule.json}"
+: "${SEOCHO_GTSQA_SINGLE_SCHEDULE:=gtsqa-single-tool-schedule.json}"
+: "${SEOCHO_GTSQA_MULTI_SCHEDULE:=gtsqa-multi-tool-schedule.json}"
+: "${SEOCHO_GRBENCH_DISCOVERY:=grbench-discovery.json}"
+: "${SEOCHO_GTSQA_DISCOVERY:=gtsqa-discovery.json}"
+# Gate strata: empty = one case per cell (gate-10 behaviour); "easy medium hard"
+# = one case per stratum per cell, each stratum validated in its own root.
+: "${SEOCHO_GATE_STRATA:=}"
+# Values may arrive comma-separated from an env-only channel (the pass queue
+# cannot carry quoted spaces); normalise to the space-separated form used below.
+SEOCHO_GATE_STRATA="${SEOCHO_GATE_STRATA//,/ }"
+SEOCHO_REASONING_MODES="${SEOCHO_REASONING_MODES//,/ }"
 
 ROOT="$SEOCHO_APPLIANCE_ARTIFACTS/e2e"
 INPUT="$SEOCHO_APPLIANCE_INPUT"
@@ -41,6 +54,51 @@ run() {
     printf '%s\tfailed\t%s\n' "$label" "$(date -Is)" >> "$ROOT/progress.tsv"
   fi
   sleep "$SEOCHO_INTER_ATTEMPT_GAP_S"
+}
+
+gate_cells() {
+  local GROOT="$1"; shift
+  for thinking in $SEOCHO_REASONING_MODES; do
+    run "gate-grbench-single-tool-$thinking" \
+      --lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
+      --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
+      --run-root "$GROOT/gate-grbench-single-tool-$thinking" --base-url http://127.0.0.1:8000 \
+      --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition tool_auto \
+      --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
+      --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --db-pid "$DOZERDB_PID" \
+      --only-arm B0 --max-attempts 1 \
+      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" "$@"
+
+    run "gate-grbench-multi-tool-$thinking" \
+      --lane grbench-multi --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
+      --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
+      --run-root "$GROOT/gate-grbench-multi-tool-$thinking" --base-url http://127.0.0.1:8000 \
+      --model "$VLLM_MODEL" --enable-thinking "$thinking" \
+      --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
+      --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --db-pid "$DOZERDB_PID" \
+      --only-arm B0 --max-attempts 1 \
+      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" "$@"
+
+    run "gate-gtsqa-single-tool-$thinking" \
+      --lane gtsqa-single --schedule "$INPUT/$SEOCHO_GTSQA_SINGLE_SCHEDULE" \
+      --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/$SEOCHO_GTSQA_DISCOVERY" \
+      --run-root "$GROOT/gate-gtsqa-single-tool-$thinking" --base-url http://127.0.0.1:8000 \
+      --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition tool_auto \
+      --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
+      --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance \
+      --only-arm B0 --max-attempts 1 \
+      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" "$@"
+
+    run "gate-gtsqa-multi-tool-$thinking" \
+      --lane gtsqa-multi --schedule "$INPUT/$SEOCHO_GTSQA_MULTI_SCHEDULE" \
+      --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/$SEOCHO_GTSQA_DISCOVERY" \
+      --run-root "$GROOT/gate-gtsqa-multi-tool-$thinking" --base-url http://127.0.0.1:8000 \
+      --model "$VLLM_MODEL" --enable-thinking "$thinking" \
+      --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
+      --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance \
+      --only-arm B0 --max-attempts 1 \
+      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" "$@"
+  done
 }
 
 gate() {
@@ -72,50 +130,22 @@ gate() {
     --gtsqa-parquet "$INPUT/gtsqa-with-graphs.parquet" \
     --receipt-out "$ROOT/service-readiness.json"
 
-  for thinking in $SEOCHO_REASONING_MODES; do
-    run "gate-grbench-single-tool-$thinking" \
-      --lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/grbench-single-tool-schedule.json" \
-      --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/grbench-discovery.json" \
-      --run-root "$ROOT/gate-grbench-single-tool-$thinking" --base-url http://127.0.0.1:8000 \
-      --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition tool_auto \
-      --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
-      --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --db-pid "$DOZERDB_PID" \
-      --only-arm B0 --max-attempts 1 \
-      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh"
-
-    run "gate-grbench-multi-tool-$thinking" \
-      --lane grbench-multi --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/grbench-single-tool-schedule.json" \
-      --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/grbench-discovery.json" \
-      --run-root "$ROOT/gate-grbench-multi-tool-$thinking" --base-url http://127.0.0.1:8000 \
-      --model "$VLLM_MODEL" --enable-thinking "$thinking" \
-      --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
-      --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --db-pid "$DOZERDB_PID" \
-      --only-arm B0 --max-attempts 1 \
-      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh"
-
-    run "gate-gtsqa-single-tool-$thinking" \
-      --lane gtsqa-single --schedule "$INPUT/gtsqa-single-tool-schedule.json" \
-      --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/gtsqa-discovery.json" \
-      --run-root "$ROOT/gate-gtsqa-single-tool-$thinking" --base-url http://127.0.0.1:8000 \
-      --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition tool_auto \
-      --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
-      --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance \
-      --only-arm B0 --max-attempts 1 \
-      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh"
-
-    run "gate-gtsqa-multi-tool-$thinking" \
-      --lane gtsqa-multi --schedule "$INPUT/gtsqa-multi-tool-schedule.json" \
-      --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/gtsqa-discovery.json" \
-      --run-root "$ROOT/gate-gtsqa-multi-tool-$thinking" --base-url http://127.0.0.1:8000 \
-      --model "$VLLM_MODEL" --enable-thinking "$thinking" \
-      --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
-      --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance \
-      --only-arm B0 --max-attempts 1 \
-      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh"
-  done
-  python3 "$SEOCHO_REPO_ROOT/scripts/benchmarks/validate_agentic_os_one_case_gate.py" \
-    --run-root "$ROOT" --receipt-out "$ROOT/one-case-gate.json" \
-    --b0-criterion "$SEOCHO_GATE_B0_CRITERION"
+  if [ -z "$SEOCHO_GATE_STRATA" ]; then
+    gate_cells "$ROOT"
+    python3 "$SEOCHO_REPO_ROOT/scripts/benchmarks/validate_agentic_os_one_case_gate.py" \
+      --run-root "$ROOT" --receipt-out "$ROOT/one-case-gate.json" \
+      --b0-criterion "$SEOCHO_GATE_B0_CRITERION"
+  else
+    local gate_status=0
+    for stratum in $SEOCHO_GATE_STRATA; do
+      mkdir -p "$ROOT/strata/$stratum"
+      gate_cells "$ROOT/strata/$stratum" --only-stratum "$stratum"
+      python3 "$SEOCHO_REPO_ROOT/scripts/benchmarks/validate_agentic_os_one_case_gate.py" \
+        --run-root "$ROOT/strata/$stratum" --receipt-out "$ROOT/strata/$stratum/one-case-gate.json" \
+        --b0-criterion "$SEOCHO_GATE_B0_CRITERION" || gate_status=$?
+    done
+    return "$gate_status"
+  fi
 }
 
 main_matrix() {
@@ -123,8 +153,8 @@ main_matrix() {
   # later and never pooled into this baseline catalog.
   for thinking in $SEOCHO_REASONING_MODES; do
     run "raw-grbench-single-closed-$thinking" \
-      --lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/grbench-single-tool-schedule.json" \
-      --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/grbench-discovery.json" \
+      --lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
+      --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
       --run-root "$ROOT/raw-grbench-single-closed-$thinking" --base-url http://127.0.0.1:8000 \
       --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition closed_book \
       --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
@@ -132,8 +162,8 @@ main_matrix() {
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh"
 
     run "raw-gtsqa-single-closed-$thinking" \
-      --lane gtsqa-single --schedule "$INPUT/gtsqa-single-tool-schedule.json" \
-      --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/gtsqa-discovery.json" \
+      --lane gtsqa-single --schedule "$INPUT/$SEOCHO_GTSQA_SINGLE_SCHEDULE" \
+      --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/$SEOCHO_GTSQA_DISCOVERY" \
       --run-root "$ROOT/raw-gtsqa-single-closed-$thinking" --base-url http://127.0.0.1:8000 \
       --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition closed_book \
       --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
@@ -141,8 +171,8 @@ main_matrix() {
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh"
 
     run "raw-grbench-single-tool-$thinking" \
-    --lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/grbench-single-tool-schedule.json" \
-    --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/grbench-discovery.json" \
+    --lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
+    --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
     --run-root "$ROOT/grbench-single-tool-$thinking" --base-url http://127.0.0.1:8000 \
     --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition tool_auto \
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
@@ -151,8 +181,8 @@ main_matrix() {
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh"
 
     run "raw-grbench-multi-tool-$thinking" \
-    --lane grbench-multi --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/grbench-single-tool-schedule.json" \
-    --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/grbench-discovery.json" \
+    --lane grbench-multi --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
+    --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
     --run-root "$ROOT/grbench-multi-tool-$thinking" --base-url http://127.0.0.1:8000 \
     --model "$VLLM_MODEL" --enable-thinking "$thinking" \
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
@@ -161,8 +191,8 @@ main_matrix() {
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh"
 
     run "raw-gtsqa-single-tool-$thinking" \
-    --lane gtsqa-single --schedule "$INPUT/gtsqa-single-tool-schedule.json" \
-    --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/gtsqa-discovery.json" \
+    --lane gtsqa-single --schedule "$INPUT/$SEOCHO_GTSQA_SINGLE_SCHEDULE" \
+    --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/$SEOCHO_GTSQA_DISCOVERY" \
     --run-root "$ROOT/gtsqa-single-tool-$thinking" --base-url http://127.0.0.1:8000 \
     --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition tool_auto \
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
@@ -170,8 +200,8 @@ main_matrix() {
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh"
 
     run "raw-gtsqa-multi-tool-$thinking" \
-    --lane gtsqa-multi --schedule "$INPUT/gtsqa-multi-tool-schedule.json" \
-    --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/gtsqa-discovery.json" \
+    --lane gtsqa-multi --schedule "$INPUT/$SEOCHO_GTSQA_MULTI_SCHEDULE" \
+    --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/$SEOCHO_GTSQA_DISCOVERY" \
     --run-root "$ROOT/gtsqa-multi-tool-$thinking" --base-url http://127.0.0.1:8000 \
     --model "$VLLM_MODEL" --enable-thinking "$thinking" \
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \

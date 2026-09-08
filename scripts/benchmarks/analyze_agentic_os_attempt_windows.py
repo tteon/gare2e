@@ -53,22 +53,36 @@ def _cell_from_root(root: Path) -> dict[str, str]:
     return {"cell": name, "lane": lane, "topology": topology, "reasoning": reasoning}
 
 
+def load_case_receipts(root: Path) -> list[Mapping[str, Any]]:
+    """Every attempt receipt under ``root`` (gate roots hold one, matrix roots many)."""
+    receipts: list[Mapping[str, Any]] = []
+    for attempt in sorted((root / "attempts").glob("*")) if (root / "attempts").is_dir() else []:
+        run_receipt = attempt / "run-receipt.json"
+        if run_receipt.is_file():
+            payload = json.loads(run_receipt.read_text(encoding="utf-8"))
+            receipts.extend(c for c in payload.get("cases") or [] if isinstance(c, Mapping))
+            continue
+        jsonl = attempt / "receipts.jsonl"
+        if jsonl.is_file():
+            for line in jsonl.read_text(encoding="utf-8").splitlines():
+                if line.strip():
+                    receipts.append(json.loads(line))
+    return receipts
+
+
 def load_case_receipt(root: Path) -> Mapping[str, Any] | None:
-    for path in sorted(root.glob("attempts/*/run-receipt.json")):
-        payload = json.loads(path.read_text(encoding="utf-8"))
-        cases = payload.get("cases") or []
-        if cases:
-            return cases[0]
-    for path in sorted(root.glob("attempts/*/receipts.jsonl")):
-        for line in path.read_text(encoding="utf-8").splitlines():
-            if line.strip():
-                return json.loads(line)
-    return None
+    receipts = load_case_receipts(root)
+    return receipts[0] if receipts else None
 
 
-def load_join(path: Path) -> dict[str, Mapping[str, Any]]:
+def load_join(path: Path) -> dict[Any, Mapping[str, Any]]:
     payload = json.loads(path.read_text(encoding="utf-8"))
-    return {str(case["correlation"].get("run_id")): case for case in payload.get("cases", [])}
+    mapping: dict[Any, Mapping[str, Any]] = {}
+    for case in payload.get("cases", []):
+        corr = case.get("correlation") or {}
+        mapping[(str(corr.get("run_id")), str(corr.get("case_id")))] = case
+        mapping.setdefault(str(corr.get("run_id")), case)
+    return mapping
 
 
 def _read_csv(path: Path) -> list[dict[str, str]]:
@@ -260,32 +274,44 @@ def activity_lane(receipt: Mapping[str, Any]) -> tuple[list[dict[str, Any]], boo
     return spans, False
 
 
-def load_strata(schedules: list[Path]) -> dict[tuple[str, str], str]:
-    """Map (lane, qid) → stratum from frozen schedule files (lab 007)."""
+def load_strata(schedules: list[Path], labels: list[Path] | None = None) -> dict[tuple[str, str], str]:
+    """Map (lane, qid) → stratum.
+
+    Frozen schedules give the stratum a case was *scheduled* under; difficulty
+    label files (``label_agentic_os_difficulty.py`` output) take precedence so
+    a later rubric correction re-labels analysis without re-freezing the
+    cohort that already ran.
+    """
     mapping: dict[tuple[str, str], str] = {}
     for path in schedules:
         payload = json.loads(path.read_text(encoding="utf-8"))
         lane = "GTSQA" if "gtsqa" in path.name else "GRBench"
         for entry in payload.get("entries", []):
             mapping[(lane, str(entry.get("qid")))] = str(entry.get("stratum") or "unstratified")
+    for path in labels or []:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            lane = "GTSQA" if str(row.get("lane", path.name)).lower().startswith("gtsqa") else "GRBench"
+            if row.get("stratum"):
+                mapping[(lane, str(row.get("qid")))] = str(row["stratum"])
     return mapping
 
 
 def analyse(
     *, run_roots: list[Path], join_path: Path, gpu_path: Path, host_path: Path, vllm_path: Path,
-    schedules: list[Path] | None = None,
+    schedules: list[Path] | None = None, difficulty_labels: list[Path] | None = None,
 ) -> list[dict[str, Any]]:
     joined = load_join(join_path)
-    strata = load_strata(schedules or [])
+    strata = load_strata(schedules or [], difficulty_labels or [])
     gpu_rows = _read_csv(gpu_path)
     host_rows = _read_csv(host_path)
     results: list[dict[str, Any]] = []
     for root in run_roots:
-        receipt = load_case_receipt(root)
-        if receipt is None:
-            continue
+      for receipt in load_case_receipts(root):
         run_id = str(receipt.get("run_id"))
-        case = joined.get(run_id)
+        case = joined.get((run_id, str(receipt.get("case_id")))) or joined.get(run_id)
         window = (case or {}).get("window") or {}
         start, end = _num(window.get("started_monotonic_s")), _num(window.get("ended_monotonic_s"))
         cell = _cell_from_root(root)
@@ -302,6 +328,9 @@ def analyse(
             "run_id": run_id,
             "case_id": str(receipt.get("case_id")),
             "stratum": strata.get((cell["lane"], str(receipt.get("case_id"))), "unstratified"),
+            "condition": receipt.get("condition") or ((receipt.get("retrieval_funnel") or {}).get("evidence_class")),
+            "retrieval_triggered": bool(funnel.get("graph_tool_selected")),
+            "schema_calls": funnel.get("schema_discovery_calls"),
             "terminal": receipt.get("terminal") or receipt.get("terminal_status"),
             "wall_s": round((_num(time_block.get("wall_ms")) or 0) / 1000, 1),
             "llm_s": round((_num(time_block.get("llm_ms")) or 0) / 1000, 1),
@@ -350,7 +379,7 @@ def analyse(
 
 
 TABLE_COLUMNS = [
-    "cell", "lane", "topology", "reasoning", "case_id", "stratum", "terminal", "wall_s", "llm_s", "tool_s", "residual_s", "observability_s",
+    "cell", "lane", "topology", "reasoning", "case_id", "stratum", "condition", "retrieval_triggered", "schema_calls", "terminal", "wall_s", "llm_s", "tool_s", "residual_s", "observability_s",
     "turns", "output_tokens", "graph_queries", "rejected_calls", "query_validated", "nonempty_result", "window_s",
     "gpu_busy_share", "gpu_mean_util_pct", "gpu_mean_power_w", "gpu_energy_kj", "cpu_s_vllm", "cpu_s_dozerdb", "cpu_s_agent",
     "vllm_requests", "prefill_s_per_req", "decode_s_per_req", "queue_s_per_req", "ttft_s_avg", "itl_ms_avg", "prefix_hit_ratio",
@@ -378,10 +407,15 @@ def write_table(rows: list[dict[str, Any]], out_dir: Path) -> None:
             values = [r[key] for r in rs if r.get(key) is not None]
             return f"{statistics.median(values):.2f}" if values else ""
 
-        lines2 = ["| stratum | attempts | validated | nonempty | median wall_s | median llm_s | median tool_s | median decode_s_per_req | median gpu_busy |", "|---|---|---|---|---|---|---|---|---|"]
-        for st in strata:
-            rs = [r for r in rows if str(r.get("stratum")) == st]
-            lines2.append(f"| {st} | {len(rs)} | {sum(1 for r in rs if r.get('query_validated'))} | {sum(1 for r in rs if r.get('nonempty_result'))} | {med(rs, 'wall_s')} | {med(rs, 'llm_s')} | {med(rs, 'tool_s')} | {med(rs, 'decode_s_per_req')} | {med(rs, 'gpu_busy_share')} |")
+        lines2 = ["| lane | topology | reasoning | stratum | N | triggered | attempted | validated | nonempty | median wall_s | median llm_s | median tool_s | median decode_s/req | median gpu_busy |", "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+        tool_rows = [r for r in rows if str(r.get("condition")) != "closed_book"]
+        groups = sorted({(r["lane"], r["topology"], r["reasoning"], str(r.get("stratum"))) for r in tool_rows}, key=lambda g: (g[0], g[1], g[2], ["easy", "medium", "hard"].index(g[3]) if g[3] in ("easy", "medium", "hard") else 9))
+        for lane, topo, reasoning, st in groups:
+            rs = [r for r in tool_rows if (r["lane"], r["topology"], r["reasoning"], str(r.get("stratum"))) == (lane, topo, reasoning, st)]
+            n = len(rs)
+            pct = lambda k: f"{sum(1 for r in rs if r.get(k))}/{n}"
+            att = f"{sum(1 for r in rs if (r.get('graph_queries') or 0) >= 1)}/{n}"
+            lines2.append(f"| {lane} | {topo} | {reasoning} | {st} | {n} | {pct('retrieval_triggered')} | {att} | {pct('query_validated')} | {pct('nonempty_result')} | {med(rs, 'wall_s')} | {med(rs, 'llm_s')} | {med(rs, 'tool_s')} | {med(rs, 'decode_s_per_req')} | {med(rs, 'gpu_busy_share')} |")
         (out_dir / "stratum-summary.md").write_text("\n".join(lines2) + "\n", encoding="utf-8")
     ctx = ["| cell | turn | kind | input tokens | growth vs turn 1 | output tokens | prefix hit (turn) | prompt tokens served |", "|---|---|---|---|---|---|---|---|"]
     for row in rows:
@@ -551,8 +585,9 @@ def main() -> int:
     parser.add_argument("--output-dir", required=True, type=Path)
     parser.add_argument("--title", default="AgenticOS attempt-window analysis")
     parser.add_argument("--schedule", action="append", type=Path, default=[], help="Frozen schedule file(s) providing the stratum per qid.")
+    parser.add_argument("--difficulty-labels", action="append", type=Path, default=[], help="label_agentic_os_difficulty.py JSONL; overrides schedule strata.")
     args = parser.parse_args()
-    rows = analyse(run_roots=args.run_roots, join_path=args.telemetry_join, gpu_path=args.gpu_samples, host_path=args.host_samples, vllm_path=args.vllm_samples, schedules=args.schedule)
+    rows = analyse(run_roots=args.run_roots, join_path=args.telemetry_join, gpu_path=args.gpu_samples, host_path=args.host_samples, vllm_path=args.vllm_samples, schedules=args.schedule, difficulty_labels=args.difficulty_labels)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     write_table(rows, args.output_dir)
     write_html(rows, args.output_dir, args.title)
