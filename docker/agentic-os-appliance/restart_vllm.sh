@@ -28,8 +28,12 @@ if [ -n "$old_pids" ]; then
 fi
 
 export VLLM_SERVER_DEV_MODE=1
-export NCCL_DEBUG="${NCCL_DEBUG:-WARN}"
-export NCCL_P2P_DISABLE="${NCCL_P2P_DISABLE:-1}"
+# Same topology-gated NCCL policy as entrypoint.sh (nccl_env.sh).
+# shellcheck source=docker/agentic-os-appliance/nccl_env.sh
+. "$(dirname "${BASH_SOURCE[0]}")/nccl_env.sh"
+seocho_resolve_nccl_env
+printf 'NCCL_P2P_DISABLE=%s\nSEOCHO_NCCL_P2P_DECISION=%s\n' "$NCCL_P2P_DISABLE" "$SEOCHO_NCCL_P2P_DECISION" \
+  > "$SEOCHO_VLLM_RECEIPT_DIR/nccl-env.private.txt"
 vllm_command=(
   vllm serve "$VLLM_MODEL"
   --revision "$VLLM_MODEL_REVISION"

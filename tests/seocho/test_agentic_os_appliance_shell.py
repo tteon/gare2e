@@ -79,8 +79,13 @@ def test_e2e_verifies_bulk_import_and_bounds_the_bolt_projection() -> None:
 
 def test_appliance_fails_fast_on_vllm_startup_stall_and_freezes_nccl_fallback() -> None:
     script = (ROOT / "docker/agentic-os-appliance/entrypoint.sh").read_text(encoding="utf-8")
-    assert 'NCCL_P2P_DISABLE="${NCCL_P2P_DISABLE:-1}"' in script
-    assert 'NCCL_DEBUG="${NCCL_DEBUG:-WARN}"' in script
+    restart = (ROOT / "docker/agentic-os-appliance/restart_vllm.sh").read_text(encoding="utf-8")
+    # Both vLLM launch paths resolve NCCL from the same topology-gated helper
+    # (lab-s4: a frozen NCCL_P2P_DISABLE=1 made TP=2 skip NVLink on an SXM host).
+    for text in (script, restart):
+        assert '/nccl_env.sh"' in text and "seocho_resolve_nccl_env" in text
+        assert 'NCCL_P2P_DISABLE="${NCCL_P2P_DISABLE:-1}"' not in text
+    assert "SEOCHO_NCCL_P2P_DECISION" in script
     assert "gpu-topology.private.txt" in script
     assert "VLLM_STALL_TIMEOUT_S" in script
     assert "vLLM startup stalled" in script
@@ -160,3 +165,48 @@ def test_restart_helper_accepts_comma_separated_extra_args_with_json() -> None:
     probe = snippet + 'printf "%s\\n" "${extra[@]}"'
     out = subprocess.run(["bash", "-c", probe], env={"VLLM_EXTRA_ARGS": '--max-num-seqs,8,--speculative-config,{"method":"ngram","num_speculative_tokens":4,"prompt_lookup_max":4}', "PATH": "/usr/bin:/bin"}, capture_output=True, text=True, check=True).stdout.splitlines()
     assert out == ["--max-num-seqs", "8", "--speculative-config", '{"method":"ngram","num_speculative_tokens":4,"prompt_lookup_max":4}']
+
+
+NVLINK_TOPO = (
+    "\t\x1b[4mGPU0\tGPU1\tCPU Affinity\tNUMA Affinity\tGPU NUMA ID\x1b[0m\n"
+    "GPU0\t X \tNV12\t32-63,160-191\t1\t\tN/A\n"
+    "GPU1\tNV12\t X \t64-95,192-223\t2\t\tN/A\n\nLegend:\n"
+)
+PCIE_TOPO = (
+    "\tGPU0\tGPU1\tNIC0\tCPU Affinity\tNUMA Affinity\tGPU NUMA ID\n"
+    "GPU0\t X \tSYS\tNODE\t0-31\t0\t\tN/A\n"
+    "GPU1\tSYS\t X \tSYS\t32-63\t1\t\tN/A\n"
+    "NIC0\tNODE\tSYS\t X \n"
+)
+MIXED_TOPO = (
+    "\tGPU0\tGPU1\tGPU2\tGPU3\tCPU Affinity\n"
+    "GPU0\t X \tNV4\tPHB\tPHB\t0-31\n"
+    "GPU1\tNV4\t X \tPHB\tPHB\t0-31\n"
+    "GPU2\tPHB\tPHB\t X \tNV4\t32-63\n"
+    "GPU3\tPHB\tPHB\tNV4\t X \t32-63\n"
+)
+
+
+def _resolve_nccl(topo: str, **env: str) -> tuple[str, str]:
+    import os
+    import subprocess
+
+    helper = ROOT / "docker/agentic-os-appliance/nccl_env.sh"
+    run_env = {k: v for k, v in os.environ.items() if k not in {"NCCL_P2P_DISABLE", "SEOCHO_NCCL_P2P_MODE"}}
+    run_env.update(env)
+    out = subprocess.run(
+        ["bash", "-c", f'. "{helper}"; seocho_resolve_nccl_env "$1"; printf "%s\\n%s" "$NCCL_P2P_DISABLE" "$SEOCHO_NCCL_P2P_DECISION"', "_", topo],
+        check=True, capture_output=True, text=True, env=run_env,
+    ).stdout.split("\n", 1)
+    return out[0], out[1]
+
+
+def test_nccl_helper_enables_p2p_only_when_every_gpu_pair_is_nvlink() -> None:
+    assert _resolve_nccl(NVLINK_TOPO)[0] == "0"            # lab-s4 host: NV12, escapes in header
+    assert _resolve_nccl(PCIE_TOPO)[0] == "1"              # V14 host shape: SYS link, NIC column ignored
+    disable, reason = _resolve_nccl(MIXED_TOPO)
+    assert disable == "1" and "links=6 nvlink=2" in reason  # any non-NVLink pair -> fallback
+    assert _resolve_nccl("")[0] == "1"                     # unknown topology -> fallback
+    assert _resolve_nccl(NVLINK_TOPO, SEOCHO_NCCL_P2P_MODE="disable") == ("1", "mode=disable")
+    assert _resolve_nccl(PCIE_TOPO, SEOCHO_NCCL_P2P_MODE="enable") == ("0", "mode=enable")
+    assert _resolve_nccl(NVLINK_TOPO, NCCL_P2P_DISABLE="1") == ("1", "explicit:NCCL_P2P_DISABLE=1")

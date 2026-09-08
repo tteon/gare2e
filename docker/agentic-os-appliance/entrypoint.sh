@@ -233,15 +233,20 @@ if [ -n "${VLLM_EXTRA_ARGS:-}" ]; then
   vllm_command+=("${extra_args[@]}")
 fi
 printf '%s\n' "${vllm_command[@]}" > "$ARTIFACTS/vllm-effective-argv.private.txt"
-# NCCL settings are frozen benchmark configuration, not tuning: V14 hung
-# forever right after "vLLM is using nccl" on a 2x A100 PCIe host whose GPU
-# P2P path was unusable, while the readiness loop waited 40 paid minutes.
-# Disabling P2P forces the SHM/socket fallback that V13 had already taken
-# implicitly, and WARN-level NCCL logging leaves evidence when it still fails.
-export NCCL_DEBUG="${NCCL_DEBUG:-WARN}"
-export NCCL_P2P_DISABLE="${NCCL_P2P_DISABLE:-1}"
+# NCCL settings are benchmark configuration resolved from GPU topology, not
+# tuning: V14 hung forever right after "vLLM is using nccl" on a 2x A100 PCIe
+# host whose GPU P2P path was unusable, while the readiness loop waited 40 paid
+# minutes; lab-s4 showed that freezing NCCL_P2P_DISABLE=1 on an NVLink host
+# makes TP=2 skip NVLink.  nccl_env.sh enables P2P only when every GPU pair is
+# an NV* link (SEOCHO_NCCL_P2P_MODE=auto|disable|enable; explicit
+# NCCL_P2P_DISABLE wins), and WARN-level NCCL logging leaves evidence when it
+# still fails.
+# shellcheck source=docker/agentic-os-appliance/nccl_env.sh
+. "$(dirname "${BASH_SOURCE[0]}")/nccl_env.sh"
+seocho_resolve_nccl_env
 {
-  printf 'NCCL_DEBUG=%s\nNCCL_P2P_DISABLE=%s\n' "$NCCL_DEBUG" "$NCCL_P2P_DISABLE"
+  printf 'NCCL_DEBUG=%s\nNCCL_P2P_DISABLE=%s\nSEOCHO_NCCL_P2P_MODE=%s\nSEOCHO_NCCL_P2P_DECISION=%s\n' \
+    "$NCCL_DEBUG" "$NCCL_P2P_DISABLE" "${SEOCHO_NCCL_P2P_MODE:-auto}" "$SEOCHO_NCCL_P2P_DECISION"
   printf -- '--- /dev/shm\n'; df -h /dev/shm 2>&1 || true
   printf -- '--- nvidia-smi topo -m\n'; nvidia-smi topo -m 2>&1 || true
 } > "$ARTIFACTS/gpu-topology.private.txt" 2>&1 || true

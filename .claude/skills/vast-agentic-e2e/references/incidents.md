@@ -41,3 +41,4 @@ those dependencies or use a directly validated Neo4j/Dozer start path.
 Receipt hygiene: the lifecycle receipt embeds the raw provider instance
 payload (`startup`), including `jupyter_token` and the public IP. Keep the
 receipt under gitignored `.seocho/` until the runner redacts those fields.
+| lab-s4 (2026-09-09, instance 50320425, $1.90/h, 2x A100-SXM4-80GB NVLink NV12, host 639771) | queue mode, 8 serving-shape passes | `gpu-topology.private.txt` showed NV12 links while the entrypoint still froze `NCCL_P2P_DISABLE=1` (V14 guard), so TP=2 allreduce bypassed NVLink for the whole session A baseline. | `nccl_env.sh` gates P2P on topology (`SEOCHO_NCCL_P2P_MODE=auto`): all-NVLink pairs -> P2P on, anything else -> V14 fallback; decision recorded in the topology artifact. Session A numbers are TP=2-without-NVLink; session B re-measures the monolith with P2P on. |
