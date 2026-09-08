@@ -162,3 +162,9 @@ def test_prompt_profile_is_forwarded_to_every_lane(tmp_path) -> None:
         args.prompt_profile = "strengthened"
         command = module._runner_command(args, _entry("B0"), tmp_path, "run")
         assert command[command.index("--prompt-profile") + 1] == "strengthened"
+
+
+def test_only_stratum_filter_is_wired_into_the_coordinator() -> None:
+    source = (Path(__file__).parents[2] / "scripts/benchmarks/run_agentic_os_schedule.py").read_text(encoding="utf-8")
+    assert '"--only-stratum"' in source
+    assert 'str(entry.get("stratum")) in set(args.only_stratum)' in source

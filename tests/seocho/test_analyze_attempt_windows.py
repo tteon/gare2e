@@ -58,9 +58,12 @@ def _fixture(tmp_path: Path) -> dict[str, Path]:
 def test_decomposition_row_and_outputs(tmp_path: Path) -> None:
     module = _module()
     f = _fixture(tmp_path)
-    rows = module.analyse(run_roots=[f["root"]], join_path=f["join"], gpu_path=f["gpu"], host_path=f["host"], vllm_path=f["vllm"])
+    sched = tmp_path / "grbench-single-schedule.json"
+    sched.write_text(json.dumps({"entries": [{"qid": "0", "stratum": "easy", "arm": "B0"}]}), encoding="utf-8")
+    rows = module.analyse(run_roots=[f["root"]], join_path=f["join"], gpu_path=f["gpu"], host_path=f["host"], vllm_path=f["vllm"], schedules=[sched])
     assert len(rows) == 1
     row = rows[0]
+    assert row["stratum"] == "easy" and row["case_id"] == "0"
     assert (row["lane"], row["topology"], row["reasoning"]) == ("GRBench", "single", "non_reasoning")
     assert row["wall_s"] == 4.0 and row["llm_s"] == 2.5 and row["tool_s"] == 1.4 and row["residual_s"] == 0.1
     assert row["gpu_busy_share"] == 0.5  # samples at 100.5..103.5 are in-window; two of four read 100 %
@@ -80,5 +83,6 @@ def test_decomposition_row_and_outputs(tmp_path: Path) -> None:
     module.write_html(rows, out, "test")
     assert (out / "attempt-decomposition.csv").is_file() and (out / "attempt-decomposition.md").is_file()
     assert (out / "context-growth.md").is_file()
+    assert (out / "stratum-summary.md").is_file() and "| easy | 1 |" in (out / "stratum-summary.md").read_text(encoding="utf-8")
     page = (out / "attempt-timelines.html").read_text(encoding="utf-8")
     assert page.count("<svg") == 1 and "GPU utilisation" in page and "<title>test</title>" in page

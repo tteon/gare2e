@@ -1,0 +1,129 @@
+{
+  "cases": [
+    {
+      "qid": "101",
+      "stratum": "easy"
+    },
+    {
+      "qid": "108",
+      "stratum": "medium"
+    },
+    {
+      "qid": "109",
+      "stratum": "easy"
+    },
+    {
+      "qid": "110",
+      "stratum": "easy"
+    },
+    {
+      "qid": "111",
+      "stratum": "hard"
+    },
+    {
+      "qid": "116",
+      "stratum": "easy"
+    },
+    {
+      "qid": "138",
+      "stratum": "hard"
+    },
+    {
+      "qid": "14",
+      "stratum": "easy"
+    },
+    {
+      "qid": "15",
+      "stratum": "easy"
+    },
+    {
+      "qid": "24",
+      "stratum": "medium"
+    },
+    {
+      "qid": "25",
+      "stratum": "medium"
+    },
+    {
+      "qid": "33",
+      "stratum": "medium"
+    },
+    {
+      "qid": "40",
+      "stratum": "hard"
+    },
+    {
+      "qid": "42",
+      "stratum": "hard"
+    },
+    {
+      "qid": "45",
+      "stratum": "hard"
+    },
+    {
+      "qid": "56",
+      "stratum": "hard"
+    },
+    {
+      "qid": "59",
+      "stratum": "hard"
+    },
+    {
+      "qid": "6",
+      "stratum": "easy"
+    },
+    {
+      "qid": "62",
+      "stratum": "medium"
+    },
+    {
+      "qid": "65",
+      "stratum": "medium"
+    },
+    {
+      "qid": "67",
+      "stratum": "medium"
+    },
+    {
+      "qid": "7",
+      "stratum": "easy"
+    },
+    {
+      "qid": "77",
+      "stratum": "medium"
+    },
+    {
+      "qid": "79",
+      "stratum": "medium"
+    },
+    {
+      "qid": "8",
+      "stratum": "easy"
+    },
+    {
+      "qid": "88",
+      "stratum": "medium"
+    },
+    {
+      "qid": "9",
+      "stratum": "easy"
+    },
+    {
+      "qid": "90",
+      "stratum": "hard"
+    },
+    {
+      "qid": "95",
+      "stratum": "hard"
+    },
+    {
+      "qid": "99",
+      "stratum": "hard"
+    }
+  ],
+  "cohort_digest": "346c55b5dadd5c7faeb49c2e985073db7ab47733eb31a7f8ae3375a5119b4e85",
+  "dataset": "GRBench-MAPLE-Physics-strata-v1",
+  "exclusions": {},
+  "schema_version": "seocho.agentic_os.cohort.v1",
+  "seed": 0
+}

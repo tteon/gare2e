@@ -258,6 +258,12 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--only-stratum",
+        action="append",
+        default=[],
+        help="Gate-only filter on the frozen schedule's stratum field (repeatable); the source schedule stays digest-bound.",
+    )
+    parser.add_argument(
         "--only-arm",
         help="Gate-only filter applied before execution; the frozen source schedule remains digest-bound.",
     )
@@ -271,6 +277,8 @@ def main() -> int:
     schedule, entries = _load_schedule(args.schedule)
     if args.only_arm is not None:
         entries = [entry for entry in entries if str(entry["arm"]) == args.only_arm]
+    if args.only_stratum:
+        entries = [entry for entry in entries if str(entry.get("stratum")) in set(args.only_stratum)]
     if args.max_attempts is not None:
         if args.max_attempts < 1:
             parser.error("--max-attempts must be positive")
@@ -325,6 +333,7 @@ def main() -> int:
         "discovery_cache_sha256": discovery_cache_sha256,
         "profile_query_plans": args.profile_query_plans,
         "only_arm": args.only_arm,
+        "only_stratum": sorted(args.only_stratum),
         "max_attempts": args.max_attempts,
         "inter_attempt_gap_s": args.inter_attempt_gap_s,
         "harness_sha256": harness_sha256,

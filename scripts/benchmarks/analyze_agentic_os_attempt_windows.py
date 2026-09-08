@@ -260,10 +260,23 @@ def activity_lane(receipt: Mapping[str, Any]) -> tuple[list[dict[str, Any]], boo
     return spans, False
 
 
+def load_strata(schedules: list[Path]) -> dict[tuple[str, str], str]:
+    """Map (lane, qid) → stratum from frozen schedule files (lab 007)."""
+    mapping: dict[tuple[str, str], str] = {}
+    for path in schedules:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        lane = "GTSQA" if "gtsqa" in path.name else "GRBench"
+        for entry in payload.get("entries", []):
+            mapping[(lane, str(entry.get("qid")))] = str(entry.get("stratum") or "unstratified")
+    return mapping
+
+
 def analyse(
-    *, run_roots: list[Path], join_path: Path, gpu_path: Path, host_path: Path, vllm_path: Path
+    *, run_roots: list[Path], join_path: Path, gpu_path: Path, host_path: Path, vllm_path: Path,
+    schedules: list[Path] | None = None,
 ) -> list[dict[str, Any]]:
     joined = load_join(join_path)
+    strata = load_strata(schedules or [])
     gpu_rows = _read_csv(gpu_path)
     host_rows = _read_csv(host_path)
     results: list[dict[str, Any]] = []
@@ -287,6 +300,8 @@ def analyse(
         row: dict[str, Any] = {
             **cell,
             "run_id": run_id,
+            "case_id": str(receipt.get("case_id")),
+            "stratum": strata.get((cell["lane"], str(receipt.get("case_id"))), "unstratified"),
             "terminal": receipt.get("terminal") or receipt.get("terminal_status"),
             "wall_s": round((_num(time_block.get("wall_ms")) or 0) / 1000, 1),
             "llm_s": round((_num(time_block.get("llm_ms")) or 0) / 1000, 1),
@@ -335,7 +350,7 @@ def analyse(
 
 
 TABLE_COLUMNS = [
-    "cell", "lane", "topology", "reasoning", "terminal", "wall_s", "llm_s", "tool_s", "residual_s", "observability_s",
+    "cell", "lane", "topology", "reasoning", "case_id", "stratum", "terminal", "wall_s", "llm_s", "tool_s", "residual_s", "observability_s",
     "turns", "output_tokens", "graph_queries", "rejected_calls", "query_validated", "nonempty_result", "window_s",
     "gpu_busy_share", "gpu_mean_util_pct", "gpu_mean_power_w", "gpu_energy_kj", "cpu_s_vllm", "cpu_s_dozerdb", "cpu_s_agent",
     "vllm_requests", "prefill_s_per_req", "decode_s_per_req", "queue_s_per_req", "ttft_s_avg", "itl_ms_avg", "prefix_hit_ratio",
@@ -355,6 +370,19 @@ def write_table(rows: list[dict[str, Any]], out_dir: Path) -> None:
     for row in rows:
         lines.append("| " + " | ".join("" if row.get(k) is None else str(row.get(k)) for k in short) + " |")
     (out_dir / "attempt-decomposition.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    strata = sorted({str(r.get("stratum")) for r in rows})
+    if strata and strata != ["unstratified"]:
+        import statistics
+
+        def med(rs: list[dict[str, Any]], key: str) -> str:
+            values = [r[key] for r in rs if r.get(key) is not None]
+            return f"{statistics.median(values):.2f}" if values else ""
+
+        lines2 = ["| stratum | attempts | validated | nonempty | median wall_s | median llm_s | median tool_s | median decode_s_per_req | median gpu_busy |", "|---|---|---|---|---|---|---|---|---|"]
+        for st in strata:
+            rs = [r for r in rows if str(r.get("stratum")) == st]
+            lines2.append(f"| {st} | {len(rs)} | {sum(1 for r in rs if r.get('query_validated'))} | {sum(1 for r in rs if r.get('nonempty_result'))} | {med(rs, 'wall_s')} | {med(rs, 'llm_s')} | {med(rs, 'tool_s')} | {med(rs, 'decode_s_per_req')} | {med(rs, 'gpu_busy_share')} |")
+        (out_dir / "stratum-summary.md").write_text("\n".join(lines2) + "\n", encoding="utf-8")
     ctx = ["| cell | turn | kind | input tokens | growth vs turn 1 | output tokens | prefix hit (turn) | prompt tokens served |", "|---|---|---|---|---|---|---|---|"]
     for row in rows:
         for t in (row.get("_context") or {}).get("turns", []):
@@ -522,8 +550,9 @@ def main() -> int:
     parser.add_argument("--vllm-samples", required=True, type=Path)
     parser.add_argument("--output-dir", required=True, type=Path)
     parser.add_argument("--title", default="AgenticOS attempt-window analysis")
+    parser.add_argument("--schedule", action="append", type=Path, default=[], help="Frozen schedule file(s) providing the stratum per qid.")
     args = parser.parse_args()
-    rows = analyse(run_roots=args.run_roots, join_path=args.telemetry_join, gpu_path=args.gpu_samples, host_path=args.host_samples, vllm_path=args.vllm_samples)
+    rows = analyse(run_roots=args.run_roots, join_path=args.telemetry_join, gpu_path=args.gpu_samples, host_path=args.host_samples, vllm_path=args.vllm_samples, schedules=args.schedule)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     write_table(rows, args.output_dir)
     write_html(rows, args.output_dir, args.title)
