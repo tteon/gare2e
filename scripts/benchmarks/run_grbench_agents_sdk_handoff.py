@@ -24,7 +24,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from seocho.eval.agent_execution import build_retrieval_funnel
-from seocho.eval.prompt_profiles import PROMPT_PROFILES, system_prompt_addendum
+from seocho.eval.prompt_profiles import PROMPT_PROFILES, instructions_prefix, system_prompt_addendum
 from seocho.eval.agentic_graph_agents import (
     EvidenceHandoff,
     grbench_react_tools,
@@ -206,6 +206,7 @@ async def _run(args: argparse.Namespace) -> int:
                     evidence_class=evidence_class,
                     query_language="Cypher",
                     specialist_instructions_addendum=system_prompt_addendum(args.prompt_profile, "cypher"),
+                    shared_prefix=instructions_prefix(args.prompt_profile, "cypher"),
                 )
                 usage_total = sum(
                     int(episode.receipt.get(stage, {}).get(field, 0))

@@ -31,6 +31,11 @@ set -euo pipefail
 # Gate strata: empty = one case per cell (gate-10 behaviour); "easy medium hard"
 # = one case per stratum per cell, each stratum validated in its own root.
 : "${SEOCHO_GATE_STRATA:=}"
+# Serving-shape study (lab 008): run K coordinators concurrently over disjoint
+# schedule shards; restrict the main matrix to one stratum; skip closed-book lanes.
+: "${SEOCHO_CONCURRENCY:=1}"
+: "${SEOCHO_MAIN_STRATUM:=}"
+: "${SEOCHO_MAIN_SKIP_CLOSED:=0}"
 # Values may arrive comma-separated from an env-only channel (the pass queue
 # cannot carry quoted spaces); normalise to the space-separated form used below.
 SEOCHO_GATE_STRATA="${SEOCHO_GATE_STRATA//,/ }"
@@ -45,9 +50,27 @@ run() {
   local label="$1"
   shift
   printf '%s\tstart\t%s\n' "$label" "$(date -Is)" >> "$ROOT/progress.tsv"
-  if python3 "$SEOCHO_REPO_ROOT/scripts/benchmarks/run_agentic_os_schedule.py" \
-    "$@" --inter-attempt-gap-s "$SEOCHO_INTER_ATTEMPT_GAP_S" \
-    --prompt-profile "$SEOCHO_PROMPT_PROFILE"; then
+  local status=0
+  if [ "$SEOCHO_CONCURRENCY" -le 1 ]; then
+    python3 "$SEOCHO_REPO_ROOT/scripts/benchmarks/run_agentic_os_schedule.py" \
+      "$@" --inter-attempt-gap-s "$SEOCHO_INTER_ATTEMPT_GAP_S" \
+      --prompt-profile "$SEOCHO_PROMPT_PROFILE" || status=$?
+  else
+    # K coordinators share one vLLM (needs --max-num-seqs >= K) and run
+    # disjoint ordinal shards; each shard gets its own run-root suffix so
+    # attempt directories never collide.  GPU attribution per attempt is
+    # confounded at K > 1 by design; the analysis reports aggregates.
+    local pids=() i
+    for ((i = 0; i < SEOCHO_CONCURRENCY; i++)); do
+      python3 "$SEOCHO_REPO_ROOT/scripts/benchmarks/run_agentic_os_schedule.py" \
+        "$@" --inter-attempt-gap-s "$SEOCHO_INTER_ATTEMPT_GAP_S" \
+        --prompt-profile "$SEOCHO_PROMPT_PROFILE" --shard "$i/$SEOCHO_CONCURRENCY" \
+        --run-root-suffix "shard-$i" &
+      pids+=("$!")
+    done
+    for pid in "${pids[@]}"; do wait "$pid" || status=$?; done
+  fi
+  if [ "$status" -eq 0 ]; then
     printf '%s\tcomplete\t%s\n' "$label" "$(date -Is)" >> "$ROOT/progress.tsv"
   else
     failures=$((failures + 1))
@@ -152,23 +175,23 @@ main_matrix() {
   # Raw SEOCHO-OFF evidence is isolated to B0.  Treatment arms are scheduled
   # later and never pooled into this baseline catalog.
   for thinking in $SEOCHO_REASONING_MODES; do
-    run "raw-grbench-single-closed-$thinking" \
+    [ "$SEOCHO_MAIN_SKIP_CLOSED" = "1" ] || run "raw-grbench-single-closed-$thinking" \
       --lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
       --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
       --run-root "$ROOT/raw-grbench-single-closed-$thinking" --base-url http://127.0.0.1:8000 \
       --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition closed_book \
       --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
       --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --only-arm B0 --continue-on-error \
-      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh"
+      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
 
-    run "raw-gtsqa-single-closed-$thinking" \
+    [ "$SEOCHO_MAIN_SKIP_CLOSED" = "1" ] || run "raw-gtsqa-single-closed-$thinking" \
       --lane gtsqa-single --schedule "$INPUT/$SEOCHO_GTSQA_SINGLE_SCHEDULE" \
       --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/$SEOCHO_GTSQA_DISCOVERY" \
       --run-root "$ROOT/raw-gtsqa-single-closed-$thinking" --base-url http://127.0.0.1:8000 \
       --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition closed_book \
       --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
       --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --only-arm B0 --continue-on-error \
-      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh"
+      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
 
     run "raw-grbench-single-tool-$thinking" \
     --lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
@@ -178,7 +201,7 @@ main_matrix() {
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
     --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --db-pid "$DOZERDB_PID" \
       --only-arm B0 --continue-on-error \
-      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh"
+      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
 
     run "raw-grbench-multi-tool-$thinking" \
     --lane grbench-multi --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
@@ -188,7 +211,7 @@ main_matrix() {
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
     --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --db-pid "$DOZERDB_PID" \
       --only-arm B0 --continue-on-error \
-      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh"
+      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
 
     run "raw-gtsqa-single-tool-$thinking" \
     --lane gtsqa-single --schedule "$INPUT/$SEOCHO_GTSQA_SINGLE_SCHEDULE" \
@@ -197,7 +220,7 @@ main_matrix() {
     --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition tool_auto \
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
       --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --only-arm B0 --continue-on-error \
-      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh"
+      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
 
     run "raw-gtsqa-multi-tool-$thinking" \
     --lane gtsqa-multi --schedule "$INPUT/$SEOCHO_GTSQA_MULTI_SCHEDULE" \
@@ -206,7 +229,7 @@ main_matrix() {
     --model "$VLLM_MODEL" --enable-thinking "$thinking" \
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
       --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --only-arm B0 --continue-on-error \
-      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh"
+      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
   done
 }
 

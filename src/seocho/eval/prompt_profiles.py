@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import hashlib
 
-PROMPT_PROFILES: tuple[str, ...] = ("baseline", "strengthened")
+PROMPT_PROFILES: tuple[str, ...] = ("baseline", "strengthened", "shared_prefix")
 
 _STRENGTHENED_CYPHER = (
     " Scope rule, restated because it is enforced by a validator: every node and relationship "
@@ -43,11 +43,40 @@ _STRENGTHENED_SPARQL = (
 )
 
 
+_SHARED_PREFIX = (
+    "Graph benchmark session. Tools: inspect_graph_schema (call once, returns the schema slice) and the "
+    "{lang} execution tool. Scope rule: every pattern is workspace-scoped by the tool; write bounded "
+    "read-only {lang} only, using identifiers the schema slice returned. On a rejection, change the query "
+    "using its error code and never repeat identical {lang}. Answer only from non-empty evidence or "
+    "abstain explicitly. "
+)
+
+
+def instructions_prefix(profile: str, query_language: str) -> str:
+    """Identical opening paragraph placed first in *every* agent's instructions.
+
+    The multi-agent manager and specialist otherwise start their prompts with
+    different role text, so the KV prefix cache sees two unrelated prefixes
+    (lab-s3: prefix hit 0.36–0.50 for multi vs 0.54–0.57 for single).  The
+    ``shared_prefix`` profile puts one verbatim preamble at position 0 of both
+    prompts so their KV blocks coincide; role text follows.  For single-agent
+    lanes this profile is identical to ``baseline``.
+    """
+    if profile not in PROMPT_PROFILES:
+        raise ValueError(f"unknown prompt profile: {profile}")
+    if profile != "shared_prefix":
+        return ""
+    lang = {"cypher": "Cypher", "sparql": "SPARQL"}.get(query_language.casefold())
+    if lang is None:
+        raise ValueError(f"unsupported query language for prompt profile: {query_language}")
+    return _SHARED_PREFIX.format(lang=lang)
+
+
 def system_prompt_addendum(profile: str, query_language: str) -> str:
     """Return the text appended to the baseline system prompt for ``profile``."""
     if profile not in PROMPT_PROFILES:
         raise ValueError(f"unknown prompt profile: {profile}")
-    if profile == "baseline":
+    if profile in ("baseline", "shared_prefix"):
         return ""
     language = query_language.casefold()
     if language == "cypher":
@@ -59,11 +88,11 @@ def system_prompt_addendum(profile: str, query_language: str) -> str:
 
 def prompt_profile_receipt(profile: str, query_language: str) -> dict[str, str]:
     """Content-free receipt fields: profile name and digest of the addendum."""
-    addendum = system_prompt_addendum(profile, query_language)
+    addendum = system_prompt_addendum(profile, query_language) + instructions_prefix(profile, query_language)
     return {
         "prompt_profile": profile,
         "prompt_profile_addendum_sha256": hashlib.sha256(addendum.encode("utf-8")).hexdigest(),
     }
 
 
-__all__ = ["PROMPT_PROFILES", "prompt_profile_receipt", "system_prompt_addendum"]
+__all__ = ["PROMPT_PROFILES", "instructions_prefix", "prompt_profile_receipt", "system_prompt_addendum"]

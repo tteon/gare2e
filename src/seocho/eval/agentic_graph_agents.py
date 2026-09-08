@@ -1043,6 +1043,7 @@ async def run_agents_sdk_agent_tool_episode(
     evidence_class: str = "behavioral_baseline",
     query_language: str = "SPARQL",
     specialist_instructions_addendum: str = "",
+    shared_prefix: str = "",
 ) -> AgentsHandoffResult:
     """Run manager→specialist-as-tool→manager with endogenous retrieval choice."""
     from agents import Runner
@@ -1058,6 +1059,7 @@ async def run_agents_sdk_agent_tool_episode(
         query_language=query_language,
         specialist_max_turns=specialist_max_turns,
         specialist_instructions_addendum=specialist_instructions_addendum,
+        shared_prefix=shared_prefix,
     )
     answered = await Runner.run(manager, question, max_turns=max_turns, run_config=config)
     answer = str(answered.final_output or "")
@@ -1224,6 +1226,7 @@ def build_agents_sdk_agent_tool_workflow(
     query_language: str = "SPARQL",
     specialist_max_turns: int = 5,
     specialist_instructions_addendum: str = "",
+    shared_prefix: str = "",
 ) -> tuple[Any, Any, Any, AgentToolInvocationState]:
     """Create a manager that may call a graph specialist as a normal tool.
 
@@ -1313,7 +1316,8 @@ def build_agents_sdk_agent_tool_workflow(
     specialist = Agent(
         name="GraphQuerySpecialist",
         instructions=(
-            f"You are the only {query_language} query specialist. The task field is a factual "
+            shared_prefix
+            + f"You are the only {query_language} query specialist. The task field is a factual "
             "retrieval request, not permission to answer from memory. Call inspect_graph_schema "
             f"exactly once, then construct bounded read-only {query_language} using only discovered "
             "labels, predicates, properties, identifiers, and scope rules. Call execute_graph_query. "
@@ -1433,7 +1437,8 @@ def build_agents_sdk_agent_tool_workflow(
     manager = Agent(
         name="UserRequestAgent",
         instructions=(
-            "Classify the request before answering. For factual questions about named entities, "
+            shared_prefix
+            + "Classify the request before answering. For factual questions about named entities, "
             "attributes, relations, paths, counts, citations, authorship, or provenance in the active "
             "benchmark graph, call retrieve_graph_evidence exactly once; never answer those facts "
             "from memory. Direct answers are allowed only for greetings, formatting, or facts already "

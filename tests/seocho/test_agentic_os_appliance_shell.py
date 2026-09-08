@@ -140,3 +140,23 @@ def test_lab_queue_runner_is_unattended_and_exits_when_done() -> None:
     assert "sleep infinity" not in script
     assert "queue-receipt.jsonl" in script and "SEOCHO_QUEUE_STOP_ON_FAIL" in script
     assert 'env PASS_ID="$pass_id" $payload bash "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/run_lab_pass.sh"' in script
+
+
+def test_e2e_concurrency_runs_disjoint_shards_and_main_filters() -> None:
+    script = (ROOT / "scripts/benchmarks/run_agentic_os_colocated_e2e.sh").read_text(encoding="utf-8")
+    assert '--shard "$i/$SEOCHO_CONCURRENCY"' in script and '--run-root-suffix "shard-$i"' in script
+    assert 'for pid in "${pids[@]}"; do wait "$pid" || status=$?; done' in script
+    assert script.count('${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}') == 6
+    assert script.count('[ "$SEOCHO_MAIN_SKIP_CLOSED" = "1" ] || run "raw-') == 2
+
+
+def test_restart_helper_accepts_comma_separated_extra_args_with_json() -> None:
+    import subprocess
+    script = ROOT / "docker/agentic-os-appliance/restart_vllm.sh"
+    # extract the parsing block and run it in a bash subshell against a sample value
+    body = script.read_text(encoding="utf-8")
+    start = body.index("extra=()"); end = body.index("printf '%s\\n' \"${vllm_command[@]}\"")
+    snippet = body[start:end]
+    probe = snippet + 'printf "%s\\n" "${extra[@]}"'
+    out = subprocess.run(["bash", "-c", probe], env={"VLLM_EXTRA_ARGS": '--max-num-seqs,8,--speculative-config,{"method":"ngram","num_speculative_tokens":4,"prompt_lookup_max":4}', "PATH": "/usr/bin:/bin"}, capture_output=True, text=True, check=True).stdout.splitlines()
+    assert out == ["--max-num-seqs", "8", "--speculative-config", '{"method":"ngram","num_speculative_tokens":4,"prompt_lookup_max":4}']

@@ -168,3 +168,9 @@ def test_only_stratum_filter_is_wired_into_the_coordinator() -> None:
     source = (Path(__file__).parents[2] / "scripts/benchmarks/run_agentic_os_schedule.py").read_text(encoding="utf-8")
     assert '"--only-stratum"' in source
     assert 'str(entry.get("stratum")) in set(args.only_stratum)' in source
+
+
+def test_shard_and_run_root_suffix_are_wired() -> None:
+    source = (Path(__file__).parents[2] / "scripts/benchmarks/run_agentic_os_schedule.py").read_text(encoding="utf-8")
+    assert '"--shard"' in source and "ordinal % shard_count == shard_index" in source
+    assert '"--run-root-suffix"' in source and "args.run_root = args.run_root / str(args.run_root_suffix)" in source

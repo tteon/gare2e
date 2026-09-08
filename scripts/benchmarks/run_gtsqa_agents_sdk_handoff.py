@@ -24,7 +24,7 @@ if str(_REPO_ROOT) not in sys.path:
 from runtime.policy import require_runtime_permission
 
 from seocho.eval.agent_execution import build_retrieval_funnel
-from seocho.eval.prompt_profiles import PROMPT_PROFILES, system_prompt_addendum
+from seocho.eval.prompt_profiles import PROMPT_PROFILES, instructions_prefix, system_prompt_addendum
 from seocho.eval.agentic_graph_agents import (
     EvidenceHandoff,
     gtsqa_react_tools,
@@ -186,6 +186,7 @@ async def _run(args: argparse.Namespace) -> int:
                 evidence_class=evidence_class,
                 query_language="SPARQL",
                 specialist_instructions_addendum=system_prompt_addendum(args.prompt_profile, "sparql"),
+                shared_prefix=instructions_prefix(args.prompt_profile, "sparql"),
             )
             triples = _triples(episode.evidence.evidence)
             retrieval = score_gtsqa_retrieval(triples, case)

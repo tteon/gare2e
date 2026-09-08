@@ -193,6 +193,7 @@ def main() -> int:
     parser.add_argument("--dataset", required=True, type=Path)
     parser.add_argument("--discovery-cache", required=True, type=Path)
     parser.add_argument("--run-root", required=True, type=Path)
+    parser.add_argument("--run-root-suffix", default=None, help="Optional subdirectory appended to --run-root (concurrent shards).")
     parser.add_argument("--base-url", required=True)
     parser.add_argument("--metrics-url")
     parser.add_argument("--model", required=True)
@@ -213,7 +214,7 @@ def main() -> int:
     parser.add_argument("--token-budget", type=int, default=8_192)
     parser.add_argument(
         "--prompt-profile",
-        choices=("baseline", "strengthened"),
+        choices=("baseline", "strengthened", "shared_prefix"),
         default="baseline",
         help="Prompt-engineering arm forwarded to every lane runner (PE-vs-CE study).",
     )
@@ -258,6 +259,11 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--shard",
+        default=None,
+        help="Run only entries with ordinal %% K == I, written I/K (0-based); used to run K coordinators concurrently over disjoint shards.",
+    )
+    parser.add_argument(
         "--only-stratum",
         action="append",
         default=[],
@@ -273,12 +279,20 @@ def main() -> int:
         help="Gate-only positive limit after filtering; omit for the full frozen schedule.",
     )
     args = parser.parse_args()
+    if args.run_root_suffix:
+        args.run_root = args.run_root / str(args.run_root_suffix)
 
     schedule, entries = _load_schedule(args.schedule)
     if args.only_arm is not None:
         entries = [entry for entry in entries if str(entry["arm"]) == args.only_arm]
     if args.only_stratum:
         entries = [entry for entry in entries if str(entry.get("stratum")) in set(args.only_stratum)]
+    if args.shard:
+        index_text, _, count_text = str(args.shard).partition("/")
+        shard_index, shard_count = int(index_text), int(count_text)
+        if shard_count < 1 or not 0 <= shard_index < shard_count:
+            parser.error("--shard must be I/K with 0 <= I < K")
+        entries = [entry for ordinal, entry in enumerate(entries) if ordinal % shard_count == shard_index]
     if args.max_attempts is not None:
         if args.max_attempts < 1:
             parser.error("--max-attempts must be positive")
@@ -334,6 +348,7 @@ def main() -> int:
         "profile_query_plans": args.profile_query_plans,
         "only_arm": args.only_arm,
         "only_stratum": sorted(args.only_stratum),
+        "shard": args.shard,
         "max_attempts": args.max_attempts,
         "inter_attempt_gap_s": args.inter_attempt_gap_s,
         "harness_sha256": harness_sha256,

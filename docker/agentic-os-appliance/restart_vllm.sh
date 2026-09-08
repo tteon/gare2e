@@ -52,8 +52,20 @@ vllm_command=(
 if [ "${VLLM_LANGUAGE_MODEL_ONLY:-1}" = "1" ]; then
   vllm_command+=(--language-model-only)
 fi
-# shellcheck disable=SC2206
-extra=(${VLLM_EXTRA_ARGS:-})
+# The pass queue is an env-only channel that cannot quote spaces, so commas
+# are accepted as argument separators (JSON values must then avoid commas
+# inside tokens — the speculative-config JSON is split and re-joined below).
+extra=()
+if [ -n "${VLLM_EXTRA_ARGS:-}" ]; then
+  IFS=',' read -r -a raw_extra <<<"${VLLM_EXTRA_ARGS//,/,}"
+  # re-join JSON fragments: a token starting with '{' is glued with following tokens until one ends with '}'
+  buf=""
+  for tok in "${raw_extra[@]}"; do
+    if [ -n "$buf" ]; then buf="$buf,$tok"; case "$tok" in *\}) extra+=("$buf"); buf="";; esac; continue; fi
+    case "$tok" in \{*\}) extra+=("$tok");; \{*) buf="$tok";; *) for w in $tok; do extra+=("$w"); done;; esac
+  done
+  [ -n "$buf" ] && extra+=("$buf")
+fi
 vllm_command+=("${extra[@]}")
 printf '%s\n' "${vllm_command[@]}" > "$SEOCHO_VLLM_RECEIPT_DIR/vllm-effective-argv.private.txt"
 started_s="$(date +%s.%N)"
