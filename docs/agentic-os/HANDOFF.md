@@ -10,14 +10,16 @@ the data and credentials below travel separately.
 | item | how |
 |---|---|
 | this repo (`tteon/gare2e`, private) | GitHub invite; clone, then `uv sync --extra local --extra ci` |
-| Vast.ai account | their own API key (`vastai set api-key …`) and an SSH public key registered in the Vast console — the runner uses direct SSH/SCP, never `vastai copy` |
+| Vast.ai account | an API key (`vastai set api-key …`) and an SSH public key registered in the Vast console — the runner uses direct SSH/SCP, never `vastai copy`. A shared key means shared billing and shared visibility of instances; the runner's §0 ownership gate assumes the account has no other live instances, so prefer a per-person key or a Vast team sub-account |
 | Hugging Face | anonymous download of `Qwen/Qwen3.6-27B` works; a token (`HF_TOKEN`) only speeds it up |
 | local tools | `uv`, `docker` (only for the local preflight, which boots the exact vLLM image once), `vastai` CLI, a systemd user session with lingering (`loginctl enable-linger`) so paid runs outlive the shell |
 
-## 2. Data package (not in git; ~6.6 GB)
+## 2. Data (mostly online; only two derived files)
 
-Place under the repo's ignored `.seocho/` tree at exactly these paths, or edit
-the `--upload` lines in the skill. Digests are the first 16 hex of sha256.
+The five frozen gate-10 files are **in this repo** (`examples/agentic-os/frozen/gate-10/`).
+The two benchmark datasets are public downloads. The remaining two inputs are
+derived locally by scripts in this repo. Digests are the first 16 hex of sha256
+of the copies used for V13–V17 / lab-s2.
 
 | path under `.seocho/` | size | sha256[:16] | provenance / how to regenerate |
 |---|---|---|---|
@@ -28,15 +30,16 @@ the `--upload` lines in the skill. Digests are the first 16 hex of sha256.
 | `…/bootstrap/grbench-import-v1/grbench-nodes.csv.gz` | 461 MB | `cc3f0585bff06c7d` | regenerate from graph.json: `scripts/benchmarks/export_grbench_import_csv.py --workspace-id grbench-maple-physics` |
 | `…/bootstrap/grbench-import-v1/grbench-rels.csv.gz` | 455 MB | `10932fe1c86517fd` | same exporter run |
 | `…/bootstrap/grbench-import-v1/grbench-import-manifest.json` | 4 KB | `8a7ca303e90f677a` | same exporter run (carries the workspace id the runners query) |
-| `benchmarks/agentic-os/gate-10/grbench-discovery-serving.json` | 140 KB | `4d72bf1e567ee269` | **frozen artifact** — serving-token-validated discovery cache; must be shared as a file (tokens were counted by vLLM 0.27.1 for the pinned model revision) |
-| `benchmarks/agentic-os/gate-10/grbench-single-tool-schedule.json` | 12 KB | `501d9061627fbe5b` | frozen paired schedule (B0/C-/S1, 10 cases) — share as a file |
-| `benchmarks/agentic-os/gate-10/gtsqa-discovery-serving.json` | 876 KB | `b3aca1e543f321ca` | frozen — share as a file |
-| `benchmarks/agentic-os/gate-10/gtsqa-single-tool-schedule.json` | 24 KB | `6fad984bfe7aff51` | frozen — share as a file |
-| `benchmarks/agentic-os/gate-10/gtsqa-multi-tool-schedule.json` | 8 KB | `c065d4a19e0e439c` | frozen — share as a file |
+| `examples/agentic-os/frozen/gate-10/grbench-discovery-serving.json` (in repo) | 140 KB | `4d72bf1e567ee269` | frozen discovery cache, serving tokens validated by vLLM 0.27.1 for the pinned revision |
+| `examples/agentic-os/frozen/gate-10/grbench-single-tool-schedule.json` (in repo) | 12 KB | `501d9061627fbe5b` | frozen paired schedule |
+| `examples/agentic-os/frozen/gate-10/gtsqa-discovery-serving.json` (in repo) | 876 KB | `b3aca1e543f321ca` | frozen discovery cache |
+| `examples/agentic-os/frozen/gate-10/gtsqa-single-tool-schedule.json` (in repo) | 24 KB | `6fad984bfe7aff51` | frozen paired schedule |
+| `examples/agentic-os/frozen/gate-10/gtsqa-multi-tool-schedule.json` (in repo) | 8 KB | `c065d4a19e0e439c` | frozen paired schedule |
 
-The three 400 MB+ regenerable files exist so a new operator does not have to
-re-derive them; the five frozen gate-10 files are the ones that *must* be
-copied, because their digests are bound into every receipt.
+So the minimal handoff is: repo access + a Vast API key. Download the two
+public datasets, run the two derivation scripts (DozerDB rootfs export needs
+Docker; the CSV export needs ~10 GB RAM and a few minutes), and the frozen
+files come with the clone.
 
 ## 3. Fixed configuration (do not change silently)
 

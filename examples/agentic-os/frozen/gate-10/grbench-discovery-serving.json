@@ -1,0 +1,5237 @@
+{
+  "cache_digest": "8d134214910dfcf5867a08daba1006f0762ed382ddf90afd1536f50f0b3f310d",
+  "cases": [
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "334b9ea7481095bacefc2e7a48dfc778e5e1b6ab75f1454e7476e1127b7b6d6d",
+      "qid": "0",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "5f99ff9494027600849cb6fe8b08f84848b77c1bb29b77f54844687716906f1a",
+      "qid": "1",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "0978ff5a25dc997dc0bd4af72becc2fdd59959a4d5939bba9a8eeb611354b2bc",
+      "qid": "2",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "3a88a2a7f086b91040e3747bf247eee7ed52f74e23cb8bbbe511b3e16db91fa0",
+      "qid": "3",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "a3efd10374d8d6dcd0964f313b8388d2dbeec9257236632fd6f5b2d6c2739146",
+      "qid": "4",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "860f1bcce38ee6b719cb40e6bf4e65e799398f4fe5da9bb9e8d4e6f3165e72ea",
+      "qid": "5",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "91f1cde55d2c25cac00bef7669792bebb783218a4e96cafdb131d649f568a34e",
+      "qid": "6",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "899e071585cafdee06a97a41aa5538bb60e12e30f0fe923a67c52302694c0e5a",
+      "qid": "7",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "f4123063c9ecc60a3b62d1b7c36077c67ecca425599e4404b3aa84fc677d1ec4",
+      "qid": "8",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "3c01b2123c093fa0690b3e8e02dce20c276289cb05b384c7e383576606eef2f7",
+      "qid": "9",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "2c5358c9243235ce4b84a290372bd3b4cffeef1c6f736fb233d10efc779d647b",
+      "qid": "10",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "9da683e946589c261c18f6c5fc1951dec3deb9cd58e4669013008f34b93aec08",
+      "qid": "11",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "a8b6464cc2858857f879734420c9eb68c28ddeef1c37dce9dc447a935b0cc3f8",
+      "qid": "12",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "c407b16d4388a4f559e9f70318f4e786a5670189e43998bb7a205e7d0c130db6",
+      "qid": "13",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "fec6b193a15d9ad77491b4e73556060647ffcec8d79a190448471e1ff5e93293",
+      "qid": "14",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "c92d23b4c4799d24551d1b0dbd925bf7946b780f26a714fa59287db602a08753",
+      "qid": "15",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "471f513a5c449b4a1268b3e66f87a4dacc668de1367160017ca0d90df33e7e7a",
+      "qid": "16",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "258d58634fb058338152d2e5b5e9d70b9f4913d8038348e6402d559258a83f93",
+      "qid": "17",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "fa31932c0c2a7b9ac3f352aea616f7ba834d6eab2f344ab38f3749bbbb9b2ad4",
+      "qid": "18",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "740a4d8a64f72f2a0e16a94069148ab0ae7142c1100cb87d5910e1fad85368b6",
+      "qid": "19",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "8a5cf38b79ef746798402f183d1380e7c86822bd4693c3381df36e19aee8236c",
+      "qid": "20",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "c7836d64e2f8098b4cbc2f270416b19246dd32241aa1d685deb7751d162e601d",
+      "qid": "21",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "dd6b1429b75ea881f2ebe14cd06a33205a8d0baa4740a5689d95e1d022b0b8fc",
+      "qid": "22",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "012ada8e98df5317aaa08bf1e8fa3d939777a9f6252f88b8668d8508a053db20",
+      "qid": "23",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "c23c681d9724d452cd1f5e768e052c2544c9d5274b26aa2d3ba6ed67cae9cd45",
+      "qid": "24",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "c5d8ee9c864cfdbaaa876344c2500d238e4a20088bf8b3d172952c2e55a1c56e",
+      "qid": "25",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "fc6f3b7a60a1742106092e5a38ffa825f79f27e96d62d08dac85851ab046be7c",
+      "qid": "26",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "81e2afd1c02bc083995024114709e9c76d00a27557a7ec13a0d1c44dbb75edda",
+      "qid": "27",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "fa3c7ca18aba90ac0a9a923383366288cfeec7e27c41381c3655d8c658907b95",
+      "qid": "28",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "a01bc34e087b1398ff26cfc35097ef3d61e1a9bed80e587e2ad24a1115c95513",
+      "qid": "29",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "6d5b3ac534c72a4a762d3b86be77b25a7d2ca41f7eeeb608f82061500f7a6d5b",
+      "qid": "30",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    },
+    {
+      "bytes": {
+        "B0": 281,
+        "C-": 645,
+        "S1": 766
+      },
+      "forbidden_terms_sha256": "de1fcd8ed177b50c2859bbdcb48effc34c078876ae6569e820c4f9070d5d866d",
+      "qid": "31",
+      "response_sha256": {
+        "B0": "0f0b72dad3e0e202dd11112f3f3075b65a14987afdcb1f8dbdb307c3c40ec856",
+        "C-": "c64a536f9c08b882753c2ed1dcdd5e25b035a93dd83a69e3160b8b3cde61bce7",
+        "S1": "b4fd92cd2c6cbc20f8fb3822e4ba73033a871f545d60911390d8979d31507636"
+      },
+      "responses": {
+        "B0": {
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ]
+        },
+        "C-": {
+          "context_kind": "amber birch cobalt",
+          "facets": [
+            "birch",
+            "cobalt",
+            "dawn"
+          ],
+          "nodes": [
+            {
+              "label": "elm",
+              "properties": [
+                "fable",
+                "granite",
+                "harbor",
+                "amber"
+              ]
+            }
+          ],
+          "query_scope": "birch cobalt dawn elm fable granite harbor amber birch",
+          "relationships": [
+            {
+              "properties": [
+                "cobalt",
+                "dawn"
+              ],
+              "type": "elm"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "fable",
+              "graph_node_type": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_node_type": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_node_type": "cobalt"
+            },
+            {
+              "concept": "dawn",
+              "graph_relation_name": "elm"
+            },
+            {
+              "concept": "fable",
+              "graph_relation_name": "granite"
+            },
+            {
+              "concept": "harbor",
+              "graph_relation_name": "amber"
+            },
+            {
+              "concept": "birch",
+              "graph_relation_name": "cobalt"
+            }
+          ]
+        },
+        "S1": {
+          "context_kind": "controlled_lpg_projection_taxonomy",
+          "facets": [
+            "node_type",
+            "relation_name",
+            "feature_property"
+          ],
+          "nodes": [
+            {
+              "label": "GRBenchNode",
+              "properties": [
+                "id",
+                "node_type",
+                "source_node_id",
+                "feature_*"
+              ]
+            }
+          ],
+          "query_scope": "Every node and relationship pattern must filter _workspace_id: $workspace_id.",
+          "relationships": [
+            {
+              "properties": [
+                "relation_name",
+                "source_node_type"
+              ],
+              "type": "GRBENCH_REL"
+            }
+          ],
+          "taxonomy_hints": [
+            {
+              "concept": "author",
+              "graph_node_type": "author"
+            },
+            {
+              "concept": "paper",
+              "graph_node_type": "paper"
+            },
+            {
+              "concept": "venue",
+              "graph_node_type": "venue"
+            },
+            {
+              "concept": "author",
+              "graph_relation_name": "author"
+            },
+            {
+              "concept": "citation",
+              "graph_relation_name": "cited_by"
+            },
+            {
+              "concept": "reference",
+              "graph_relation_name": "reference"
+            },
+            {
+              "concept": "venue",
+              "graph_relation_name": "venue"
+            }
+          ]
+        }
+      },
+      "structure_sha256": "e99db2e050d649907331743a63cecb821e4512811b75b73184f100d20abfc20b",
+      "tokens": {
+        "B0": 62,
+        "C-": 160,
+        "S1": 160
+      }
+    }
+  ],
+  "contract": {
+    "byte_cap": 12288,
+    "latency_cap_ms": 1000,
+    "max_calls": 1,
+    "tool_availability": [
+      "B0",
+      "C-",
+      "S1"
+    ],
+    "tool_name": "inspect_graph_schema",
+    "tool_schema_digest": "059b7296f7ceb95aca330505b7a5f7aefcf72fbb65845ce6cfce879558d036dd"
+  },
+  "graph_digest": "bc267591dc3d7aaf8c46262e1effa24b2cc2362b66f967d9f686ca70413efa5e",
+  "schema_version": "seocho.agentic_os.discovery_cache.v1",
+  "taxonomy_digest": null,
+  "tokenizer_provenance": "VLLMTokenizer"
+}

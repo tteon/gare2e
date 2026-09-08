@@ -55,10 +55,12 @@ for `destroy_verified_absent: false` and reconcile it against the listing.
 
 Bundle dir: `B=.seocho/benchmarks/agentic-os/colocated-appliance/bootstrap`.
 
-1. Confirm every upload source exists (GRBench bulk-import CSV + manifest,
-   questions, discovery caches, schedules, GTSQA parquet,
-   `dozerdb-runtime.tar.gz`). Missing input is a stop condition, not
-   something to substitute.
+1. Confirm every upload source exists. Public datasets: GRBench MAPLE/Physics
+   `graph.json` + questions (HF `PeterJinGo/GRBench`) and the GTSQA
+   with-graphs parquet (HF). Repo-provided: `examples/agentic-os/frozen/gate-10/`
+   (discovery caches + schedules). Derived locally: `dozerdb-runtime.tar.gz`
+   (`export_dozerdb_appliance_rootfs.py`) and the GRBench bulk-import CSV
+   (step 1b). Missing input is a stop condition, not something to substitute.
    The GRBench graph is **not** uploaded as JSON any more: projecting 67.3M
    relationships through Bolt at run time took >2 h and ate the whole paid
    window (V13). Export once locally, then the appliance bulk-imports it
@@ -144,7 +146,7 @@ bulk-import inputs instead of `graph.json`:
 
 ```bash
 B=.seocho/benchmarks/agentic-os/colocated-appliance/bootstrap
-G10=.seocho/benchmarks/agentic-os/gate-10
+G10=examples/agentic-os/frozen/gate-10   # frozen discovery caches + schedules (in the repo)
 IMP=$B/grbench-import-vK
 systemd-run --user --collect --unit seocho-vast-vN --working-directory "$PWD" \
   --property=KillMode=process \
