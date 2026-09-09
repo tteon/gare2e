@@ -33,3 +33,4 @@ is a single `Bash` call with the shown `timeout`.
 Avoid routine high-frequency polling. The background lifecycle wakes the
 session on exit; check the receipt at milestones only. Repeated `vastai show`
 calls are neither workload telemetry nor paper evidence.
+| `service_start` error within ~2 min, vLLM stderr `Error 803: system has unsupported display driver / cuda driver combination` | Host NVIDIA driver older than the image's CUDA (cu130 needs driver ≥ 580) | Not recoverable on that host. Add `cuda_max_good>=13.0` to the offer query, `--exclude-host-id` the host, relaunch. |

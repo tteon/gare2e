@@ -36,6 +36,14 @@ from typing import Any
 
 from aiohttp import ClientSession, ClientTimeout, web
 
+FORWARD_HEADERS = ("Content-Type", "Authorization", "Accept", "X-Request-Id")
+
+
+def forward_headers(request: web.Request) -> dict[str, str]:
+    """Headers vLLM needs to see (it rejects a JSON body without its Content-Type)."""
+    return {h: request.headers[h] for h in FORWARD_HEADERS if h in request.headers}
+
+
 SAMPLE_RE = re.compile(r"^(?P<name>[A-Za-z_:][A-Za-z0-9_:]*)(?P<labels>\{[^}]*\})?\s+(?P<value>\S+)(?:\s+(?P<ts>\S+))?$")
 
 
@@ -139,7 +147,7 @@ class Router:
         idx, key = self.pick(body)
         t0 = time.monotonic()
         assert self.session
-        async with self.session.post(f"{self.backends[idx]}{request.rel_url}", data=raw, headers={"Content-Type": request.headers.get("Content-Type", "application/json")}) as r:
+        async with self.session.post(f"{self.backends[idx]}{request.rel_url}", data=raw, headers=forward_headers(request)) as r:
             payload = await r.read()
             status = r.status
             ctype = r.headers.get("Content-Type", "application/json")
@@ -162,7 +170,7 @@ class Router:
         assert self.session
         results = []
         for b in self.backends:
-            async with self.session.post(f"{b}{request.rel_url}", data=raw) as r:
+            async with self.session.post(f"{b}{request.rel_url}", data=raw, headers=forward_headers(request)) as r:
                 results.append({"backend": b, "status": r.status, "body": (await r.text())[:2000]})
         ok = all(x["status"] < 300 for x in results)
         return web.json_response({"success": ok, "replicas": results}, status=200 if ok else 502)
@@ -186,7 +194,7 @@ class Router:
     async def passthrough(self, request: web.Request) -> web.StreamResponse:
         assert self.session
         raw = await request.read()
-        async with self.session.request(request.method, f"{self.backends[0]}{request.rel_url}", data=raw or None) as r:
+        async with self.session.request(request.method, f"{self.backends[0]}{request.rel_url}", data=raw or None, headers=forward_headers(request)) as r:
             payload = await r.read()
             return web.Response(body=payload, status=r.status, content_type=r.headers.get("Content-Type", "application/json").split(";")[0])
 

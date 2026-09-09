@@ -254,3 +254,15 @@ def test_vllm_router_sticky_key_and_metrics_merge() -> None:
     assert 'vllm:ttft_bucket{le="+Inf"} 7' in merged
     assert "vllm:kv_cache_usage_perc 0.3" in merged
     assert merged.count("# TYPE vllm:generation_tokens_total") == 1
+
+
+def test_vllm_router_forwards_content_type_on_every_proxied_call() -> None:
+    from aiohttp.test_utils import make_mocked_request
+
+    r = _router_module()
+    req = make_mocked_request("POST", "/tokenize", headers={"Content-Type": "application/json", "X-Other": "drop-me"})
+    assert r.forward_headers(req) == {"Content-Type": "application/json"}
+    # lab-s5: passthrough without headers made vLLM answer 400 on /tokenize and
+    # killed 3 of 4 lanes; every proxied call must forward the request headers.
+    src = (ROOT / "docker/agentic-os-appliance/vllm_router.py").read_text(encoding="utf-8")
+    assert src.count("headers=forward_headers(request)") == 3
