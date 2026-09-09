@@ -11,6 +11,24 @@ from typing import Any
 
 from .plan_audit import audit_profile
 
+try:  # the driver is a runtime dependency of the runners, not of the validator
+    from neo4j import Query as _BoltQuery
+except Exception:  # pragma: no cover - exercised only where neo4j is absent
+    _BoltQuery = None  # type: ignore[assignment]
+
+
+def bolt_query(text: str, *, timeout_s: float) -> Any:
+    """Wrap Cypher so the server enforces a transaction timeout.
+
+    ``Session.run(text, timeout=15)`` does *not* set a timeout: every keyword
+    argument of ``run`` is a Cypher parameter, so ``$timeout`` was silently
+    bound and GRBench scans ran 43–50 s unbounded (lab-s3/s5, bead seocho-dp9x).
+    ``neo4j.Query(text, timeout=...)`` is the documented per-query control.
+    """
+    if _BoltQuery is None:
+        return text
+    return _BoltQuery(text, timeout=timeout_s)
+
 
 _WRITE = re.compile(r"\b(CREATE|MERGE|SET|DELETE|DETACH|DROP|REMOVE|LOAD\s+CSV|FOREACH)\b", re.I)
 _UNSAFE_CALL = re.compile(r"\bCALL\s+(?!\{)", re.I)
@@ -63,12 +81,16 @@ class GRBenchDozerExecutor:
         workspace_id: str,
         row_cap: int = 20,
         byte_cap: int = 12_000,
+        query_timeout_s: float = 15.0,
     ) -> None:
+        if query_timeout_s <= 0:
+            raise ValueError("query_timeout_s must be positive")
         self.driver = driver
         self.database = database
         self.workspace_id = workspace_id
         self.row_cap = row_cap
         self.byte_cap = byte_cap
+        self.query_timeout_s = float(query_timeout_s)
 
     def execute_select(self, query: str) -> GRBenchQueryResult:
         started = time.perf_counter()
@@ -79,7 +101,7 @@ class GRBenchDozerExecutor:
         with self.driver.session(database=self.database, default_access_mode="READ") as session:
             pool_acquire_ms = (time.perf_counter() - pool_started) * 1000
             submit_started = time.perf_counter()
-            result = session.run(statement, workspace_id=self.workspace_id, timeout=15)
+            result = session.run(bolt_query(statement, timeout_s=self.query_timeout_s), workspace_id=self.workspace_id)
             bolt_submit_ms = (time.perf_counter() - submit_started) * 1000
             iterate_started = time.perf_counter()
             evidence_encode_ms = 0.0
@@ -122,6 +144,7 @@ class GRBenchDozerExecutor:
             "bolt_consume_ms": round(bolt_consume_ms, 3),
             "server_available_ms": float(summary.result_available_after or 0),
             "server_consumed_ms": float(summary.result_consumed_after or 0),
+            "query_timeout_s": self.query_timeout_s,
             "rows": len(rows),
             "result_bytes": private_bytes,
             "truncated": truncated,
@@ -135,9 +158,8 @@ class GRBenchDozerExecutor:
         started = time.perf_counter()
         with self.driver.session(database=self.database, default_access_mode="READ") as session:
             result = session.run(
-                f"PROFILE {statement}",
+                bolt_query(f"PROFILE {statement}", timeout_s=self.query_timeout_s),
                 workspace_id=self.workspace_id,
-                timeout=15,
             )
             summary = result.consume()
         if summary.profile is None:

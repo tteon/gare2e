@@ -58,8 +58,12 @@ class _Session:
         return None
 
     def run(self, query, **params):
-        assert "LIMIT 5" in query
-        assert params["workspace_id"] == "workspace-a"
+        # seocho-dp9x: the statement must arrive as neo4j.Query with a server-side
+        # transaction timeout; `timeout` must never be a Cypher parameter.
+        assert type(query).__name__ == "Query", type(query)
+        assert query.timeout == 15
+        assert "LIMIT 5" in query.text
+        assert params == {"workspace_id": "workspace-a"}
         return _Result()
 
 
@@ -90,3 +94,27 @@ def test_grbench_profile_replay_is_bounded_and_content_free() -> None:
     assert receipt["plan"]["total_page_cache_hits"] == 3
     assert receipt["plan"]["total_page_cache_misses"] == 1
     assert "workspace-a" not in str(receipt)
+
+
+def test_grbench_executor_timeout_is_a_transaction_timeout_not_a_parameter() -> None:
+    from seocho.eval.grbench_runtime import bolt_query
+
+    q = bolt_query("MATCH (n) RETURN n", timeout_s=7.5)
+    assert type(q).__name__ == "Query" and q.timeout == 7.5 and q.text == "MATCH (n) RETURN n"
+    result = GRBenchDozerExecutor(_Driver(), database="neo4j", workspace_id="workspace-a", row_cap=5).execute_select(_QUERY)
+    assert result.receipt["query_timeout_s"] == 15.0
+    with pytest.raises(ValueError):
+        GRBenchDozerExecutor(_Driver(), database="neo4j", workspace_id="w", query_timeout_s=0)
+
+
+def test_grbench_loader_creates_lookup_indexes_for_text2cypher_predicates() -> None:
+    from pathlib import Path
+
+    src = (Path(__file__).parents[2] / "scripts/benchmarks/load_grbench_dozerdb.py").read_text(encoding="utf-8")
+    for prop in ("feature_name", "feature_title", "source_node_id", "relation_name"):
+        assert f"ON (n.{prop})" in src or f"ON (r.{prop})" in src
+    assert "CREATE TEXT INDEX grbench_node_name_text" in src
+    assert "CALL db.awaitIndexes(1800)" in src and "SHOW INDEXES" in src
+    runtime = (Path(__file__).parents[2] / "src/seocho/eval/grbench_runtime.py").read_text(encoding="utf-8")
+    assert "workspace_id=self.workspace_id, timeout=" not in runtime   # never a Cypher parameter again
+    assert runtime.count("bolt_query(") == 3

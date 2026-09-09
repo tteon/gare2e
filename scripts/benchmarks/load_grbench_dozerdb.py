@@ -19,6 +19,23 @@ from typing import Any, Iterable
 from seocho.eval.grbench import batched, graph_schema_receipt, iter_grbench_nodes, iter_grbench_relationships
 
 
+# Lookup indexes for the identifiers Text2Cypher filters on.  Without them a
+# `{_workspace_id: $ws, feature_name: ...}` pattern is a NodeByLabelScan over
+# 2.7 M nodes: lab-s3/s5 saw six 43–50 s calls carry 68 % of all GRBench
+# graph-database time (lab 009 bottleneck decomposition).  The composite
+# (id, _workspace_id) index cannot serve those predicates because `id` is not
+# in them.  TEXT indexes serve CONTAINS / STARTS WITH on the two name fields.
+GRBENCH_INDEX_STATEMENTS = (
+    "CREATE INDEX grbench_node_lookup IF NOT EXISTS FOR (n:GRBenchNode) ON (n.id, n._workspace_id)",
+    "CREATE INDEX grbench_node_name IF NOT EXISTS FOR (n:GRBenchNode) ON (n.feature_name)",
+    "CREATE INDEX grbench_node_title IF NOT EXISTS FOR (n:GRBenchNode) ON (n.feature_title)",
+    "CREATE INDEX grbench_node_source_id IF NOT EXISTS FOR (n:GRBenchNode) ON (n.source_node_id)",
+    "CREATE INDEX grbench_node_type_ws IF NOT EXISTS FOR (n:GRBenchNode) ON (n.node_type, n._workspace_id)",
+    "CREATE TEXT INDEX grbench_node_name_text IF NOT EXISTS FOR (n:GRBenchNode) ON (n.feature_name)",
+    "CREATE TEXT INDEX grbench_node_title_text IF NOT EXISTS FOR (n:GRBenchNode) ON (n.feature_title)",
+    "CREATE INDEX grbench_rel_name IF NOT EXISTS FOR ()-[r:GRBENCH_REL]-() ON (r.relation_name)",
+)
+
 def _write_batches(
     driver: Any,
     batches: Iterable[list[dict[str, Any]]],
@@ -126,10 +143,8 @@ def main() -> int:
         # SEOCHO feature; it prevents each MERGE/MATCH batch from degenerating
         # into a label scan on the multi-gigabyte official graph.
         with driver.session(database=args.database) as session:
-            session.run(
-                "CREATE INDEX grbench_node_lookup IF NOT EXISTS "
-                "FOR (n:GRBenchNode) ON (n.id, n._workspace_id)"
-            ).consume()
+            for statement in GRBENCH_INDEX_STATEMENTS:
+                session.run(statement).consume()
         if not args.verify_only:
             node_summary = _write_batches(
                 driver, batched(iter_grbench_nodes(graph), args.batch_size), kind="nodes",
@@ -143,8 +158,13 @@ def main() -> int:
             # A bulk-imported store populates the lookup index after start-up;
             # the fixed gate queries below must not race that population.
             with driver.session(database=args.database) as session:
-                session.run("CALL db.awaitIndexes(600)").consume()
+                session.run("CALL db.awaitIndexes(1800)").consume()
         with driver.session(database=args.database) as session:
+            session.run("CALL db.awaitIndexes(1800)").consume()
+            index_states = [
+                {"name": record["name"], "type": record["type"], "state": record["state"]}
+                for record in session.run("SHOW INDEXES YIELD name, type, state RETURN name, type, state ORDER BY name")
+            ]
             check = [record.data() for record in session.run(
                 "MATCH (n:GRBenchNode {_workspace_id: $workspace_id}) "
                 "RETURN count(n) AS node_count",
@@ -166,6 +186,7 @@ def main() -> int:
         "database": args.database,
         "schema": schema,
         "write": {"nodes": node_summary, "relationships": relationship_summary},
+        "indexes": index_states,
         "verification": {
             "node_count": int(check[0]["node_count"]) if check else 0,
             "edge_count": int(edge_check[0]["edge_count"]) if edge_check else 0,
