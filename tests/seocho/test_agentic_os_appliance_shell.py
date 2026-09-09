@@ -266,3 +266,10 @@ def test_vllm_router_forwards_content_type_on_every_proxied_call() -> None:
     # killed 3 of 4 lanes; every proxied call must forward the request headers.
     src = (ROOT / "docker/agentic-os-appliance/vllm_router.py").read_text(encoding="utf-8")
     assert src.count("headers=forward_headers(request)") == 3
+
+
+def test_wrapper_strict_telemetry_is_opt_in_from_the_appliance() -> None:
+    entry = (ROOT / "docker/agentic-os-appliance/entrypoint.sh").read_text(encoding="utf-8")
+    lab_pass = (ROOT / "docker/agentic-os-appliance/run_lab_pass.sh").read_text(encoding="utf-8")
+    for text in (entry, lab_pass):
+        assert 'SEOCHO_STRICT_TELEMETRY:-0' in text and "--strict-telemetry" in text

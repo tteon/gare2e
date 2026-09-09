@@ -29,6 +29,13 @@ an NVLink (`NV*`) link and otherwise keeps the V14 fallback
 `NCCL_P2P_DISABLE` wins. The decision is written to
 `gpu-topology.private.txt` (and `nccl-env.private.txt` per vLLM restart) so
 TP=2 comparisons record whether allreduce had NVLink.
+The workload wrapper's exit status is the workload's own exit status. Sampler
+failures and telemetry-acceptance blockers (an empty vLLM metrics window after
+an in-pass restart, nvidia-smi gaps) are recorded in
+`colocated-workload-receipt.json` as `telemetry_degraded` /
+`telemetry_degradation`, and `validate_agentic_os_e2e_acceptance.py` still
+fails a gate on them; set `SEOCHO_STRICT_TELEMETRY=1` to make the wrapper
+itself exit 3 on degraded telemetry.
 Optional `VLLM_CPUSET`, `DOZERDB_CPUSET` and `SEOCHO_SAMPLE_INTERVAL_S` make
 CPU placement and sampler cadence explicit in the run manifest. Copy and
 checksum the artifact directory before destroying the paid instance.

@@ -368,6 +368,9 @@ wrapper=(
   --interval-s "${SEOCHO_SAMPLE_INTERVAL_S:-1}"
   --max-gap-s "${SEOCHO_SAMPLE_MAX_GAP_S:-2.5}"
 )
+if [ "${SEOCHO_STRICT_TELEMETRY:-0}" = "1" ]; then
+  wrapper+=(--strict-telemetry)   # opt back into "telemetry gap == pass failure"
+fi
 if [ "${SEOCHO_DISABLE_GPU_SAMPLER:-0}" = "1" ]; then
   wrapper+=(--no-gpu)
 fi

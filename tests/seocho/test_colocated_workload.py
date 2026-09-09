@@ -147,3 +147,52 @@ def test_telemetry_acceptance_requires_tree_scope_and_known_members() -> None:
     assert acceptance["passed"] is False
     assert "host_process_tree_scope_missing:agent,dozerdb,vllm" in acceptance["blockers"]
     assert "host_process_members_missing:agent,dozerdb,vllm" in acceptance["blockers"]
+
+
+def _run_wrapper(module, monkeypatch, tmp_path, *, workload_cmd: str, metrics_ok: bool, extra: list[str]) -> tuple[int, dict]:
+    class MetricsClient:
+        def __init__(self, *_: object, **__: object) -> None:
+            self.calls = 0
+
+        def snapshot(self) -> VllmMetricsSnapshot:
+            self.calls += 1
+            now = time.monotonic()
+            if not metrics_ok:  # vLLM restarted mid-pass: endpoint answers but exposes none of the selected metrics
+                return VllmMetricsSnapshot(time.time(), now, {}, False, metadata={}, scrape_ms=0.1)
+            metrics = {name: 1.0 for name in module.REQUIRED_VLLM_METRIC_NAMES}
+            metrics["vllm:kv_cache_usage_perc"] = 0.5
+            metrics["vllm:prefix_cache_queries"] = float(self.calls)
+            return VllmMetricsSnapshot(time.time(), now, metrics, True, metadata={"vllm:cache_config_info": {"enable_prefix_caching": "True"}}, scrape_ms=0.1)
+
+    monkeypatch.setattr(module, "VllmMetricsClient", MetricsClient)
+    artifacts = tmp_path / "artifacts"
+    monkeypatch.setattr(sys, "argv", [
+        "run_agentic_os_colocated_workload.py", "--artifacts", str(artifacts),
+        "--role-pid", f"vllm={os.getpid()}", "--role-pid", f"dozerdb={os.getpid()}",
+        "--interval-s", "0.01", "--max-gap-s", "1", "--no-gpu", *extra,
+        "--workload", sys.executable, "-c", workload_cmd,
+    ])
+    code = module.main()
+    return code, json.loads((artifacts / "colocated-workload-receipt.json").read_text(encoding="utf-8"))
+
+
+def test_wrapper_exit_follows_workload_and_records_telemetry_degradation(tmp_path, monkeypatch) -> None:
+    """lab-s3/s4/s6: every pass succeeded but the wrapper's exit 3 marked the session failed."""
+    module = _module()
+    code, receipt = _run_wrapper(module, monkeypatch, tmp_path / "a", workload_cmd="import time; time.sleep(0.03)", metrics_ok=False, extra=[])
+    assert code == 0
+    assert receipt["workload_exit_code"] == 0
+    assert receipt["telemetry_acceptance"]["passed"] is False
+    assert receipt["telemetry_degraded"] is True and receipt["telemetry_degradation"]
+    assert receipt["exit_policy"] == "workload_exit_code" and receipt["exit_code"] == 0
+    # a healthy pass is not flagged
+    code, receipt = _run_wrapper(module, monkeypatch, tmp_path / "b", workload_cmd="import time; time.sleep(0.03)", metrics_ok=True, extra=[])
+    assert code == 0 and receipt["telemetry_degraded"] is False
+
+
+def test_wrapper_propagates_workload_failure_and_honours_strict_telemetry(tmp_path, monkeypatch) -> None:
+    module = _module()
+    code, receipt = _run_wrapper(module, monkeypatch, tmp_path / "a", workload_cmd="import sys; sys.exit(7)", metrics_ok=True, extra=[])
+    assert code == 7 and receipt["exit_code"] == 7   # the workload's own status, not a flat 3
+    code, receipt = _run_wrapper(module, monkeypatch, tmp_path / "b", workload_cmd="import time; time.sleep(0.03)", metrics_ok=False, extra=["--strict-telemetry"])
+    assert code == 3 and receipt["exit_policy"] == "strict_telemetry"

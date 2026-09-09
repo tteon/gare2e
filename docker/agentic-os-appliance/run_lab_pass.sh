@@ -31,7 +31,8 @@ vllm_pid="$(pgrep -o -f 'vllm serve' || true)"
 dozer_pid="$(pgrep -o -f 'org\.neo4j|neo4j\.server' || true)"
 [ -n "$vllm_pid" ] && [ -n "$dozer_pid" ] || { echo "services not running (vllm=$vllm_pid dozer=$dozer_pid)" >&2; exit 3; }
 export DOZERDB_PID="$dozer_pid"
-python3 "$SEOCHO_REPO_ROOT/scripts/benchmarks/run_agentic_os_colocated_workload.py" \
+strict=(); [ "${SEOCHO_STRICT_TELEMETRY:-0}" = "1" ] && strict=(--strict-telemetry)
+python3 "$SEOCHO_REPO_ROOT/scripts/benchmarks/run_agentic_os_colocated_workload.py" "${strict[@]}" \
   --vllm-metrics-url "http://127.0.0.1:${VLLM_PORT:-8000}/metrics" \
   --role-pid "vllm=$vllm_pid" --role-pid "dozerdb=$dozer_pid" \
   --interval-s "${SEOCHO_SAMPLE_INTERVAL_S:-1}" --max-gap-s "${SEOCHO_SAMPLE_MAX_GAP_S:-2.5}" \
