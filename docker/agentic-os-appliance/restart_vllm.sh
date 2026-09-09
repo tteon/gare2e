@@ -9,6 +9,15 @@
 # SEOCHO_VLLM_RECEIPT_DIR (where logs + config receipt go).  The base argv
 # mirrors docker/agentic-os-appliance/entrypoint.sh; a shell test keeps the
 # two lists aligned.
+#
+# Replica mode (session B, lab 008): VLLM_REPLICAS=N (>1) starts N TP=1
+# replicas pinned to CUDA_VISIBLE_DEVICES=0..N-1 on ports VLLM_PORT+1.., and
+# vllm_router.py on VLLM_PORT with SEOCHO_ROUTER_POLICY=rr|sticky, so the
+# workload keeps one endpoint and /metrics stays a single merged scrape.
+# LMCACHE_SHARED=1 additionally starts one lmcache_server (host-memory KV
+# store) and attaches every replica through LMCacheConnectorV1, so prefixes
+# computed on one replica can be reused by the other (the "P2P KV sharing"
+# arm on a homogeneous box).
 set -euo pipefail
 : "${VLLM_MODEL:?}" "${VLLM_MODEL_REVISION:?}"
 : "${VLLM_TENSOR_PARALLEL_SIZE:=2}" "${VLLM_PORT:=8000}"
@@ -17,6 +26,8 @@ set -euo pipefail
 mkdir -p "$SEOCHO_VLLM_RECEIPT_DIR"
 umask 077
 
+pkill -TERM -f 'vllm_router.py' 2>/dev/null || true
+pkill -TERM -f 'lmcache_server|lmcache.v1.server' 2>/dev/null || true
 old_pids="$(pgrep -f 'vllm serve' || true)"
 if [ -n "$old_pids" ]; then
   kill -TERM $old_pids 2>/dev/null || true
@@ -70,31 +81,107 @@ if [ -n "${VLLM_EXTRA_ARGS:-}" ]; then
   done
   [ -n "$buf" ] && extra+=("$buf")
 fi
+# An override of a flag the base argv already carries replaces it (vLLM warns
+# on duplicate keys and the receipt should show one value).
+if [ "${#extra[@]}" -gt 0 ]; then
+  deduped=(); skip=0
+  for tok in "${vllm_command[@]}"; do
+    if [ "$skip" = 1 ]; then skip=0; continue; fi
+    drop=0
+    case "$tok" in --*) for e in "${extra[@]}"; do [ "$e" = "$tok" ] && drop=1; done;; esac
+    if [ "$drop" = 1 ]; then skip=1; continue; fi
+    deduped+=("$tok")
+  done
+  vllm_command=("${deduped[@]}")
+fi
 vllm_command+=("${extra[@]}")
-printf '%s\n' "${vllm_command[@]}" > "$SEOCHO_VLLM_RECEIPT_DIR/vllm-effective-argv.private.txt"
+: "${VLLM_REPLICAS:=1}" "${SEOCHO_ROUTER_POLICY:=sticky}" "${LMCACHE_SHARED:=0}" "${LMCACHE_PORT:=65432}"
 started_s="$(date +%s.%N)"
-nohup "${vllm_command[@]}" > "$SEOCHO_VLLM_RECEIPT_DIR/vllm.stdout.private.log" 2> "$SEOCHO_VLLM_RECEIPT_DIR/vllm.stderr.private.log" &
-vllm_pid=$!
-for _ in $(seq 1 "$VLLM_READY_ATTEMPTS"); do
-  if ! kill -0 "$vllm_pid" 2>/dev/null; then echo "vllm exited before readiness" >&2; exit 3; fi
-  if curl --fail --silent "http://127.0.0.1:${VLLM_PORT}/v1/models" >/dev/null 2>&1 \
-     && curl --fail --silent "http://127.0.0.1:${VLLM_PORT}/metrics" >/dev/null 2>&1; then
-    ready_s="$(date +%s.%N)"
-    python3 - "$SEOCHO_VLLM_RECEIPT_DIR" "$started_s" "$ready_s" "$vllm_pid" "${VLLM_EXTRA_ARGS:-}" <<'PY'
+wait_ready() { # url attempts -> 0 when /v1/models and /metrics answer
+  local url="$1" attempts="$2" pid="$3"
+  for _ in $(seq 1 "$attempts"); do
+    if [ -n "$pid" ] && ! kill -0 "$pid" 2>/dev/null; then echo "process $pid exited before readiness ($url)" >&2; return 3; fi
+    if curl --fail --silent "$url/v1/models" >/dev/null 2>&1 && curl --fail --silent "$url/metrics" >/dev/null 2>&1; then return 0; fi
+    sleep 2
+  done
+  echo "not ready: $url" >&2; return 3
+}
+write_receipt() { # pid
+  python3 - "$SEOCHO_VLLM_RECEIPT_DIR" "$started_s" "$(date +%s.%N)" "$1" "${VLLM_EXTRA_ARGS:-}" "$VLLM_REPLICAS" "$SEOCHO_ROUTER_POLICY" "$LMCACHE_SHARED" <<'PY'
 import hashlib, json, sys
-out, started, ready, pid, extra = sys.argv[1:6]
+out, started, ready, pid, extra, replicas, policy, lmc = sys.argv[1:9]
 json.dump({
-    "schema_version": "seocho.agentic_os.vllm_restart_receipt.v1",
+    "schema_version": "seocho.agentic_os.vllm_restart_receipt.v2",
     "vllm_pid": int(pid),
     "extra_args": extra.split(),
     "extra_args_sha256": hashlib.sha256(extra.encode()).hexdigest(),
     "ready_after_s": round(float(ready) - float(started), 3),
+    "replicas": int(replicas),
+    "router_policy": policy if int(replicas) > 1 else None,
+    "lmcache_shared": lmc == "1",
 }, open(f"{out}/vllm-restart-receipt.json", "w"), indent=2, sort_keys=True)
 PY
-    echo "$vllm_pid"
-    exit 0
+}
+
+if [ "$VLLM_REPLICAS" -le 1 ]; then
+  printf '%s\n' "${vllm_command[@]}" > "$SEOCHO_VLLM_RECEIPT_DIR/vllm-effective-argv.private.txt"
+  nohup "${vllm_command[@]}" > "$SEOCHO_VLLM_RECEIPT_DIR/vllm.stdout.private.log" 2> "$SEOCHO_VLLM_RECEIPT_DIR/vllm.stderr.private.log" &
+  vllm_pid=$!
+  wait_ready "http://127.0.0.1:${VLLM_PORT}" "$VLLM_READY_ATTEMPTS" "$vllm_pid" || { echo "vllm did not become ready" >&2; exit 3; }
+  write_receipt "$vllm_pid"
+  echo "$vllm_pid"
+  exit 0
+fi
+
+# --- replica mode -----------------------------------------------------------
+lmcache_args=()
+if [ "$LMCACHE_SHARED" = "1" ]; then
+  cat > "$SEOCHO_VLLM_RECEIPT_DIR/lmcache.yaml" <<EOF2
+chunk_size: ${LMCACHE_CHUNK_SIZE:-256}
+local_cpu: true
+max_local_cpu_size: ${LMCACHE_LOCAL_CPU_GB:-5}
+remote_url: "lm://127.0.0.1:${LMCACHE_PORT}"
+remote_serde: "naive"
+EOF2
+  if command -v lmcache_server >/dev/null 2>&1; then
+    nohup lmcache_server 127.0.0.1 "$LMCACHE_PORT" > "$SEOCHO_VLLM_RECEIPT_DIR/lmcache-server.stdout.private.log" 2> "$SEOCHO_VLLM_RECEIPT_DIR/lmcache-server.stderr.private.log" &
+  else
+    nohup python3 -m lmcache.v1.server 127.0.0.1 "$LMCACHE_PORT" > "$SEOCHO_VLLM_RECEIPT_DIR/lmcache-server.stdout.private.log" 2> "$SEOCHO_VLLM_RECEIPT_DIR/lmcache-server.stderr.private.log" &
   fi
-  sleep 2
+  lmcache_pid=$!
+  sleep 3
+  kill -0 "$lmcache_pid" 2>/dev/null || { echo "lmcache_server exited at start" >&2; exit 3; }
+  export LMCACHE_CONFIG_FILE="$SEOCHO_VLLM_RECEIPT_DIR/lmcache.yaml"
+  lmcache_args=(--kv-transfer-config '{"kv_connector":"LMCacheConnectorV1","kv_role":"kv_both"}')
+fi
+replica_pids=()
+backends=()
+for i in $(seq 0 $((VLLM_REPLICAS-1))); do
+  port=$((VLLM_PORT+1+i))
+  cmd=()
+  skip=0
+  for tok in "${vllm_command[@]}"; do            # rewrite --port and --tensor-parallel-size per replica
+    if [ "$skip" = 1 ]; then skip=0; continue; fi
+    case "$tok" in
+      --port) cmd+=(--port "$port"); skip=1;;
+      --tensor-parallel-size) cmd+=(--tensor-parallel-size 1); skip=1;;
+      *) cmd+=("$tok");;
+    esac
+  done
+  cmd+=("${lmcache_args[@]}")
+  printf '%s\n' "${cmd[@]}" > "$SEOCHO_VLLM_RECEIPT_DIR/vllm-effective-argv.replica${i}.private.txt"
+  CUDA_VISIBLE_DEVICES="$i" nohup "${cmd[@]}" > "$SEOCHO_VLLM_RECEIPT_DIR/vllm.replica${i}.stdout.private.log" 2> "$SEOCHO_VLLM_RECEIPT_DIR/vllm.replica${i}.stderr.private.log" &
+  replica_pids+=($!)
+  backends+=(--backend "http://127.0.0.1:${port}")
 done
-echo "vllm did not become ready" >&2
-exit 3
+for i in $(seq 0 $((VLLM_REPLICAS-1))); do
+  wait_ready "http://127.0.0.1:$((VLLM_PORT+1+i))" "$VLLM_READY_ATTEMPTS" "${replica_pids[$i]}" || { echo "replica $i did not become ready" >&2; exit 3; }
+done
+nohup python3 "$(dirname "${BASH_SOURCE[0]}")/vllm_router.py" --host 127.0.0.1 --port "$VLLM_PORT" --policy "$SEOCHO_ROUTER_POLICY" \
+  --receipt "$SEOCHO_VLLM_RECEIPT_DIR/router-receipts.jsonl" "${backends[@]}" \
+  > "$SEOCHO_VLLM_RECEIPT_DIR/router.stdout.private.log" 2> "$SEOCHO_VLLM_RECEIPT_DIR/router.stderr.private.log" &
+router_pid=$!
+wait_ready "http://127.0.0.1:${VLLM_PORT}" 60 "$router_pid" || { echo "router did not become ready" >&2; exit 3; }
+write_receipt "${replica_pids[0]}"
+echo "${replica_pids[0]}"
+exit 0

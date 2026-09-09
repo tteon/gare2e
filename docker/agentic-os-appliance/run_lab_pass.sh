@@ -20,8 +20,11 @@ export PATH="/workspace/seocho-venv/bin:/var/lib/neo4j/bin:/opt/java/openjdk/bin
 export JAVA_HOME="${JAVA_HOME:-/opt/java/openjdk}" NEO4J_HOME="${NEO4J_HOME:-/var/lib/neo4j}"
 export VLLM_MODEL VLLM_MODEL_REVISION SEOCHO_REPO_ROOT SEOCHO_APPLIANCE_INPUT
 
-if [ -n "${VLLM_EXTRA_ARGS_OVERRIDE:-}" ]; then
-  VLLM_EXTRA_ARGS="$VLLM_EXTRA_ARGS_OVERRIDE" SEOCHO_VLLM_RECEIPT_DIR="$SEOCHO_APPLIANCE_ARTIFACTS/vllm-restart" \
+# A serving-shape pass (replicas / router policy / shared KV store) restarts too,
+# even when the extra vLLM args are unchanged; VLLM_REPLICAS, SEOCHO_ROUTER_POLICY
+# and LMCACHE_SHARED are inherited by restart_vllm.sh from this environment.
+if [ -n "${VLLM_EXTRA_ARGS_OVERRIDE:-}" ] || [ -n "${VLLM_REPLICAS:-}" ] || [ -n "${LMCACHE_SHARED:-}" ]; then
+  VLLM_EXTRA_ARGS="${VLLM_EXTRA_ARGS_OVERRIDE:-}" SEOCHO_VLLM_RECEIPT_DIR="$SEOCHO_APPLIANCE_ARTIFACTS/vllm-restart" \
     bash "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/restart_vllm.sh" > "$SEOCHO_APPLIANCE_ARTIFACTS/vllm-restart.pid"
 fi
 vllm_pid="$(pgrep -o -f 'vllm serve' || true)"
@@ -35,7 +38,7 @@ python3 "$SEOCHO_REPO_ROOT/scripts/benchmarks/run_agentic_os_colocated_workload.
   --artifacts "$SEOCHO_APPLIANCE_ARTIFACTS/workload" \
   --workload env SEOCHO_E2E_PHASE="$SEOCHO_E2E_PHASE" bash "$SEOCHO_REPO_ROOT/scripts/benchmarks/run_agentic_os_colocated_e2e.sh"
 status=$?
-printf '{"pass_id":"%s","phase":"%s","prompt_profile":"%s","b0_criterion":"%s","vllm_extra_args_override":"%s","exit_code":%s}\n' \
-  "$PASS_ID" "$SEOCHO_E2E_PHASE" "${SEOCHO_PROMPT_PROFILE:-baseline}" "${SEOCHO_GATE_B0_CRITERION:-validated}" "${VLLM_EXTRA_ARGS_OVERRIDE:-}" "$status" \
+printf '{"pass_id":"%s","phase":"%s","prompt_profile":"%s","b0_criterion":"%s","vllm_extra_args_override":"%s","vllm_replicas":%s,"router_policy":"%s","lmcache_shared":%s,"exit_code":%s}\n' \
+  "$PASS_ID" "$SEOCHO_E2E_PHASE" "${SEOCHO_PROMPT_PROFILE:-baseline}" "${SEOCHO_GATE_B0_CRITERION:-validated}" "${VLLM_EXTRA_ARGS_OVERRIDE:-}" "${VLLM_REPLICAS:-1}" "${SEOCHO_ROUTER_POLICY:-}" "${LMCACHE_SHARED:-0}" "$status" \
   > "$SEOCHO_APPLIANCE_ARTIFACTS/pass-receipt.json"
 exit "$status"
