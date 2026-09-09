@@ -12,6 +12,12 @@ Three content-free tables, written as CSV + Markdown under ``<run>/session-summa
   request-latency median/p90, output tokens, LLM and wall seconds per case,
   provider-reported cached-token share.  Single-agent receipts carry turns;
   multi-agent receipts carry ``llm_requests`` + manager/specialist usage.
+* ``lane-bottleneck.csv`` — per pass × lane (× stratum when ``--schedule`` files
+  are given): where the wall goes — LLM time, graph-database tool time,
+  agent-framework residual (wall − llm − tool) — plus the Graph-CoT shape:
+  turns, LLM turns before the first graph tool, time to first graph tool,
+  query retries / repairs, graph-DB call latency p50/p90, and reasoning vs
+  tool-call output tokens for single-agent lanes.
 * ``lane-funnel.csv`` — per pass × lane: retrieval funnel from the catalog
   ``groups.csv`` (retrieval triggered, validated, executed, non-empty, tool
   failure rate, turns, wall p50) so serving changes can be checked for
@@ -130,6 +136,84 @@ def lane_client(run: Path, pass_id: str, lane: str) -> dict[str, Any] | None:
     }
 
 
+def _pct(vals: list[float], q: float) -> float | str:
+    if not vals:
+        return ""
+    vals = sorted(vals)
+    return round(vals[min(len(vals) - 1, int(q * (len(vals) - 1)))], 3)
+
+
+def _graph_tool_latencies(c: dict[str, Any]) -> list[float]:
+    """Graph-database call latencies (ms) from any receipt shape; schema inspection excluded."""
+    out: list[float] = []
+    tools = c.get("tools")
+    if isinstance(tools, list):  # GRBench single: [{name, latency_ms, outcome}]
+        out += [float(t["latency_ms"]) for t in tools if isinstance(t.get("latency_ms"), (int, float)) and "schema" not in str(t.get("name", ""))]
+    elif isinstance(tools, dict):  # GTSQA single: {events: [...]}
+        out += [float(t["latency_ms"]) for t in tools.get("events", []) if isinstance(t.get("latency_ms"), (int, float)) and "schema" not in str(t.get("name", ""))]
+    for ev in c.get("events", []) or []:  # multi-agent: tool events on the specialist
+        if ev.get("event") == "tool" and "schema" not in str(ev.get("name", "")) and isinstance(ev.get("latency_ms"), (int, float)):
+            out.append(float(ev["latency_ms"]))
+    return out
+
+
+def lane_bottleneck(run: Path, pass_id: str, lane: str, strata: dict[str, str] | None) -> list[dict[str, Any]]:
+    cases = _receipts(run, pass_id, lane)
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for c in cases:
+        key = (strata or {}).get(str(c.get("qid") or c.get("case_id")), "all") if strata else "all"
+        groups.setdefault(key, []).append(c)
+    rows: list[dict[str, Any]] = []
+    for stratum, cs in sorted(groups.items()):
+        wall = [float(c.get("time", {}).get("wall_ms", c.get("wall_ms", 0))) / 1000 for c in cs]
+        llm = [float(c.get("time", {}).get("llm_ms", 0)) / 1000 for c in cs]
+        tool = [float(c.get("time", {}).get("tool_ms", 0)) / 1000 for c in cs]
+        gdb = [sum(_graph_tool_latencies(c)) / 1000 for c in cs]           # graph-DB calls only
+        resid = [max(w - l - t, 0.0) for w, l, t in zip(wall, llm, tool)]
+        rf = [c.get("retrieval_funnel") or {} for c in cs]
+        turns = [float(c.get("turn_count") or 0) for c in cs]
+        before = [float(r.get("llm_turns_before_first_graph_tool")) for r in rf if isinstance(r.get("llm_turns_before_first_graph_tool"), (int, float))]
+        ttfg = [float(r.get("time_to_first_graph_tool_ms")) / 1000 for r in rf if isinstance(r.get("time_to_first_graph_tool_ms"), (int, float))]
+        retries = [float(c.get("query_retry_count") or 0) + float(c.get("repair_count") or 0) for c in cs]
+        gq = [float(r.get("graph_query_calls") or 0) for r in rf]
+        lat = [x for c in cs for x in _graph_tool_latencies(c)]
+        think_tok = tool_tok = 0
+        for c in cs:
+            for t in c.get("turns", []) or []:
+                if t.get("output_kind") == "tool_calls":
+                    tool_tok += int(t.get("output_tokens") or 0)
+                else:
+                    think_tok += int(t.get("output_tokens") or 0)
+        tw = sum(wall) or 1.0
+        rows.append({
+            "pass": pass_id, "lane": lane, "stratum": stratum, "cases": len(cs),
+            "wall_s_median": round(st.median(wall), 1),
+            "llm_share": round(sum(llm) / tw, 3),
+            "graph_db_share": round(sum(gdb) / tw, 3),
+            "tool_other_share": round(max(sum(tool) - sum(gdb), 0) / tw, 3),
+            "framework_residual_share": round(sum(resid) / tw, 3),
+            "graph_db_s_p50": _pct(gdb, 0.5), "graph_db_s_p90": _pct(gdb, 0.9),
+            "graph_call_ms_p50": _pct(lat, 0.5), "graph_call_ms_p90": _pct(lat, 0.9),
+            "turns_median": round(st.median(turns), 1) if turns else "",
+            "llm_turns_before_first_graph_tool_median": round(st.median(before), 1) if before else "",
+            "time_to_first_graph_tool_s_median": round(st.median(ttfg), 2) if ttfg else "",
+            "query_retries_plus_repairs_mean": round(sum(retries) / len(cs), 2),
+            "graph_query_calls_mean": round(sum(gq) / len(cs), 2),
+            "reasoning_output_tokens": think_tok if any("turns" in c for c in cs) else "",
+            "tool_call_output_tokens": tool_tok if any("turns" in c for c in cs) else "",
+        })
+    return rows
+
+
+def load_strata(paths: list[Path]) -> dict[str, str]:
+    out: dict[str, str] = {}
+    for p in paths:
+        for e in json.loads(p.read_text()).get("entries", []):
+            if e.get("qid") is not None and e.get("stratum"):
+                out[str(e["qid"])] = e["stratum"]
+    return out
+
+
 FUNNEL = ("retrieval_triggered", "query_validated", "query_executed", "nonempty_result", "tool_failure_rate", "turn_count")
 
 
@@ -165,6 +249,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("run", type=Path, help="lifecycle run root holding queue-receipt.jsonl and run-<pass>/ dirs")
     ap.add_argument("--output-dir", type=Path)
+    ap.add_argument("--schedule", action="append", type=Path, default=[], help="frozen schedule JSON(s) giving the stratum per qid (repeatable)")
     args = ap.parse_args()
     run: Path = args.run
     out = args.output_dir or run / "session-summary"
@@ -174,10 +259,13 @@ def main() -> int:
     serving = [pass_serving(run, p, w) for p, w in passes]
     client = [r for p, _ in passes for lane in LANES if (r := lane_client(run, p, lane))]
     funnel = [r for p, _ in passes for r in lane_funnel(run, p)]
+    strata = load_strata(args.schedule) if args.schedule else None
+    bottleneck = [r for p, _ in passes for lane in LANES for r in lane_bottleneck(run, p, lane, strata)]
+    _write(bottleneck, out, "lane-bottleneck")
     _write(serving, out, "pass-serving")
     _write(client, out, "lane-client")
     _write(funnel, out, "lane-funnel")
-    print(json.dumps({"passes": len(passes), "lane_rows": len(client), "funnel_rows": len(funnel), "output_dir": str(out)}))
+    print(json.dumps({"passes": len(passes), "lane_rows": len(client), "funnel_rows": len(funnel), "bottleneck_rows": len(bottleneck), "output_dir": str(out)}))
     return 0
 
 
