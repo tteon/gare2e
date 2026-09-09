@@ -46,6 +46,10 @@ def _num(value: Any) -> float | None:
 
 
 def _cell_from_root(root: Path) -> dict[str, str]:
+    # Concurrency passes (SEOCHO_CONCURRENCY=K) write one coordinator root per
+    # shard under the lane directory; the cell is the lane, not the shard.
+    if root.name.startswith("shard-") and root.name[len("shard-"):].isdigit():
+        root = root.parent
     name = root.name
     reasoning = "reasoning" if name.endswith("-true") else "non_reasoning" if name.endswith("-false") else "unknown"
     lane = "GRBench" if "grbench" in name else "GTSQA" if "gtsqa" in name else "unknown"
