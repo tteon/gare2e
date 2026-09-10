@@ -123,10 +123,11 @@ python3 scripts/benchmarks/pack_agentic_os_traces.py \
   .seocho/benchmarks/agentic-os/colocated-appliance/runs/<run> \
   --output /tmp/traces/<run> \
   --s3-uri s3://seocho-agentic-os-traces/seocho-agentic-os/traces/<run> \
-  --aws-profile seocho-traces --lab-request <NNN>
+  --aws-profile seocho-traces --lab-request <NNN> \
+  --index traces/index.json        # 리포에 있는 index.json 사본; run 행을 추가하고 버킷 루트에 다시 올립니다
 ```
 - 패커는 허용 목록 파일만 고르고 JSONL을 Parquet으로 바꾸고 leak-scan(토큰 필드, 공개 IPv4, SSH 키, API 키 패턴)을 통과해야만 업로드합니다. 걸리면 exit 3, 업로드 없음.
-- 업로드 후 `index.json`에 한 줄이 추가됩니다. 로컬 `/tmp/traces/<run>/manifest.json`과 `index.json`을 리포의 `traces/<run>/manifest.json`, `traces/index.json`으로 복사해 커밋합니다(원본 데이터는 커밋하지 않음).
+- `--index`가 가리키는 리포 사본 `traces/index.json`에 run 행이 추가되고 같은 파일이 `seocho-agentic-os/traces/index.json`으로 올라갑니다(업로더 IAM 사용자는 ListBucket/GetObject가 없어 버킷 쪽을 읽지 못하므로 리포 사본이 원본입니다). 이어서 `/tmp/traces/<run>/manifest.json`을 `traces/<run>/manifest.json`으로 복사해 `index.json`과 함께 커밋합니다(원본 데이터는 커밋하지 않음). 오래 남길 run은 `--keep`.
 - 올리면 안 되는 것: `*.private.*`(프롬프트·답변·증거·로그), `vast-colocated-lifecycle.json` 원본(인스턴스 payload에 세션 토큰·IP 포함). 패커가 걸러 주지만 수동으로 `aws s3 cp` 할 때는 직접 확인하세요.
 
 ## 7. 크기와 보존

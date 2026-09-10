@@ -20,6 +20,7 @@ the CLI uses the caller's ``~/.aws`` profile or environment.
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import hashlib
 import json
 import re
@@ -104,6 +105,36 @@ def _scan(path: Path) -> list[str]:
     return [name for name, pat in LEAK_PATTERNS.items() if pat.search(text)]
 
 
+def index_entry(manifest: dict[str, Any], s3_uri: str, lab_request: str | None, keep: bool) -> dict[str, Any]:
+    """One bucket-root index row: where a run's package is and which code made it."""
+    prov = manifest.get("provenance", {})
+    return {
+        "run": manifest["run_root"],
+        "uploaded_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "lab_request": lab_request,
+        "source_bundle_sha256": prov.get("source_bundle_sha256"),
+        "instance_id": prov.get("instance_id"),
+        "state": prov.get("state"),
+        "files": manifest["file_count"],
+        "bytes": manifest["bytes"],
+        "prefix": s3_uri.rstrip("/"),
+        "manifest": s3_uri.rstrip("/") + "/manifest.json",
+        "keep": bool(keep),
+    }
+
+
+def append_index(path: Path, entry: dict[str, Any]) -> dict[str, Any]:
+    """Append-only run list; a re-upload of the same run replaces its row."""
+    if path.exists():
+        index = json.loads(path.read_text(encoding="utf-8"))
+    else:
+        index = {"schema_version": "seocho.agentic_os_trace_index.v1", "runs": []}
+    index["runs"] = [r for r in index["runs"] if r.get("run") != entry["run"]] + [entry]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(index, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return index
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("run_root", type=Path)
@@ -111,6 +142,9 @@ def main() -> int:
     ap.add_argument("--s3-uri", help="s3://bucket/prefix to upload the package to (aws cli, SSE AES256)")
     ap.add_argument("--aws-profile")
     ap.add_argument("--keep-jsonl", action="store_true", help="keep JSONL next to the Parquet copies")
+    ap.add_argument("--lab-request", help="lab request id this run belongs to (recorded in the manifest and index)")
+    ap.add_argument("--index", type=Path, help="local copy of the bucket-root traces/index.json; the run is appended and the file re-uploaded next to the run prefix")
+    ap.add_argument("--keep", action="store_true", help="mark the index entry keep=true (exempt from the 90-day lifecycle by the bucket owner)")
     args = ap.parse_args()
     run = args.run_root.resolve()
     out = args.output.resolve()
@@ -159,6 +193,8 @@ def main() -> int:
             "source_bundle_sha256": next((u["sha256"] for u in uploads if u["remote"].endswith("seocho-source.tar.gz")), None),
             "queue_sha256": next((u["sha256"] for u in uploads if u["remote"].endswith("lab-queue.tsv")), None),
         }
+    if args.lab_request:
+        provenance["lab_request"] = args.lab_request
     manifest = {
         "schema_version": "seocho.agentic_os_trace_package.v1",
         "run_root": run.name,
@@ -183,6 +219,20 @@ def main() -> int:
         if proc.returncode != 0:
             print(json.dumps(result, sort_keys=True), file=sys.stderr)
             return 4
+        if args.index:
+            index_uri = args.s3_uri.rstrip("/").rsplit("/", 1)[0] + "/index.json"
+            entry = index_entry(manifest, args.s3_uri, args.lab_request, args.keep)
+            append_index(args.index, entry)
+            shutil.copy2(args.index, out / "index.json")
+            cmd = ["aws", "s3", "cp", str(args.index), index_uri, "--sse", "AES256", "--only-show-errors"]
+            if args.aws_profile:
+                cmd += ["--profile", args.aws_profile]
+            proc = subprocess.run(cmd, capture_output=True, text=True)
+            result["index"] = {"uri": index_uri, "exit_code": proc.returncode, "runs": len(json.loads(args.index.read_text(encoding="utf-8"))["runs"])}
+            if proc.returncode != 0:
+                result["index"]["stderr_tail"] = proc.stderr[-400:]
+                print(json.dumps(result, sort_keys=True), file=sys.stderr)
+                return 5
     print(json.dumps(result, sort_keys=True))
     return 0
 
