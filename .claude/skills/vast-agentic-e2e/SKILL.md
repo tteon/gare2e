@@ -358,3 +358,5 @@ attribution and sampling gaps reported.
 Read `references/recovery.md` when a state fails and
 `references/incidents.md` before changing the bootstrap, image, transport,
 or teardown path.
+
+OTel: each pass leaves `run-<pass>/otel/spans.jsonl` (receipt-derived span trees); add `SEOCHO_OTLP_ENDPOINT=http://collector:4317` to the remote env to push spans and enable vLLM OTLP tracing (collector must be reachable from the instance).

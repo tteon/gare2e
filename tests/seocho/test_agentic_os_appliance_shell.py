@@ -273,3 +273,12 @@ def test_wrapper_strict_telemetry_is_opt_in_from_the_appliance() -> None:
     lab_pass = (ROOT / "docker/agentic-os-appliance/run_lab_pass.sh").read_text(encoding="utf-8")
     for text in (entry, lab_pass):
         assert 'SEOCHO_STRICT_TELEMETRY:-0' in text and "--strict-telemetry" in text
+
+
+def test_appliance_exports_otel_spans_and_enables_vllm_otlp_when_endpoint_set() -> None:
+    lab_pass = (ROOT / "docker/agentic-os-appliance/run_lab_pass.sh").read_text(encoding="utf-8")
+    assert "export_agentic_os_otel.py" in lab_pass and 'otel/spans.jsonl' in lab_pass
+    assert '--otlp-endpoint "$SEOCHO_OTLP_ENDPOINT"' in lab_pass
+    for name in ("entrypoint.sh", "restart_vllm.sh"):
+        text = (ROOT / "docker/agentic-os-appliance" / name).read_text(encoding="utf-8")
+        assert '--otlp-traces-endpoint "$SEOCHO_OTLP_ENDPOINT"' in text

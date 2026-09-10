@@ -39,6 +39,17 @@ python3 "$SEOCHO_REPO_ROOT/scripts/benchmarks/run_agentic_os_colocated_workload.
   --artifacts "$SEOCHO_APPLIANCE_ARTIFACTS/workload" \
   --workload env SEOCHO_E2E_PHASE="$SEOCHO_E2E_PHASE" bash "$SEOCHO_REPO_ROOT/scripts/benchmarks/run_agentic_os_colocated_e2e.sh"
 status=$?
+# OpenTelemetry export of this pass (content-free spans: case > chat > tool > graph-db).
+# JSONL is always written into the pass artifacts; OTLP push only when
+# SEOCHO_OTLP_ENDPOINT is set (the same endpoint vLLM traces to, so the chat spans
+# nest under the client spans through the traceparent the runners send).
+otel_args=(--jsonl "$SEOCHO_APPLIANCE_ARTIFACTS/otel/spans.jsonl")
+[ -n "${SEOCHO_OTLP_ENDPOINT:-}" ] && otel_args+=(--otlp-endpoint "$SEOCHO_OTLP_ENDPOINT" --service-name "${OTEL_SERVICE_NAME:-seocho-agentic-os}")
+roots=(); for lane in "$SEOCHO_APPLIANCE_ARTIFACTS"/e2e/*-tool-*; do [ -d "$lane" ] && roots+=("$lane"); done
+if [ "${#roots[@]}" -gt 0 ]; then
+  python3 "$SEOCHO_REPO_ROOT/scripts/benchmarks/export_agentic_os_otel.py" "${roots[@]}" "${otel_args[@]}" \
+    > "$SEOCHO_APPLIANCE_ARTIFACTS/otel-export-receipt.json" 2> "$SEOCHO_APPLIANCE_ARTIFACTS/otel-export.stderr.private.log" || echo "otel export failed (non-fatal)" >&2
+fi
 printf '{"pass_id":"%s","phase":"%s","prompt_profile":"%s","b0_criterion":"%s","vllm_extra_args_override":"%s","vllm_replicas":%s,"router_policy":"%s","lmcache_shared":%s,"exit_code":%s}\n' \
   "$PASS_ID" "$SEOCHO_E2E_PHASE" "${SEOCHO_PROMPT_PROFILE:-baseline}" "${SEOCHO_GATE_B0_CRITERION:-validated}" "${VLLM_EXTRA_ARGS_OVERRIDE:-}" "${VLLM_REPLICAS:-1}" "${SEOCHO_ROUTER_POLICY:-}" "${LMCACHE_SHARED:-0}" "$status" \
   > "$SEOCHO_APPLIANCE_ARTIFACTS/pass-receipt.json"

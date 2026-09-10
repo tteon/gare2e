@@ -48,7 +48,7 @@ class AgentExecutionRecorder:
         completed_ms = (time.perf_counter() - self._started) * 1000
         return self._event_ordinal, max(0.0, completed_ms - latency_s * 1000)
 
-    def record_llm(self, *, usage: Mapping[str, Any], latency_s: float, outcome: str = "ok", output_kind: str = "message") -> None:
+    def record_llm(self, *, usage: Mapping[str, Any], latency_s: float, outcome: str = "ok", output_kind: str = "message", span_id: str | None = None) -> None:
         event_ordinal, started_elapsed_ms = self._next_event(latency_s=latency_s)
         details = usage.get("prompt_tokens_details") if isinstance(usage.get("prompt_tokens_details"), Mapping) else {}
         completion_details = (
@@ -61,6 +61,8 @@ class AgentExecutionRecorder:
             usage, "reasoning_tokens", "thinking_tokens"
         )
         self.turns.append({"event_ordinal": event_ordinal, "started_elapsed_ms": round(started_elapsed_ms, 3), "input_tokens": _usage_value(usage, "prompt_tokens", "input_tokens"), "output_tokens": _usage_value(usage, "completion_tokens", "output_tokens"), "thinking_tokens": reasoning_tokens, "tool_call_tokens": _usage_value(usage, "tool_call_tokens"), "cached_tokens": int(cached) if isinstance(cached, int) else None, "latency_ms": round(latency_s * 1000, 3), "outcome": outcome, "output_kind": output_kind})
+        if span_id is not None:
+            self.turns[-1]["span_id"] = span_id
 
     def record_tool(
         self,

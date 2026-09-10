@@ -29,6 +29,7 @@ from seocho.eval.agentic_os_artifacts import (
     require_fresh_outputs,
     write_manifest,
 )
+from seocho.eval.agentic_os_trace import case_trace, inject_traceparent
 from seocho.eval.agentic_graph_agents import (
     classify_answer_status,
     contains_unparsed_tool_markup,
@@ -81,13 +82,17 @@ def _load_questions(path: Path, limit: int, qids: set[str] | None = None) -> lis
 
 def _post(url: str, payload: dict[str, Any]) -> tuple[dict[str, Any], float]:
     started = time.perf_counter()
-    request = Request(url, data=json.dumps(payload).encode("utf-8"), headers={"Content-Type": "application/json"})
+    headers: dict[str, str] = {"Content-Type": "application/json"}
+    span_id = inject_traceparent(headers)  # W3C trace context for the bound case (no-op otherwise)
+    request = Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers)
     try:
         with urlopen(request, timeout=180) as response:  # noqa: S310 - endpoint is an explicit experiment arg
             result = json.loads(response.read().decode("utf-8"))
     except HTTPError as error:
         detail = error.read().decode("utf-8", errors="replace")[:1000]
         raise RuntimeError(f"LLM HTTP {error.code}: {detail}") from error
+    if span_id is not None:
+        result["_seocho_span_id"] = span_id
     return result, (time.perf_counter() - started) * 1000
 
 
@@ -376,284 +381,288 @@ def main() -> int:
     predictions: dict[str, dict[str, str]] = {}
     try:
         for item in questions:
-            process_window = ProcessMetricsWindow(process_roles)
-            process_window.__enter__()
-            wall_started = time.perf_counter()
-            case_metrics_window = VllmMetricsWindow(metrics_client) if metrics_client else None
-            if case_metrics_window:
-                case_metrics_window.__enter__()
-            messages: list[dict[str, Any]] = [{"role": "system", "content": system}, {"role": "user", "content": item["question"]}]
-            turns: list[dict[str, Any]] = []
-            tools: list[dict[str, Any]] = []
-            profile_queries: list[str] = []
-            terminal = "turn_budget_exhausted"
-            final_answer = ""
-            schema_observed = False
-            query_executed = False
-            budget_prompt_tokens = 0
-            budget_completion_tokens = 0
-            for _ in range(args.max_turns):
-                payload = {
-                    "model": args.model,
-                    "messages": messages,
-                    "temperature": 0,
-                    "max_tokens": args.max_output_tokens,
-                    "chat_template_kwargs": {"enable_thinking": args.enable_thinking == "true"},
-                    **openai_tool_fields(
-                        spec,
-                        tools=(schema_tool, query_tool),
-                        schema_observed=schema_observed,
-                        query_executed=query_executed,
-                        schema_tool_name="inspect_graph_schema",
-                        query_tool_name="execute_cypher",
-                    ),
-                }
-                try:
-                    response, llm_ms = _post(f"{args.base_url.rstrip('/')}/v1/chat/completions", payload)
-                except Exception as exc:  # retained only as class, never provider/body text
-                    turns.append({"latency_ms": None, "outcome": type(exc).__name__, "output_kind": "error"})
-                    terminal = "llm_error"
-                    break
-                turn_receipt = _usage_receipt(response, llm_ms)
-                budget_prompt_tokens += int(turn_receipt.get("input_tokens") or 0)
-                budget_completion_tokens += int(turn_receipt.get("output_tokens") or 0)
-                turns.append(turn_receipt)
-                if budget_prompt_tokens + budget_completion_tokens > args.token_budget:
-                    terminal = "budget_exceeded"
-                    final_answer = ""
-                    break
-                choice = (response.get("choices") or [{}])[0]
-                message = choice.get("message") or {}
-                messages.append({"role": "assistant", "content": message.get("content"), "tool_calls": message.get("tool_calls")})
-                calls = message.get("tool_calls") or []
-                if not calls:
-                    candidate = str(message.get("content") or "")
-                    if contains_unparsed_tool_markup(candidate):
-                        turns[-1]["outcome"] = "tool_parse_error"
-                        turns[-1]["output_kind"] = "protocol_error"
-                        terminal = "tool_parse_error"
-                        break
-                    final_answer = candidate
-                    terminal = "final"
-                    break
-                for call in calls[:1]:
-                    tool_started = time.perf_counter()
-                    tool_argument_decode_ms: float | None = None
-                    try:
-                        function = call.get("function") or {}
-                        tool_name = str(function.get("name", ""))
-                        decode_started = time.perf_counter()
-                        arguments = json.loads(function.get("arguments") or "{}")
-                        tool_argument_decode_ms = round(
-                            (time.perf_counter() - decode_started) * 1000,
-                            3,
-                        )
-                        if tool_name == "inspect_graph_schema":
-                            observation = discovery_by_qid.get(item["qid"])
-                            if observation is None:
-                                if args.discovery_cache:
-                                    raise ValueError("qid missing from frozen discovery cache")
-                                observation = _schema_slice()
-                            detail = {"schema_slice_digest": _digest(observation), "result_bytes": len(observation), "rows": None}
-                            schema_observed = True
-                        elif tool_name == "execute_cypher":
-                            if driver is None:
-                                raise RuntimeError("graph driver unavailable")
-                            observation, detail = _tool_result(driver, args.database, args.workspace_id, str(arguments.get("query", "")), args.row_cap, args.byte_cap)
-                            query_executed = True
-                            profile_queries.append(str(arguments.get("query", "")))
-                        else:
-                            raise ValueError("unrecognized tool")
-                        outcome = "ok"
-                    except Exception as exc:
-                        error_code = (
-                            exc.code
-                            if isinstance(exc, QueryValidationError)
-                            else "database_or_runtime_error"
-                        )
-                        observation = json.dumps({"error_code": error_code})
-                        attempted_query = (
-                            str(arguments.get("query", ""))
-                            if isinstance(arguments, dict)
-                            else ""
-                        )
-                        detail = {"validator_ms": None, "db_execute_ms": None, "rows": 0, "result_bytes": len(observation), "query_digest": _digest(attempted_query) if attempted_query else None, "error_code": error_code}
-                        outcome = "rejected"
-                    detail.update(
-                        {
-                            "name": str((call.get("function") or {}).get("name", "unknown")),
-                            "outcome": outcome,
-                            "latency_ms": round((time.perf_counter() - tool_started) * 1000, 3),
-                            "tool_argument_decode_ms": tool_argument_decode_ms,
-                        }
-                    )
-                    tools.append(detail)
-                    messages.append({"role": "tool", "tool_call_id": call.get("id"), "content": observation})
-            if case_metrics_window:
-                case_metrics_window.__exit__(None, None, None)
-            case_vllm_metrics = case_metrics_window.receipt() if case_metrics_window else None
-            case_execution_wall_ms = round((time.perf_counter() - wall_started) * 1000, 3)
-            process_window.__exit__(None, None, None)
-            process_receipt = process_window.receipt()
-            plan_replays: list[dict[str, Any]] = []
-            if args.profile_query_plans and driver is not None:
-                for query in profile_queries:
-                    try:
-                        plan_replays.append(
-                            _profile_result(
-                                driver,
-                                args.database,
-                                args.workspace_id,
-                                query,
-                                args.row_cap,
-                            )
-                        )
-                    except Exception as exc:
-                        plan_replays.append(
-                            {
-                                "schema_version": "agentic_os.dozer_profile_replay.v1",
-                                "scope": "separate_read_only_diagnostic_replay",
-                                "error_class": type(exc).__name__,
-                            }
-                        )
-            predictions[item["qid"]] = {"prediction": final_answer, "answer": item["answer"]}
-            correlation = Correlation(
-                run_id=args.run_id,
-                case_id=item["qid"],
-                arm=args.arm,
-                repetition=args.repetition,
-                cache_phase=args.cache_phase,
-                role="single_agent",
-                seed=args.seed,
-            ).receipt_fields()
-            successful_query_events = [
-                event
-                for event in tools
-                if event.get("name") == "execute_cypher" and event.get("outcome") == "ok"
-            ]
-            query_events = [event for event in tools if event.get("name") == "execute_cypher"]
-            failed_query_indices = [
-                index for index, event in enumerate(query_events) if event.get("outcome") != "ok"
-            ]
-            empty_query_indices = [
-                index
-                for index, event in enumerate(query_events)
-                if event.get("outcome") == "ok" and int(event.get("rows") or 0) == 0
-            ]
-            repair_attempts = sum(
-                1
-                for index in range(1, len(query_events))
-                if any(failed < index for failed in failed_query_indices)
-            )
-            repair_successes = sum(
-                1
-                for index, event in enumerate(query_events)
-                if event.get("outcome") == "ok"
-                and any(failed < index for failed in failed_query_indices)
-            )
-            empty_result_retries = sum(
-                1
-                for index in range(1, len(query_events))
-                if any(empty < index for empty in empty_query_indices)
-            )
-            result_rows = sum(int(event.get("rows") or 0) for event in successful_query_events)
-            evidence_status = "ok" if result_rows else ("empty" if query_events else "not_called")
-            answer_status = classify_answer_status(final_answer, evidence_status=evidence_status)
-            if terminal == "final":
-                terminal = {
-                    "abstained": "abstained",
-                    "empty": "empty_answer",
-                    "unsupported_answer": "unsupported_answer",
-                }.get(answer_status, terminal)
-            completed = terminal == "final" and answer_status in {"answered", "direct_answer"}
-            wall_ms = case_execution_wall_ms
-            llm_ms = round(sum(t.get("latency_ms") or 0 for t in turns), 3)
-            tool_ms = round(sum(t.get("latency_ms") or 0 for t in tools), 3)
-            observability_overhead_ms = round(
-                float((case_vllm_metrics or {}).get("observer_overhead_ms") or 0),
-                3,
-            )
-            adjusted_wall_ms = round(max(0.0, wall_ms - observability_overhead_ms), 3)
-            server_reported_ms = round(
-                sum(
-                    float(event.get("server_available_ms") or 0)
-                    + float(event.get("server_consumed_ms") or 0)
-                    for event in successful_query_events
-                ),
-                3,
-            )
-            case_receipt = {
-                **correlation,
-                "qid": item["qid"],
-                "terminal": terminal,
-                "answer_status": answer_status,
-                "success": completed,
-                "turn_count": len(turns),
-                "repair_count": repair_attempts,
-                "query_retry_count": max(0, len(query_events) - 1),
-                "empty_result_retry_count": empty_result_retries,
-                "role_characteristics": {
-                    "single_agent": {
-                        "schema_calls": sum(event.get("name") == "inspect_graph_schema" for event in tools),
-                        "query_calls": len(query_events),
-                        "query_failures": len(failed_query_indices),
-                        "repair_attempts": repair_attempts,
-                        "repair_successes": repair_successes,
-                        "query_retries": max(0, len(query_events) - 1),
-                        "empty_result_retries": empty_result_retries,
-                    }
-                },
-                "time": {
-                    "wall_ms": wall_ms,
-                    "adjusted_wall_ms": adjusted_wall_ms,
-                    "observability_overhead_ms": observability_overhead_ms,
-                    "llm_ms": llm_ms,
-                    "tool_ms": tool_ms,
-                },
-                "turns": turns,
-                "tools": tools,
-                "budget": {
-                    "limit": args.token_budget,
-                    "prompt_tokens": budget_prompt_tokens,
-                    "completion_tokens": budget_completion_tokens,
-                    "observed_total": budget_prompt_tokens + budget_completion_tokens,
-                    "exceeded": budget_prompt_tokens + budget_completion_tokens > args.token_budget,
-                    "enforcement": "post_response_fail_closed",
-                },
-                "condition": args.condition,
-                "evidence_class": spec.evidence_class,
-                "query_plan_replays": plan_replays,
-            }
-            if case_vllm_metrics:
-                case_receipt["vllm_metrics_window"] = case_vllm_metrics
-            case_receipt["resource_attribution"] = build_three_layer_attribution(
-                wall_ms=wall_ms,
-                llm_ms=llm_ms,
-                tool_ms=tool_ms,
-                process_window=process_receipt,
-                process_role_layers={
-                    "agent": "middleware",
-                    **({"dozerdb": "database"} if args.db_pid and spec.tools_enabled else {}),
-                },
-                database_observation={
-                    "source": "bolt_server_summary",
-                    "server_reported_ms": server_reported_ms,
-                    "query_calls": len(successful_query_events),
-                },
-                vllm_window_scope="serialized_case" if metrics_client else "absent",
-                observability_overhead_ms=observability_overhead_ms,
-            )
-            case_receipt["retrieval_funnel"] = build_retrieval_funnel(
-                turns=turns,
-                tools=tools,
-                success=completed,
-                evidence_class=spec.evidence_class,
-                forced_tool=spec.forced,
-                query_validated=bool(successful_query_events),
-                query_executed=bool(successful_query_events),
-                result_rows=result_rows if successful_query_events else None,
-            )
-            cases.append(case_receipt)
+          with case_trace(args.run_id, item["qid"]) as case_trace_ctx:
+              process_window = ProcessMetricsWindow(process_roles)
+              process_window.__enter__()
+              wall_started = time.perf_counter()
+              case_metrics_window = VllmMetricsWindow(metrics_client) if metrics_client else None
+              if case_metrics_window:
+                  case_metrics_window.__enter__()
+              messages: list[dict[str, Any]] = [{"role": "system", "content": system}, {"role": "user", "content": item["question"]}]
+              turns: list[dict[str, Any]] = []
+              tools: list[dict[str, Any]] = []
+              profile_queries: list[str] = []
+              terminal = "turn_budget_exhausted"
+              final_answer = ""
+              schema_observed = False
+              query_executed = False
+              budget_prompt_tokens = 0
+              budget_completion_tokens = 0
+              for _ in range(args.max_turns):
+                  payload = {
+                      "model": args.model,
+                      "messages": messages,
+                      "temperature": 0,
+                      "max_tokens": args.max_output_tokens,
+                      "chat_template_kwargs": {"enable_thinking": args.enable_thinking == "true"},
+                      **openai_tool_fields(
+                          spec,
+                          tools=(schema_tool, query_tool),
+                          schema_observed=schema_observed,
+                          query_executed=query_executed,
+                          schema_tool_name="inspect_graph_schema",
+                          query_tool_name="execute_cypher",
+                      ),
+                  }
+                  try:
+                      response, llm_ms = _post(f"{args.base_url.rstrip('/')}/v1/chat/completions", payload)
+                  except Exception as exc:  # retained only as class, never provider/body text
+                      turns.append({"latency_ms": None, "outcome": type(exc).__name__, "output_kind": "error"})
+                      terminal = "llm_error"
+                      break
+                  turn_receipt = _usage_receipt(response, llm_ms)
+                  if response.get("_seocho_span_id"):
+                      turn_receipt["span_id"] = response["_seocho_span_id"]
+                  budget_prompt_tokens += int(turn_receipt.get("input_tokens") or 0)
+                  budget_completion_tokens += int(turn_receipt.get("output_tokens") or 0)
+                  turns.append(turn_receipt)
+                  if budget_prompt_tokens + budget_completion_tokens > args.token_budget:
+                      terminal = "budget_exceeded"
+                      final_answer = ""
+                      break
+                  choice = (response.get("choices") or [{}])[0]
+                  message = choice.get("message") or {}
+                  messages.append({"role": "assistant", "content": message.get("content"), "tool_calls": message.get("tool_calls")})
+                  calls = message.get("tool_calls") or []
+                  if not calls:
+                      candidate = str(message.get("content") or "")
+                      if contains_unparsed_tool_markup(candidate):
+                          turns[-1]["outcome"] = "tool_parse_error"
+                          turns[-1]["output_kind"] = "protocol_error"
+                          terminal = "tool_parse_error"
+                          break
+                      final_answer = candidate
+                      terminal = "final"
+                      break
+                  for call in calls[:1]:
+                      tool_started = time.perf_counter()
+                      tool_argument_decode_ms: float | None = None
+                      try:
+                          function = call.get("function") or {}
+                          tool_name = str(function.get("name", ""))
+                          decode_started = time.perf_counter()
+                          arguments = json.loads(function.get("arguments") or "{}")
+                          tool_argument_decode_ms = round(
+                              (time.perf_counter() - decode_started) * 1000,
+                              3,
+                          )
+                          if tool_name == "inspect_graph_schema":
+                              observation = discovery_by_qid.get(item["qid"])
+                              if observation is None:
+                                  if args.discovery_cache:
+                                      raise ValueError("qid missing from frozen discovery cache")
+                                  observation = _schema_slice()
+                              detail = {"schema_slice_digest": _digest(observation), "result_bytes": len(observation), "rows": None}
+                              schema_observed = True
+                          elif tool_name == "execute_cypher":
+                              if driver is None:
+                                  raise RuntimeError("graph driver unavailable")
+                              observation, detail = _tool_result(driver, args.database, args.workspace_id, str(arguments.get("query", "")), args.row_cap, args.byte_cap)
+                              query_executed = True
+                              profile_queries.append(str(arguments.get("query", "")))
+                          else:
+                              raise ValueError("unrecognized tool")
+                          outcome = "ok"
+                      except Exception as exc:
+                          error_code = (
+                              exc.code
+                              if isinstance(exc, QueryValidationError)
+                              else "database_or_runtime_error"
+                          )
+                          observation = json.dumps({"error_code": error_code})
+                          attempted_query = (
+                              str(arguments.get("query", ""))
+                              if isinstance(arguments, dict)
+                              else ""
+                          )
+                          detail = {"validator_ms": None, "db_execute_ms": None, "rows": 0, "result_bytes": len(observation), "query_digest": _digest(attempted_query) if attempted_query else None, "error_code": error_code}
+                          outcome = "rejected"
+                      detail.update(
+                          {
+                              "name": str((call.get("function") or {}).get("name", "unknown")),
+                              "outcome": outcome,
+                              "latency_ms": round((time.perf_counter() - tool_started) * 1000, 3),
+                              "tool_argument_decode_ms": tool_argument_decode_ms,
+                          }
+                      )
+                      tools.append(detail)
+                      messages.append({"role": "tool", "tool_call_id": call.get("id"), "content": observation})
+              if case_metrics_window:
+                  case_metrics_window.__exit__(None, None, None)
+              case_vllm_metrics = case_metrics_window.receipt() if case_metrics_window else None
+              case_execution_wall_ms = round((time.perf_counter() - wall_started) * 1000, 3)
+              process_window.__exit__(None, None, None)
+              process_receipt = process_window.receipt()
+              plan_replays: list[dict[str, Any]] = []
+              if args.profile_query_plans and driver is not None:
+                  for query in profile_queries:
+                      try:
+                          plan_replays.append(
+                              _profile_result(
+                                  driver,
+                                  args.database,
+                                  args.workspace_id,
+                                  query,
+                                  args.row_cap,
+                              )
+                          )
+                      except Exception as exc:
+                          plan_replays.append(
+                              {
+                                  "schema_version": "agentic_os.dozer_profile_replay.v1",
+                                  "scope": "separate_read_only_diagnostic_replay",
+                                  "error_class": type(exc).__name__,
+                              }
+                          )
+              predictions[item["qid"]] = {"prediction": final_answer, "answer": item["answer"]}
+              correlation = Correlation(
+                  run_id=args.run_id,
+                  case_id=item["qid"],
+                  arm=args.arm,
+                  repetition=args.repetition,
+                  cache_phase=args.cache_phase,
+                  role="single_agent",
+                  seed=args.seed,
+              ).receipt_fields()
+              successful_query_events = [
+                  event
+                  for event in tools
+                  if event.get("name") == "execute_cypher" and event.get("outcome") == "ok"
+              ]
+              query_events = [event for event in tools if event.get("name") == "execute_cypher"]
+              failed_query_indices = [
+                  index for index, event in enumerate(query_events) if event.get("outcome") != "ok"
+              ]
+              empty_query_indices = [
+                  index
+                  for index, event in enumerate(query_events)
+                  if event.get("outcome") == "ok" and int(event.get("rows") or 0) == 0
+              ]
+              repair_attempts = sum(
+                  1
+                  for index in range(1, len(query_events))
+                  if any(failed < index for failed in failed_query_indices)
+              )
+              repair_successes = sum(
+                  1
+                  for index, event in enumerate(query_events)
+                  if event.get("outcome") == "ok"
+                  and any(failed < index for failed in failed_query_indices)
+              )
+              empty_result_retries = sum(
+                  1
+                  for index in range(1, len(query_events))
+                  if any(empty < index for empty in empty_query_indices)
+              )
+              result_rows = sum(int(event.get("rows") or 0) for event in successful_query_events)
+              evidence_status = "ok" if result_rows else ("empty" if query_events else "not_called")
+              answer_status = classify_answer_status(final_answer, evidence_status=evidence_status)
+              if terminal == "final":
+                  terminal = {
+                      "abstained": "abstained",
+                      "empty": "empty_answer",
+                      "unsupported_answer": "unsupported_answer",
+                  }.get(answer_status, terminal)
+              completed = terminal == "final" and answer_status in {"answered", "direct_answer"}
+              wall_ms = case_execution_wall_ms
+              llm_ms = round(sum(t.get("latency_ms") or 0 for t in turns), 3)
+              tool_ms = round(sum(t.get("latency_ms") or 0 for t in tools), 3)
+              observability_overhead_ms = round(
+                  float((case_vllm_metrics or {}).get("observer_overhead_ms") or 0),
+                  3,
+              )
+              adjusted_wall_ms = round(max(0.0, wall_ms - observability_overhead_ms), 3)
+              server_reported_ms = round(
+                  sum(
+                      float(event.get("server_available_ms") or 0)
+                      + float(event.get("server_consumed_ms") or 0)
+                      for event in successful_query_events
+                  ),
+                  3,
+              )
+              case_receipt = {
+                  **correlation,
+                  "trace": case_trace_ctx.receipt(),
+                  "qid": item["qid"],
+                  "terminal": terminal,
+                  "answer_status": answer_status,
+                  "success": completed,
+                  "turn_count": len(turns),
+                  "repair_count": repair_attempts,
+                  "query_retry_count": max(0, len(query_events) - 1),
+                  "empty_result_retry_count": empty_result_retries,
+                  "role_characteristics": {
+                      "single_agent": {
+                          "schema_calls": sum(event.get("name") == "inspect_graph_schema" for event in tools),
+                          "query_calls": len(query_events),
+                          "query_failures": len(failed_query_indices),
+                          "repair_attempts": repair_attempts,
+                          "repair_successes": repair_successes,
+                          "query_retries": max(0, len(query_events) - 1),
+                          "empty_result_retries": empty_result_retries,
+                      }
+                  },
+                  "time": {
+                      "wall_ms": wall_ms,
+                      "adjusted_wall_ms": adjusted_wall_ms,
+                      "observability_overhead_ms": observability_overhead_ms,
+                      "llm_ms": llm_ms,
+                      "tool_ms": tool_ms,
+                  },
+                  "turns": turns,
+                  "tools": tools,
+                  "budget": {
+                      "limit": args.token_budget,
+                      "prompt_tokens": budget_prompt_tokens,
+                      "completion_tokens": budget_completion_tokens,
+                      "observed_total": budget_prompt_tokens + budget_completion_tokens,
+                      "exceeded": budget_prompt_tokens + budget_completion_tokens > args.token_budget,
+                      "enforcement": "post_response_fail_closed",
+                  },
+                  "condition": args.condition,
+                  "evidence_class": spec.evidence_class,
+                  "query_plan_replays": plan_replays,
+              }
+              if case_vllm_metrics:
+                  case_receipt["vllm_metrics_window"] = case_vllm_metrics
+              case_receipt["resource_attribution"] = build_three_layer_attribution(
+                  wall_ms=wall_ms,
+                  llm_ms=llm_ms,
+                  tool_ms=tool_ms,
+                  process_window=process_receipt,
+                  process_role_layers={
+                      "agent": "middleware",
+                      **({"dozerdb": "database"} if args.db_pid and spec.tools_enabled else {}),
+                  },
+                  database_observation={
+                      "source": "bolt_server_summary",
+                      "server_reported_ms": server_reported_ms,
+                      "query_calls": len(successful_query_events),
+                  },
+                  vllm_window_scope="serialized_case" if metrics_client else "absent",
+                  observability_overhead_ms=observability_overhead_ms,
+              )
+              case_receipt["retrieval_funnel"] = build_retrieval_funnel(
+                  turns=turns,
+                  tools=tools,
+                  success=completed,
+                  evidence_class=spec.evidence_class,
+                  forced_tool=spec.forced,
+                  query_validated=bool(successful_query_events),
+                  query_executed=bool(successful_query_events),
+                  result_rows=result_rows if successful_query_events else None,
+              )
+              cases.append(case_receipt)
     finally:
         if driver is not None:
             driver.close()

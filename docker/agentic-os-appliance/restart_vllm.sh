@@ -67,6 +67,11 @@ vllm_command=(
 if [ "${VLLM_LANGUAGE_MODEL_ONLY:-1}" = "1" ]; then
   vllm_command+=(--language-model-only)
 fi
+if [ -n "${SEOCHO_OTLP_ENDPOINT:-}" ]; then
+  # vLLM exports one server span per request, honouring the traceparent header
+  # the runners send, so it nests under the client span in the same trace.
+  vllm_command+=(--otlp-traces-endpoint "$SEOCHO_OTLP_ENDPOINT")
+fi
 # The pass queue is an env-only channel that cannot quote spaces, so commas
 # are accepted as argument separators (JSON values must then avoid commas
 # inside tokens — the speculative-config JSON is split and re-joined below).

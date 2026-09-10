@@ -23,6 +23,7 @@ from urllib.request import Request, urlopen
 
 from pydantic import BaseModel, Field
 
+from .agentic_os_trace import TRACEPARENT_HEADER, inject_traceparent
 from .agent_execution import AgentExecutionRecorder, build_retrieval_funnel, observe_tool
 from .gold_graph import GoldGraphScore
 from .gtsqa import GTSQACase, score_gtsqa_retrieval
@@ -103,6 +104,7 @@ class NativeModelReply:
     usage: Mapping[str, Any] = field(default_factory=dict)
     latency_s: float = 0.0
     protocol_error: str | None = None
+    span_id: str | None = None  # W3C span id sent as traceparent (agentic_os_trace)
 
 
 _TEXTUAL_TOOL_MARKUP = re.compile(r"<tool_call>|<function\s*=", re.I)
@@ -165,10 +167,12 @@ class OpenAICompatibleNativeToolModel:
             payload.update({"tools": list(tools), "tool_choice": tool_choice})
         elif tool_choice != "auto":
             raise ValueError("a forced tool choice requires a non-empty tool surface")
+        headers: dict[str, str] = {"Content-Type": "application/json"}
+        span_id = inject_traceparent(headers)  # no-op outside a bound case trace
         request = Request(
             f"{self.base_url.rstrip('/')}/v1/chat/completions",
             data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
+            headers=headers,
         )
         started = time.perf_counter()
         try:
@@ -205,6 +209,7 @@ class OpenAICompatibleNativeToolModel:
             usage=body.get("usage") or {},
             latency_s=time.perf_counter() - started,
             protocol_error=protocol_error,
+            span_id=span_id,
         )
 
 
@@ -478,6 +483,7 @@ def run_gtsqa_text2sparql_react(
             latency_s=reply.latency_s,
             outcome=protocol_outcome or "ok",
             output_kind="tool_call" if reply.tool_calls else "message",
+            span_id=reply.span_id,
         )
         if reply.protocol_error:
             failures += 1
@@ -1140,6 +1146,11 @@ class LLMRequestTimer:
 
     async def on_request(self, request: Any) -> None:
         request.extensions["seocho_started_perf_s"] = time.perf_counter()
+        headers: dict[str, str] = {}
+        span_id = inject_traceparent(headers)
+        if span_id is not None:
+            request.headers[TRACEPARENT_HEADER] = headers[TRACEPARENT_HEADER]
+            request.extensions["seocho_span_id"] = span_id
 
     async def on_response(self, response: Any) -> None:
         started = response.request.extensions.get("seocho_started_perf_s")
@@ -1152,6 +1163,7 @@ class LLMRequestTimer:
                 "status_code": int(response.status_code),
                 "started_elapsed_ms": round((started - self._epoch) * 1000, 3),
                 "latency_ms": round((finished - started) * 1000, 3),
+                "span_id": response.request.extensions.get("seocho_span_id"),
             }
         )
 

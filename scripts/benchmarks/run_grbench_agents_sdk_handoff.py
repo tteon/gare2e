@@ -24,6 +24,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from seocho.eval.agent_execution import build_retrieval_funnel
+from seocho.eval.agentic_os_trace import case_trace
 from seocho.eval.prompt_profiles import PROMPT_PROFILES, instructions_prefix, system_prompt_addendum
 from seocho.eval.agentic_graph_agents import (
     EvidenceHandoff,
@@ -162,210 +163,212 @@ async def _run(args: argparse.Namespace) -> int:
         gpu_sampler.start()
     try:
         for question in questions:
-            executor = GRBenchDozerExecutor(
-                driver,
-                database=args.database,
-                workspace_id=args.workspace_id,
-                row_cap=args.row_cap,
-                byte_cap=args.byte_cap,
-            )
-            query_receipts: list[dict] = []
-            profile_queries: list[str] = []
+          with case_trace(args.run_id, question.qid) as case_trace_ctx:
+              executor = GRBenchDozerExecutor(
+                  driver,
+                  database=args.database,
+                  workspace_id=args.workspace_id,
+                  row_cap=args.row_cap,
+                  byte_cap=args.byte_cap,
+              )
+              query_receipts: list[dict] = []
+              profile_queries: list[str] = []
 
-            def execute(query: str) -> EvidenceHandoff:
-                result = executor.execute_select(query)
-                query_receipts.append(dict(result.receipt))
-                profile_queries.append(query)
-                return EvidenceHandoff.from_rows(rows=result.rows, query=query)
+              def execute(query: str) -> EvidenceHandoff:
+                  result = executor.execute_select(query)
+                  query_receipts.append(dict(result.receipt))
+                  profile_queries.append(query)
+                  return EvidenceHandoff.from_rows(rows=result.rows, query=query)
 
-            correlation = Correlation(
-                args.run_id,
-                question.qid,
-                args.arm,
-                args.repetition,
-                args.cache_phase,
-                "manager_specialist_as_tool",
-                args.seed,
-            ).receipt_fields()
-            window = VllmMetricsWindow(metrics) if metrics else None
-            process_window = ProcessMetricsWindow(roles)
-            case_started = time.perf_counter()
-            llm_timer.reset()
-            process_window.__enter__()
-            if window:
-                window.__enter__()
-            try:
-                episode = await run_agents_sdk_agent_tool_episode(
-                    question=question.question,
-                    model=model,
-                    execute_query=execute,
-                    schema_discovery=lambda qid=question.qid: discovery.get(qid, _neutral_schema()),
-                    max_turns=args.max_turns,
-                    enable_thinking=args.enable_thinking == "true",
-                    max_output_tokens=args.max_output_tokens,
-                    evidence_class=evidence_class,
-                    query_language="Cypher",
-                    specialist_instructions_addendum=system_prompt_addendum(args.prompt_profile, "cypher"),
-                    shared_prefix=instructions_prefix(args.prompt_profile, "cypher"),
-                )
-                usage_total = sum(
-                    int(episode.receipt.get(stage, {}).get(field, 0))
-                    for stage in ("manager_usage", "specialist_usage")
-                    for field in ("input_tokens", "output_tokens")
-                )
-                budget_exceeded = usage_total > args.token_budget
-                answer_status = str(episode.receipt.get("answer_status") or "empty")
-                terminal_status = (
-                    "budget_exceeded"
-                    if budget_exceeded
-                    else {
-                        "abstained": "abstained",
-                        "empty": "empty_answer",
-                        "unsupported_answer": "unsupported_answer",
-                    }.get(answer_status, "final")
-                )
-                receipt = {
-                    **correlation,
-                    **episode.receipt,
-                    "success": bool(episode.receipt.get("success")) and not budget_exceeded,
-                    "terminal_status": terminal_status,
-                    "evidence_class": evidence_class,
-                    "retrieved_triple_count": len(episode.evidence.evidence),
-                    "query_executions": query_receipts,
-                    "budget": {
-                        "limit": args.token_budget,
-                        "observed_total": usage_total,
-                        "enforcement": "post_response_fail_closed",
-                    },
-                }
-                append_private_jsonl(
-                    root / "predictions.private.jsonl",
-                    {
-                        **correlation,
-                        "answer": episode.answer,
-                        "gold_answer": question.answer,
-                    },
-                )
-                append_private_jsonl(
-                    root / "evidence.private.jsonl",
-                    {
-                        **correlation,
-                        "triples": [item.model_dump() for item in episode.evidence.evidence],
-                    },
-                )
-            except Exception as exc:
-                append_private_jsonl(
-                    root / "errors.private.jsonl",
-                    {
-                        **correlation,
-                        "error_class": type(exc).__name__,
-                        "error_message": str(exc),
-                        "traceback": traceback.format_exc(),
-                    },
-                )
-                query_tools = [
-                    {"name": "execute_graph_query", "outcome": "ok"}
-                    for _receipt in query_receipts
-                ]
-                receipt = {
-                    **correlation,
-                    "schema_version": "agentic_os.agents_sdk_agent_tool_episode.v1",
-                    "success": False,
-                    "terminal_status": "episode_error",
-                    **redacted_episode_error(exc, stage="manager_specialist_as_tool"),
-                    "evidence_class": evidence_class,
-                    "retrieved_triple_count": 0,
-                    "query_executions": query_receipts,
-                    "retrieval_funnel": build_retrieval_funnel(
-                        turns=[],
-                        tools=query_tools,
-                        success=False,
-                        evidence_class=evidence_class,
-                        query_validated=bool(query_receipts),
-                        query_executed=bool(query_receipts),
-                        result_rows=0 if query_receipts else None,
-                    ),
-                }
-            finally:
-                if window:
-                    window.__exit__(None, None, None)
-                    receipt["vllm_metrics_window"] = window.receipt()
-                process_window.__exit__(None, None, None)
-                window_delta = (
-                    receipt.get("vllm_metrics_window", {}).get("metrics_delta") or {}
-                )
-                observability_overhead_ms = float(
-                    receipt.get("vllm_metrics_window", {}).get("observer_overhead_ms") or 0
-                )
-                vllm_e2e_ms = float(
-                    window_delta.get("vllm:e2e_request_latency_seconds_sum") or 0
-                ) * 1000
-                # Client-observed HTTP latency is the exclusive critical-path term (same
-                # boundary as the single-agent runner); the vLLM window, when present,
-                # is kept as a server-side reference.  Without the timer the appliance
-                # mode reported llm_ms=0 and pushed the whole wall into the residual.
-                llm_http = llm_timer.receipt()
-                llm_observed_ms = llm_http["llm_ms"] if llm_http["request_count"] else vllm_e2e_ms
-                audited_tool_ms = sum(
-                    float(event.get("latency_ms") or 0)
-                    for event in receipt.get("events", [])
-                    if event.get("event") == "tool"
-                )
-                query_tool_ms = audited_tool_ms or sum(
-                    float(item.get("wall_ms") or 0) for item in query_receipts
-                )
-                server_reported_ms = sum(
-                    float(item.get("server_available_ms") or 0)
-                    + float(item.get("server_consumed_ms") or 0)
-                    for item in query_receipts
-                )
-                receipt["time"] = {
-                    "wall_ms": round((time.perf_counter() - case_started) * 1000, 3),
-                    "llm_ms": round(llm_observed_ms, 3),
-                    "tool_ms": round(query_tool_ms, 3),
-                }
-                receipt["time"]["llm_time_source"] = (
-                    "client_http_request_timer" if llm_http["request_count"] else "vllm_metrics_window"
-                )
-                receipt["time"]["llm_requests"] = llm_http["request_count"]
-                receipt["time"]["vllm_e2e_ms"] = round(vllm_e2e_ms, 3)
-                receipt["llm_requests"] = llm_http["requests"]
-                receipt["time"]["observability_overhead_ms"] = round(
-                    observability_overhead_ms, 3
-                )
-                receipt["time"]["adjusted_wall_ms"] = round(
-                    max(0.0, receipt["time"]["wall_ms"] - observability_overhead_ms),
-                    3,
-                )
-                receipt["resource_attribution"] = build_three_layer_attribution(
-                    wall_ms=receipt["time"]["wall_ms"],
-                    llm_ms=receipt["time"]["llm_ms"],
-                    tool_ms=receipt["time"]["tool_ms"],
-                    process_window=process_window.receipt(),
-                    process_role_layers={"agent": "middleware", "dozerdb": "database"},
-                    database_observation={
-                        "source": "bolt_server_summary",
-                        "server_reported_ms": round(server_reported_ms, 3),
-                        "query_calls": len(query_receipts),
-                    },
-                    vllm_window_scope="serialized_case" if metrics else "absent",
-                    observability_overhead_ms=observability_overhead_ms,
-                )
-            if args.profile_query_plans:
-                plan_replays: list[dict] = []
-                for query in profile_queries:
-                    try:
-                        plan_replays.append(executor.profile_select(query))
-                    except Exception as exc:
-                        plan_replays.append(
-                            {
-                                "schema_version": "agentic_os.dozer_profile_replay.v1",
-                                "scope": "separate_read_only_diagnostic_replay",
-                                "error_class": type(exc).__name__,
-                            }
-                        )
-                receipt["query_plan_replays"] = plan_replays
-            append_jsonl(root / "receipts.jsonl", receipt)
+              correlation = Correlation(
+                  args.run_id,
+                  question.qid,
+                  args.arm,
+                  args.repetition,
+                  args.cache_phase,
+                  "manager_specialist_as_tool",
+                  args.seed,
+              ).receipt_fields()
+              window = VllmMetricsWindow(metrics) if metrics else None
+              process_window = ProcessMetricsWindow(roles)
+              case_started = time.perf_counter()
+              llm_timer.reset()
+              process_window.__enter__()
+              if window:
+                  window.__enter__()
+              try:
+                  episode = await run_agents_sdk_agent_tool_episode(
+                      question=question.question,
+                      model=model,
+                      execute_query=execute,
+                      schema_discovery=lambda qid=question.qid: discovery.get(qid, _neutral_schema()),
+                      max_turns=args.max_turns,
+                      enable_thinking=args.enable_thinking == "true",
+                      max_output_tokens=args.max_output_tokens,
+                      evidence_class=evidence_class,
+                      query_language="Cypher",
+                      specialist_instructions_addendum=system_prompt_addendum(args.prompt_profile, "cypher"),
+                      shared_prefix=instructions_prefix(args.prompt_profile, "cypher"),
+                  )
+                  usage_total = sum(
+                      int(episode.receipt.get(stage, {}).get(field, 0))
+                      for stage in ("manager_usage", "specialist_usage")
+                      for field in ("input_tokens", "output_tokens")
+                  )
+                  budget_exceeded = usage_total > args.token_budget
+                  answer_status = str(episode.receipt.get("answer_status") or "empty")
+                  terminal_status = (
+                      "budget_exceeded"
+                      if budget_exceeded
+                      else {
+                          "abstained": "abstained",
+                          "empty": "empty_answer",
+                          "unsupported_answer": "unsupported_answer",
+                      }.get(answer_status, "final")
+                  )
+                  receipt = {
+                      **correlation,
+                      **episode.receipt,
+                      "trace": case_trace_ctx.receipt(),
+                      "success": bool(episode.receipt.get("success")) and not budget_exceeded,
+                      "terminal_status": terminal_status,
+                      "evidence_class": evidence_class,
+                      "retrieved_triple_count": len(episode.evidence.evidence),
+                      "query_executions": query_receipts,
+                      "budget": {
+                          "limit": args.token_budget,
+                          "observed_total": usage_total,
+                          "enforcement": "post_response_fail_closed",
+                      },
+                  }
+                  append_private_jsonl(
+                      root / "predictions.private.jsonl",
+                      {
+                          **correlation,
+                          "answer": episode.answer,
+                          "gold_answer": question.answer,
+                      },
+                  )
+                  append_private_jsonl(
+                      root / "evidence.private.jsonl",
+                      {
+                          **correlation,
+                          "triples": [item.model_dump() for item in episode.evidence.evidence],
+                      },
+                  )
+              except Exception as exc:
+                  append_private_jsonl(
+                      root / "errors.private.jsonl",
+                      {
+                          **correlation,
+                          "error_class": type(exc).__name__,
+                          "error_message": str(exc),
+                          "traceback": traceback.format_exc(),
+                      },
+                  )
+                  query_tools = [
+                      {"name": "execute_graph_query", "outcome": "ok"}
+                      for _receipt in query_receipts
+                  ]
+                  receipt = {
+                      **correlation,
+                      "schema_version": "agentic_os.agents_sdk_agent_tool_episode.v1",
+                      "success": False,
+                      "terminal_status": "episode_error",
+                      **redacted_episode_error(exc, stage="manager_specialist_as_tool"),
+                      "evidence_class": evidence_class,
+                      "retrieved_triple_count": 0,
+                      "query_executions": query_receipts,
+                      "retrieval_funnel": build_retrieval_funnel(
+                          turns=[],
+                          tools=query_tools,
+                          success=False,
+                          evidence_class=evidence_class,
+                          query_validated=bool(query_receipts),
+                          query_executed=bool(query_receipts),
+                          result_rows=0 if query_receipts else None,
+                      ),
+                  }
+              finally:
+                  if window:
+                      window.__exit__(None, None, None)
+                      receipt["vllm_metrics_window"] = window.receipt()
+                  process_window.__exit__(None, None, None)
+                  window_delta = (
+                      receipt.get("vllm_metrics_window", {}).get("metrics_delta") or {}
+                  )
+                  observability_overhead_ms = float(
+                      receipt.get("vllm_metrics_window", {}).get("observer_overhead_ms") or 0
+                  )
+                  vllm_e2e_ms = float(
+                      window_delta.get("vllm:e2e_request_latency_seconds_sum") or 0
+                  ) * 1000
+                  # Client-observed HTTP latency is the exclusive critical-path term (same
+                  # boundary as the single-agent runner); the vLLM window, when present,
+                  # is kept as a server-side reference.  Without the timer the appliance
+                  # mode reported llm_ms=0 and pushed the whole wall into the residual.
+                  llm_http = llm_timer.receipt()
+                  llm_observed_ms = llm_http["llm_ms"] if llm_http["request_count"] else vllm_e2e_ms
+                  audited_tool_ms = sum(
+                      float(event.get("latency_ms") or 0)
+                      for event in receipt.get("events", [])
+                      if event.get("event") == "tool"
+                  )
+                  query_tool_ms = audited_tool_ms or sum(
+                      float(item.get("wall_ms") or 0) for item in query_receipts
+                  )
+                  server_reported_ms = sum(
+                      float(item.get("server_available_ms") or 0)
+                      + float(item.get("server_consumed_ms") or 0)
+                      for item in query_receipts
+                  )
+                  receipt["time"] = {
+                      "wall_ms": round((time.perf_counter() - case_started) * 1000, 3),
+                      "llm_ms": round(llm_observed_ms, 3),
+                      "tool_ms": round(query_tool_ms, 3),
+                  }
+                  receipt["time"]["llm_time_source"] = (
+                      "client_http_request_timer" if llm_http["request_count"] else "vllm_metrics_window"
+                  )
+                  receipt["time"]["llm_requests"] = llm_http["request_count"]
+                  receipt["time"]["vllm_e2e_ms"] = round(vllm_e2e_ms, 3)
+                  receipt["llm_requests"] = llm_http["requests"]
+                  receipt["time"]["observability_overhead_ms"] = round(
+                      observability_overhead_ms, 3
+                  )
+                  receipt["time"]["adjusted_wall_ms"] = round(
+                      max(0.0, receipt["time"]["wall_ms"] - observability_overhead_ms),
+                      3,
+                  )
+                  receipt["resource_attribution"] = build_three_layer_attribution(
+                      wall_ms=receipt["time"]["wall_ms"],
+                      llm_ms=receipt["time"]["llm_ms"],
+                      tool_ms=receipt["time"]["tool_ms"],
+                      process_window=process_window.receipt(),
+                      process_role_layers={"agent": "middleware", "dozerdb": "database"},
+                      database_observation={
+                          "source": "bolt_server_summary",
+                          "server_reported_ms": round(server_reported_ms, 3),
+                          "query_calls": len(query_receipts),
+                      },
+                      vllm_window_scope="serialized_case" if metrics else "absent",
+                      observability_overhead_ms=observability_overhead_ms,
+                  )
+              if args.profile_query_plans:
+                  plan_replays: list[dict] = []
+                  for query in profile_queries:
+                      try:
+                          plan_replays.append(executor.profile_select(query))
+                      except Exception as exc:
+                          plan_replays.append(
+                              {
+                                  "schema_version": "agentic_os.dozer_profile_replay.v1",
+                                  "scope": "separate_read_only_diagnostic_replay",
+                                  "error_class": type(exc).__name__,
+                              }
+                          )
+                  receipt["query_plan_replays"] = plan_replays
+              append_jsonl(root / "receipts.jsonl", receipt)
     finally:
         sampler.stop()
         if gpu_sampler:

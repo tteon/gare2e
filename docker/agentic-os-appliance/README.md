@@ -36,6 +36,11 @@ an in-pass restart, nvidia-smi gaps) are recorded in
 `telemetry_degradation`, and `validate_agentic_os_e2e_acceptance.py` still
 fails a gate on them; set `SEOCHO_STRICT_TELEMETRY=1` to make the wrapper
 itself exit 3 on degraded telemetry.
+Every pass ends with an OpenTelemetry export of its receipts to
+`run-<pass>/otel/spans.jsonl` (see `examples/observability/README.md`); set
+`SEOCHO_OTLP_ENDPOINT` to also push the spans over OTLP/gRPC and to start vLLM
+with `--otlp-traces-endpoint` so its request spans nest under the runners'
+`traceparent`.
 Optional `VLLM_CPUSET`, `DOZERDB_CPUSET` and `SEOCHO_SAMPLE_INTERVAL_S` make
 CPU placement and sampler cadence explicit in the run manifest. Copy and
 checksum the artifact directory before destroying the paid instance.

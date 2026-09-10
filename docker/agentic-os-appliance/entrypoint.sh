@@ -226,6 +226,11 @@ vllm_command=(
 if [ "${VLLM_LANGUAGE_MODEL_ONLY:-1}" = "1" ]; then
   vllm_command+=(--language-model-only)
 fi
+if [ -n "${SEOCHO_OTLP_ENDPOINT:-}" ]; then
+  # vLLM exports one server span per request, honouring the traceparent header
+  # the runners send, so it nests under the client span in the same trace.
+  vllm_command+=(--otlp-traces-endpoint "$SEOCHO_OTLP_ENDPOINT")
+fi
 if [ -n "${VLLM_EXTRA_ARGS:-}" ]; then
   # Operator-provided flags are intentionally split only from this explicit
   # environment value; workload argv itself is always passed without eval.
