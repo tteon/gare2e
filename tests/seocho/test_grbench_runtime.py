@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import pytest
 
-from seocho.eval.grbench_runtime import GRBenchDozerExecutor, validate_grbench_read_query
+from seocho.eval.grbench_runtime import GRBenchDozerExecutor, QueryPolicyError, has_anchor_predicate, validate_grbench_read_query
 
 
-_QUERY = """MATCH (s:GRBenchNode {_workspace_id: $workspace_id})
+_QUERY = """MATCH (s:GRBenchNode {_workspace_id: $workspace_id, source_node_id: 'a'})
 -[r:GRBENCH_REL]->(o:GRBenchNode {_workspace_id: $workspace_id})
 RETURN s.source_node_id AS s, r.relation_name AS p, o.source_node_id AS o"""
 
@@ -14,7 +14,7 @@ def test_grbench_query_validator_requires_scope_and_typed_evidence_columns() -> 
     assert validate_grbench_read_query(_QUERY, row_cap=5).endswith("LIMIT 5")
     with pytest.raises(ValueError, match="workspace"):
         validate_grbench_read_query("MATCH (n:GRBenchNode) RETURN n.id AS s, 'x' AS p, n.id AS o", row_cap=5)
-    with pytest.raises(ValueError, match="aliased"):
+    with pytest.raises(ValueError, match="missing_evidence_columns"):
         validate_grbench_read_query(
             "MATCH (n:GRBenchNode {_workspace_id: $workspace_id}) RETURN n",
             row_cap=5,
@@ -110,11 +110,44 @@ def test_grbench_executor_timeout_is_a_transaction_timeout_not_a_parameter() -> 
 def test_grbench_loader_creates_lookup_indexes_for_text2cypher_predicates() -> None:
     from pathlib import Path
 
+    from seocho.eval.grbench_runtime import ANCHOR_PROPERTIES, GRBENCH_INDEX_STATEMENTS
+
     src = (Path(__file__).parents[2] / "scripts/benchmarks/load_grbench_dozerdb.py").read_text(encoding="utf-8")
-    for prop in ("feature_name", "feature_title", "source_node_id", "relation_name"):
-        assert f"ON (n.{prop})" in src or f"ON (r.{prop})" in src
-    assert "CREATE TEXT INDEX grbench_node_name_text" in src
+    joined = "\n".join(GRBENCH_INDEX_STATEMENTS)
+    for prop in ANCHOR_PROPERTIES + ("relation_name",):   # every anchor property has an index
+        assert f"ON (n.{prop})" in joined or f"ON (n.{prop}," in joined or f"ON (r.{prop})" in joined
+    assert "CREATE TEXT INDEX grbench_node_name_text" in joined
+    assert "GRBENCH_INDEX_STATEMENTS" in src and "CREATE INDEX" not in src   # one contract, no local copy
     assert "CALL db.awaitIndexes(1800)" in src and "SHOW INDEXES" in src
     runtime = (Path(__file__).parents[2] / "src/seocho/eval/grbench_runtime.py").read_text(encoding="utf-8")
     assert "workspace_id=self.workspace_id, timeout=" not in runtime   # never a Cypher parameter again
-    assert runtime.count("bolt_query(") == 3
+    assert runtime.count("bolt_query(") == 4   # execute_select, execute_rows, profile_select + the helper
+
+
+def test_validator_rejects_unanchored_scans_with_a_repair_code() -> None:
+    scope = "{_workspace_id: $workspace_id"
+    unanchored = f"MATCH (n:GRBenchNode {scope}}}) RETURN count(n) AS s, 'p' AS p, 'o' AS o"
+    with pytest.raises(QueryPolicyError) as exc:
+        validate_grbench_read_query(unanchored, row_cap=5)
+    assert exc.value.code == "unanchored_scan"
+    node_type_only = f"MATCH (n:GRBenchNode {scope}, node_type: 'paper'}}) RETURN n.id AS s, 'p' AS p, 'o' AS o"
+    with pytest.raises(QueryPolicyError, match="unanchored_scan"):
+        validate_grbench_read_query(node_type_only, row_cap=5)
+    inline = f"MATCH (n:GRBenchNode {scope}, feature_name: 'x'}}) RETURN n.id AS s, 'p' AS p, 'o' AS o"
+    assert validate_grbench_read_query(inline, row_cap=5).endswith("LIMIT 5")
+    where = f"MATCH (n:GRBenchNode {scope}}}) WHERE n.feature_title CONTAINS 'graph' RETURN n.id AS s, 'p' AS p, 'o' AS o"
+    assert has_anchor_predicate(where) and validate_grbench_read_query(where, row_cap=5)
+    # the guard is a policy, not a syntax rule: it can be switched off for baselines
+    assert validate_grbench_read_query(unanchored, row_cap=5, require_anchor=False)
+    with pytest.raises(QueryPolicyError, match="missing_workspace_scope"):
+        validate_grbench_read_query("MATCH (n:GRBenchNode {feature_name: 'x'}) RETURN n.id AS s, 'p' AS p, 'o' AS o", row_cap=5)
+
+
+def test_execute_rows_shares_validator_timeout_and_receipt_with_execute_select() -> None:
+    executor = GRBenchDozerExecutor(_Driver(), database="neo4j", workspace_id="workspace-a", row_cap=5, require_evidence_columns=False)
+    text, receipt = executor.execute_rows(_QUERY)
+    assert '"related"' in text  # rows go back to the model...
+    assert "related" not in str(receipt)  # ...never into the receipt
+    assert receipt["query_timeout_s"] == 15.0 and receipt["rows"] == 1 and receipt["truncated"] is False
+    for key in ("validator_ms", "pool_acquire_ms", "bolt_submit_ms", "hydrate_ms", "serialize_ms", "server_available_ms", "query_digest"):
+        assert key in receipt

@@ -22,6 +22,7 @@ import time
 from typing import Any
 
 from seocho.eval.grbench import graph_schema_receipt, iter_grbench_nodes, iter_grbench_relationships
+from seocho.eval.grbench_runtime import GRBENCH_INDEX_STATEMENTS
 
 MANIFEST_SCHEMA_VERSION = "seocho.grbench_import_csv_manifest.v1"
 NODES_FILE = "grbench-nodes.csv.gz"
@@ -120,6 +121,7 @@ def export_graph(
             },
         },
         "columns": {"nodes": node_header(feature_names), "relationships": relationship_header()},
+        "indexes": list(GRBENCH_INDEX_STATEMENTS),
         "typing": {
             "all_properties_imported_as_strings": True,
             "non_string_scalar_values_in_source": non_string_scalars,

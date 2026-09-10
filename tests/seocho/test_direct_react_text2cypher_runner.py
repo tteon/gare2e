@@ -18,17 +18,21 @@ def _runner():
 
 
 def test_workspace_scope_is_required_for_every_node_pattern() -> None:
-    runner = _runner()
+    # The runner has no validator of its own (seocho-5qmw); the shared executor
+    # policy applies, with raw rows allowed (no s/p/o requirement) for the ReAct loop.
+    from seocho.eval.grbench_runtime import QueryPolicyError, validate_grbench_read_query
+
     scoped = (
-        "MATCH (a:GRBenchNode {_workspace_id: $workspace_id})-[:GRBENCH_REL]->"
+        "MATCH (a:GRBenchNode {_workspace_id: $workspace_id, feature_name: 'x'})-[:GRBENCH_REL]->"
         "(b:GRBenchNode {_workspace_id: $workspace_id}) RETURN b"
     )
-    assert runner._safe_read_query(scoped, 5).endswith("LIMIT 5")
-    with pytest.raises(runner.QueryValidationError) as error:
-        runner._safe_read_query(
-            "MATCH (a:GRBenchNode {_workspace_id: $workspace_id})-[:GRBENCH_REL]->"
+    assert validate_grbench_read_query(scoped, row_cap=5, require_evidence_columns=False).endswith("LIMIT 5")
+    with pytest.raises(QueryPolicyError) as error:
+        validate_grbench_read_query(
+            "MATCH (a:GRBenchNode {_workspace_id: $workspace_id, feature_name: 'x'})-[:GRBENCH_REL]->"
             "(b:GRBenchNode) RETURN b",
-            5,
+            row_cap=5,
+            require_evidence_columns=False,
         )
     assert error.value.code == "missing_workspace_scope"
 
@@ -264,4 +268,7 @@ def test_direct_runner_uses_a_real_bolt_transaction_timeout() -> None:
     src = (Path(__file__).parents[2] / "scripts/benchmarks/run_direct_react_text2cypher.py").read_text(encoding="utf-8")
     # seocho-dp9x: `timeout=15` as a Session.run kwarg is a Cypher parameter, not a timeout.
     assert "workspace_id=workspace_id, timeout=15" not in src and "timeout=15,\n" not in src
-    assert src.count("bolt_query(") == 2 and "QUERY_TIMEOUT_S = 15.0" in src
+    # seocho-5qmw: the runner has no Bolt executor of its own any more
+    assert "def _tool_result" not in src and "def _safe_read_query" not in src and "session.run(" not in src
+    assert "GRBenchDozerExecutor(" in src and "executor.execute_rows(" in src and "executor.profile_select(" in src
+    assert "unanchored_scan" in src  # the prompt names the repair code

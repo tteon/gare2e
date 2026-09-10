@@ -389,6 +389,8 @@ def grbench_react_tools() -> tuple[dict[str, Any], ...]:
                 "description": (
                     "Call only after inspect_graph_schema with bounded read-only Cypher derived only from the "
                     "returned schema. Every GRBenchNode pattern must carry {_workspace_id: $workspace_id}; "
+                    "anchor a pattern on an indexed property (id, source_node_id, feature_name, feature_title "
+                    "with =, IN, CONTAINS or STARTS WITH) or the query is rejected as unanchored_scan; "
                     "include RETURN and LIMIT. After rejection, change the query using its repair code and "
                     "never repeat an identical failed query. Empty results mean insufficient evidence, not "
                     "permission to answer from memory."
@@ -695,6 +697,7 @@ class EvidenceHandoff(BaseModel):
         default=None,
         pattern="^(query_policy_rejected|query_syntax_or_execution_error|query_runtime_error|agent_tool_error)$",
     )
+    policy_code: str | None = Field(default=None, max_length=64)  # validator repair code (e.g. unanchored_scan)
 
     @classmethod
     def from_rows(
@@ -704,6 +707,7 @@ class EvidenceHandoff(BaseModel):
         query: str,
         status: str = "ok",
         error_code: str | None = None,
+        policy_code: str | None = None,
     ) -> "EvidenceHandoff":
         evidence = [
             EvidenceTriple(s=str(row["s"]), p=str(row["p"]), o=str(row["o"]))
@@ -717,6 +721,7 @@ class EvidenceHandoff(BaseModel):
             query_digest=_digest(query),
             evidence_digest=_digest(json.dumps(serialized, sort_keys=True)),
             error_code=error_code,
+            policy_code=policy_code,
         )
 
     @classmethod
@@ -732,6 +737,7 @@ class EvidenceHandoff(BaseModel):
             "query_digest": self.query_digest,
             "evidence_digest": self.evidence_digest,
             "error_code": self.error_code,
+            "policy_code": self.policy_code,
         }
 
 
@@ -1287,8 +1293,10 @@ def build_agents_sdk_agent_tool_workflow(
         name_override="execute_graph_query",
         description_override=(
             f"Call only after inspect_graph_schema to execute bounded read-only {query_language} using "
-            "only discovered identifiers. Return evidence columns s, p, and o. After rejection, change "
-            "the query using its semantic repair code; never repeat an identical failed query. Empty "
+            "only discovered identifiers. Return evidence columns s, p, and o, and anchor a pattern on an "
+            "indexed property (id, source_node_id, feature_name, feature_title) or the query is rejected "
+            "as unanchored_scan. After rejection, change the query using its policy_code / repair code; "
+            "never repeat an identical failed query. Empty "
             "evidence requires an empty handoff, not an answer from memory."
         ),
     )
@@ -1303,6 +1311,7 @@ def build_agents_sdk_agent_tool_workflow(
                 query=query,
                 status="error",
                 error_code=_query_error_code(error),
+                policy_code=getattr(error, "code", None) if isinstance(error, ValueError) else None,
             )
             audit.record(
                 "tool",

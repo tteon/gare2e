@@ -17,24 +17,9 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from seocho.eval.grbench import batched, graph_schema_receipt, iter_grbench_nodes, iter_grbench_relationships
+from seocho.eval.grbench_runtime import GRBENCH_INDEX_STATEMENTS
 
 
-# Lookup indexes for the identifiers Text2Cypher filters on.  Without them a
-# `{_workspace_id: $ws, feature_name: ...}` pattern is a NodeByLabelScan over
-# 2.7 M nodes: lab-s3/s5 saw six 43–50 s calls carry 68 % of all GRBench
-# graph-database time (lab 009 bottleneck decomposition).  The composite
-# (id, _workspace_id) index cannot serve those predicates because `id` is not
-# in them.  TEXT indexes serve CONTAINS / STARTS WITH on the two name fields.
-GRBENCH_INDEX_STATEMENTS = (
-    "CREATE INDEX grbench_node_lookup IF NOT EXISTS FOR (n:GRBenchNode) ON (n.id, n._workspace_id)",
-    "CREATE INDEX grbench_node_name IF NOT EXISTS FOR (n:GRBenchNode) ON (n.feature_name)",
-    "CREATE INDEX grbench_node_title IF NOT EXISTS FOR (n:GRBenchNode) ON (n.feature_title)",
-    "CREATE INDEX grbench_node_source_id IF NOT EXISTS FOR (n:GRBenchNode) ON (n.source_node_id)",
-    "CREATE INDEX grbench_node_type_ws IF NOT EXISTS FOR (n:GRBenchNode) ON (n.node_type, n._workspace_id)",
-    "CREATE TEXT INDEX grbench_node_name_text IF NOT EXISTS FOR (n:GRBenchNode) ON (n.feature_name)",
-    "CREATE TEXT INDEX grbench_node_title_text IF NOT EXISTS FOR (n:GRBenchNode) ON (n.feature_title)",
-    "CREATE INDEX grbench_rel_name IF NOT EXISTS FOR ()-[r:GRBENCH_REL]-() ON (r.relation_name)",
-)
 
 def _write_batches(
     driver: Any,
@@ -143,7 +128,10 @@ def main() -> int:
         # SEOCHO feature; it prevents each MERGE/MATCH batch from degenerating
         # into a label scan on the multi-gigabyte official graph.
         with driver.session(database=args.database) as session:
-            for statement in GRBENCH_INDEX_STATEMENTS:
+            # Index contract: the exporter manifest carries the statements it was
+            # built against; fall back to the runtime's list for older manifests.
+            index_statements = tuple((manifest.get("indexes") if args.verify_only and manifest.get("indexes") else None) or GRBENCH_INDEX_STATEMENTS)
+            for statement in index_statements:
                 session.run(statement).consume()
         if not args.verify_only:
             node_summary = _write_batches(

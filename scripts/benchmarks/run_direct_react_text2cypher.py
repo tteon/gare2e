@@ -14,7 +14,6 @@ import argparse
 import hashlib
 import json
 import os
-import re
 import time
 from pathlib import Path
 from typing import Any
@@ -30,7 +29,7 @@ from seocho.eval.agentic_os_artifacts import (
     write_manifest,
 )
 from seocho.eval.agentic_os_trace import case_trace, inject_traceparent
-from seocho.eval.grbench_runtime import bolt_query
+from seocho.eval.grbench_runtime import GRBenchDozerExecutor, QueryPolicyError
 from seocho.eval.agentic_graph_agents import (
     classify_answer_status,
     contains_unparsed_tool_markup,
@@ -46,24 +45,11 @@ from seocho.eval.agentic_os_observability import (
     validate_gpu_samples,
 )
 from seocho.eval.agent_execution import build_retrieval_funnel
-from seocho.eval.plan_audit import audit_profile
 from seocho.eval.prompt_profiles import PROMPT_PROFILES, prompt_profile_receipt, system_prompt_addendum
 from seocho.eval.raw_agentic_baseline import RAW_CONDITIONS, openai_tool_fields, raw_condition_spec
 
-_WRITE = re.compile(r"\b(CREATE|MERGE|SET|DELETE|DETACH|DROP|REMOVE|LOAD\s+CSV|FOREACH)\b", re.I)
-_UNSAFE_CALL = re.compile(r"\bCALL\s+(?!\{)", re.I)
-_READ_START = re.compile(r"^\s*(MATCH|OPTIONAL\s+MATCH|WITH|CALL)\b", re.I)
 
 
-class QueryValidationError(ValueError):
-    """Content-free validation failure suitable for bounded agent repair."""
-
-    def __init__(self, code: str) -> None:
-        super().__init__(code)
-        self.code = code
-
-
-QUERY_TIMEOUT_S = 15.0  # server-enforced per-query transaction timeout (seconds)
 
 def _digest(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
@@ -97,121 +83,6 @@ def _post(url: str, payload: dict[str, Any]) -> tuple[dict[str, Any], float]:
     if span_id is not None:
         result["_seocho_span_id"] = span_id
     return result, (time.perf_counter() - started) * 1000
-
-
-def _safe_read_query(query: str, row_cap: int) -> str:
-    cleaned = query.strip().rstrip(";")
-    if not _READ_START.match(cleaned):
-        raise QueryValidationError("unsupported_query_shape")
-    if _WRITE.search(cleaned):
-        raise QueryValidationError("write_clause_forbidden")
-    if _UNSAFE_CALL.search(cleaned):
-        raise QueryValidationError("unsafe_call_forbidden")
-    if not re.search(r"\bRETURN\b", cleaned, re.I):
-        raise QueryValidationError("missing_return")
-    node_patterns = len(re.findall(r":GRBenchNode\b", cleaned, flags=re.I))
-    scope_patterns = len(re.findall(r"_workspace_id\s*:\s*\$workspace_id\b", cleaned, flags=re.I))
-    if node_patterns == 0:
-        raise QueryValidationError("missing_grbench_node_label")
-    if scope_patterns < node_patterns:
-        raise QueryValidationError("missing_workspace_scope")
-    if not re.search(r"\bLIMIT\b", cleaned, re.I):
-        cleaned = f"{cleaned} LIMIT {row_cap}"
-    return cleaned
-
-
-def _tool_result(driver: Any, database: str, workspace_id: str, query: str, row_cap: int, byte_cap: int) -> tuple[str, dict[str, Any]]:
-    timings: dict[str, Any] = {
-        "validator_ms": 0.0,
-        "pool_acquire_ms": None,
-        "bolt_submit_ms": None,
-        "first_record_ms": None,
-        "hydrate_ms": None,
-        "serialize_ms": None,
-        "server_available_ms": None,
-        "server_consumed_ms": None,
-    }
-    started = time.perf_counter()
-    statement = _safe_read_query(query, row_cap)
-    timings["validator_ms"] = round((time.perf_counter() - started) * 1000, 3)
-    acquire_started = time.perf_counter()
-    with driver.session(database=database) as session:
-        timings["pool_acquire_ms"] = round((time.perf_counter() - acquire_started) * 1000, 3)
-        execute_started = time.perf_counter()
-        # bolt_query sets a *transaction* timeout; `timeout=15` as a kwarg was a
-        # Cypher parameter and never bounded anything (lab-s8: 63 s scans, bead seocho-dp9x).
-        result = session.run(bolt_query(statement, timeout_s=QUERY_TIMEOUT_S), workspace_id=workspace_id)
-        timings["bolt_submit_ms"] = round((time.perf_counter() - execute_started) * 1000, 3)
-        hydrate_started = time.perf_counter()
-        rows: list[dict[str, Any]] = []
-        first_record_ms: float | None = None
-        for record in result:
-            if first_record_ms is None:
-                first_record_ms = round((time.perf_counter() - hydrate_started) * 1000, 3)
-            rows.append(record.data())
-            if len(rows) >= row_cap:
-                break
-        summary = result.consume()
-        timings["first_record_ms"] = first_record_ms
-        timings["hydrate_ms"] = round((time.perf_counter() - hydrate_started) * 1000, 3)
-        # These are Bolt server-provided timings, not a local-clock estimate.
-        # Keep them separate from client network/serialization time.
-        timings["server_available_ms"] = float(summary.result_available_after or 0)
-        timings["server_consumed_ms"] = float(summary.result_consumed_after or 0)
-    serialize_started = time.perf_counter()
-    text = json.dumps(rows, ensure_ascii=False, default=str)
-    truncated = len(text.encode("utf-8")) > byte_cap
-    if truncated:
-        text = text.encode("utf-8")[:byte_cap].decode("utf-8", errors="ignore") + "…[truncated]"
-    timings["serialize_ms"] = round((time.perf_counter() - serialize_started) * 1000, 3)
-    timings.update({"rows": len(rows), "result_bytes": len(text.encode("utf-8")), "truncated": truncated, "query_digest": _digest(statement), "query_timeout_s": QUERY_TIMEOUT_S})
-    return text, timings
-
-
-def _profile_result(
-    driver: Any,
-    database: str,
-    workspace_id: str,
-    query: str,
-    row_cap: int,
-) -> dict[str, Any]:
-    """Replay one bounded read-only query under PROFILE outside E2E timing."""
-    statement = _safe_read_query(query, row_cap)
-    started = time.perf_counter()
-    with driver.session(database=database) as session:
-        summary = session.run(
-            bolt_query(f"PROFILE {statement}", timeout_s=QUERY_TIMEOUT_S),
-            workspace_id=workspace_id,
-        ).consume()
-    if summary.profile is None:
-        raise RuntimeError("DozerDB did not return a PROFILE plan")
-    audit = audit_profile(summary.profile)
-    return {
-        "schema_version": "agentic_os.dozer_profile_replay.v1",
-        "scope": "separate_read_only_diagnostic_replay",
-        "query_digest": _digest(statement),
-        "wall_ms": round((time.perf_counter() - started) * 1000, 3),
-        "server_available_ms": float(summary.result_available_after or 0),
-        "server_consumed_ms": float(summary.result_consumed_after or 0),
-        "plan": {
-            "fingerprint": audit.fingerprint,
-            "operators": [
-                {
-                    "operator": operator.operator,
-                    "estimated_rows": operator.estimated_rows,
-                    "actual_rows": operator.actual_rows,
-                    "db_hits": operator.db_hits,
-                    "page_cache_hits": operator.page_cache_hits,
-                    "page_cache_misses": operator.page_cache_misses,
-                }
-                for operator in audit.operators
-            ],
-            "findings": list(audit.findings),
-            "total_db_hits": audit.total_db_hits,
-            "total_page_cache_hits": audit.total_page_cache_hits,
-            "total_page_cache_misses": audit.total_page_cache_misses,
-        },
-    }
 
 
 def _schema_slice() -> str:
@@ -340,7 +211,9 @@ def main() -> int:
         "attributes, relations, paths, counts, citations, authorship, or provenance in the active "
         "benchmark graph, do not answer from memory. You start with no schema: call "
         "inspect_graph_schema exactly once, then form bounded read-only Cypher using only returned "
-        "labels, properties, relationship types, and scope rules, and call execute_cypher. On a "
+        "labels, properties, relationship types, and scope rules, and call execute_cypher. Anchor "
+        "every pattern on an indexed property (id, source_node_id, feature_name or feature_title "
+        "via =, IN, CONTAINS or STARTS WITH); unanchored scans are rejected as unanchored_scan. On a "
         "rejection, change the query using its error code; never repeat identical Cypher. Answer "
         "only from non-empty evidence, or explicitly abstain when evidence is empty or failed."
         " Do not call graph tools for greetings, formatting requests, or facts already supplied in "
@@ -364,6 +237,17 @@ def main() -> int:
     driver = (
         GraphDatabase.driver("bolt://127.0.0.1:7687", auth=("neo4j", password))
         if spec.tools_enabled
+        else None
+    )
+    # The only Bolt execution boundary (seocho-5qmw): validator, transaction
+    # timeout, caps and receipt fields live in GRBenchDozerExecutor.
+    executor = (
+        GRBenchDozerExecutor(
+            driver, database=args.database, workspace_id=args.workspace_id, row_cap=args.row_cap, byte_cap=args.byte_cap,
+            require_evidence_columns=False,  # the ReAct runner feeds raw rows back to the model
+            require_anchor=os.getenv("SEOCHO_GRBENCH_REQUIRE_ANCHOR", "1") == "1",
+        )
+        if driver is not None
         else None
     )
     metrics_client = VllmMetricsClient(args.metrics_url) if args.metrics_url else None
@@ -473,7 +357,7 @@ def main() -> int:
                           elif tool_name == "execute_cypher":
                               if driver is None:
                                   raise RuntimeError("graph driver unavailable")
-                              observation, detail = _tool_result(driver, args.database, args.workspace_id, str(arguments.get("query", "")), args.row_cap, args.byte_cap)
+                              observation, detail = executor.execute_rows(str(arguments.get("query", "")))
                               query_executed = True
                               profile_queries.append(str(arguments.get("query", "")))
                           else:
@@ -482,7 +366,7 @@ def main() -> int:
                       except Exception as exc:
                           error_code = (
                               exc.code
-                              if isinstance(exc, QueryValidationError)
+                              if isinstance(exc, QueryPolicyError)
                               else "database_or_runtime_error"
                           )
                           observation = json.dumps({"error_code": error_code})
@@ -515,13 +399,7 @@ def main() -> int:
                   for query in profile_queries:
                       try:
                           plan_replays.append(
-                              _profile_result(
-                                  driver,
-                                  args.database,
-                                  args.workspace_id,
-                                  query,
-                                  args.row_cap,
-                              )
+                              executor.profile_select(query)
                           )
                       except Exception as exc:
                           plan_replays.append(
