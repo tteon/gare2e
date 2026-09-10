@@ -255,6 +255,17 @@ seocho_resolve_nccl_env
   printf -- '--- /dev/shm\n'; df -h /dev/shm 2>&1 || true
   printf -- '--- nvidia-smi topo -m\n'; nvidia-smi topo -m 2>&1 || true
 } > "$ARTIFACTS/gpu-topology.private.txt" 2>&1 || true
+if [ "${SEOCHO_OTEL_FILE_RECEIVER:-0}" = "1" ] && [ -n "${SEOCHO_OTLP_ENDPOINT:-}" ]; then
+  # In-instance OTLP sink (lab 010): vLLM and the receipt exporter push to
+  # 127.0.0.1:4317 and the spans leave with the artifacts.
+  record_phase "otlp_file_receiver"
+  mkdir -p "$ARTIFACTS/otel"
+  nohup python3 "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/otlp_file_receiver.py" \
+    --listen "${SEOCHO_OTLP_ENDPOINT#http://}" --output "$ARTIFACTS/otel/collector-spans.jsonl" \
+    > "$ARTIFACTS/otel/receiver.stdout.private.log" 2> "$ARTIFACTS/otel/receiver.stderr.private.log" &
+  service_pids+=($!)
+  sleep 2
+fi
 run_with_optional_cpuset "${VLLM_CPUSET:-}" "${vllm_command[@]}" \
   >"$ARTIFACTS/vllm.stdout.private.log" 2>"$ARTIFACTS/vllm.stderr.private.log" &
 vllm_pid=$!

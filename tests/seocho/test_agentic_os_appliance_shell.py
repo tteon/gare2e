@@ -282,3 +282,11 @@ def test_appliance_exports_otel_spans_and_enables_vllm_otlp_when_endpoint_set() 
     for name in ("entrypoint.sh", "restart_vllm.sh"):
         text = (ROOT / "docker/agentic-os-appliance" / name).read_text(encoding="utf-8")
         assert '--otlp-traces-endpoint "$SEOCHO_OTLP_ENDPOINT"' in text
+
+
+def test_appliance_can_run_an_in_instance_otlp_file_receiver() -> None:
+    entry = (ROOT / "docker/agentic-os-appliance/entrypoint.sh").read_text(encoding="utf-8")
+    assert "otlp_file_receiver.py" in entry and 'SEOCHO_OTEL_FILE_RECEIVER:-0' in entry
+    assert 'collector-spans.jsonl' in entry
+    src = (ROOT / "docker/agentic-os-appliance/otlp_file_receiver.py").read_text(encoding="utf-8")
+    assert "add_TraceServiceServicer_to_server" in src and "seocho.otlp_file_receiver_span.v1" in src
