@@ -386,6 +386,7 @@ def main() -> int:
     try:
         for item in questions:
           with case_trace(args.run_id, item["qid"]) as case_trace_ctx:
+              case_clock_started = time.perf_counter()  # absolute offsets for turns/tools (OTel spans)
               process_window = ProcessMetricsWindow(process_roles)
               process_window.__enter__()
               wall_started = time.perf_counter()
@@ -425,6 +426,7 @@ def main() -> int:
                       terminal = "llm_error"
                       break
                   turn_receipt = _usage_receipt(response, llm_ms)
+                  turn_receipt["started_elapsed_ms"] = round((time.perf_counter() - case_clock_started) * 1000 - llm_ms, 3)
                   if response.get("_seocho_span_id"):
                       turn_receipt["span_id"] = response["_seocho_span_id"]
                   budget_prompt_tokens += int(turn_receipt.get("input_tokens") or 0)
@@ -499,6 +501,7 @@ def main() -> int:
                               "tool_argument_decode_ms": tool_argument_decode_ms,
                           }
                       )
+                      detail.setdefault("started_elapsed_ms", round((tool_started - case_clock_started) * 1000, 3))
                       tools.append(detail)
                       messages.append({"role": "tool", "tool_call_id": call.get("id"), "content": observation})
               if case_metrics_window:
