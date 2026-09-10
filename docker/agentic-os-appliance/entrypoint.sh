@@ -261,20 +261,6 @@ seocho_resolve_nccl_env
   printf -- '--- /dev/shm\n'; df -h /dev/shm 2>&1 || true
   printf -- '--- nvidia-smi topo -m\n'; nvidia-smi topo -m 2>&1 || true
 } > "$ARTIFACTS/gpu-topology.private.txt" 2>&1 || true
-if [ -n "${SEOCHO_GRBENCH_IMPORT_DIR:-}" ]; then
-  # Lookup indexes + population wait, once per instance.  The e2e only did this
-  # inside its gate phase, so queue passes (SEOCHO_E2E_PHASE=main) ran the
-  # bulk-imported store with the composite (id, _workspace_id) index alone and
-  # Text2Cypher name/title lookups stayed label scans (lab-s8: 63 s calls).
-  record_phase "dozer_indexes"
-  mkdir -p "$ARTIFACTS/e2e"
-  "${SEOCHO_VENV:-/workspace/seocho-venv}/bin/python" "$SEOCHO_REPO_ROOT/scripts/benchmarks/load_grbench_dozerdb.py" \
-    --verify-only --schema-receipt "$SEOCHO_GRBENCH_IMPORT_DIR/grbench-import-manifest.json" \
-    --workspace-id "${SEOCHO_GRBENCH_WORKSPACE_ID:-grbench-maple-physics}" \
-    --receipt-out "$ARTIFACTS/e2e/grbench-load-receipt.json" \
-    > "$ARTIFACTS/dozerdb-indexes.private.log" 2>&1 \
-    || appliance_fatal 3 "GRBench index creation / verification failed; see dozerdb-indexes.private.log"
-fi
 if [ "${SEOCHO_OTEL_FILE_RECEIVER:-0}" = "1" ] && [ -n "${SEOCHO_OTLP_ENDPOINT:-}" ]; then
   # In-instance OTLP sink (lab 010): vLLM and the receipt exporter push to
   # 127.0.0.1:4317 and the spans leave with the artifacts.
@@ -387,6 +373,23 @@ done
   printf 'server.memory.heap.max_size\t%s\n' "$DOZERDB_HEAP_MAX_SIZE"
   printf 'server.memory.pagecache.size\t%s\n' "$DOZERDB_PAGECACHE_SIZE"
 } > "$ARTIFACTS/dozerdb-settings-expected.private.tsv"
+
+if [ -n "${SEOCHO_GRBENCH_IMPORT_DIR:-}" ]; then
+  # Lookup indexes + population wait, once per instance, now that DozerDB is
+  # ready (lab-s9 try 1 ran this before dozer_ready and hit "connection
+  # refused").  The e2e only did this inside its gate phase, so queue passes
+  # (SEOCHO_E2E_PHASE=main) ran the bulk-imported store with the composite
+  # (id, _workspace_id) index alone and Text2Cypher name/title lookups stayed
+  # label scans (lab-s8: 63 s calls).
+  record_phase "dozer_indexes"
+  mkdir -p "$ARTIFACTS/e2e"
+  "${SEOCHO_VENV:-/workspace/seocho-venv}/bin/python" "$SEOCHO_REPO_ROOT/scripts/benchmarks/load_grbench_dozerdb.py" \
+    --verify-only --schema-receipt "$SEOCHO_GRBENCH_IMPORT_DIR/grbench-import-manifest.json" \
+    --workspace-id "${SEOCHO_GRBENCH_WORKSPACE_ID:-grbench-maple-physics}" \
+    --receipt-out "$ARTIFACTS/e2e/grbench-load-receipt.json" \
+    > "$ARTIFACTS/dozerdb-indexes.private.log" 2>&1 \
+    || appliance_fatal 3 "GRBench index creation / verification failed; see dozerdb-indexes.private.log"
+fi
 
 # DozerDB's upstream entrypoint is a shell/tini launcher.  Attribute the JVM,
 # not its tiny init process, while retaining the launcher log in artifacts.
