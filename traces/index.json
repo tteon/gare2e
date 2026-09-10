@@ -1,0 +1,18 @@
+{
+  "runs": [
+    {
+      "bytes": 1418644,
+      "files": 87,
+      "instance_id": 50491173,
+      "keep": false,
+      "lab_request": "010",
+      "manifest": "s3://seocho-agentic-os-traces/seocho-agentic-os/traces/lab-s8-try-214132/manifest.json",
+      "prefix": "s3://seocho-agentic-os-traces/seocho-agentic-os/traces/lab-s8-try-214132",
+      "run": "lab-s8-try-214132",
+      "source_bundle_sha256": "7853fa3e7e4168d76a16e4b6eaf201688cc35453351cf2e7375b6e114fa723df",
+      "state": "complete",
+      "uploaded_at": "2026-09-10T23:00:18Z"
+    }
+  ],
+  "schema_version": "seocho.agentic_os_trace_index.v1"
+}
