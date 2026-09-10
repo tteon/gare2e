@@ -30,6 +30,7 @@ from seocho.eval.agentic_os_artifacts import (
     write_manifest,
 )
 from seocho.eval.agentic_os_trace import case_trace, inject_traceparent
+from seocho.eval.grbench_runtime import bolt_query
 from seocho.eval.agentic_graph_agents import (
     classify_answer_status,
     contains_unparsed_tool_markup,
@@ -61,6 +62,8 @@ class QueryValidationError(ValueError):
         super().__init__(code)
         self.code = code
 
+
+QUERY_TIMEOUT_S = 15.0  # server-enforced per-query transaction timeout (seconds)
 
 def _digest(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
@@ -135,7 +138,9 @@ def _tool_result(driver: Any, database: str, workspace_id: str, query: str, row_
     with driver.session(database=database) as session:
         timings["pool_acquire_ms"] = round((time.perf_counter() - acquire_started) * 1000, 3)
         execute_started = time.perf_counter()
-        result = session.run(statement, workspace_id=workspace_id, timeout=15)
+        # bolt_query sets a *transaction* timeout; `timeout=15` as a kwarg was a
+        # Cypher parameter and never bounded anything (lab-s8: 63 s scans, bead seocho-dp9x).
+        result = session.run(bolt_query(statement, timeout_s=QUERY_TIMEOUT_S), workspace_id=workspace_id)
         timings["bolt_submit_ms"] = round((time.perf_counter() - execute_started) * 1000, 3)
         hydrate_started = time.perf_counter()
         rows: list[dict[str, Any]] = []
@@ -159,7 +164,7 @@ def _tool_result(driver: Any, database: str, workspace_id: str, query: str, row_
     if truncated:
         text = text.encode("utf-8")[:byte_cap].decode("utf-8", errors="ignore") + "…[truncated]"
     timings["serialize_ms"] = round((time.perf_counter() - serialize_started) * 1000, 3)
-    timings.update({"rows": len(rows), "result_bytes": len(text.encode("utf-8")), "truncated": truncated, "query_digest": _digest(statement)})
+    timings.update({"rows": len(rows), "result_bytes": len(text.encode("utf-8")), "truncated": truncated, "query_digest": _digest(statement), "query_timeout_s": QUERY_TIMEOUT_S})
     return text, timings
 
 
@@ -175,9 +180,8 @@ def _profile_result(
     started = time.perf_counter()
     with driver.session(database=database) as session:
         summary = session.run(
-            f"PROFILE {statement}",
+            bolt_query(f"PROFILE {statement}", timeout_s=QUERY_TIMEOUT_S),
             workspace_id=workspace_id,
-            timeout=15,
         ).consume()
     if summary.profile is None:
         raise RuntimeError("DozerDB did not return a PROFILE plan")

@@ -291,3 +291,12 @@ def test_appliance_can_run_an_in_instance_otlp_file_receiver() -> None:
     assert 'collector-spans.jsonl' in entry
     src = (ROOT / "docker/agentic-os-appliance/otlp_file_receiver.py").read_text(encoding="utf-8")
     assert "add_TraceServiceServicer_to_server" in src and "seocho.otlp_file_receiver_span.v1" in src
+
+
+def test_appliance_creates_grbench_indexes_once_before_any_pass_and_names_vllm_spans() -> None:
+    entry = (ROOT / "docker/agentic-os-appliance/entrypoint.sh").read_text(encoding="utf-8")
+    restart = (ROOT / "docker/agentic-os-appliance/restart_vllm.sh").read_text(encoding="utf-8")
+    assert 'record_phase "dozer_indexes"' in entry and "load_grbench_dozerdb.py" in entry and "--verify-only" in entry
+    assert entry.index('record_phase "dozer_indexes"') < entry.index('record_phase "workload"')
+    for text in (entry, restart):
+        assert 'OTEL_SERVICE_NAME="${SEOCHO_VLLM_OTEL_SERVICE_NAME:-vllm}"' in text

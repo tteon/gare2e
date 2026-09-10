@@ -230,6 +230,7 @@ if [ -n "${SEOCHO_OTLP_ENDPOINT:-}" ]; then
   # vLLM exports one server span per request, honouring the traceparent header
   # the runners send, so it nests under the client span in the same trace.
   vllm_command+=(--otlp-traces-endpoint "$SEOCHO_OTLP_ENDPOINT")
+  export OTEL_SERVICE_NAME="${SEOCHO_VLLM_OTEL_SERVICE_NAME:-vllm}"   # else spans read unknown_service (lab-s8)
   # Per-request stage timings (queue, prefill, decode, model forward/execute)
   # for the vLLM engineer's read; costs a little per request, so only with OTLP.
   if [ "${SEOCHO_VLLM_DETAILED_TRACES:-all}" != "off" ]; then
@@ -260,6 +261,20 @@ seocho_resolve_nccl_env
   printf -- '--- /dev/shm\n'; df -h /dev/shm 2>&1 || true
   printf -- '--- nvidia-smi topo -m\n'; nvidia-smi topo -m 2>&1 || true
 } > "$ARTIFACTS/gpu-topology.private.txt" 2>&1 || true
+if [ -n "${SEOCHO_GRBENCH_IMPORT_DIR:-}" ]; then
+  # Lookup indexes + population wait, once per instance.  The e2e only did this
+  # inside its gate phase, so queue passes (SEOCHO_E2E_PHASE=main) ran the
+  # bulk-imported store with the composite (id, _workspace_id) index alone and
+  # Text2Cypher name/title lookups stayed label scans (lab-s8: 63 s calls).
+  record_phase "dozer_indexes"
+  mkdir -p "$ARTIFACTS/e2e"
+  "${SEOCHO_VENV:-/workspace/seocho-venv}/bin/python" "$SEOCHO_REPO_ROOT/scripts/benchmarks/load_grbench_dozerdb.py" \
+    --verify-only --schema-receipt "$SEOCHO_GRBENCH_IMPORT_DIR/grbench-import-manifest.json" \
+    --workspace-id "${SEOCHO_GRBENCH_WORKSPACE_ID:-grbench-maple-physics}" \
+    --receipt-out "$ARTIFACTS/e2e/grbench-load-receipt.json" \
+    > "$ARTIFACTS/dozerdb-indexes.private.log" 2>&1 \
+    || appliance_fatal 3 "GRBench index creation / verification failed; see dozerdb-indexes.private.log"
+fi
 if [ "${SEOCHO_OTEL_FILE_RECEIVER:-0}" = "1" ] && [ -n "${SEOCHO_OTLP_ENDPOINT:-}" ]; then
   # In-instance OTLP sink (lab 010): vLLM and the receipt exporter push to
   # 127.0.0.1:4317 and the spans leave with the artifacts.

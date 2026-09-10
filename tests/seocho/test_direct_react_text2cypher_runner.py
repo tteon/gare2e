@@ -256,3 +256,12 @@ def test_shared_token_budget_discards_over_budget_answer(tmp_path, monkeypatch) 
     assert case["success"] is False
     assert case["budget"]["exceeded"] is True
     assert json.loads(predictions.read_text(encoding="utf-8"))["7"]["prediction"] == ""
+
+
+def test_direct_runner_uses_a_real_bolt_transaction_timeout() -> None:
+    from pathlib import Path
+
+    src = (Path(__file__).parents[2] / "scripts/benchmarks/run_direct_react_text2cypher.py").read_text(encoding="utf-8")
+    # seocho-dp9x: `timeout=15` as a Session.run kwarg is a Cypher parameter, not a timeout.
+    assert "workspace_id=workspace_id, timeout=15" not in src and "timeout=15,\n" not in src
+    assert src.count("bolt_query(") == 2 and "QUERY_TIMEOUT_S = 15.0" in src

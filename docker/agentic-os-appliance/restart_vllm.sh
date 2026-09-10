@@ -71,6 +71,7 @@ if [ -n "${SEOCHO_OTLP_ENDPOINT:-}" ]; then
   # vLLM exports one server span per request, honouring the traceparent header
   # the runners send, so it nests under the client span in the same trace.
   vllm_command+=(--otlp-traces-endpoint "$SEOCHO_OTLP_ENDPOINT")
+  export OTEL_SERVICE_NAME="${SEOCHO_VLLM_OTEL_SERVICE_NAME:-vllm}"   # else spans read unknown_service (lab-s8)
   # Per-request stage timings (queue, prefill, decode, model forward/execute)
   # for the vLLM engineer's read; costs a little per request, so only with OTLP.
   if [ "${SEOCHO_VLLM_DETAILED_TRACES:-all}" != "off" ]; then
