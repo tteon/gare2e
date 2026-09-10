@@ -153,7 +153,7 @@ session, and the cost watchdog survive this Claude Code process. Use a
 **new** run directory (`vN-e2e`), the standalone bootstrap path, and the
 bulk-import inputs instead of `graph.json`:
 
-`cuda_max_good>=13.0` keeps hosts whose driver matches the image's CUDA major (lab-s5: a driver-525 host died at vLLM start with error 803).
+`cuda_max_good>=13.0` keeps hosts whose driver matches the image's CUDA major (lab-s5: a driver-525 host died at vLLM start with error 803). Keep the query selective (`gpu_ram>=79`): `vastai search offers` returns one page (~64 rows) sorted by price, so a loose query fills it with consumer GPUs and the admissible A100/RTX PRO offers never reach the runner (lab-s8: 70 'no admitted offer' misses while eligible hosts were listed).
 
 ```bash
 B=.seocho/benchmarks/agentic-os/colocated-appliance/bootstrap
@@ -162,7 +162,7 @@ IMP=$B/grbench-import-vK
 systemd-run --user --collect --unit seocho-vast-vN --working-directory "$PWD" \
   --property=KillMode=process \
   python3 scripts/benchmarks/vast_colocated_agentic_os_run.py \
-  --offer-query "num_gpus=2 rentable=true cuda_max_good>=13.0" --gpu-name-regex A100 \
+  --offer-query "num_gpus=2 rentable=true cuda_max_good>=13.0 gpu_ram>=79" --gpu-name-regex A100 \
   --min-num-gpus 2 --min-gpu-total-ram 81920 --min-effective-cpu 16 \
   --min-cpu-ram-mb 65536 --min-reliability 0.98 \
   --image vllm/vllm-openai:v0.27.1 --disk-gb 200 \
