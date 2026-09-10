@@ -1,0 +1,9 @@
+{
+  "description": "Call exactly once before Cypher construction when a factual question depends on named entities, attributes, relations, paths, counts, citations, authorship, or provenance in the active benchmark graph. Do not call for greetings, formatting, or facts already supplied in the conversation. Returns the authoritative labels, relationship types, properties, and workspace scope contract, never the answer.",
+  "name": "inspect_graph_schema",
+  "parameters": {
+    "additionalProperties": false,
+    "properties": {},
+    "type": "object"
+  }
+}

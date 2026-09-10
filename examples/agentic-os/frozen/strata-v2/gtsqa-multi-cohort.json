@@ -1,0 +1,369 @@
+{
+  "cases": [
+    {
+      "qid": "1011",
+      "stratum": "hard"
+    },
+    {
+      "qid": "10314",
+      "stratum": "medium"
+    },
+    {
+      "qid": "11077",
+      "stratum": "hard"
+    },
+    {
+      "qid": "11202",
+      "stratum": "hard"
+    },
+    {
+      "qid": "11450",
+      "stratum": "easy"
+    },
+    {
+      "qid": "12052",
+      "stratum": "easy"
+    },
+    {
+      "qid": "12630",
+      "stratum": "medium"
+    },
+    {
+      "qid": "13026",
+      "stratum": "easy"
+    },
+    {
+      "qid": "13326",
+      "stratum": "medium"
+    },
+    {
+      "qid": "1462",
+      "stratum": "easy"
+    },
+    {
+      "qid": "15331",
+      "stratum": "hard"
+    },
+    {
+      "qid": "15341",
+      "stratum": "hard"
+    },
+    {
+      "qid": "16154",
+      "stratum": "hard"
+    },
+    {
+      "qid": "16747",
+      "stratum": "hard"
+    },
+    {
+      "qid": "16833",
+      "stratum": "hard"
+    },
+    {
+      "qid": "17858",
+      "stratum": "medium"
+    },
+    {
+      "qid": "1835",
+      "stratum": "easy"
+    },
+    {
+      "qid": "18884",
+      "stratum": "easy"
+    },
+    {
+      "qid": "19258",
+      "stratum": "easy"
+    },
+    {
+      "qid": "19443",
+      "stratum": "easy"
+    },
+    {
+      "qid": "19691",
+      "stratum": "easy"
+    },
+    {
+      "qid": "19706",
+      "stratum": "easy"
+    },
+    {
+      "qid": "20065",
+      "stratum": "easy"
+    },
+    {
+      "qid": "20256",
+      "stratum": "easy"
+    },
+    {
+      "qid": "20442",
+      "stratum": "easy"
+    },
+    {
+      "qid": "20522",
+      "stratum": "easy"
+    },
+    {
+      "qid": "20543",
+      "stratum": "easy"
+    },
+    {
+      "qid": "20716",
+      "stratum": "easy"
+    },
+    {
+      "qid": "22859",
+      "stratum": "hard"
+    },
+    {
+      "qid": "22988",
+      "stratum": "medium"
+    },
+    {
+      "qid": "23316",
+      "stratum": "medium"
+    },
+    {
+      "qid": "2353",
+      "stratum": "hard"
+    },
+    {
+      "qid": "23921",
+      "stratum": "medium"
+    },
+    {
+      "qid": "24346",
+      "stratum": "medium"
+    },
+    {
+      "qid": "24518",
+      "stratum": "hard"
+    },
+    {
+      "qid": "24983",
+      "stratum": "medium"
+    },
+    {
+      "qid": "25136",
+      "stratum": "hard"
+    },
+    {
+      "qid": "2543",
+      "stratum": "easy"
+    },
+    {
+      "qid": "2562",
+      "stratum": "easy"
+    },
+    {
+      "qid": "26355",
+      "stratum": "medium"
+    },
+    {
+      "qid": "2643",
+      "stratum": "easy"
+    },
+    {
+      "qid": "26604",
+      "stratum": "medium"
+    },
+    {
+      "qid": "27049",
+      "stratum": "medium"
+    },
+    {
+      "qid": "27129",
+      "stratum": "medium"
+    },
+    {
+      "qid": "29540",
+      "stratum": "hard"
+    },
+    {
+      "qid": "2971",
+      "stratum": "easy"
+    },
+    {
+      "qid": "3055",
+      "stratum": "easy"
+    },
+    {
+      "qid": "31118",
+      "stratum": "medium"
+    },
+    {
+      "qid": "31303",
+      "stratum": "medium"
+    },
+    {
+      "qid": "31404",
+      "stratum": "easy"
+    },
+    {
+      "qid": "31592",
+      "stratum": "easy"
+    },
+    {
+      "qid": "321",
+      "stratum": "easy"
+    },
+    {
+      "qid": "3247",
+      "stratum": "hard"
+    },
+    {
+      "qid": "32974",
+      "stratum": "medium"
+    },
+    {
+      "qid": "3342",
+      "stratum": "medium"
+    },
+    {
+      "qid": "33774",
+      "stratum": "hard"
+    },
+    {
+      "qid": "33886",
+      "stratum": "medium"
+    },
+    {
+      "qid": "33914",
+      "stratum": "hard"
+    },
+    {
+      "qid": "34467",
+      "stratum": "hard"
+    },
+    {
+      "qid": "34486",
+      "stratum": "hard"
+    },
+    {
+      "qid": "35275",
+      "stratum": "hard"
+    },
+    {
+      "qid": "36107",
+      "stratum": "hard"
+    },
+    {
+      "qid": "37226",
+      "stratum": "hard"
+    },
+    {
+      "qid": "37423",
+      "stratum": "hard"
+    },
+    {
+      "qid": "37437",
+      "stratum": "medium"
+    },
+    {
+      "qid": "37697",
+      "stratum": "hard"
+    },
+    {
+      "qid": "37711",
+      "stratum": "medium"
+    },
+    {
+      "qid": "38493",
+      "stratum": "medium"
+    },
+    {
+      "qid": "38529",
+      "stratum": "medium"
+    },
+    {
+      "qid": "39692",
+      "stratum": "medium"
+    },
+    {
+      "qid": "40118",
+      "stratum": "hard"
+    },
+    {
+      "qid": "40129",
+      "stratum": "medium"
+    },
+    {
+      "qid": "40448",
+      "stratum": "hard"
+    },
+    {
+      "qid": "40543",
+      "stratum": "medium"
+    },
+    {
+      "qid": "41293",
+      "stratum": "hard"
+    },
+    {
+      "qid": "41660",
+      "stratum": "hard"
+    },
+    {
+      "qid": "42650",
+      "stratum": "hard"
+    },
+    {
+      "qid": "5578",
+      "stratum": "easy"
+    },
+    {
+      "qid": "5826",
+      "stratum": "easy"
+    },
+    {
+      "qid": "7016",
+      "stratum": "easy"
+    },
+    {
+      "qid": "7043",
+      "stratum": "easy"
+    },
+    {
+      "qid": "9064",
+      "stratum": "hard"
+    },
+    {
+      "qid": "921",
+      "stratum": "easy"
+    },
+    {
+      "qid": "9213",
+      "stratum": "hard"
+    },
+    {
+      "qid": "9249",
+      "stratum": "easy"
+    },
+    {
+      "qid": "9633",
+      "stratum": "medium"
+    },
+    {
+      "qid": "9753",
+      "stratum": "medium"
+    },
+    {
+      "qid": "9931",
+      "stratum": "medium"
+    },
+    {
+      "qid": "9961",
+      "stratum": "medium"
+    },
+    {
+      "qid": "9980",
+      "stratum": "medium"
+    }
+  ],
+  "cohort_digest": "9f0fc54087656b6538ec8909e236379e86877f9ca1061cb25a73f76f43f45bd2",
+  "dataset": "GTSQA-strata-v2",
+  "exclusions": {},
+  "schema_version": "seocho.agentic_os.cohort.v1",
+  "seed": 0
+}
