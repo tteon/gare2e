@@ -17,3 +17,13 @@ v1.1); the remaining slots were drawn uniformly from the rest of the stratum.
 Cohort digests: grbench 877a26d1…, gtsqa 9f0fc540…. Leave `SEOCHO_MAIN_STRATUM`
 unset to run all three strata in one pass; `--only-stratum` takes a list, not a
 comma-joined string.
+
+## O1 arm (lab 016, 2026-09-12)
+
+`*-discovery-records.jsonl` now carry `o1_response` (B0 and S1 unchanged, byte-identical to
+strata-v1's source records): the S1 vocabulary plus relation semantics — for GRBench the
+direction / meaning of the five relation names, property roles and query idioms; for GTSQA
+the domain / range classes observed through the case graph's own `instance of (P31)`
+triples plus literal-vs-entity object kind. `*-single-schedule-o1.json` add the O1 arm to
+the single lanes (same cohorts, same B0 entries); `*-discovery-staging-o1.json` are the
+whitespace-token staging caches with the four arms (re-tokenised on the appliance).

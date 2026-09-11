@@ -115,3 +115,28 @@ def test_paired_schedule_covers_all_arms_per_unit_deterministically() -> None:
     unit = [row for row in first if row["paired_unit"] == "q1:7:cold:0"]
     assert {row["arm"] for row in unit} == {"B0", "C-", "S1"}
     assert [row["paired_ordinal"] for row in unit] == [0, 1, 2]
+
+
+def test_optional_o1_arm_is_frozen_and_validated_when_every_record_carries_it() -> None:
+    tokenizer = _WordTokenizer()
+    records = [{**_records()[0], "o1_response": {"labels": ["ScientificPaper"], "relationship_property": "cites", "semantics": {"cites": "source paper cites target paper"}}}]
+    cache = build_discovery_cache(records=records, graph_digest="g", tool_schema={"name": "inspect_graph_schema"}, token_counter=tokenizer)
+    assert cache["contract"]["tool_availability"] == ["B0", "C-", "S1", "O1"]
+    case = cache["cases"][0]
+    assert set(case["responses"]) == {"B0", "C-", "S1", "O1"}
+    assert case["tokens"]["O1"] > case["tokens"]["S1"]
+    validate_discovery_cache(cache, token_counter=tokenizer)
+    # a cache without the optional arm still validates against the base contract
+    base = build_discovery_cache(records=_records(), graph_digest="g", tool_schema={"name": "inspect_graph_schema"}, token_counter=tokenizer)
+    assert base["contract"]["tool_availability"] == ["B0", "C-", "S1"]
+    validate_discovery_cache(base, token_counter=tokenizer)
+
+
+def test_optional_arm_must_be_present_on_every_record() -> None:
+    tokenizer = _WordTokenizer()
+    records = [
+        {**_records()[0], "o1_response": {"x": 1}},
+        {**_records()[0], "qid": "q2"},
+    ]
+    with pytest.raises(ValueError, match="every record or none"):
+        build_discovery_cache(records=records, graph_digest="g", tool_schema={"name": "inspect_graph_schema"}, token_counter=tokenizer)

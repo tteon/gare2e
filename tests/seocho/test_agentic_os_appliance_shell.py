@@ -338,11 +338,13 @@ def test_e2e_skips_arms_a_lane_does_not_support(tmp_path):
         'arm_supported gtsqa-multi S4 && echo YES2 || echo NO2\n'
         'arm_supported gtsqa-multi S1 && echo YES3 || echo NO3\n'
         'arm_supported grbench-multi C- && echo YES4 || echo NO4\n'
+        'arm_supported grbench-single O1 && echo YES5 || echo NO5\n'
+        'arm_supported grbench-multi O1 && echo YES6 || echo NO6\n'
     )
     out = subprocess.run(["bash", "-c", probe, "probe", str(tmp_path)], capture_output=True, text=True, check=True).stdout.split()
-    assert out == ["NO1", "YES2", "NO3", "YES4"]
+    assert out == ["NO1", "YES2", "NO3", "YES4", "YES5", "NO6"]
     rows = (tmp_path / "progress.tsv").read_text(encoding="utf-8").splitlines()
-    assert [r.split("\t")[0] for r in rows] == ["raw-grbench-single-tool-S4", "raw-gtsqa-multi-tool-S1"]
+    assert [r.split("\t")[0] for r in rows] == ["raw-grbench-single-tool-S4", "raw-gtsqa-multi-tool-S1", "raw-grbench-multi-tool-O1"]
     assert all("skipped_unsupported_arm" in r for r in rows)
     main = script[script.index("main_matrix() {"):]
     assert main.count('if arm_supported ') == 4  # if/fi: a skipped last lane must not turn into pass exit 1 (lab-s13)

@@ -29,9 +29,9 @@ from seocho.eval.agentic_os_artifacts import (
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _LANE_ARMS = {
-    "grbench-single": {"B0", "C-", "S1"},
+    "grbench-single": {"B0", "C-", "S1", "O1"},
     "grbench-multi": {"B0", "C-", "S1"},
-    "gtsqa-single": {"B0", "C-", "S1", "S2a", "S2b", "S3", "S4"},
+    "gtsqa-single": {"B0", "C-", "S1", "S2a", "S2b", "S3", "S4", "O1"},
     "gtsqa-multi": {"B0", "S4"},
 }
 # The GRBench LPG projection and every Text2Cypher runner must agree on one

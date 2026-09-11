@@ -22,6 +22,17 @@ from .agentic_os_artifacts import canonical_digest, write_manifest
 
 
 DISCOVERY_ARMS = ("B0", "C-", "S1")
+# Optional arms a record may carry in addition (all records of a cache must agree):
+# O1 = ontology-enriched vocabulary (lab 016), keyed by ``o1_response``.
+OPTIONAL_DISCOVERY_ARMS = ("O1",)
+_OPTIONAL_RECORD_KEYS = {"O1": "o1_response"}
+
+
+def _expected_arms(contract: Mapping[str, Any]) -> tuple[str, ...]:
+    arms = tuple(str(a) for a in contract.get("tool_availability", ()))
+    if arms[: len(DISCOVERY_ARMS)] != DISCOVERY_ARMS or any(a not in OPTIONAL_DISCOVERY_ARMS for a in arms[len(DISCOVERY_ARMS):]):
+        raise ValueError("all B0/C-/S1 arms must expose the same discovery tool")
+    return arms
 _WORD = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{2,}")
 _SAFE_NEGATIVE_WORDS = ("amber", "birch", "cobalt", "dawn", "elm", "fable", "granite", "harbor")
 
@@ -241,13 +252,22 @@ def build_discovery_cache(
         raise ValueError("graph_digest is required")
     if max_calls < 1 or byte_cap < 1 or latency_cap_ms < 1:
         raise ValueError("discovery caps must be positive")
+    present_optional = tuple(
+        arm for arm in OPTIONAL_DISCOVERY_ARMS if all(_OPTIONAL_RECORD_KEYS[arm] in source for source in records)
+    )
+    partial = [
+        arm for arm in OPTIONAL_DISCOVERY_ARMS
+        if arm not in present_optional and any(_OPTIONAL_RECORD_KEYS[arm] in source for source in records)
+    ]
+    if partial:
+        raise ValueError(f"optional discovery arms must be present on every record or none: {', '.join(partial)}")
     contract = {
         "tool_name": tool_name,
         "tool_schema_digest": canonical_digest(tool_schema),
         "max_calls": max_calls,
         "byte_cap": byte_cap,
         "latency_cap_ms": latency_cap_ms,
-        "tool_availability": list(DISCOVERY_ARMS),
+        "tool_availability": [*DISCOVERY_ARMS, *present_optional],
     }
     cases: list[dict[str, Any]] = []
     seen: set[str] = set()
@@ -264,6 +284,8 @@ def build_discovery_cache(
         if leaks:
             raise ValueError(f"C- response for {qid} contains forbidden terms: {', '.join(leaks)}")
         responses = {"B0": b0, "C-": negative, "S1": s1}
+        for arm in present_optional:
+            responses[arm] = _json_payload(source.get(_OPTIONAL_RECORD_KEYS[arm]))
         encoded = {arm: _canonical_text(response) for arm, response in responses.items()}
         byte_sizes = {arm: len(text.encode("utf-8")) for arm, text in encoded.items()}
         oversized = [arm for arm, size in byte_sizes.items() if size > byte_cap]
@@ -304,8 +326,9 @@ def validate_discovery_cache(
     if cache.get("schema_version") != "seocho.agentic_os.discovery_cache.v1":
         raise ValueError("unsupported discovery-cache schema version")
     contract = cache.get("contract")
-    if not isinstance(contract, Mapping) or tuple(contract.get("tool_availability", ())) != DISCOVERY_ARMS:
+    if not isinstance(contract, Mapping):
         raise ValueError("all B0/C-/S1 arms must expose the same discovery tool")
+    arms = _expected_arms(contract)
     selected_qids = {str(qid) for qid in qids} if qids is not None else None
     observed_qids: set[str] = set()
     for case in cache.get("cases", ()):  # type: ignore[union-attr]
@@ -319,12 +342,12 @@ def validate_discovery_cache(
         declared_tokens = case.get("tokens")
         if not isinstance(responses, Mapping) or not isinstance(declared_tokens, Mapping):
             raise ValueError("discovery-cache case lacks responses or tokens")
-        if set(responses) != set(DISCOVERY_ARMS):
+        if set(responses) != set(arms):
             raise ValueError("discovery-cache case does not contain all arms")
         if _structure(responses["C-"]) != _structure(responses["S1"]):
             raise ValueError("C- structure differs from S1")
-        observed = {arm: token_counter.count(_canonical_text(_json_payload(responses[arm]))) for arm in DISCOVERY_ARMS}
-        if observed != {arm: int(declared_tokens[arm]) for arm in DISCOVERY_ARMS}:
+        observed = {arm: token_counter.count(_canonical_text(_json_payload(responses[arm]))) for arm in arms}
+        if observed != {arm: int(declared_tokens[arm]) for arm in arms}:
             raise ValueError(f"tokenizer drift or corrupted discovery cache for {case.get('qid')}")
         if observed["C-"] != observed["S1"]:
             raise ValueError("C- and S1 token counts differ")
@@ -432,6 +455,7 @@ def write_frozen_json(path: str | Path, payload: Mapping[str, Any]) -> str:
 __all__ = [
     "CohortCase",
     "DISCOVERY_ARMS",
+    "OPTIONAL_DISCOVERY_ARMS",
     "TokenCounter",
     "VLLMTokenizer",
     "WhitespaceTokenCounter",

@@ -180,8 +180,9 @@ gate() {
 arm_supported() {
   local lane="$1" arm="$2" ok=1
   case "$lane" in
-    grbench-single|grbench-multi) case "$arm" in B0|C-|S1) ok=0;; esac;;
-    gtsqa-single) case "$arm" in B0|C-|S1|S2a|S2b|S3|S4) ok=0;; esac;;
+    grbench-single) case "$arm" in B0|C-|S1|O1) ok=0;; esac;;
+    grbench-multi) case "$arm" in B0|C-|S1) ok=0;; esac;;
+    gtsqa-single) case "$arm" in B0|C-|S1|S2a|S2b|S3|S4|O1) ok=0;; esac;;
     gtsqa-multi) case "$arm" in B0|S4) ok=0;; esac;;
   esac
   [ "$ok" = 0 ] || printf '%s\tskipped_unsupported_arm\t%s\n' "raw-$lane-tool-$arm" "$(date -Is)" >> "$ROOT/progress.tsv"

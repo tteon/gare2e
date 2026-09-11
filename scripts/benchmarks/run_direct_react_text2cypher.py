@@ -149,7 +149,7 @@ def main() -> int:
     parser.add_argument("--predictions-out", required=True, type=Path)
     parser.add_argument("--manifest-out", type=Path)
     parser.add_argument("--discovery-cache", type=Path)
-    parser.add_argument("--arm", choices=("B0", "C-", "S1"), default="B0")
+    parser.add_argument("--arm", choices=("B0", "C-", "S1", "O1"), default="B0", help="discovery context arm; O1 = ontology-enriched vocabulary (lab 016)")
     parser.add_argument("--run-id", default="direct-react-smoke")
     parser.add_argument("--repetition", type=int, default=0)
     parser.add_argument("--seed", type=int, default=0)

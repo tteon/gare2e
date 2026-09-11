@@ -114,7 +114,7 @@ def _load_discovery(
             token_counter=VLLMTokenizer(base_url, model),
             qids=qids,
         )
-    source_arm = "S1" if arm in {"S1", "S4"} else ("C-" if arm == "C-" else "B0")
+    source_arm = "S1" if arm in {"S1", "S4"} else ("C-" if arm == "C-" else ("O1" if arm == "O1" else "B0"))
     responses = {
         str(case["qid"]): dict(case["responses"][source_arm])
         for case in payload.get("cases", ())
@@ -129,7 +129,7 @@ def main() -> int:
     parser.add_argument("--model", required=True)
     parser.add_argument("--run-root", required=True, type=Path)
     parser.add_argument("--run-id", required=True)
-    parser.add_argument("--arm", choices=("B0", "C-", "S1", "S2a", "S2b", "S3", "S4"), default="B0")
+    parser.add_argument("--arm", choices=("B0", "C-", "S1", "S2a", "S2b", "S3", "S4", "O1"), default="B0")
     parser.add_argument("--discovery-cache", type=Path)
     parser.add_argument("--condition", choices=RAW_CONDITIONS, default="tool_auto")
     parser.add_argument("--prompt-profile", choices=PROMPT_PROFILES, default="baseline")
