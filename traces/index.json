@@ -38,6 +38,19 @@
       "source_bundle_sha256": "bfb94e9fca0062d951ceca461fcf68c3467ade76a0b02e3efd363a15281a5446",
       "state": "complete",
       "uploaded_at": "2026-09-11T18:41:31Z"
+    },
+    {
+      "bytes": 15032284,
+      "files": 842,
+      "instance_id": 50622600,
+      "keep": false,
+      "lab_request": "015",
+      "manifest": "s3://seocho-agentic-os-traces/seocho-agentic-os/traces/lab-s13-try-034142/manifest.json",
+      "prefix": "s3://seocho-agentic-os-traces/seocho-agentic-os/traces/lab-s13-try-034142",
+      "run": "lab-s13-try-034142",
+      "source_bundle_sha256": "3ae058c563b7dfedec8d9b7248ac284f93ea95054d914a84ea6b0a71f73a3b02",
+      "state": "failed",
+      "uploaded_at": "2026-09-11T20:53:37Z"
     }
   ],
   "schema_version": "seocho.agentic_os_trace_index.v1"

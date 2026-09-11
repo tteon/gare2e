@@ -32,13 +32,15 @@ dozer_pid="$(pgrep -o -f 'org\.neo4j|neo4j\.server' || true)"
 [ -n "$vllm_pid" ] && [ -n "$dozer_pid" ] || { echo "services not running (vllm=$vllm_pid dozer=$dozer_pid)" >&2; exit 3; }
 export DOZERDB_PID="$dozer_pid"
 strict=(); [ "${SEOCHO_STRICT_TELEMETRY:-0}" = "1" ] && strict=(--strict-telemetry)
+status=0
 python3 "$SEOCHO_REPO_ROOT/scripts/benchmarks/run_agentic_os_colocated_workload.py" "${strict[@]}" \
   --vllm-metrics-url "http://127.0.0.1:${VLLM_PORT:-8000}/metrics" \
   --role-pid "vllm=$vllm_pid" --role-pid "dozerdb=$dozer_pid" \
   --interval-s "${SEOCHO_SAMPLE_INTERVAL_S:-1}" --max-gap-s "${SEOCHO_SAMPLE_MAX_GAP_S:-2.5}" \
   --artifacts "$SEOCHO_APPLIANCE_ARTIFACTS/workload" \
-  --workload env SEOCHO_E2E_PHASE="$SEOCHO_E2E_PHASE" bash "$SEOCHO_REPO_ROOT/scripts/benchmarks/run_agentic_os_colocated_e2e.sh"
-status=$?
+  --workload env SEOCHO_E2E_PHASE="$SEOCHO_E2E_PHASE" bash "$SEOCHO_REPO_ROOT/scripts/benchmarks/run_agentic_os_colocated_e2e.sh" || status=$?
+# (|| status=$? keeps set -e from aborting here: lab-s13's S1/C- passes exited 1 and lost
+#  their OTel export and pass receipt because the script died on this line.)
 # OpenTelemetry export of this pass (content-free spans: case > chat > tool > graph-db).
 # JSONL is always written into the pass artifacts; OTLP push only when
 # SEOCHO_OTLP_ENDPOINT is set (the same endpoint vLLM traces to, so the chat spans

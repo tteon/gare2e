@@ -345,4 +345,14 @@ def test_e2e_skips_arms_a_lane_does_not_support(tmp_path):
     assert [r.split("\t")[0] for r in rows] == ["raw-grbench-single-tool-S4", "raw-gtsqa-multi-tool-S1"]
     assert all("skipped_unsupported_arm" in r for r in rows)
     main = script[script.index("main_matrix() {"):]
-    assert main.count('arm_supported ') == 4
+    assert main.count('if arm_supported ') == 4  # if/fi: a skipped last lane must not turn into pass exit 1 (lab-s13)
+    assert main.count('arm_supported ') == 4  # the guards only; the function is defined above main_matrix
+    assert 'return 0' in main[:main.index('\n}\n')]
+
+
+def test_pass_script_exports_otel_even_when_the_workload_fails():
+    text = (ROOT / "docker" / "agentic-os-appliance" / "run_lab_pass.sh").read_text(encoding="utf-8")
+    assert "set -euo pipefail" in text
+    assert 'run_agentic_os_colocated_e2e.sh" || status=$?' in text
+    assert "\nstatus=0\n" in text
+    assert text.index("|| status=$?") < text.index("export_agentic_os_otel.py")

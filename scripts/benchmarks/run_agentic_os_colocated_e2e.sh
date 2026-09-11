@@ -214,7 +214,7 @@ main_matrix() {
     # other arms are suffixed so catalogs can glob e2e/*-tool-* and group by arm.
     for arm in $SEOCHO_MAIN_ARMS; do
       suffix=""; [ "$arm" = "B0" ] || suffix="-$arm"
-    arm_supported grbench-single "$arm" && run "raw-grbench-single-tool-$thinking$suffix" \
+    if arm_supported grbench-single "$arm"; then run "raw-grbench-single-tool-$thinking$suffix" \
     --lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
     --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
     --run-root "$ROOT/grbench-single-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
@@ -224,8 +224,9 @@ main_matrix() {
       --only-arm "$arm" --continue-on-error \
       ${SEOCHO_GRBENCH_ROW_CAP:+--row-cap "$SEOCHO_GRBENCH_ROW_CAP"} ${SEOCHO_GRBENCH_BYTE_CAP:+--byte-cap "$SEOCHO_GRBENCH_BYTE_CAP"} \
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
+    fi
 
-    arm_supported grbench-multi "$arm" && run "raw-grbench-multi-tool-$thinking$suffix" \
+    if arm_supported grbench-multi "$arm"; then run "raw-grbench-multi-tool-$thinking$suffix" \
     --lane grbench-multi --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
     --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
     --run-root "$ROOT/grbench-multi-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
@@ -234,8 +235,9 @@ main_matrix() {
     --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --db-pid "$DOZERDB_PID" \
       --only-arm "$arm" --continue-on-error \
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
+    fi
 
-    arm_supported gtsqa-single "$arm" && run "raw-gtsqa-single-tool-$thinking$suffix" \
+    if arm_supported gtsqa-single "$arm"; then run "raw-gtsqa-single-tool-$thinking$suffix" \
     --lane gtsqa-single --schedule "$INPUT/$SEOCHO_GTSQA_SINGLE_SCHEDULE" \
     --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/$SEOCHO_GTSQA_DISCOVERY" \
     --run-root "$ROOT/gtsqa-single-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
@@ -243,8 +245,9 @@ main_matrix() {
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
       --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --only-arm "$arm" --continue-on-error \
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
+    fi
 
-    arm_supported gtsqa-multi "$arm" && run "raw-gtsqa-multi-tool-$thinking$suffix" \
+    if arm_supported gtsqa-multi "$arm"; then run "raw-gtsqa-multi-tool-$thinking$suffix" \
     --lane gtsqa-multi --schedule "$INPUT/$SEOCHO_GTSQA_MULTI_SCHEDULE" \
     --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/$SEOCHO_GTSQA_DISCOVERY" \
     --run-root "$ROOT/gtsqa-multi-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
@@ -252,8 +255,10 @@ main_matrix() {
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
       --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --only-arm "$arm" --continue-on-error \
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
+    fi
     done
   done
+  return 0
 }
 
 export DOZERDB_PID
