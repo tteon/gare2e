@@ -40,22 +40,24 @@ rows=[]; codes=collections.Counter(); recover=collections.Counter(); dbcalls=col
 for p in ['k4','k8']:
     for lanedir in sorted(glob.glob(f'{R}/run-all-{p}/e2e/*-tool-*')):
         lane=lanedir.split('/')[-1].rsplit('-tool-',1)[0]; fam='grbench' if lane.startswith('grbench') else 'gtsqa'
+        tail=lanedir.split('/')[-1].rsplit('-tool-',1)[1]; arm_sfx=tail.split('-',1)[1] if '-' in tail else 'B0'
         cells=collections.defaultdict(list)
         for c in cases_in(lanedir):
             qid=str(c.get('qid') or c.get('case_id')).split(':')[-1]
-            cells[strat.get((fam,qid),'?')].append(c)
-            for lat,oc in graph_calls(c): dbcalls[(p,lane)].append(lat)
+            cells[(str(c.get('arm') or arm_sfx), strat.get((fam,qid),'?'))].append(c)
+            arm=str(c.get('arm') or arm_sfx)
+            for lat,oc in graph_calls(c): dbcalls[(p,lane,arm)].append(lat)
             seen=set()
             for s in walk_strings(c):
                 for code in CODES:
-                    if code in s: codes[(p,lane,code)]+=1; seen.add(code)
+                    if code in s: codes[(p,lane,arm,code)]+=1; seen.add(code)
             if 'unanchored_scan' in seen:
                 rf=c.get('retrieval_funnel') or {}
-                recover[(p,lane,'attempts_seen')]+=1
-                if rf.get('query_validated'): recover[(p,lane,'validated_after')]+=1
-                if rf.get('nonempty_result'): recover[(p,lane,'nonempty_after')]+=1
-        for s in ['easy','medium','hard','?']:
-            rs=cells.get(s)
+                recover[(p,lane,arm,'attempts_seen')]+=1
+                if rf.get('query_validated'): recover[(p,lane,arm,'validated_after')]+=1
+                if rf.get('nonempty_result'): recover[(p,lane,arm,'nonempty_after')]+=1
+        for (arm,s) in sorted(cells):
+            rs=cells[(arm,s)]
             if not rs: continue
             n=len(rs); rf=lambda c:(c.get('retrieval_funnel') or {})
             F=lambda k: sum(1 for c in rs if rf(c).get(k))
@@ -67,11 +69,11 @@ for p in ['k4','k8']:
             ex=sum(1 for c in rs if exhausted(c))
             walls=sorted(((c.get('time') or {}).get('wall_ms') or (c.get('resource_attribution') or {}).get('critical_path_exclusive_ms',{}).get('wall') or 0) for c in rs); w50=walls[n//2]/1000
             rep=statistics.mean((c.get('repair_count') or 0) for c in rs)
-            rows.append((p,lane,s,n,trig,F('query_validated'),F('query_executed'),F('nonempty_result'),answered,ex,round(w50,1),round(rep,2)))
-hdr='| pass | lane | stratum | N | triggered | validated | executed | nonempty | answered | budget-exhausted | wall p50 s | repairs/case |\n|---|---|---|---|---|---|---|---|---|---|---|---|\n'
+            rows.append((p,lane,arm,s,n,trig,F('query_validated'),F('query_executed'),F('nonempty_result'),answered,ex,round(w50,1),round(rep,2)))
+hdr='| pass | lane | arm | stratum | N | triggered | validated | executed | nonempty | answered | budget-exhausted | wall p50 s | repairs/case |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|\n'
 md=hdr+''.join('| '+' | '.join(str(x) for x in r)+' |\n' for r in rows)
 def pct(v,q): v=sorted(v); return v[min(len(v)-1,int(len(v)*q))]
-md+='\n**Graph-DB call latency (ms), pass x lane:** '+'; '.join(f'{k[0]} {k[1]}: n={len(v)} p50={statistics.median(v):.0f} p90={pct(v,0.9):.0f} max={max(v):.0f} (>=15 s: {sum(1 for x in v if x>=15000)})' for k,v in sorted(dbcalls.items()))+'\n'
-md+='\n**Policy rejection codes (occurrences in receipts):** '+'; '.join(f'{k[0]} {k[1]} {k[2]}={v}' for k,v in sorted(codes.items()))+'\n'
-md+='\n**unanchored_scan recovery (attempts):** '+'; '.join(f'{k[0]} {k[1]} {k[2]}={v}' for k,v in sorted(recover.items()))+'\n'
+md+='\n**Graph-DB call latency (ms), pass x lane:** '+'; '.join(f'{k[0]} {k[1]} {k[2]}: n={len(v)} p50={statistics.median(v):.0f} p90={pct(v,0.9):.0f} max={max(v):.0f} (>=15 s: {sum(1 for x in v if x>=15000)})' for k,v in sorted(dbcalls.items()))+'\n'
+md+='\n**Policy rejection codes (occurrences in receipts):** '+'; '.join(f'{k[0]} {k[1]} {k[2]} {k[3]}={v}' for k,v in sorted(codes.items()))+'\n'
+md+='\n**unanchored_scan recovery (attempts):** '+'; '.join(f'{k[0]} {k[1]} {k[2]} {k[3]}={v}' for k,v in sorted(recover.items()))+'\n'
 open(f'{R}/session-summary/stratum-funnel.md','w').write(md); print(md)

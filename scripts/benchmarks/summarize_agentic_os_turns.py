@@ -128,12 +128,14 @@ def main() -> int:
         stages = load_stage_rows(pass_dir)
         for lane_dir in sorted((pass_dir / "e2e").glob("*-tool-*")):
             lane = lane_dir.name.rsplit("-tool-", 1)[0]
+            tail = lane_dir.name.rsplit("-tool-", 1)[1]
+            arm_suffix = tail.split("-", 1)[1] if "-" in tail else "B0"
             fam = "grbench" if lane.startswith("grbench") else "gtsqa"
-            by_class: dict[str, list[dict]] = defaultdict(list)
+            by_class: dict[tuple[str, str], list[dict]] = defaultdict(list)
             for c in iter_cases(lane_dir):
                 qid = str(c.get("qid") or c.get("case_id")).split(":")[-1]
-                by_class[CLASS.get(strata.get((fam, qid), ""), "?")].append(c)
-            for klass, cases in sorted(by_class.items()):
+                by_class[(str(c.get("arm") or arm_suffix), CLASS.get(strata.get((fam, qid), ""), "?"))].append(c)
+            for (arm, klass), cases in sorted(by_class.items()):
                 # ---- turn table (single-agent lanes)
                 per_turn: dict[int, dict[str, list[float]]] = defaultdict(lambda: defaultdict(list))
                 for c in cases:
@@ -155,7 +157,7 @@ def main() -> int:
                 for k in sorted(per_turn):
                     d = per_turn[k]
                     turn_rows.append({
-                        "pass": pass_id, "lane": lane, "class": klass, "turn": k, "cases": len(d["in"]),
+                        "pass": pass_id, "lane": lane, "arm": arm, "class": klass, "turn": k, "cases": len(d["in"]),
                         "input_tokens_mean": round(statistics.mean(d["in"])), "cached_tokens_mean": round(statistics.mean(d["cached"])),
                         "output_tokens_mean": round(statistics.mean(d["out"])), "latency_ms_p50": round(statistics.median(d["lat"])),
                         "gap_ms_p50": round(statistics.median(d["gap"])) if d["gap"] else "", "gap_ms_p90": round(_q(d["gap"], 0.9)) if d["gap"] else "",
@@ -185,7 +187,7 @@ def main() -> int:
                         ratios.extend(st.get("_ratios") or [])
                 if walls:
                     layer_rows.append({
-                        "pass": pass_id, "lane": lane, "class": klass, "cases": len(walls), "cases_with_vllm_spans": joined,
+                        "pass": pass_id, "lane": lane, "arm": arm, "class": klass, "cases": len(walls), "cases_with_vllm_spans": joined,
                         "wall_s_p50": round(statistics.median(walls), 1),
                         "graph_share": round(statistics.mean(graph), 3), "agent_share": round(statistics.mean(agent), 3),
                         "host_share": round(statistics.mean(host), 3) if host else "", "prefill_share": round(statistics.mean(prefill), 3) if prefill else "",
