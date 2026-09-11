@@ -37,8 +37,9 @@ def cases_in(lanedir):
             l=l.strip()
             if l: yield json.loads(l)
 rows=[]; codes=collections.Counter(); recover=collections.Counter(); dbcalls=collections.defaultdict(list)
-for p in ['k4','k8']:
-    for lanedir in sorted(glob.glob(f'{R}/run-all-{p}/e2e/*-tool-*')):
+for pdir in sorted(glob.glob(f'{R}/run-*')):
+    p=pdir.split('/')[-1][4:]
+    for lanedir in sorted(glob.glob(f'{pdir}/e2e/*-tool-*')):
         lane=lanedir.split('/')[-1].rsplit('-tool-',1)[0]; fam='grbench' if lane.startswith('grbench') else 'gtsqa'
         tail=lanedir.split('/')[-1].rsplit('-tool-',1)[1]; arm_sfx=tail.split('-',1)[1] if '-' in tail else 'B0'
         cells=collections.defaultdict(list)
