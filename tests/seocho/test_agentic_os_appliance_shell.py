@@ -304,3 +304,10 @@ def test_appliance_creates_grbench_indexes_once_before_any_pass_and_names_vllm_s
         pass_text = (ROOT / "docker" / "agentic-os-appliance" / "run_lab_pass.sh").read_text(encoding="utf-8")
         assert '--service-name "${SEOCHO_OTEL_SERVICE_NAME:-seocho-agentic-os}"' in pass_text
         assert '--service-name "${OTEL_SERVICE_NAME' not in pass_text
+
+
+def test_e2e_forwards_grbench_result_caps_only_when_set():
+    script = (ROOT / "scripts/benchmarks/run_agentic_os_colocated_e2e.sh").read_text(encoding="utf-8")
+    assert ': "${SEOCHO_GRBENCH_ROW_CAP:=}"' in script
+    assert '${SEOCHO_GRBENCH_ROW_CAP:+--row-cap "$SEOCHO_GRBENCH_ROW_CAP"}' in script
+    assert '${SEOCHO_GRBENCH_BYTE_CAP:+--byte-cap "$SEOCHO_GRBENCH_BYTE_CAP"}' in script

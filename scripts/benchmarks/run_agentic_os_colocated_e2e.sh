@@ -36,6 +36,8 @@ set -euo pipefail
 : "${SEOCHO_CONCURRENCY:=1}"
 : "${SEOCHO_MAIN_STRATUM:=}"
 : "${SEOCHO_MAIN_SKIP_CLOSED:=0}"
+: "${SEOCHO_GRBENCH_ROW_CAP:=}"    # lab 014 result-size axis; empty = runner default (20 rows)
+: "${SEOCHO_GRBENCH_BYTE_CAP:=}"   # empty = runner default (12000 bytes)
 # Values may arrive comma-separated from an env-only channel (the pass queue
 # cannot carry quoted spaces); normalise to the space-separated form used below.
 SEOCHO_GATE_STRATA="${SEOCHO_GATE_STRATA//,/ }"
@@ -201,6 +203,7 @@ main_matrix() {
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
     --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --db-pid "$DOZERDB_PID" \
       --only-arm B0 --continue-on-error \
+      ${SEOCHO_GRBENCH_ROW_CAP:+--row-cap "$SEOCHO_GRBENCH_ROW_CAP"} ${SEOCHO_GRBENCH_BYTE_CAP:+--byte-cap "$SEOCHO_GRBENCH_BYTE_CAP"} \
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
 
     run "raw-grbench-multi-tool-$thinking" \

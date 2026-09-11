@@ -154,6 +154,12 @@ def _runner_command(args: argparse.Namespace, entry: dict[str, Any], root: Path,
             command.extend(("--db-pid", str(args.db_pid)))
         if args.profile_query_plans:
             command.append("--profile-query-plans")
+        # Result-size axis (lab 014): the executor's LIMIT / byte caps, forwarded
+        # only when set so frozen defaults (20 rows / 12 000 bytes) stay in force.
+        if getattr(args, "row_cap", None) is not None:
+            command.extend(("--row-cap", str(args.row_cap)))
+        if getattr(args, "byte_cap", None) is not None:
+            command.extend(("--byte-cap", str(args.byte_cap)))
     elif args.lane == "gtsqa-multi":
         command = [
             sys.executable,
@@ -263,6 +269,8 @@ def main() -> int:
         default=None,
         help="Run only entries with ordinal %% K == I, written I/K (0-based); used to run K coordinators concurrently over disjoint shards.",
     )
+    parser.add_argument("--row-cap", type=int, default=None, help="GRBench executor row cap (LIMIT); default = runner default 20")
+    parser.add_argument("--byte-cap", type=int, default=None, help="GRBench executor result byte cap; default = runner default 12000")
     parser.add_argument(
         "--only-stratum",
         action="append",

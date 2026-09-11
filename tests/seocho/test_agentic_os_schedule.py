@@ -174,3 +174,14 @@ def test_shard_and_run_root_suffix_are_wired() -> None:
     source = (Path(__file__).parents[2] / "scripts/benchmarks/run_agentic_os_schedule.py").read_text(encoding="utf-8")
     assert '"--shard"' in source and "ordinal % shard_count == shard_index" in source
     assert '"--run-root-suffix"' in source and "args.run_root = args.run_root / str(args.run_root_suffix)" in source
+
+
+def test_grbench_row_and_byte_caps_forward_only_when_set(tmp_path):
+    module = _coordinator()
+    args = _args(lane="grbench-single")
+    command = module._runner_command(args, _entry("B0"), tmp_path, "run")
+    assert "--row-cap" not in command and "--byte-cap" not in command
+    args.row_cap, args.byte_cap = 100, 60000
+    command = module._runner_command(args, _entry("B0"), tmp_path, "run")
+    assert command[command.index("--row-cap") + 1] == "100"
+    assert command[command.index("--byte-cap") + 1] == "60000"
