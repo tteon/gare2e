@@ -300,3 +300,7 @@ def test_appliance_creates_grbench_indexes_once_before_any_pass_and_names_vllm_s
     assert entry.index('record_phase "dozer_indexes"') < entry.index('record_phase "workload"')
     for text in (entry, restart):
         assert 'OTEL_SERVICE_NAME="${SEOCHO_VLLM_OTEL_SERVICE_NAME:-vllm}"' in text
+        # the runner's own OTLP push must not inherit the engine's service name (lab-s11)
+        pass_text = (ROOT / "docker" / "agentic-os-appliance" / "run_lab_pass.sh").read_text(encoding="utf-8")
+        assert '--service-name "${SEOCHO_OTEL_SERVICE_NAME:-seocho-agentic-os}"' in pass_text
+        assert '--service-name "${OTEL_SERVICE_NAME' not in pass_text

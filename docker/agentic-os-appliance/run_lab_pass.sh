@@ -43,8 +43,9 @@ status=$?
 # JSONL is always written into the pass artifacts; OTLP push only when
 # SEOCHO_OTLP_ENDPOINT is set (the same endpoint vLLM traces to, so the chat spans
 # nest under the client spans through the traceparent the runners send).
+# The entrypoint exports OTEL_SERVICE_NAME=vllm for the engine; the runner spans must not inherit it (lab-s11: every client span read service.name=vllm).
 otel_args=(--jsonl "$SEOCHO_APPLIANCE_ARTIFACTS/otel/spans.jsonl")
-[ -n "${SEOCHO_OTLP_ENDPOINT:-}" ] && otel_args+=(--otlp-endpoint "$SEOCHO_OTLP_ENDPOINT" --service-name "${OTEL_SERVICE_NAME:-seocho-agentic-os}")
+[ -n "${SEOCHO_OTLP_ENDPOINT:-}" ] && otel_args+=(--otlp-endpoint "$SEOCHO_OTLP_ENDPOINT" --service-name "${SEOCHO_OTEL_SERVICE_NAME:-seocho-agentic-os}")
 roots=(); for lane in "$SEOCHO_APPLIANCE_ARTIFACTS"/e2e/*-tool-*; do [ -d "$lane" ] && roots+=("$lane"); done
 if [ "${#roots[@]}" -gt 0 ]; then
   python3 "$SEOCHO_REPO_ROOT/scripts/benchmarks/export_agentic_os_otel.py" "${roots[@]}" "${otel_args[@]}" \

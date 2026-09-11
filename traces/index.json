@@ -12,6 +12,19 @@
       "source_bundle_sha256": "7853fa3e7e4168d76a16e4b6eaf201688cc35453351cf2e7375b6e114fa723df",
       "state": "complete",
       "uploaded_at": "2026-09-10T23:00:18Z"
+    },
+    {
+      "bytes": 17258764,
+      "files": 812,
+      "instance_id": 50532353,
+      "keep": false,
+      "lab_request": "013",
+      "manifest": "s3://seocho-agentic-os-traces/seocho-agentic-os/traces/lab-s11-try-075031/manifest.json",
+      "prefix": "s3://seocho-agentic-os-traces/seocho-agentic-os/traces/lab-s11-try-075031",
+      "run": "lab-s11-try-075031",
+      "source_bundle_sha256": "561e26f1afa834cb9004d01afbdc93d1e2f0139a18d180136705424a308387f4",
+      "state": "complete",
+      "uploaded_at": "2026-09-11T01:17:43Z"
     }
   ],
   "schema_version": "seocho.agentic_os_trace_index.v1"
