@@ -22,6 +22,11 @@ GRAPH_QUERY_TOOLS = frozenset(
         "text2sparql",
         "validate_cypher",
         "validate_sparql",
+        # Graph-CoT hop actions (lab 017): each is a templated graph read.
+        "RetrieveNode",
+        "NodeFeature",
+        "NeighbourCheck",
+        "NodeDegree",
     }
 )
 GRAPH_TOOLS = GRAPH_ROUTE_TOOLS | SCHEMA_DISCOVERY_TOOLS | GRAPH_QUERY_TOOLS

@@ -5,6 +5,15 @@ unanchored_scan recovery from a queue-mode run (run-receipt.json + receipts.json
 
 Writes <run-root>/session-summary/stratum-funnel.md and prints it."""
 import json,glob,collections,sys,statistics
+
+HOP_TOOLS = ("RetrieveNode", "NodeFeature", "NeighbourCheck", "NodeDegree")
+
+
+def _is_graph_call(name):
+    name = str(name or "")
+    return "execute" in name or name in HOP_TOOLS
+
+
 R=sys.argv[1]; ST=sys.argv[2]
 CODES=('unanchored_scan','missing_workspace_scope','missing_evidence_columns','unsafe_call_forbidden','missing_grbench_node_label','unsupported_query_shape','write_clause_forbidden','missing_return')
 strat={}
@@ -22,12 +31,12 @@ def walk_strings(o):
 def graph_calls(c):
     out=[]
     for t in (c.get('tools') or []) if isinstance(c.get('tools'),list) else []:
-        if 'execute' in str(t.get('name','')) and isinstance(t.get('latency_ms'),(int,float)): out.append((t['latency_ms'],str(t.get('outcome'))))
+        if _is_graph_call(t.get('name')) and isinstance(t.get('latency_ms'),(int,float)): out.append((t['latency_ms'],str(t.get('outcome'))))
     tl=c.get('tools') if isinstance(c.get('tools'),dict) else {}
     for t in tl.get('events') or []:
-        if 'execute' in str(t.get('name','')) and isinstance(t.get('latency_ms'),(int,float)): out.append((t['latency_ms'],str(t.get('outcome'))))
+        if _is_graph_call(t.get('name')) and isinstance(t.get('latency_ms'),(int,float)): out.append((t['latency_ms'],str(t.get('outcome'))))
     for e in c.get('events') or []:
-        if 'execute' in str(e.get('name','')) and 'tool' in str(e.get('event','')) and isinstance(e.get('latency_ms'),(int,float)): out.append((e['latency_ms'],str(e.get('outcome'))))
+        if _is_graph_call(e.get('name')) and 'tool' in str(e.get('event','')) and isinstance(e.get('latency_ms'),(int,float)): out.append((e['latency_ms'],str(e.get('outcome'))))
     return out
 def cases_in(lanedir):
     for f in glob.glob(f'{lanedir}/shard-*/attempts/*/run-receipt.json'):

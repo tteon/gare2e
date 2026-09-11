@@ -30,6 +30,7 @@ from seocho.eval.agentic_os_artifacts import (
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _LANE_ARMS = {
     "grbench-single": {"B0", "C-", "S1", "O1"},
+    "grbench-graphcot": {"B0", "O1"},  # Graph-CoT hop actions (lab 017); B0 = tool signatures + vocabulary, O1 = + relation semantics
     "grbench-multi": {"B0", "C-", "S1"},
     "gtsqa-single": {"B0", "C-", "S1", "S2a", "S2b", "S3", "S4", "O1"},
     "gtsqa-multi": {"B0", "S4"},
@@ -43,6 +44,7 @@ GRBENCH_WORKSPACE_ID = "grbench-maple-physics"
 _LANE_RUNNERS = {
     "gtsqa-single": _REPO_ROOT / "scripts/benchmarks/run_gtsqa_text2sparql_react.py",
     "grbench-single": _REPO_ROOT / "scripts/benchmarks/run_direct_react_text2cypher.py",
+    "grbench-graphcot": _REPO_ROOT / "scripts/benchmarks/run_grbench_graphcot_react.py",
     "gtsqa-multi": _REPO_ROOT / "scripts/benchmarks/run_gtsqa_agents_sdk_handoff.py",
     "grbench-multi": _REPO_ROOT / "scripts/benchmarks/run_grbench_agents_sdk_handoff.py",
 }
@@ -156,6 +158,28 @@ def _runner_command(args: argparse.Namespace, entry: dict[str, Any], root: Path,
             command.append("--profile-query-plans")
         # Result-size axis (lab 014): the executor's LIMIT / byte caps, forwarded
         # only when set so frozen defaults (20 rows / 12 000 bytes) stay in force.
+        if getattr(args, "row_cap", None) is not None:
+            command.extend(("--row-cap", str(args.row_cap)))
+        if getattr(args, "byte_cap", None) is not None:
+            command.extend(("--byte-cap", str(args.byte_cap)))
+    elif args.lane == "grbench-graphcot":
+        command = [
+            sys.executable,
+            str(_REPO_ROOT / "scripts/benchmarks/run_grbench_graphcot_react.py"),
+            "--questions", str(args.dataset),
+            "--receipt-out", str(root / "run-receipt.json"),
+            "--predictions-out", str(root / "predictions.private.json"),
+            "--manifest-out", str(root / "manifest.json"),
+            "--host-samples-out", str(root / "metrics/agent-dozerdb-process.csv"),
+            "--qid", str(entry["qid"]),
+            "--max-turns", str(args.max_turns),
+            "--token-budget", str(args.token_budget),
+            "--condition", args.condition,
+            "--workspace-id", str(getattr(args, "grbench_workspace_id", GRBENCH_WORKSPACE_ID)),
+            *common,
+        ]
+        if args.db_pid is not None:
+            command.extend(("--db-pid", str(args.db_pid)))
         if getattr(args, "row_cap", None) is not None:
             command.extend(("--row-cap", str(args.row_cap)))
         if getattr(args, "byte_cap", None) is not None:

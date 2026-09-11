@@ -28,6 +28,15 @@ import statistics
 from collections import defaultdict
 from pathlib import Path
 
+HOP_TOOLS = ("RetrieveNode", "NodeFeature", "NeighbourCheck", "NodeDegree")
+
+
+def _is_graph_call(name):
+    name = str(name or "")
+    return "execute" in name or name in HOP_TOOLS
+
+
+
 CLASS = {"easy": "L1", "medium": "L2", "hard": "L3"}
 
 
@@ -70,7 +79,7 @@ def tool_events(c: dict) -> list[dict]:
 
 
 def graph_ms(c: dict) -> float:
-    return float(sum((t.get("latency_ms") or 0) for t in tool_events(c) if "execute" in str(t.get("name", ""))))
+    return float(sum((t.get("latency_ms") or 0) for t in tool_events(c) if _is_graph_call(t.get("name"))))
 
 
 def llm_ms(c: dict) -> float:

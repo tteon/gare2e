@@ -7,6 +7,7 @@ import json
 import re
 import time
 from dataclasses import dataclass
+from collections.abc import Mapping
 from typing import Any
 
 from .plan_audit import audit_profile
@@ -163,21 +164,25 @@ class GRBenchDozerExecutor:
             require_anchor=self.require_anchor,
         )
 
-    def execute_rows(self, query: str) -> tuple[str, dict[str, Any]]:
+    def execute_rows(self, query: str, parameters: Mapping[str, Any] | None = None) -> tuple[str, dict[str, Any]]:
         """Run a bounded read and return (rows as JSON text, content-free receipt).
 
         The single-agent ReAct runner feeds the raw rows back to the model;
         unlike :meth:`execute_select` it does not require s/p/o columns.  Same
         validator, Bolt transaction timeout, caps and receipt fields.
+        ``parameters`` are extra bound values for templated queries (the
+        Graph-CoT hop tools); ``workspace_id`` is always bound by the executor
+        and cannot be overridden.
         """
         started = time.perf_counter()
         statement = self.validate(query)
         validator_ms = (time.perf_counter() - started) * 1000
+        bound = {**(dict(parameters) if parameters else {}), "workspace_id": self.workspace_id}
         pool_started = time.perf_counter()
         with self.driver.session(database=self.database, default_access_mode="READ") as session:
             pool_acquire_ms = (time.perf_counter() - pool_started) * 1000
             submit_started = time.perf_counter()
-            result = session.run(bolt_query(statement, timeout_s=self.query_timeout_s), workspace_id=self.workspace_id)
+            result = session.run(bolt_query(statement, timeout_s=self.query_timeout_s), **bound)
             bolt_submit_ms = (time.perf_counter() - submit_started) * 1000
             iterate_started = time.perf_counter()
             rows: list[dict[str, Any]] = []

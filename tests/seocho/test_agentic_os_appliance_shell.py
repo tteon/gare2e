@@ -151,7 +151,7 @@ def test_e2e_concurrency_runs_disjoint_shards_and_main_filters() -> None:
     script = (ROOT / "scripts/benchmarks/run_agentic_os_colocated_e2e.sh").read_text(encoding="utf-8")
     assert '--shard "$i/$SEOCHO_CONCURRENCY"' in script and '--run-root-suffix "shard-$i"' in script
     assert 'for pid in "${pids[@]}"; do wait "$pid" || status=$?; done' in script
-    assert script.count('${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}') == 6
+    assert script.count('${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}') == 7  # 2 closed-book + 4 tool lanes + graphcot (lab 017)
     assert script.count('[ "$SEOCHO_MAIN_SKIP_CLOSED" = "1" ] || run "raw-') == 2
 
 
@@ -320,7 +320,7 @@ def test_e2e_main_matrix_loops_over_arms_with_suffixed_roots():
     main = script[script.index("main_matrix() {"):]
     assert 'for arm in $SEOCHO_MAIN_ARMS; do' in main
     assert '[ "$arm" = "B0" ] || suffix="-$arm"' in main
-    assert main.count('--only-arm "$arm"') == 4  # the four tool lanes
+    assert main.count('--only-arm "$arm"') == 5  # the four tool lanes + grbench-graphcot (lab 017)
     assert main.count("--only-arm B0") == 2  # the two closed-book baselines stay B0
     assert '"$ROOT/grbench-single-tool-$thinking$suffix"' in main
 
@@ -347,8 +347,8 @@ def test_e2e_skips_arms_a_lane_does_not_support(tmp_path):
     assert [r.split("\t")[0] for r in rows] == ["raw-grbench-single-tool-S4", "raw-gtsqa-multi-tool-S1", "raw-grbench-multi-tool-O1"]
     assert all("skipped_unsupported_arm" in r for r in rows)
     main = script[script.index("main_matrix() {"):]
-    assert main.count('if arm_supported ') == 4  # if/fi: a skipped last lane must not turn into pass exit 1 (lab-s13)
-    assert main.count('arm_supported ') == 4  # the guards only; the function is defined above main_matrix
+    assert main.count('&& arm_supported ') == 5  # if lane_enabled X && arm_supported X; then run … fi (four whole-query lanes + graphcot)
+    assert main.count('if lane_enabled ') == 5
     assert 'return 0' in main[:main.index('\n}\n')]
 
 
@@ -358,3 +358,22 @@ def test_pass_script_exports_otel_even_when_the_workload_fails():
     assert 'run_agentic_os_colocated_e2e.sh" || status=$?' in text
     assert "\nstatus=0\n" in text
     assert text.index("|| status=$?") < text.index("export_agentic_os_otel.py")
+
+
+def test_e2e_lane_filter_and_graphcot_lane(tmp_path):
+    import subprocess
+    script = (ROOT / "scripts/benchmarks/run_agentic_os_colocated_e2e.sh").read_text(encoding="utf-8")
+    assert ': "${SEOCHO_MAIN_LANES:=grbench-single grbench-multi gtsqa-single gtsqa-multi}"' in script  # historical default: graphcot opt-in
+    assert ': "${SEOCHO_GRAPHCOT_MAX_TURNS:=12}"' in script
+    main = script[script.index("main_matrix() {"):]
+    assert main.count("lane_enabled ") == 5 and 'lane_enabled grbench-graphcot && arm_supported grbench-graphcot "$arm"' in main
+    assert '--lane grbench-graphcot' in main and '--max-turns "$SEOCHO_GRAPHCOT_MAX_TURNS"' in main
+    start = script.index("lane_enabled() {"); fn = script[start: script.index("\n}\n", start) + 3]
+    probe = 'SEOCHO_MAIN_LANES="grbench-single grbench-graphcot"; ROOT="$1"; touch "$ROOT/progress.tsv"\n' + fn + (
+        'lane_enabled grbench-graphcot && echo Y1 || echo N1\n'
+        'lane_enabled gtsqa-multi && echo Y2 || echo N2\n'
+    )
+    out = subprocess.run(["bash", "-c", probe, "probe", str(tmp_path)], capture_output=True, text=True, check=True).stdout.split()
+    assert out == ["Y1", "N2"]
+    rows = (tmp_path / "progress.tsv").read_text(encoding="utf-8").splitlines()
+    assert rows == [r for r in rows if "skipped_lane_not_selected" in r] and rows[0].startswith("raw-gtsqa-multi-tool")
