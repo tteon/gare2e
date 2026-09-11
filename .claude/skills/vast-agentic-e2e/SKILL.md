@@ -153,6 +153,8 @@ session, and the cost watchdog survive this Claude Code process. Use a
 **new** run directory (`vN-e2e`), the standalone bootstrap path, and the
 bulk-import inputs instead of `graph.json`:
 
+**NVLink only (user rule, 2026-09-12):** every paid instance must have 2+ GPUs joined by NVLink. Put `bw_nvlink>0` in the offer query, pass `--require-nvlink` (the runner then refuses offers whose `bw_nvlink` is 0 or missing and records the value in the offer receipt), and keep RTX PRO 6000 / A100 PCIe out of `--gpu-name-regex`. Expect fewer admissible offers and a higher price floor (2026-09-12 market: A100 SXM4 pairs ≈ $2.3 on host 458442 only, H100 PCIe+NVLink pairs ≥ $4.3, H100 SXM ≥ $6.5); if the ceiling has to move, that is the user's decision, not the launcher's.
+
 `cuda_max_good>=13.0` keeps hosts whose driver matches the image's CUDA major (lab-s5: a driver-525 host died at vLLM start with error 803). Keep the query selective (`gpu_ram>=79`): `vastai search offers` returns one page (~64 rows) sorted by price, so a loose query fills it with consumer GPUs and the admissible A100/RTX PRO offers never reach the runner (lab-s8: 70 'no admitted offer' misses while eligible hosts were listed).
 
 ```bash
@@ -162,7 +164,7 @@ IMP=$B/grbench-import-vK
 systemd-run --user --collect --unit seocho-vast-vN --working-directory "$PWD" \
   --property=KillMode=process \
   python3 scripts/benchmarks/vast_colocated_agentic_os_run.py \
-  --offer-query "num_gpus=2 rentable=true cuda_max_good>=13.0 gpu_ram>=79" --gpu-name-regex A100 \
+  --offer-query "num_gpus=2 rentable=true cuda_max_good>=13.0 gpu_ram>=79 bw_nvlink>0" --gpu-name-regex "A100|H100|H200" --require-nvlink \
   --min-num-gpus 2 --min-gpu-total-ram 81920 --min-effective-cpu 16 \
   --min-cpu-ram-mb 65536 --min-reliability 0.98 \
   --image vllm/vllm-openai:v0.27.1 --disk-gb 200 \

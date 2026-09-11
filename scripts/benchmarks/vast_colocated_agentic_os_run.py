@@ -76,9 +76,16 @@ def _offer_is_admitted(
     min_reliability: float,
     disk_gb: int,
     gpu_name_pattern: re.Pattern[str] | None,
+    require_nvlink: bool = False,
 ) -> bool:
-    """Fail closed when a live offer omits a required numeric resource."""
+    """Fail closed when a live offer omits a required numeric resource.
+
+    ``require_nvlink`` admits only offers whose GPUs report an NVLink fabric
+    (``bw_nvlink`` > 0); PCIe-only pairs (RTX PRO 6000, A100 PCIe) are refused.
+    """
     return (
+        (not require_nvlink or _offer_number(row, "bw_nvlink", default=0) > 0)
+        and
         _offer_number(row, "dph_total", default=float("inf")) <= max_dph
         and _offer_number(row, "num_gpus", default=0) >= min_num_gpus
         and _offer_number(row, "gpu_total_ram", default=0) >= min_gpu_total_ram
@@ -505,6 +512,7 @@ def main() -> int:
     )
     parser.add_argument("--min-reliability", type=float, default=0)
     parser.add_argument("--gpu-name-regex", help="Optional case-insensitive GPU-name admission filter.")
+    parser.add_argument("--require-nvlink", action="store_true", help="Admit only offers with an NVLink fabric between the GPUs (bw_nvlink > 0); lab rule since 2026-09-12.")
     parser.add_argument(
         "--exclude-host-id",
         action="append",
@@ -569,6 +577,7 @@ def main() -> int:
                 min_effective_cpu=args.min_effective_cpu,
                 min_cpu_ram_mb=args.min_cpu_ram_mb,
                 min_reliability=args.min_reliability,
+                require_nvlink=args.require_nvlink,
                 disk_gb=args.disk_gb,
                 gpu_name_pattern=gpu_name_pattern,
             )
@@ -592,6 +601,7 @@ def main() -> int:
                 "num_gpus",
                 "gpu_total_ram",
                 "cpu_cores_effective",
+                "bw_nvlink",
                 "cpu_ram",
                 "disk_space",
                 "dph_total",

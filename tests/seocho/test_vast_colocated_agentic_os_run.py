@@ -449,3 +449,13 @@ def test_exclude_host_id_flag_is_parsed_as_repeatable_ints() -> None:
     assert args.exclude_host_id == [458442, 3497]
     assert "--exclude-host-id" in Path(module.__file__).read_text(encoding="utf-8")
     assert 'int(row.get("host_id", -1)) not in excluded' in Path(module.__file__).read_text(encoding="utf-8")
+
+
+def test_require_nvlink_refuses_pcie_only_pairs():
+    module = _runner()
+    base = {"dph_total": 2.0, "num_gpus": 2, "gpu_total_ram": 163840, "cpu_cores_effective": 32, "cpu_ram": 190000, "reliability": 0.99, "disk_space": 400, "gpu_name": "A100 SXM4"}
+    kwargs = dict(max_dph=2.9, min_num_gpus=2, min_gpu_total_ram=163840, min_effective_cpu=16, min_cpu_ram_mb=65536, min_reliability=0.98, disk_gb=200, gpu_name_pattern=None)
+    assert module._offer_is_admitted(dict(base, bw_nvlink=300.0), require_nvlink=True, **kwargs)
+    assert not module._offer_is_admitted(dict(base, bw_nvlink=0.0), require_nvlink=True, **kwargs)
+    assert not module._offer_is_admitted(dict(base), require_nvlink=True, **kwargs)  # missing field fails closed
+    assert module._offer_is_admitted(dict(base, bw_nvlink=0.0), **kwargs)  # default keeps the old behaviour
