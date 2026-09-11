@@ -311,3 +311,15 @@ def test_e2e_forwards_grbench_result_caps_only_when_set():
     assert ': "${SEOCHO_GRBENCH_ROW_CAP:=}"' in script
     assert '${SEOCHO_GRBENCH_ROW_CAP:+--row-cap "$SEOCHO_GRBENCH_ROW_CAP"}' in script
     assert '${SEOCHO_GRBENCH_BYTE_CAP:+--byte-cap "$SEOCHO_GRBENCH_BYTE_CAP"}' in script
+
+
+def test_e2e_main_matrix_loops_over_arms_with_suffixed_roots():
+    script = (ROOT / "scripts/benchmarks/run_agentic_os_colocated_e2e.sh").read_text(encoding="utf-8")
+    assert ': "${SEOCHO_MAIN_ARMS:=B0}"' in script
+    assert 'SEOCHO_MAIN_ARMS="${SEOCHO_MAIN_ARMS//,/ }"' in script
+    main = script[script.index("main_matrix() {"):]
+    assert 'for arm in $SEOCHO_MAIN_ARMS; do' in main
+    assert '[ "$arm" = "B0" ] || suffix="-$arm"' in main
+    assert main.count('--only-arm "$arm"') == 4  # the four tool lanes
+    assert main.count("--only-arm B0") == 2  # the two closed-book baselines stay B0
+    assert '"$ROOT/grbench-single-tool-$thinking$suffix"' in main

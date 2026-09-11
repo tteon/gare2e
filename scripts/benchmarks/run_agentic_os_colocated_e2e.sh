@@ -36,11 +36,13 @@ set -euo pipefail
 : "${SEOCHO_CONCURRENCY:=1}"
 : "${SEOCHO_MAIN_STRATUM:=}"
 : "${SEOCHO_MAIN_SKIP_CLOSED:=0}"
+: "${SEOCHO_MAIN_ARMS:=B0}"          # lab 015 schema axis: space/comma list, e.g. "B0 S1 S4"; non-B0 arms get a -<arm> run-root suffix
 : "${SEOCHO_GRBENCH_ROW_CAP:=}"    # lab 014 result-size axis; empty = runner default (20 rows)
 : "${SEOCHO_GRBENCH_BYTE_CAP:=}"   # empty = runner default (12000 bytes)
 # Values may arrive comma-separated from an env-only channel (the pass queue
 # cannot carry quoted spaces); normalise to the space-separated form used below.
 SEOCHO_GATE_STRATA="${SEOCHO_GATE_STRATA//,/ }"
+SEOCHO_MAIN_ARMS="${SEOCHO_MAIN_ARMS//,/ }"
 SEOCHO_REASONING_MODES="${SEOCHO_REASONING_MODES//,/ }"
 
 ROOT="$SEOCHO_APPLIANCE_ARTIFACTS/e2e"
@@ -195,44 +197,49 @@ main_matrix() {
       --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --only-arm B0 --continue-on-error \
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
 
-    run "raw-grbench-single-tool-$thinking" \
+    # Schema / treatment arms (lab 015). B0 keeps the historical run-root names;
+    # other arms are suffixed so catalogs can glob e2e/*-tool-* and group by arm.
+    for arm in $SEOCHO_MAIN_ARMS; do
+      suffix=""; [ "$arm" = "B0" ] || suffix="-$arm"
+    run "raw-grbench-single-tool-$thinking$suffix" \
     --lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
     --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
-    --run-root "$ROOT/grbench-single-tool-$thinking" --base-url http://127.0.0.1:8000 \
+    --run-root "$ROOT/grbench-single-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
     --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition tool_auto \
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
     --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --db-pid "$DOZERDB_PID" \
-      --only-arm B0 --continue-on-error \
+      --only-arm "$arm" --continue-on-error \
       ${SEOCHO_GRBENCH_ROW_CAP:+--row-cap "$SEOCHO_GRBENCH_ROW_CAP"} ${SEOCHO_GRBENCH_BYTE_CAP:+--byte-cap "$SEOCHO_GRBENCH_BYTE_CAP"} \
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
 
-    run "raw-grbench-multi-tool-$thinking" \
+    run "raw-grbench-multi-tool-$thinking$suffix" \
     --lane grbench-multi --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
     --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
-    --run-root "$ROOT/grbench-multi-tool-$thinking" --base-url http://127.0.0.1:8000 \
+    --run-root "$ROOT/grbench-multi-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
     --model "$VLLM_MODEL" --enable-thinking "$thinking" \
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
     --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --db-pid "$DOZERDB_PID" \
-      --only-arm B0 --continue-on-error \
+      --only-arm "$arm" --continue-on-error \
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
 
-    run "raw-gtsqa-single-tool-$thinking" \
+    run "raw-gtsqa-single-tool-$thinking$suffix" \
     --lane gtsqa-single --schedule "$INPUT/$SEOCHO_GTSQA_SINGLE_SCHEDULE" \
     --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/$SEOCHO_GTSQA_DISCOVERY" \
-    --run-root "$ROOT/gtsqa-single-tool-$thinking" --base-url http://127.0.0.1:8000 \
+    --run-root "$ROOT/gtsqa-single-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
     --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition tool_auto \
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
-      --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --only-arm B0 --continue-on-error \
+      --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --only-arm "$arm" --continue-on-error \
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
 
-    run "raw-gtsqa-multi-tool-$thinking" \
+    run "raw-gtsqa-multi-tool-$thinking$suffix" \
     --lane gtsqa-multi --schedule "$INPUT/$SEOCHO_GTSQA_MULTI_SCHEDULE" \
     --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/$SEOCHO_GTSQA_DISCOVERY" \
-    --run-root "$ROOT/gtsqa-multi-tool-$thinking" --base-url http://127.0.0.1:8000 \
+    --run-root "$ROOT/gtsqa-multi-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
     --model "$VLLM_MODEL" --enable-thinking "$thinking" \
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
-      --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --only-arm B0 --continue-on-error \
+      --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --only-arm "$arm" --continue-on-error \
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
+    done
   done
 }
 
