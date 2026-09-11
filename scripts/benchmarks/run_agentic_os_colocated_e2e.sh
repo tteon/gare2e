@@ -175,6 +175,19 @@ gate() {
   fi
 }
 
+# Which frozen arms each lane's runner accepts (lab 015). An unsupported pair is
+# logged to progress.tsv and skipped instead of failing the whole pass.
+arm_supported() {
+  local lane="$1" arm="$2" ok=1
+  case "$lane" in
+    grbench-single|grbench-multi) case "$arm" in B0|C-|S1) ok=0;; esac;;
+    gtsqa-single) case "$arm" in B0|C-|S1|S2a|S2b|S3|S4) ok=0;; esac;;
+    gtsqa-multi) case "$arm" in B0|S4) ok=0;; esac;;
+  esac
+  [ "$ok" = 0 ] || printf '%s\tskipped_unsupported_arm\t%s\n' "raw-$lane-tool-$arm" "$(date -Is)" >> "$ROOT/progress.tsv"
+  return "$ok"
+}
+
 main_matrix() {
   # Raw SEOCHO-OFF evidence is isolated to B0.  Treatment arms are scheduled
   # later and never pooled into this baseline catalog.
@@ -201,7 +214,7 @@ main_matrix() {
     # other arms are suffixed so catalogs can glob e2e/*-tool-* and group by arm.
     for arm in $SEOCHO_MAIN_ARMS; do
       suffix=""; [ "$arm" = "B0" ] || suffix="-$arm"
-    run "raw-grbench-single-tool-$thinking$suffix" \
+    arm_supported grbench-single "$arm" && run "raw-grbench-single-tool-$thinking$suffix" \
     --lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
     --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
     --run-root "$ROOT/grbench-single-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
@@ -212,7 +225,7 @@ main_matrix() {
       ${SEOCHO_GRBENCH_ROW_CAP:+--row-cap "$SEOCHO_GRBENCH_ROW_CAP"} ${SEOCHO_GRBENCH_BYTE_CAP:+--byte-cap "$SEOCHO_GRBENCH_BYTE_CAP"} \
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
 
-    run "raw-grbench-multi-tool-$thinking$suffix" \
+    arm_supported grbench-multi "$arm" && run "raw-grbench-multi-tool-$thinking$suffix" \
     --lane grbench-multi --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
     --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
     --run-root "$ROOT/grbench-multi-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
@@ -222,7 +235,7 @@ main_matrix() {
       --only-arm "$arm" --continue-on-error \
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
 
-    run "raw-gtsqa-single-tool-$thinking$suffix" \
+    arm_supported gtsqa-single "$arm" && run "raw-gtsqa-single-tool-$thinking$suffix" \
     --lane gtsqa-single --schedule "$INPUT/$SEOCHO_GTSQA_SINGLE_SCHEDULE" \
     --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/$SEOCHO_GTSQA_DISCOVERY" \
     --run-root "$ROOT/gtsqa-single-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
@@ -231,7 +244,7 @@ main_matrix() {
       --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --only-arm "$arm" --continue-on-error \
       --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
 
-    run "raw-gtsqa-multi-tool-$thinking$suffix" \
+    arm_supported gtsqa-multi "$arm" && run "raw-gtsqa-multi-tool-$thinking$suffix" \
     --lane gtsqa-multi --schedule "$INPUT/$SEOCHO_GTSQA_MULTI_SCHEDULE" \
     --dataset "$INPUT/gtsqa-with-graphs.parquet" --discovery-cache "$INPUT/$SEOCHO_GTSQA_DISCOVERY" \
     --run-root "$ROOT/gtsqa-multi-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \

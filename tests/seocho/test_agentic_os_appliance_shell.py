@@ -323,3 +323,26 @@ def test_e2e_main_matrix_loops_over_arms_with_suffixed_roots():
     assert main.count('--only-arm "$arm"') == 4  # the four tool lanes
     assert main.count("--only-arm B0") == 2  # the two closed-book baselines stay B0
     assert '"$ROOT/grbench-single-tool-$thinking$suffix"' in main
+
+
+def test_e2e_skips_arms_a_lane_does_not_support(tmp_path):
+    """Exercise arm_supported() from the real script with bash: unsupported pairs log a skip row."""
+    import subprocess
+    script = (ROOT / "scripts/benchmarks/run_agentic_os_colocated_e2e.sh").read_text(encoding="utf-8")
+    start = script.index("arm_supported() {")
+    end = script.index("\n}\n", start) + 3
+    fn = script[start:end]
+    probe = fn + (
+        'ROOT="$1"; touch "$ROOT/progress.tsv"\n'
+        'arm_supported grbench-single S4 && echo YES1 || echo NO1\n'
+        'arm_supported gtsqa-multi S4 && echo YES2 || echo NO2\n'
+        'arm_supported gtsqa-multi S1 && echo YES3 || echo NO3\n'
+        'arm_supported grbench-multi C- && echo YES4 || echo NO4\n'
+    )
+    out = subprocess.run(["bash", "-c", probe, "probe", str(tmp_path)], capture_output=True, text=True, check=True).stdout.split()
+    assert out == ["NO1", "YES2", "NO3", "YES4"]
+    rows = (tmp_path / "progress.tsv").read_text(encoding="utf-8").splitlines()
+    assert [r.split("\t")[0] for r in rows] == ["raw-grbench-single-tool-S4", "raw-gtsqa-multi-tool-S1"]
+    assert all("skipped_unsupported_arm" in r for r in rows)
+    main = script[script.index("main_matrix() {"):]
+    assert main.count('arm_supported ') == 4
