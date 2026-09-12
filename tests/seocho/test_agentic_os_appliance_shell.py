@@ -377,3 +377,11 @@ def test_e2e_lane_filter_and_graphcot_lane(tmp_path):
     assert out == ["Y1", "N2"]
     rows = (tmp_path / "progress.tsv").read_text(encoding="utf-8").splitlines()
     assert rows == [r for r in rows if "skipped_lane_not_selected" in r] and rows[0].startswith("raw-gtsqa-multi-tool")
+
+
+def test_e2e_profile_query_plans_flag_is_opt_in_for_the_cypher_lane():
+    script = (ROOT / "scripts/benchmarks/run_agentic_os_colocated_e2e.sh").read_text(encoding="utf-8")
+    assert ': "${SEOCHO_PROFILE_QUERY_PLANS:=0}"' in script
+    assert 'profile_flag=(); [ "$SEOCHO_PROFILE_QUERY_PLANS" = "1" ] && profile_flag=(--profile-query-plans)' in script
+    main = script[script.index("main_matrix() {"):]
+    assert main.count('"${profile_flag[@]}"') == 1 and '--lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" "${profile_flag[@]}"' in main

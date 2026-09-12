@@ -37,7 +37,8 @@ set -euo pipefail
 : "${SEOCHO_MAIN_STRATUM:=}"
 : "${SEOCHO_MAIN_SKIP_CLOSED:=0}"
 : "${SEOCHO_MAIN_LANES:=grbench-single grbench-multi gtsqa-single gtsqa-multi}"   # lab 017: add grbench-graphcot; drop lanes to skip them (single-agent focus)
-: "${SEOCHO_GRAPHCOT_MAX_TURNS:=12}"   # hop actions need more turns than whole-query lanes (6)
+: "${SEOCHO_GRAPHCOT_MAX_TURNS:=12}"
+: "${SEOCHO_PROFILE_QUERY_PLANS:=0}"   # lab 021: 1 = replay every successful Cypher under PROFILE after timing (grbench-single)   # hop actions need more turns than whole-query lanes (6)
 : "${SEOCHO_MAIN_ARMS:=B0}"          # lab 015 schema axis: space/comma list, e.g. "B0 S1 S4"; non-B0 arms get a -<arm> run-root suffix
 : "${SEOCHO_GRBENCH_ROW_CAP:=}"    # lab 014 result-size axis; empty = runner default (20 rows)
 : "${SEOCHO_GRBENCH_BYTE_CAP:=}"   # empty = runner default (12000 bytes)
@@ -46,6 +47,7 @@ set -euo pipefail
 SEOCHO_GATE_STRATA="${SEOCHO_GATE_STRATA//,/ }"
 SEOCHO_MAIN_ARMS="${SEOCHO_MAIN_ARMS//,/ }"
 SEOCHO_MAIN_LANES="${SEOCHO_MAIN_LANES//,/ }"
+profile_flag=(); [ "$SEOCHO_PROFILE_QUERY_PLANS" = "1" ] && profile_flag=(--profile-query-plans)
 SEOCHO_REASONING_MODES="${SEOCHO_REASONING_MODES//,/ }"
 
 ROOT="$SEOCHO_APPLIANCE_ARTIFACTS/e2e"
@@ -229,7 +231,7 @@ main_matrix() {
     for arm in $SEOCHO_MAIN_ARMS; do
       suffix=""; [ "$arm" = "B0" ] || suffix="-$arm"
     if lane_enabled grbench-single && arm_supported grbench-single "$arm"; then run "raw-grbench-single-tool-$thinking$suffix" \
-    --lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
+    --lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" "${profile_flag[@]}" \
     --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
     --run-root "$ROOT/grbench-single-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
     --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition tool_auto \
