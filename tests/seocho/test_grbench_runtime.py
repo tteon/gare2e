@@ -121,7 +121,7 @@ def test_grbench_loader_creates_lookup_indexes_for_text2cypher_predicates() -> N
     assert "CALL db.awaitIndexes(1800)" in src and "SHOW INDEXES" in src
     runtime = (Path(__file__).parents[2] / "src/seocho/eval/grbench_runtime.py").read_text(encoding="utf-8")
     assert "workspace_id=self.workspace_id, timeout=" not in runtime   # never a Cypher parameter again
-    assert runtime.count("bolt_query(") == 4   # execute_select, execute_rows, profile_select + the helper
+    assert runtime.count("bolt_query(") == 5   # execute_select, execute_rows, profile_select, _diagnostic_rows + the helper
 
 
 def test_validator_rejects_unanchored_scans_with_a_repair_code() -> None:
@@ -151,3 +151,93 @@ def test_execute_rows_shares_validator_timeout_and_receipt_with_execute_select()
     assert receipt["query_timeout_s"] == 15.0 and receipt["rows"] == 1 and receipt["truncated"] is False
     for key in ("validator_ms", "pool_acquire_ms", "bolt_submit_ms", "hydrate_ms", "serialize_ms", "server_available_ms", "query_digest"):
         assert key in receipt
+
+
+class _ScriptedSession:
+    """Main query returns no rows; the diagnostic templates answer from a table."""
+
+    statements: list[tuple[str, dict]] = []
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
+        return None
+
+    def run(self, query, **params):
+        assert type(query).__name__ == "Query" and query.timeout == 15
+        assert params["workspace_id"] == "workspace-a"
+        type(self).statements.append((query.text, params))
+        text = query.text
+        if text.startswith("MATCH (n:GRBenchNode {_workspace_id: $workspace_id, id: $node_id})"):
+            rows = [{"relation": "paper", "degree": 12}]
+        elif "n.feature_name = $value" in text and params.get("value") == "Hiroshi Furukawa":
+            rows = [{"id": "2300633696", "node_type": "author"}]
+        else:
+            rows = []
+        return _ScriptedResult(rows)
+
+
+class _ScriptedResult:
+    def __init__(self, rows):
+        self._rows = rows
+
+    def __iter__(self):
+        return iter([_ScriptedRecord(row) for row in self._rows])
+
+    def consume(self):
+        return _Summary()
+
+
+class _ScriptedRecord:
+    def __init__(self, row):
+        self._row = row
+
+    def data(self):
+        return dict(self._row)
+
+
+class _ScriptedDriver:
+    def session(self, **kwargs):
+        assert kwargs == {"database": "neo4j", "default_access_mode": "READ"}
+        return _ScriptedSession()
+
+
+_EMPTY_PATTERN = (
+    "MATCH (a:GRBenchNode {_workspace_id: $workspace_id, feature_name: 'Hiroshi Furukawa'})"
+    "-[r:GRBENCH_REL {relation_name: 'author'}]->(p:GRBenchNode {_workspace_id: $workspace_id}) RETURN p.id AS id"
+)
+
+
+def test_execute_rows_zero_row_hint_appends_diagnosis_and_keeps_receipt_content_free() -> None:
+    import json
+
+    _ScriptedSession.statements = []
+    executor = GRBenchDozerExecutor(
+        _ScriptedDriver(), database="neo4j", workspace_id="workspace-a", row_cap=5,
+        require_evidence_columns=False, zero_row_hint=True,
+    )
+    text, receipt = executor.execute_rows(_EMPTY_PATTERN)
+    payload = json.loads(text)
+    assert payload["rows"] == []
+    (anchor,) = payload["diagnostic"]["anchors"]
+    assert anchor["match"] == "exact" and anchor["degree_out"] == {"paper": 12} and anchor["degree_class"] == "low"
+    assert payload["diagnostic"]["hint"].startswith("Diagnostic: the anchor node(s) exist")
+    assert receipt["rows"] == 0 and receipt["zero_row_diagnostic"]["hint_kind"] == "resolved"
+    assert receipt["zero_row_diagnostic"]["reads"] == 2 and receipt["zero_row_diagnostic"]["hint_ms"] >= 0
+    assert "Furukawa" not in json.dumps(receipt) and "2300633696" not in json.dumps(receipt)
+    # main query + exact lookup + degree = 3 Bolt round trips, each with the transaction timeout and workspace scope
+    assert len(_ScriptedSession.statements) == 3
+    assert all("LIMIT" in stmt for stmt, _ in _ScriptedSession.statements)
+
+
+def test_execute_rows_without_hint_keeps_the_plain_row_list() -> None:
+    import json
+
+    _ScriptedSession.statements = []
+    executor = GRBenchDozerExecutor(
+        _ScriptedDriver(), database="neo4j", workspace_id="workspace-a", row_cap=5, require_evidence_columns=False,
+    )
+    text, receipt = executor.execute_rows(_EMPTY_PATTERN)
+    assert json.loads(text) == [] and "zero_row_diagnostic" not in receipt
+    assert len(_ScriptedSession.statements) == 1

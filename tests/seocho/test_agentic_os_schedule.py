@@ -111,6 +111,18 @@ def test_grbench_command_can_request_out_of_band_profile_replay(tmp_path) -> Non
     assert "--profile-query-plans" in command
 
 
+def test_grbench_command_forwards_zero_row_hint_only_when_requested(tmp_path) -> None:
+    module = _coordinator()
+    args = _args("grbench-single")
+    assert "--zero-row-hint" not in module._runner_command(args, _entry("S1"), tmp_path, "run")
+    args.zero_row_hint = True
+    command = module._runner_command(args, _entry("S1"), tmp_path, "run")
+    assert "--zero-row-hint" in command
+    hop = _args("grbench-graphcot")
+    hop.zero_row_hint = True
+    assert "--zero-row-hint" not in module._runner_command(hop, _entry("B0"), tmp_path, "run")
+
+
 def test_attempt_id_changes_with_execution_treatment() -> None:
     module = _coordinator()
     entry = {**_entry("B0"), "paired_unit": "7:0:warm:0"}

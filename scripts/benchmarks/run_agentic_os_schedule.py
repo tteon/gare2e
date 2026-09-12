@@ -156,6 +156,8 @@ def _runner_command(args: argparse.Namespace, entry: dict[str, Any], root: Path,
             command.extend(("--db-pid", str(args.db_pid)))
         if args.profile_query_plans:
             command.append("--profile-query-plans")
+        if getattr(args, "zero_row_hint", False):
+            command.append("--zero-row-hint")
         # Result-size axis (lab 014): the executor's LIMIT / byte caps, forwarded
         # only when set so frozen defaults (20 rows / 12 000 bytes) stay in force.
         if getattr(args, "row_cap", None) is not None:
@@ -274,6 +276,11 @@ def main() -> int:
         help="Replay executable read-only GRBench queries under PROFILE outside E2E timing.",
     )
     parser.add_argument(
+        "--zero-row-hint",
+        action="store_true",
+        help="lab 021: grbench-single executor appends a content-free anchor/degree diagnosis to empty results.",
+    )
+    parser.add_argument(
         "--cache-control-script",
         type=Path,
         help="Executable invoked as SCRIPT PHASE PAIRED_UNIT before every attempt",
@@ -378,6 +385,7 @@ def main() -> int:
         "dataset_sha256": dataset_sha256,
         "discovery_cache_sha256": discovery_cache_sha256,
         "profile_query_plans": args.profile_query_plans,
+        "zero_row_hint": bool(getattr(args, "zero_row_hint", False)),
         "only_arm": args.only_arm,
         "only_stratum": sorted(args.only_stratum),
         "shard": args.shard,

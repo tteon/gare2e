@@ -144,6 +144,8 @@ class GRBenchDozerExecutor:
         query_timeout_s: float = 15.0,
         require_evidence_columns: bool = True,
         require_anchor: bool = True,
+        zero_row_hint: bool = False,
+        zero_row_anchor_cap: int = 2,
     ) -> None:
         if query_timeout_s <= 0:
             raise ValueError("query_timeout_s must be positive")
@@ -155,6 +157,11 @@ class GRBenchDozerExecutor:
         self.query_timeout_s = float(query_timeout_s)
         self.require_evidence_columns = require_evidence_columns
         self.require_anchor = require_anchor
+        # lab 021: on an empty result, append a content-free diagnosis (anchor
+        # resolved? outgoing degree per relation) so the model repairs the
+        # pattern rather than the anchor.  Costs 1–3 indexed reads, only on 0 rows.
+        self.zero_row_hint = zero_row_hint
+        self.zero_row_anchor_cap = zero_row_anchor_cap
 
     def validate(self, query: str) -> str:
         return validate_grbench_read_query(
@@ -195,8 +202,13 @@ class GRBenchDozerExecutor:
                     break
             hydrate_ms = (time.perf_counter() - iterate_started) * 1000
             summary = result.consume()
+        diagnostic_receipt: dict[str, Any] | None = None
+        payload: Any = rows
+        if self.zero_row_hint and not rows:
+            diagnostic, diagnostic_receipt = self.zero_row_diagnostic(statement, bound)
+            payload = {"rows": [], "diagnostic": diagnostic}
         serialize_started = time.perf_counter()
-        text = json.dumps(rows, ensure_ascii=False, default=str)
+        text = json.dumps(payload, ensure_ascii=False, default=str)
         truncated = len(text.encode("utf-8")) > self.byte_cap
         if truncated:
             text = text.encode("utf-8")[: self.byte_cap].decode("utf-8", errors="ignore") + "…[truncated]"
@@ -217,7 +229,28 @@ class GRBenchDozerExecutor:
             "truncated": truncated,
             "wall_ms": round((time.perf_counter() - started) * 1000, 3),
         }
+        if diagnostic_receipt is not None:
+            receipt["zero_row_diagnostic"] = diagnostic_receipt
         return text, receipt
+
+    def _diagnostic_rows(self, statement: str, parameters: Mapping[str, Any]) -> list[dict[str, Any]]:
+        """Bounded read for the diagnostic templates: same validator (anchor
+        required, evidence columns not), same Bolt timeout, hard row cap."""
+        checked = validate_grbench_read_query(
+            statement, row_cap=self.row_cap, require_evidence_columns=False, require_anchor=True
+        )
+        bound = {**dict(parameters), "workspace_id": self.workspace_id}
+        with self.driver.session(database=self.database, default_access_mode="READ") as session:
+            result = session.run(bolt_query(checked, timeout_s=self.query_timeout_s), **bound)
+            rows = [record.data() for record in result]
+            result.consume()
+        return rows
+
+    def zero_row_diagnostic(self, statement: str, parameters: Mapping[str, Any] | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
+        """(observation, content-free receipt) explaining why ``statement`` returned nothing."""
+        from .request_analysis import zero_row_diagnostic  # local import: request_analysis imports this module
+
+        return zero_row_diagnostic(self._diagnostic_rows, statement, parameters, anchor_cap=self.zero_row_anchor_cap)
 
     def execute_select(self, query: str) -> GRBenchQueryResult:
         started = time.perf_counter()

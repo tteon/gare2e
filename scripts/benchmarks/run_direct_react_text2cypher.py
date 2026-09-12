@@ -187,6 +187,11 @@ def main() -> int:
         help="Prompt-engineering arm: baseline system prompt, or strengthened (explicit scope pattern, repair table, finalisation rule).",
     )
     parser.add_argument("--stage", choices=("smoke", "main"), default="smoke")
+    parser.add_argument(
+        "--zero-row-hint",
+        action="store_true",
+        help="lab 021: on an empty result the executor appends a content-free diagnosis (anchor resolved?, outgoing degree per relation) to the tool result.",
+    )
     args = parser.parse_args()
     if args.token_budget <= 0:
         raise ValueError("--token-budget must be positive")
@@ -246,6 +251,7 @@ def main() -> int:
             driver, database=args.database, workspace_id=args.workspace_id, row_cap=args.row_cap, byte_cap=args.byte_cap,
             require_evidence_columns=False,  # the ReAct runner feeds raw rows back to the model
             require_anchor=os.getenv("SEOCHO_GRBENCH_REQUIRE_ANCHOR", "1") == "1",
+            zero_row_hint=args.zero_row_hint,
         )
         if driver is not None
         else None
@@ -558,7 +564,7 @@ def main() -> int:
     args.receipt_out.parent.mkdir(parents=True, exist_ok=True)
     args.predictions_out.parent.mkdir(parents=True, exist_ok=True)
     args.predictions_out.write_text(json.dumps(predictions, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    config = {"model": args.model, "workspace_id": args.workspace_id, "database": args.database, "initial_context": "question_only", "max_turns": args.max_turns, "token_budget": args.token_budget, "row_cap": args.row_cap, "byte_cap": args.byte_cap, "enable_thinking": args.enable_thinking, "arm": args.arm, "condition": args.condition, "stage": args.stage, "run_id": args.run_id, "seed": args.seed, "repetition": args.repetition, "cache_phase": args.cache_phase, "evidence_class": spec.evidence_class, "profile_query_plans": args.profile_query_plans, "discovery_cache_digest": discovery_cache_digest, "tool_schema_digest": runtime_tool_schema_digest if spec.tools_enabled else None, "system_prompt_digest": _digest(system), **prompt_profile_receipt(args.prompt_profile, "cypher")}
+    config = {"model": args.model, "workspace_id": args.workspace_id, "database": args.database, "initial_context": "question_only", "max_turns": args.max_turns, "token_budget": args.token_budget, "row_cap": args.row_cap, "byte_cap": args.byte_cap, "enable_thinking": args.enable_thinking, "arm": args.arm, "condition": args.condition, "stage": args.stage, "run_id": args.run_id, "seed": args.seed, "repetition": args.repetition, "cache_phase": args.cache_phase, "evidence_class": spec.evidence_class, "profile_query_plans": args.profile_query_plans, "zero_row_hint": args.zero_row_hint, "discovery_cache_digest": discovery_cache_digest, "tool_schema_digest": runtime_tool_schema_digest if spec.tools_enabled else None, "system_prompt_digest": _digest(system), **prompt_profile_receipt(args.prompt_profile, "cypher")}
     receipt = {
         "schema_version": "agentic_os.direct_react_text2cypher_receipt.v3",
         "execution_surface": "direct_openai_compatible_vllm_and_stock_neo4j_driver",

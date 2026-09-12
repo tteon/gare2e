@@ -385,3 +385,11 @@ def test_e2e_profile_query_plans_flag_is_opt_in_for_the_cypher_lane():
     assert 'profile_flag=(); [ "$SEOCHO_PROFILE_QUERY_PLANS" = "1" ] && profile_flag=(--profile-query-plans)' in script
     main = script[script.index("main_matrix() {"):]
     assert main.count('"${profile_flag[@]}"') == 1 and '--lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" "${profile_flag[@]}"' in main
+
+
+def test_e2e_zero_row_hint_flag_is_opt_in_for_the_cypher_lane():
+    script = (ROOT / "scripts/benchmarks/run_agentic_os_colocated_e2e.sh").read_text(encoding="utf-8")
+    assert ': "${SEOCHO_ZERO_ROW_HINT:=0}"' in script
+    assert 'hint_flag=(); [ "$SEOCHO_ZERO_ROW_HINT" = "1" ] && hint_flag=(--zero-row-hint)' in script
+    main = script[script.index("main_matrix() {"):]
+    assert main.count('"${hint_flag[@]}"') == 1 and '--schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" "${profile_flag[@]}" "${hint_flag[@]}"' in main
