@@ -34,7 +34,7 @@ import statistics as st
 from pathlib import Path
 from typing import Any
 
-LANES = ("grbench-single", "gtsqa-single", "grbench-multi", "gtsqa-multi")
+LANES = ("grbench-single", "gtsqa-single", "grbench-multi", "gtsqa-multi", "grbench-graphcot")
 
 
 def _delta(a: dict[str, Any], b: dict[str, Any], key: str) -> float:

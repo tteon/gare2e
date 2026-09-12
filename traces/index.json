@@ -51,6 +51,32 @@
       "source_bundle_sha256": "3ae058c563b7dfedec8d9b7248ac284f93ea95054d914a84ea6b0a71f73a3b02",
       "state": "failed",
       "uploaded_at": "2026-09-11T20:53:37Z"
+    },
+    {
+      "bytes": 4620012,
+      "files": 334,
+      "instance_id": 50661840,
+      "keep": false,
+      "lab_request": "016",
+      "manifest": "s3://seocho-agentic-os-traces/seocho-agentic-os/traces/lab-s15-try-082017/manifest.json",
+      "prefix": "s3://seocho-agentic-os-traces/seocho-agentic-os/traces/lab-s15-try-082017",
+      "run": "lab-s15-try-082017",
+      "source_bundle_sha256": "659a6030db2037461da0df243a5a255381540ccd4b7aab8720b4ba2874ee7398",
+      "state": "failed",
+      "uploaded_at": "2026-09-12T02:05:18Z"
+    },
+    {
+      "bytes": 3449256,
+      "files": 241,
+      "instance_id": 50672533,
+      "keep": false,
+      "lab_request": "017",
+      "manifest": "s3://seocho-agentic-os-traces/seocho-agentic-os/traces/lab-s16-try-094447/manifest.json",
+      "prefix": "s3://seocho-agentic-os-traces/seocho-agentic-os/traces/lab-s16-try-094447",
+      "run": "lab-s16-try-094447",
+      "source_bundle_sha256": "659a6030db2037461da0df243a5a255381540ccd4b7aab8720b4ba2874ee7398",
+      "state": "failed",
+      "uploaded_at": "2026-09-12T02:05:44Z"
     }
   ],
   "schema_version": "seocho.agentic_os_trace_index.v1"

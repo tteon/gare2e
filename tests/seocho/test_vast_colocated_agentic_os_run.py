@@ -511,4 +511,5 @@ def test_collect_flags_default_to_an_hour_with_one_retry():
     import inspect
     src = inspect.getsource(module.main)
     assert '"--collect-timeout-s", type=int, default=3600' in src and '"--collect-retries", type=int, default=1' in src
+    assert '"--collect-bulk", choices=("full", "essential-only")' in src and 'SkippedByFlag' in src
     assert "_PartialArtifacts" in src and "essential_artifacts_collected" in src and "artifacts_partial" in src

@@ -184,6 +184,10 @@ def main() -> int:
                     llm = llm_ms(c) / 1000.0
                     qid = str(c.get("qid") or c.get("case_id")).split(":")[-1]
                     st = stages.get((lane, qid))
+                    if st is None:
+                        # the span exporter labels every GRBench runner as grbench-single; a pass holds one lane per case
+                        cands = [v for (ln, cid), v in stages.items() if cid == qid]
+                        st = cands[0] if len(cands) == 1 else None
                     walls.append(w)
                     graph.append(g / w)
                     agent.append(max(0.0, w - llm - g) / w)

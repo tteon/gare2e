@@ -574,6 +574,7 @@ def main() -> int:
     parser.add_argument("--remote-artifacts", default="/artifacts")
     parser.add_argument("--collect-timeout-s", type=int, default=3600, help="per-attempt timeout for the essential archive copy and each bulk scp (lab-s15: 1800 s was too short from a slow host)")
     parser.add_argument("--collect-retries", type=int, default=1, help="extra bulk scp attempts after the first failure")
+    parser.add_argument("--collect-bulk", choices=("full", "essential-only"), default="full", help="essential-only skips the bulk private-log copy (slow uplinks: lab-s15/s16 UAE host); the lifecycle records artifacts_partial")
     parser.add_argument("--local-artifacts", required=True, type=Path)
     parser.add_argument("--upload", action="append", type=_parse_upload, default=[])
     args = parser.parse_args()
@@ -738,7 +739,10 @@ def main() -> int:
             lifecycle["essential_copy"] = {"verified": False, "error_class": type(exc).__name__}
         _write_lifecycle_checkpoint(receipt_path, lifecycle, "essential_artifacts_collected")
         bulk_error: str | None = None
-        for attempt in range(1, args.collect_retries + 2):
+        if args.collect_bulk == "essential-only":
+            bulk_error = "SkippedByFlag"
+            lifecycle["bulk_copy_attempts"] = 0
+        for attempt in range(1, (args.collect_retries + 2) if bulk_error is None else 1):
             try:
                 _copy_from_remote(ssh_prefix, remote_artifacts, args.local_artifacts, timeout_s=args.collect_timeout_s)
                 bulk_error = None
