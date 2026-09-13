@@ -151,7 +151,7 @@ def test_e2e_concurrency_runs_disjoint_shards_and_main_filters() -> None:
     script = (ROOT / "scripts/benchmarks/run_agentic_os_colocated_e2e.sh").read_text(encoding="utf-8")
     assert '--shard "$i/$SEOCHO_CONCURRENCY"' in script and '--run-root-suffix "shard-$i"' in script
     assert 'for pid in "${pids[@]}"; do wait "$pid" || status=$?; done' in script
-    assert script.count('${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}') == 7  # 2 closed-book + 4 tool lanes + graphcot (lab 017)
+    assert script.count('${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}') == 8  # 2 closed-book + 4 tool lanes + graphcot (lab 017) + router (lab 019)
     assert script.count('[ "$SEOCHO_MAIN_SKIP_CLOSED" = "1" ] || run "raw-') == 2
 
 
@@ -320,7 +320,7 @@ def test_e2e_main_matrix_loops_over_arms_with_suffixed_roots():
     main = script[script.index("main_matrix() {"):]
     assert 'for arm in $SEOCHO_MAIN_ARMS; do' in main
     assert '[ "$arm" = "B0" ] || suffix="-$arm"' in main
-    assert main.count('--only-arm "$arm"') == 5  # the four tool lanes + grbench-graphcot (lab 017)
+    assert main.count('--only-arm "$arm"') == 6  # the four tool lanes + grbench-graphcot (lab 017) + grbench-router (lab 019)
     assert main.count("--only-arm B0") == 2  # the two closed-book baselines stay B0
     assert '"$ROOT/grbench-single-tool-$thinking$suffix"' in main
 
@@ -347,8 +347,8 @@ def test_e2e_skips_arms_a_lane_does_not_support(tmp_path):
     assert [r.split("\t")[0] for r in rows] == ["raw-grbench-single-tool-S4", "raw-gtsqa-multi-tool-S1", "raw-grbench-multi-tool-O1"]
     assert all("skipped_unsupported_arm" in r for r in rows)
     main = script[script.index("main_matrix() {"):]
-    assert main.count('&& arm_supported ') == 5  # if lane_enabled X && arm_supported X; then run … fi (four whole-query lanes + graphcot)
-    assert main.count('if lane_enabled ') == 5
+    assert main.count('&& arm_supported ') == 6  # if lane_enabled X && arm_supported X; then run … fi (four whole-query lanes + graphcot)
+    assert main.count('if lane_enabled ') == 6
     assert 'return 0' in main[:main.index('\n}\n')]
 
 
@@ -366,7 +366,7 @@ def test_e2e_lane_filter_and_graphcot_lane(tmp_path):
     assert ': "${SEOCHO_MAIN_LANES:=grbench-single grbench-multi gtsqa-single gtsqa-multi}"' in script  # historical default: graphcot opt-in
     assert ': "${SEOCHO_GRAPHCOT_MAX_TURNS:=12}"' in script
     main = script[script.index("main_matrix() {"):]
-    assert main.count("lane_enabled ") == 5 and 'lane_enabled grbench-graphcot && arm_supported grbench-graphcot "$arm"' in main
+    assert main.count("lane_enabled ") == 6 and 'lane_enabled grbench-graphcot && arm_supported grbench-graphcot "$arm"' in main
     assert '--lane grbench-graphcot' in main and '--max-turns "$SEOCHO_GRAPHCOT_MAX_TURNS"' in main
     start = script.index("lane_enabled() {"); fn = script[start: script.index("\n}\n", start) + 3]
     probe = 'SEOCHO_MAIN_LANES="grbench-single grbench-graphcot"; ROOT="$1"; touch "$ROOT/progress.tsv"\n' + fn + (
@@ -393,3 +393,13 @@ def test_e2e_zero_row_hint_flag_is_opt_in_for_the_cypher_lane():
     assert 'hint_flag=(); [ "$SEOCHO_ZERO_ROW_HINT" = "1" ] && hint_flag=(--zero-row-hint)' in script
     main = script[script.index("main_matrix() {"):]
     assert main.count('"${hint_flag[@]}"') == 1 and '--schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" "${profile_flag[@]}" "${hint_flag[@]}"' in main
+
+
+def test_e2e_router_lane_block_mirrors_the_cypher_lane_without_hint_flags():
+    script = (ROOT / "scripts/benchmarks/run_agentic_os_colocated_e2e.sh").read_text(encoding="utf-8")
+    assert 'grbench-router) case "$arm" in V0|V0A) ok=0;; esac;;' in script
+    main = script[script.index("main_matrix() {"):]
+    block = main[main.index('lane_enabled grbench-router'):]
+    block = block[:block.index("\n    fi\n")]
+    assert '--lane grbench-router' in block and '"$ROOT/grbench-router-tool-$thinking$suffix"' in block
+    assert "hint_flag" not in block and "profile_flag" not in block

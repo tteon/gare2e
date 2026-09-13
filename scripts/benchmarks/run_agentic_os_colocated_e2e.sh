@@ -189,6 +189,7 @@ arm_supported() {
   case "$lane" in
     grbench-single) case "$arm" in B0|C-|S1|O1) ok=0;; esac;;
     grbench-graphcot) case "$arm" in B0|O1) ok=0;; esac;;
+    grbench-router) case "$arm" in V0|V0A) ok=0;; esac;;
     grbench-multi) case "$arm" in B0|C-|S1) ok=0;; esac;;
     gtsqa-single) case "$arm" in B0|C-|S1|S2a|S2b|S3|S4|O1) ok=0;; esac;;
     gtsqa-multi) case "$arm" in B0|S4) ok=0;; esac;;
@@ -236,6 +237,18 @@ main_matrix() {
     --lane grbench-single --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" "${profile_flag[@]}" "${hint_flag[@]}" \
     --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
     --run-root "$ROOT/grbench-single-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
+    --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition tool_auto \
+    --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
+    --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --db-pid "$DOZERDB_PID" \
+      --only-arm "$arm" --continue-on-error \
+      ${SEOCHO_GRBENCH_ROW_CAP:+--row-cap "$SEOCHO_GRBENCH_ROW_CAP"} ${SEOCHO_GRBENCH_BYTE_CAP:+--byte-cap "$SEOCHO_GRBENCH_BYTE_CAP"} \
+      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
+    fi
+    # lab 019 router lane: arm = policy (V0 / V0A); the router analyses the question, then dispatches to the Text2Cypher or hop runner.
+    if lane_enabled grbench-router && arm_supported grbench-router "$arm"; then run "raw-grbench-router-tool-$thinking$suffix" \
+    --lane grbench-router --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
+    --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
+    --run-root "$ROOT/grbench-router-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
     --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition tool_auto \
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
     --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --db-pid "$DOZERDB_PID" \

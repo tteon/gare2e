@@ -31,6 +31,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 _LANE_ARMS = {
     "grbench-single": {"B0", "C-", "S1", "O1"},
     "grbench-graphcot": {"B0", "O1"},  # Graph-CoT hop actions (lab 017); B0 = tool signatures + vocabulary, O1 = + relation semantics
+    "grbench-router": {"V0", "V0A"},  # lab 019: arm = router policy; the router picks the context arm per question
     "grbench-multi": {"B0", "C-", "S1"},
     "gtsqa-single": {"B0", "C-", "S1", "S2a", "S2b", "S3", "S4", "O1"},
     "gtsqa-multi": {"B0", "S4"},
@@ -45,6 +46,7 @@ _LANE_RUNNERS = {
     "gtsqa-single": _REPO_ROOT / "scripts/benchmarks/run_gtsqa_text2sparql_react.py",
     "grbench-single": _REPO_ROOT / "scripts/benchmarks/run_direct_react_text2cypher.py",
     "grbench-graphcot": _REPO_ROOT / "scripts/benchmarks/run_grbench_graphcot_react.py",
+    "grbench-router": _REPO_ROOT / "scripts/benchmarks/run_grbench_router.py",
     "gtsqa-multi": _REPO_ROOT / "scripts/benchmarks/run_gtsqa_agents_sdk_handoff.py",
     "grbench-multi": _REPO_ROOT / "scripts/benchmarks/run_grbench_agents_sdk_handoff.py",
 }
@@ -135,10 +137,10 @@ def _runner_command(args: argparse.Namespace, entry: dict[str, Any], root: Path,
             "--condition", args.condition,
             *common,
         ]
-    elif args.lane == "grbench-single":
+    elif args.lane in ("grbench-single", "grbench-router"):
         command = [
             sys.executable,
-            str(_REPO_ROOT / "scripts/benchmarks/run_direct_react_text2cypher.py"),
+            str(_LANE_RUNNERS[args.lane]),
             "--questions", str(args.dataset),
             "--discovery-cache", str(args.discovery_cache),
             "--receipt-out", str(root / "run-receipt.json"),
@@ -154,10 +156,10 @@ def _runner_command(args: argparse.Namespace, entry: dict[str, Any], root: Path,
         ]
         if args.db_pid is not None:
             command.extend(("--db-pid", str(args.db_pid)))
-        if args.profile_query_plans:
+        if args.profile_query_plans and args.lane == "grbench-single":
             command.append("--profile-query-plans")
-        if getattr(args, "zero_row_hint", False):
-            command.append("--zero-row-hint")
+        if getattr(args, "zero_row_hint", False) and args.lane == "grbench-single":
+            command.append("--zero-row-hint")   # the router decides the hint per plan
         # Result-size axis (lab 014): the executor's LIMIT / byte caps, forwarded
         # only when set so frozen defaults (20 rows / 12 000 bytes) stay in force.
         if getattr(args, "row_cap", None) is not None:

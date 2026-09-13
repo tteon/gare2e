@@ -1,0 +1,209 @@
+{
+  "cases": [
+    {
+      "qid": "0",
+      "stratum": "easy"
+    },
+    {
+      "qid": "100",
+      "stratum": "easy"
+    },
+    {
+      "qid": "101",
+      "stratum": "medium"
+    },
+    {
+      "qid": "103",
+      "stratum": "medium"
+    },
+    {
+      "qid": "104",
+      "stratum": "medium"
+    },
+    {
+      "qid": "107",
+      "stratum": "easy"
+    },
+    {
+      "qid": "109",
+      "stratum": "medium"
+    },
+    {
+      "qid": "113",
+      "stratum": "easy"
+    },
+    {
+      "qid": "114",
+      "stratum": "hard"
+    },
+    {
+      "qid": "119",
+      "stratum": "hard"
+    },
+    {
+      "qid": "12",
+      "stratum": "easy"
+    },
+    {
+      "qid": "126",
+      "stratum": "easy"
+    },
+    {
+      "qid": "127",
+      "stratum": "easy"
+    },
+    {
+      "qid": "134",
+      "stratum": "hard"
+    },
+    {
+      "qid": "135",
+      "stratum": "hard"
+    },
+    {
+      "qid": "137",
+      "stratum": "hard"
+    },
+    {
+      "qid": "139",
+      "stratum": "hard"
+    },
+    {
+      "qid": "2",
+      "stratum": "easy"
+    },
+    {
+      "qid": "21",
+      "stratum": "medium"
+    },
+    {
+      "qid": "26",
+      "stratum": "medium"
+    },
+    {
+      "qid": "27",
+      "stratum": "medium"
+    },
+    {
+      "qid": "28",
+      "stratum": "medium"
+    },
+    {
+      "qid": "30",
+      "stratum": "medium"
+    },
+    {
+      "qid": "31",
+      "stratum": "medium"
+    },
+    {
+      "qid": "34",
+      "stratum": "medium"
+    },
+    {
+      "qid": "35",
+      "stratum": "medium"
+    },
+    {
+      "qid": "41",
+      "stratum": "hard"
+    },
+    {
+      "qid": "46",
+      "stratum": "hard"
+    },
+    {
+      "qid": "47",
+      "stratum": "hard"
+    },
+    {
+      "qid": "50",
+      "stratum": "hard"
+    },
+    {
+      "qid": "51",
+      "stratum": "hard"
+    },
+    {
+      "qid": "54",
+      "stratum": "hard"
+    },
+    {
+      "qid": "60",
+      "stratum": "medium"
+    },
+    {
+      "qid": "61",
+      "stratum": "medium"
+    },
+    {
+      "qid": "63",
+      "stratum": "medium"
+    },
+    {
+      "qid": "64",
+      "stratum": "medium"
+    },
+    {
+      "qid": "69",
+      "stratum": "medium"
+    },
+    {
+      "qid": "71",
+      "stratum": "medium"
+    },
+    {
+      "qid": "72",
+      "stratum": "medium"
+    },
+    {
+      "qid": "73",
+      "stratum": "medium"
+    },
+    {
+      "qid": "74",
+      "stratum": "medium"
+    },
+    {
+      "qid": "76",
+      "stratum": "medium"
+    },
+    {
+      "qid": "78",
+      "stratum": "medium"
+    },
+    {
+      "qid": "82",
+      "stratum": "medium"
+    },
+    {
+      "qid": "83",
+      "stratum": "medium"
+    },
+    {
+      "qid": "85",
+      "stratum": "medium"
+    },
+    {
+      "qid": "86",
+      "stratum": "medium"
+    },
+    {
+      "qid": "92",
+      "stratum": "hard"
+    },
+    {
+      "qid": "94",
+      "stratum": "hard"
+    },
+    {
+      "qid": "97",
+      "stratum": "hard"
+    }
+  ],
+  "cohort_digest": "0b7ae162dc3fa90ef9e3d53742986b36670935164ccec14a0b9ba372cb77202e",
+  "dataset": "GRBench-MAPLE-Physics-heldout-50",
+  "exclusions": {},
+  "schema_version": "seocho.agentic_os.cohort.v1",
+  "seed": 0
+}

@@ -197,3 +197,15 @@ def test_grbench_row_and_byte_caps_forward_only_when_set(tmp_path):
     command = module._runner_command(args, _entry("B0"), tmp_path, "run")
     assert command[command.index("--row-cap") + 1] == "100"
     assert command[command.index("--byte-cap") + 1] == "60000"
+
+
+def test_router_lane_uses_router_script_and_leaves_hint_to_the_plan(tmp_path) -> None:
+    module = _coordinator()
+    args = _args("grbench-router")
+    args.zero_row_hint = True
+    args.profile_query_plans = True
+    command = module._runner_command(args, _entry("V0"), tmp_path, "run")
+    assert command[1].endswith("run_grbench_router.py")
+    assert command[command.index("--arm") + 1] == "V0"
+    assert "--zero-row-hint" not in command and "--profile-query-plans" not in command
+    assert module._LANE_ARMS["grbench-router"] == {"V0", "V0A"}
