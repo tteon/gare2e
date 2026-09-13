@@ -28,7 +28,7 @@ scrape = collections.defaultdict(list)
 for f in glob.glob(f'{R}/e2e/spec-decode-metrics.json'):
     for l in open(f):
         m = re.match(r'\{"ts":([0-9.]+),"metric":"([^{"]+)(?:\{[^}]*\})?","value":([0-9.e+-]+)\}', l.strip())
-        if m: scrape[m.group(2)].append((int(m.group(1)), float(m.group(3))))
+        if m: scrape[m.group(2)].append((float(m.group(1)), float(m.group(3))))
 def window_delta(metric, start, end):
     pts = [(t, v) for t, v in scrape.get(metric, []) if start <= t <= end]
     return (pts[-1][1] - pts[0][1]) if len(pts) >= 2 else None
