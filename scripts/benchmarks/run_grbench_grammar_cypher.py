@@ -44,13 +44,13 @@ from seocho.eval.agentic_os_observability import (
     validate_gpu_samples,
 )
 from seocho.eval.agentic_os_trace import case_trace, inject_traceparent
-from seocho.eval.cypher_grammar import CYPHER_READ_GRAMMAR, CYPHER_READ_GRAMMAR_DIGEST
+from seocho.eval.cypher_grammar import GRAMMARS, GRAMMAR_DIGESTS
 from seocho.eval.grbench_runtime import GRBenchDozerExecutor, QueryPolicyError
 from seocho.eval.prompt_profiles import PROMPT_PROFILES, prompt_profile_receipt
 from seocho.eval.raw_agentic_baseline import RAW_CONDITIONS, raw_condition_spec
 
 LANE = "GRBench-GrammarCypher"
-CONSTRAINED_MODES = ("xgrammar", "none")
+CONSTRAINED_MODES = ("xgrammar", "xgrammar-ontology", "none")
 _FENCE = re.compile(r"^```(?:cypher|sql)?\s*|\s*```$", re.I | re.M)
 
 
@@ -154,7 +154,7 @@ def main() -> int:
     parser.add_argument("--manifest-out", type=Path)
     parser.add_argument("--discovery-cache", type=Path, help="frozen discovery cache; the arm's response is placed in the system prompt")
     parser.add_argument("--arm", choices=("B0", "S1", "O1"), default="S1")
-    parser.add_argument("--constrained", choices=CONSTRAINED_MODES, default="xgrammar", help="xgrammar = decode query turns under the read-only Cypher grammar; none = same protocol unconstrained")
+    parser.add_argument("--constrained", choices=CONSTRAINED_MODES, default="xgrammar", help="xgrammar = read-only Cypher grammar; xgrammar-ontology = the same grammar with property / relation / node_type names closed over the GRBench ontology; none = same protocol unconstrained")
     parser.add_argument("--run-id", default="grammar-smoke")
     parser.add_argument("--repetition", type=int, default=0)
     parser.add_argument("--seed", type=int, default=0)
@@ -195,7 +195,8 @@ def main() -> int:
     if args.qid and len(questions) != len(set(args.qid)):
         raise KeyError("one or more requested GRBench QIDs were not found")
     context_by_qid, discovery_cache_digest = _load_discovery_context(args.discovery_cache, args.arm)
-    constrained = args.constrained == "xgrammar"
+    constrained = args.constrained != "none"
+    grammar = GRAMMARS.get(args.constrained)
     driver = GraphDatabase.driver(args.bolt_url, auth=("neo4j", password))
     executor = GRBenchDozerExecutor(
         driver, database=args.database, workspace_id=args.workspace_id, row_cap=args.row_cap, byte_cap=args.byte_cap,
@@ -256,7 +257,7 @@ def main() -> int:
                         "chat_template_kwargs": {"enable_thinking": args.enable_thinking == "true"},
                     }
                     if constrained and not answer_turn:
-                        payload["structured_outputs"] = {"grammar": CYPHER_READ_GRAMMAR}
+                        payload["structured_outputs"] = {"grammar": grammar}
                     try:
                         response, llm_ms = _post(f"{args.base_url.rstrip('/')}/v1/chat/completions", payload)
                     except Exception as exc:  # class only, never provider/body text
@@ -394,7 +395,7 @@ def main() -> int:
     args.predictions_out.write_text(json.dumps(predictions, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     config = {
         "model": args.model, "workspace_id": args.workspace_id, "database": args.database, "initial_context": "schema_context_in_system_prompt",
-        "protocol": "query_first_plain_response", "constrained": args.constrained, "grammar_digest": CYPHER_READ_GRAMMAR_DIGEST if constrained else None,
+        "protocol": "query_first_plain_response", "constrained": args.constrained, "grammar_digest": GRAMMAR_DIGESTS.get(args.constrained),
         "max_turns": args.max_turns, "max_query_turns": args.max_query_turns, "token_budget": args.token_budget, "row_cap": args.row_cap, "byte_cap": args.byte_cap,
         "zero_row_hint": args.zero_row_hint, "enable_thinking": args.enable_thinking, "arm": args.arm, "condition": args.condition, "stage": args.stage,
         "run_id": args.run_id, "seed": args.seed, "repetition": args.repetition, "cache_phase": args.cache_phase, "evidence_class": spec.evidence_class,

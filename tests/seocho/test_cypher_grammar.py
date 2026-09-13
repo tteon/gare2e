@@ -5,13 +5,22 @@ from pathlib import Path
 
 import pytest
 
-from seocho.eval.cypher_grammar import CYPHER_READ_GRAMMAR, CYPHER_READ_GRAMMAR_DIGEST, GRAMMAR_NEGATIVE_SAMPLES, GRAMMAR_POSITIVE_SAMPLES
+from seocho.eval.cypher_grammar import (
+    CYPHER_ONTOLOGY_GRAMMAR,
+    CYPHER_READ_GRAMMAR,
+    CYPHER_READ_GRAMMAR_DIGEST,
+    GRAMMARS,
+    GRAMMAR_NEGATIVE_SAMPLES,
+    GRAMMAR_ONTOLOGY_NEGATIVE_SAMPLES,
+    GRAMMAR_ONTOLOGY_POSITIVE_SAMPLES,
+    GRAMMAR_POSITIVE_SAMPLES,
+)
 
 xgr = pytest.importorskip("xgrammar")
 
 
-def _compiled():
-    grammar = xgr.Grammar.from_ebnf(CYPHER_READ_GRAMMAR)
+def _compiled(text: str = CYPHER_READ_GRAMMAR):
+    grammar = xgr.Grammar.from_ebnf(text)
     # a byte-level stand-in vocabulary: accept_string walks characters, so any tokenizer info works
     info = xgr.TokenizerInfo([chr(i) for i in range(256)], vocab_type=xgr.VocabType.RAW, stop_token_ids=[0])
     return xgr.GrammarCompiler(info).compile_grammar(grammar)
@@ -44,4 +53,15 @@ def test_clean_cypher_strips_fences() -> None:
     spec.loader.exec_module(module)
     assert module.clean_cypher("```cypher\nMATCH (n) RETURN n\n```") == "MATCH (n) RETURN n"
     assert module.clean_cypher("  MATCH (n) RETURN n ;\n") == "MATCH (n) RETURN n ;"
-    assert module.CONSTRAINED_MODES == ("xgrammar", "none")
+    assert module.CONSTRAINED_MODES == ("xgrammar", "xgrammar-ontology", "none")
+
+
+def test_ontology_grammar_closes_names_over_the_grbench_vocabulary() -> None:
+    plain, onto = _compiled(), _compiled(CYPHER_ONTOLOGY_GRAMMAR)
+    assert [_accepts(onto, s) for s in GRAMMAR_POSITIVE_SAMPLES] == [True] * len(GRAMMAR_POSITIVE_SAMPLES)
+    assert [_accepts(onto, s) for s in GRAMMAR_ONTOLOGY_POSITIVE_SAMPLES] == [True] * len(GRAMMAR_ONTOLOGY_POSITIVE_SAMPLES)
+    assert [_accepts(onto, s) for s in GRAMMAR_NEGATIVE_SAMPLES] == [False] * len(GRAMMAR_NEGATIVE_SAMPLES)
+    # names outside the schema: admitted by the plain grammar, refused by the ontology grammar
+    assert [_accepts(plain, s) for s in GRAMMAR_ONTOLOGY_NEGATIVE_SAMPLES] == [True] * len(GRAMMAR_ONTOLOGY_NEGATIVE_SAMPLES)
+    assert [_accepts(onto, s) for s in GRAMMAR_ONTOLOGY_NEGATIVE_SAMPLES] == [False] * len(GRAMMAR_ONTOLOGY_NEGATIVE_SAMPLES)
+    assert set(GRAMMARS) == {"xgrammar", "xgrammar-ontology"}

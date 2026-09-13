@@ -58,6 +58,71 @@ ws ::= [ \t\n]+
 
 CYPHER_READ_GRAMMAR_DIGEST = hashlib.sha256(CYPHER_READ_GRAMMAR.encode("utf-8")).hexdigest()
 
+# GRBench MAPLE/Physics closed vocabulary (the O1 arm's ontology: node types, relation names with
+# domain/range, properties per node type).  Condition "C" of the guided-decoding design: the
+# grammar itself only admits these names, so a query can never name a relation or property that
+# does not exist.  Domain/range (which node type a relation leaves) is not expressible in a CFG
+# without typed variables; the executor's zero-row diagnostic covers it.
+GRBENCH_VOCABULARY = {
+    "node_types": ("paper", "author", "venue"),
+    "relations": ("author", "paper", "venue", "reference", "cited_by"),
+    "properties": ("id", "source_node_id", "node_type", "feature_name", "feature_title", "feature_year", "feature_abstract", "feature_label", "relation_name", "source_node_type"),
+}
+
+
+def _alts(values) -> str:
+    return " | ".join('"' + v + '"' for v in values)
+
+
+def build_ontology_grammar(vocabulary: dict[str, tuple[str, ...]] = GRBENCH_VOCABULARY) -> str:
+    """The read-only grammar with the vocabulary closed over the ontology's names.
+
+    Changes vs :data:`CYPHER_READ_GRAMMAR`: property access and inline map keys
+    draw from ``properties`` (plus ``_workspace_id`` in the scope map, already
+    fixed); ``relation_name`` values and ``node_type`` comparisons draw from the
+    ontology's relation names / node types; string literals stay free
+    (entity names and titles come from the question).
+    """
+    props = _alts(vocabulary["properties"])
+    props_nt = _alts(v for v in vocabulary["properties"] if v != "node_type")
+    rels = " | ".join("\"'" + v + "'\"" for v in vocabulary["relations"])
+    types = " | ".join("\"'" + v + "'\"" for v in vocabulary["node_types"])
+    grammar = CYPHER_READ_GRAMMAR
+    replacements = {
+        'prop_kv ::= ident ws? ":" ws? value': 'prop_kv ::= prop_name_nt ws? ":" ws? value | "node_type" ws? ":" ws? node_type_literal',
+        'rel_body ::= ws? ident? ws? ":GRBENCH_REL" (ws? "{" ws? "relation_name" ws? ":" ws? value ws? "}")? ws?':
+            'rel_body ::= ws? ident? ws? ":GRBENCH_REL" (ws? "{" ws? "relation_name" ws? ":" ws? relation_literal ws? "}")? ws?',
+        'property ::= ident "." ident': 'property ::= ident "." prop_name\nproperty_nt ::= ident "." prop_name_nt\nvalue_nt ::= func_call | property_nt | string | number | param | list | "*" | ident',
+        'comparison ::= value ws? cmp_op ws? value | value " IN " list | value " IS NULL" | value " IS NOT NULL" | value " CONTAINS " value | value " STARTS WITH " value | value " ENDS WITH " value':
+            'comparison ::= typed_cmp | value_nt ws? cmp_op ws? value_nt | value_nt " IN " list | value " IS NULL" | value " IS NOT NULL" | value_nt " CONTAINS " value_nt | value_nt " STARTS WITH " value_nt | value_nt " ENDS WITH " value_nt\n'
+            'typed_cmp ::= ident "." "node_type" ws? ("=" | "<>") ws? node_type_literal | ident "." "node_type" " IN " "[" ws? node_type_literal (ws? "," ws? node_type_literal)* ws? "]" | ident "." "relation_name" ws? ("=" | "<>") ws? relation_literal | ident "." "relation_name" " IN " "[" ws? relation_literal (ws? "," ws? relation_literal)* ws? "]"',
+    }
+    for old, new in replacements.items():
+        assert old in grammar, old
+        grammar = grammar.replace(old, new)
+    grammar += f"prop_name ::= {props}\nprop_name_nt ::= {props_nt}\nrelation_literal ::= {rels}\nnode_type_literal ::= {types}\n"
+    return grammar
+
+
+CYPHER_ONTOLOGY_GRAMMAR = build_ontology_grammar()
+CYPHER_ONTOLOGY_GRAMMAR_DIGEST = hashlib.sha256(CYPHER_ONTOLOGY_GRAMMAR.encode("utf-8")).hexdigest()
+GRAMMARS = {"xgrammar": CYPHER_READ_GRAMMAR, "xgrammar-ontology": CYPHER_ONTOLOGY_GRAMMAR}
+GRAMMAR_DIGESTS = {"xgrammar": CYPHER_READ_GRAMMAR_DIGEST, "xgrammar-ontology": CYPHER_ONTOLOGY_GRAMMAR_DIGEST}
+# Accepted by the plain grammar, rejected by the ontology grammar (names outside the schema).
+GRAMMAR_ONTOLOGY_NEGATIVE_SAMPLES = (
+    "MATCH (p:GRBenchNode {_workspace_id: $workspace_id, title: 'x'}) RETURN p.id AS id",
+    "MATCH (p:GRBenchNode {_workspace_id: $workspace_id, feature_title: 'x'})-[:GRBENCH_REL {relation_name: 'wrote'}]->(a:GRBenchNode {_workspace_id: $workspace_id}) RETURN a.feature_name AS author",
+    "MATCH (p:GRBenchNode {_workspace_id: $workspace_id}) WHERE p.node_type = 'person' AND p.feature_name = 'x' RETURN p.id AS id",
+    "MATCH (p:GRBenchNode {_workspace_id: $workspace_id, feature_title: 'x'}) RETURN p.year AS year",
+    "MATCH (p:GRBenchNode {_workspace_id: $workspace_id, node_type: 'article', feature_title: 'x'}) RETURN p.id AS id",
+)
+# Shapes the ontology grammar must still admit (typed comparisons with in-schema values).
+GRAMMAR_ONTOLOGY_POSITIVE_SAMPLES = (
+    "MATCH (p:GRBenchNode {_workspace_id: $workspace_id}) WHERE p.node_type = 'venue' AND p.feature_name CONTAINS 'review' RETURN p.id AS id LIMIT 5",
+    "MATCH (p:GRBenchNode {_workspace_id: $workspace_id, node_type: 'paper'}) WHERE p.feature_title STARTS WITH 'phase' RETURN p.node_type AS t, p.feature_year AS y",
+    "MATCH (a:GRBenchNode {_workspace_id: $workspace_id, feature_name: 'x'})-[r:GRBENCH_REL]->(m:GRBenchNode {_workspace_id: $workspace_id}) WHERE r.relation_name IN ['paper', 'venue'] RETURN r.relation_name AS rel, count(m) AS n",
+)
+
 # Sample statements the grammar must accept (the shapes the S1 agents wrote in labs 013–021).
 GRAMMAR_POSITIVE_SAMPLES = (
     "MATCH (p:GRBenchNode {_workspace_id: $workspace_id, feature_title: 'phase separation dynamics'})-[:GRBENCH_REL {relation_name: 'author'}]->(a:GRBenchNode {_workspace_id: $workspace_id}) RETURN a.feature_name AS author",
@@ -81,4 +146,4 @@ GRAMMAR_NEGATIVE_SAMPLES = (
     "MATCH (p:GRBenchNode {_workspace_id: $workspace_id}) DETACH DELETE p",
 )
 
-__all__ = ["CYPHER_READ_GRAMMAR", "CYPHER_READ_GRAMMAR_DIGEST", "GRAMMAR_NEGATIVE_SAMPLES", "GRAMMAR_POSITIVE_SAMPLES"]
+__all__ = ["CYPHER_ONTOLOGY_GRAMMAR", "CYPHER_ONTOLOGY_GRAMMAR_DIGEST", "CYPHER_READ_GRAMMAR", "CYPHER_READ_GRAMMAR_DIGEST", "GRAMMARS", "GRAMMAR_DIGESTS", "GRAMMAR_NEGATIVE_SAMPLES", "GRAMMAR_ONTOLOGY_NEGATIVE_SAMPLES", "GRAMMAR_ONTOLOGY_POSITIVE_SAMPLES", "GRAMMAR_POSITIVE_SAMPLES", "GRBENCH_VOCABULARY", "build_ontology_grammar"]

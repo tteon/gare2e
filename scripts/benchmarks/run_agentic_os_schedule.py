@@ -288,7 +288,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--constrained",
-        choices=("xgrammar", "none"),
+        choices=("xgrammar", "xgrammar-ontology", "none"),
         default=None,
         help="lab 020 grbench-grammar lane: decode query turns under the read-only Cypher grammar (xgrammar) or run the same protocol unconstrained (none).",
     )
