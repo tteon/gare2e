@@ -41,3 +41,14 @@ No paid execution or Vast operation in lab 023. See its Result for the pre-exist
 identity-check gap in basic CI; implementation is not throughput evidence.
 
 - 024: owner approved five ~\$13 throughput comparisons; free preparation and explanatory memory/cache observability implemented. Paid launch pending final staging. Bead seocho-7yaz; see request024 and HANDOFF§11.
+
+### Latest: lab024 measured partial (2026-09-13 evening)
+
+- 024 / seocho-7yaz: 22 comparisons + gate/capture finished. Three-view report in
+  reports/lab024-characterization; runtime/agent/tool records linked. No owned
+  instance running; watchdog teardown verified. $12.1227 estimated, ~$114.92 cumulative.
+- TP2 versus replicas2 and extra grammar K8 remain unrun; separate budget extension
+  needed beyond original ~$13. Latest task/tool instrumentation is implemented-only.
+- Collection partial provenance reconciled; exact archive selection/checkpoint fix
+  locally validated. See HANDOFF§12 and request024 Result; earlier snapshots above
+  describe their checkpoint only.

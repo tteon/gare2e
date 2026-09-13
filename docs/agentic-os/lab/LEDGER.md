@@ -39,3 +39,14 @@ Total ≈ **$102.8**. Live instances at last check (2026-09-13 12:35 KST): ours 
   No new paid calls or Vast operations; cumulative reported spend unchanged.
 
 - 2026-09-13 / lab024 preparation: \$0 paid usage so far. Owner approved ~\$13 total for the five pending comparisons; proposed bound \$3.60/h ×13000s = \$13. No owned instance created at this checkpoint.
+
+### Lab024 execution (supersedes preparation checkpoint)
+
+| date KST | run | instance | disk-inclusive $/h | elapsed | estimate USD | outcome |
+|---|---|---|---:|---|---:|---|
+| 2026-09-13 | lab-s22 | none | — | admission only | 0 | exact offer unavailable before create |
+| 2026-09-13 17:56–21:32 | lab-s22b | 50866184 | 3.3562963 | 13002.9s | 12.1227 | 24 passes exit0; TP pair stopped at reserve; archive locally reconciled, remote digest checkpoint absent; watchdog destroyed+verified |
+
+Current total ≈**$114.92** (prior$102.8 +$12.1227), hourly estimate rather than
+final invoice. No owned live instance. Protected colleague unchanged. See
+HANDOFF§12 for recovery and remaining work. No new paid resources launched.

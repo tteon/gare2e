@@ -11,3 +11,7 @@
 
 Pages are self-contained (inline CSS/SVG, Google Fonts only). Numbers come from the `session-summary/*.md`
 tables under `traces/<run>/` and the `## Result` sections of `docs/agentic-os/lab/requests/*.md`.
+
+Lab024: [linked Agent / Runtime / Tool report](lab024-characterization/index.html),
+[findings and provenance](lab024-characterization/README.md). Self-contained HTML,
+full content-free CSV.gz exports, no external UI dependencies.

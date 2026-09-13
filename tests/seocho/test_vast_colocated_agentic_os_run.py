@@ -468,7 +468,18 @@ def test_essentials_tar_command_lists_only_content_free_globs_and_hashes_the_arc
     assert cmd.startswith("cd /artifacts && ")
     assert "run-*/e2e/*/shard-*/attempts/*/run-receipt.json" in cmd and "otel/collector-spans.jsonl" in cmd
     assert "private.log" not in cmd  # bulky private logs never travel in the essential archive
-    assert "sha256sum -- /tmp/e.tgz" in cmd and "--ignore-failed-read" in cmd
+    assert "sha256sum -- /tmp/e.tgz" in cmd and "recursive=False" in cmd
+
+
+def test_missing_essential_globs_do_not_archive_working_directory(tmp_path):
+    import subprocess, tarfile
+    module = _runner()
+    (tmp_path / 'unrelated.private.log').write_text('must stay excluded')
+    (tmp_path / 'queue-receipt.jsonl').write_text('{}\n')
+    archive = tmp_path.parent / (tmp_path.name + '.tgz')
+    subprocess.run(['bash', '-c', module._essentials_tar_command(str(tmp_path), str(archive))], check=True, capture_output=True)
+    with tarfile.open(archive) as tar:
+        assert tar.getnames() == ['queue-receipt.jsonl']
 
 
 def test_collect_essentials_copies_verifies_and_extracts(tmp_path, monkeypatch):
@@ -491,6 +502,10 @@ def test_collect_essentials_copies_verifies_and_extracts(tmp_path, monkeypatch):
     monkeypatch.setattr(module, "_scp_prefix", lambda prefix: ["scp"])
     receipt = module._collect_essentials(["ssh", "root@h"], "/artifacts", tmp_path, timeout_s=10)
     assert receipt["verified"] and receipt["files"] == 1
+    checkpoint = json.loads((tmp_path / "essential-copy-receipt.json").read_text())
+    assert checkpoint["remote_sha256"] == digest == checkpoint["local_sha256"]
+    assert checkpoint["extraction_complete"] is True
+    assert checkpoint["bytes"] == receipt["bytes"] == len(blob)
     assert (tmp_path / "queue-receipt.jsonl").read_text() == '{"pass_id":"x"}\n'
     assert not (tmp_path / "essentials.tgz").exists() and not (tmp_path.parent / "escape.txt").exists()
 

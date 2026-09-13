@@ -138,3 +138,47 @@ unchanged Dozer/image combined live evidence is reused by hash. No paid instance
 created yet at this checkpoint. Keep temporary-worktree commits/private gare2e
 branch and protected colleague-instance rules from §9. §9's separate router V1
 and public SEOCHO landing are not included in this authorization.
+
+## 12. Lab024 live results and reconciliation — 2026-09-13 evening KST
+
+**Current state: no owned instance running.** Latest result supersedes the
+pre-launch snapshots in §10–11. Owner approval was used for lab-s22b; 24 passes
+exited0 (22 comparisons + gate/capture). Budget reserve stopped before TP2-control
+and replicas2. The additional grammar K8 amendment and explicit new task/tool
+instrumentation were committed locally but never uploaded after the interrupted
+amendment; do not claim them measured.
+
+[Three-view interactive report](reports/lab024-characterization/index.html) and
+[findings/provenance](reports/lab024-characterization/README.md) link actual tasks,
+LLM stages and graph tool events. 7,834 comparison tasks, 33,633 requests (33,616
+unique server matches; all7,156 contained-cohort requests matched), 26,014 tools.
+Missing telemetry remains unknown. Primary output tok/s/GPU is 130.3→441.5 for
+baseline K8→64, versus163.3→289.2 for MTP. No baseline saturation established.
+KV max44.3%, zero preemptions; no long-context/offload evidence. Three block/chunk
+passes lack window GPU samples, so their primary per-GPU rate stays null.
+
+Owned50866184 / lab-s22b ran 17:56→21:32 KST, disk-inclusive $3.3562963/h;
+watchdog destroyed and verified absence at unix1789302775.0586078. Estimated
+hourly cost **$12.1227**, cumulative ≈**$114.92**. Protected colleague unchanged.
+The controller's collection timed out after a missing-glob archive bug included
+the whole artifact tree. The complete77.65MB archive was recovered and all51,590
+unique regular files matched local extraction (zero missing/mismatch). Independent
+remote digest checkpoint absent: lifecycle `artifacts_partial_reconciled`,
+`artifact_copy_verified=false`. Preserve original archive and reconciliation
+receipt. Collector now selects exact regular-file matches and checkpoints the
+verified digest before extraction; this fix is local-tested, not remotely rerun.
+
+Source deployed: bdfb4877 / source-v53 SHA256
+09c3a7a7c126d1724c45c060894d6f9aec8358d72e800080b0e8fb10c718b9cf.
+Local run: `.seocho/benchmarks/agentic-os/colocated-appliance/runs/lab-s22b`;
+derived directory `characterization-v1`; private copies stay local. Repository
+report and compressed content-free tables are under reports/lab024-characterization;
+compact CSV and manifest under `traces/lab-s22b/session-summary/`.
+
+Continuation remains bead seocho-7yaz. Remaining live gates: TP2-control versus
+2×TP1 K64 and grammar K8 ratio0/.5/1. Proposed separate continuation ceiling:
+90min ×$3.60/h = $5.40 including startup/collection; no new paid launch has been
+made. This exceeds the nearly consumed original ~$13 allocation, so obtain the
+owner's budget extension before creating another instance. No DB/KV allocation
+or offloading matrix is included. Commit through the temporary worktree; push
+private gare2e/agentic-os-e2e only. Do not touch colleague instances.

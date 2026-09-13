@@ -1,7 +1,7 @@
 ---
 id: 024
 title: Approved throughput comparisons and explanatory observability
-state: preparation; paid launch not yet started
+state: measured partial; report available; remaining TP comparison budget-limited
 created: 2026-09-13
 bead: seocho-7yaz
 ---
@@ -78,4 +78,37 @@ This is not a green full-CI claim.
 Incremental source/exact-image preflight passed. The unchanged Dozer runtime and
 image match `appliance-preflight-v28.json`; its successful combined live smoke is
 reused, not rerun locally. New entrypoints parse under the image's Python.
-No paid instance has been created for this request yet.
+That was the preparation checkpoint; live results below supersede it.
+
+### Live result — lab-s22b
+
+22 comparison passes plus gate/capture completed, all24 exit0. Baseline K8/16/32/64
+output tok/s/GPU:130.30/225.64/331.47/441.45; MTP:163.31/223.52/268.29/289.20.
+See [categorized report](../../reports/lab024-characterization/index.html) and
+[full findings/limits](../../reports/lab024-characterization/README.md) for replay,
+grammar, task token distributions, exact joined request stages and graph calls.
+Each condition has one short ordered window; no confidence intervals or semantic
+accuracy claim. Baseline saturation and offloading pressure remain unestablished.
+
+Three block/chunk passes lack GPU samples inside their window; primary GPU rates
+are null. TP2-control/replicas2 were not run because the queue reached its budget
+reserve. Additional grammar K8 and newest explicit task/tool instrumentation were
+not deployed after an interrupted amendment. Historical timing/parent links are
+reconstructed with provenance; unmeasured components remain unknown.
+
+Instance50866184 destroyed+absence verified by independent watchdog. Estimated
+cost$12.1227. Collection archive recovered and locally reconciled51,590 files;
+remote digest checkpoint absent, so `artifacts_partial_reconciled` is retained.
+The missing-glob archive bug and pre-extraction checkpoint were fixed locally.
+Follow-up scope/ceiling is in HANDOFF§12; original allocation nearly consumed.
+
+### Final local validation for reporting/recovery changes
+
+Focused reporting/OTel/collector tests:29 passed. Ruff on changed Python passed.
+`bash scripts/ci/check-doc-contracts.sh` passed. Full
+`UV_PROJECT_ENVIRONMENT=<shared-venv> UV_NO_SYNC=1 bash scripts/ci/run_basic_ci.sh`
+ran1112 passing tests,3 skipped, with contracts green; its final identity check
+still fails on the same five existing SSH fixture addresses. This is not a full
+green-CI claim. Headless Chrome rendered10 tables,1 timeline SVG and25 selectors'
+options; JavaScript `node --check` passed. These checks validate report/collection
+contracts, not new live GPU/DB behavior.

@@ -417,12 +417,17 @@ ESSENTIAL_GLOBS = (
 
 def _essentials_tar_command(remote_artifacts: str, archive: str) -> str:
     """Shell command that archives only the essential globs (missing globs are fine)."""
-    quoted = " ".join(shlex.quote(g) for g in ESSENTIAL_GLOBS)
-    return (
-        f"cd {shlex.quote(remote_artifacts)} && set +f && shopt -s nullglob globstar 2>/dev/null; "
-        f"files=$(for g in {quoted}; do ls -1d $g 2>/dev/null; done | sort -u); "
-        f"tar -czf {shlex.quote(archive)} --ignore-failed-read $files && sha256sum -- {shlex.quote(archive)}"
-    )
+    # With nullglob, an unmatched `$g` made `ls -1d` list '.', recursively
+    # archiving the whole run and duplicating later matches (lab-s22).
+    script = "\n".join((
+        "import pathlib,sys,tarfile,json",
+        "root=pathlib.Path('.')",
+        "paths=sorted({p for pattern in json.loads(sys.argv[2]) for p in root.glob(pattern) if p.is_file() and not p.is_symlink()})",
+        "with tarfile.open(sys.argv[1], 'w:gz') as tar:",
+        " for path in paths: tar.add(path, arcname=str(path), recursive=False)",
+    ))
+    return (f"cd {shlex.quote(remote_artifacts)} && python3 -c {shlex.quote(script)} "
+            f"{shlex.quote(archive)} {shlex.quote(json.dumps(ESSENTIAL_GLOBS))} && sha256sum -- {shlex.quote(archive)}")
 
 
 def _collect_essentials(ssh_prefix: list[str], remote_artifacts: str, local_root: Path, *, timeout_s: int) -> dict[str, Any]:
@@ -435,11 +440,21 @@ def _collect_essentials(ssh_prefix: list[str], remote_artifacts: str, local_root
     local_digest = _sha256(local_archive)
     if not remote_digest or local_digest != remote_digest:
         raise RuntimeError("essential archive digest mismatch after copy")
+    # Checkpoint before extraction so interrupted extraction remains auditable.
+    checkpoint = local_root / "essential-copy-receipt.json"
+    receipt = {
+        "schema_version": "agentic_os.essential_copy_checkpoint.v1", "verified": True,
+        "remote_sha256": remote_digest, "local_sha256": local_digest,
+        "bytes": local_archive.stat().st_size, "extraction_complete": False,
+    }
+    checkpoint.write_text(json.dumps(receipt, indent=2) + "\n")
     with tarfile.open(local_archive) as tar:
         members = [m for m in tar.getmembers() if not (m.name.startswith("/") or ".." in PurePosixPath(m.name).parts)]
         tar.extractall(local_root, members=members)  # noqa: S202 - members filtered above
+    receipt.update(extraction_complete=True, files=len(members))
+    checkpoint.write_text(json.dumps(receipt, indent=2) + "\n")
     local_archive.unlink()
-    return {"verified": True, "sha256": remote_digest, "files": len(members), "bytes": hashed.stdout and int(0) or 0}
+    return {"verified": True, "sha256": remote_digest, "files": len(members), "bytes": receipt["bytes"]}
 
 def _copy_from_remote(ssh_prefix: list[str], remote_artifacts: str, local_root: Path, *, timeout_s: int = 1800) -> None:
     """Copy the remote artifact tree into ``local_root`` without a ``/.`` suffix.

@@ -104,6 +104,10 @@ def build_case_spans(
     time_block = receipt.get("time") if isinstance(receipt.get("time"), Mapping) else {}
     wall_ms = float(time_block.get("wall_ms") or receipt.get("wall_ms") or 0.0)
     measured_anchor = receipt.get("started_unix_s")
+    anchor_source = "case_clock"
+    if not isinstance(measured_anchor, (int, float)):
+        measured_anchor = ((receipt.get("resource_attribution") or {}).get("process_window") or {}).get("started_unix_s")
+        anchor_source = "case_process_window_clock"
     if isinstance(measured_anchor, (int, float)):
         anchor_unix_s = float(measured_anchor)
     start_ns = _ns(anchor_unix_s)
@@ -129,7 +133,7 @@ def build_case_spans(
         "seocho.time.llm_ms": time_block.get("llm_ms"),
         "seocho.time.tool_ms": time_block.get("tool_ms"),
         "seocho.time.wall_ms": wall_ms or None,
-        "seocho.timing.anchor": "case_clock" if isinstance(measured_anchor, (int, float)) else "coordinator_runner_start",
+        "seocho.timing.anchor": anchor_source if isinstance(measured_anchor, (int, float)) else "coordinator_runner_start",
         **(extra_attributes or {}),
     })
     spans: list[SpanRecord] = [SpanRecord(trace_id, root_id, None, "agentic_os.case", "INTERNAL", start_ns, end_ns, root_attrs,

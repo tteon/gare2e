@@ -1,0 +1,37 @@
+{
+  "schema_version": "agentic_os.derived_characterization_manifest.v1",
+  "source_bundle_sha256": "09c3a7a7c126d1724c45c060894d6f9aec8358d72e800080b0e8fb10c718b9cf",
+  "source_commit": "bdfb4877",
+  "source_archive_sha256": "5b1ad6d6b5fc35f851d3184b78588c2e22ee5d5e1f07c79573ff05339b229c07",
+  "source_archive_local_consistency_verified": true,
+  "source_remote_digest_checkpoint_present": false,
+  "counts": {
+    "tasks": 7834,
+    "requests": 33633,
+    "tools": 26014
+  },
+  "comparison_passes": 22,
+  "private_inputs_published": false,
+  "files": {
+    "characterization.json": {
+      "sha256": "772c76f1e0e293b7e51f6a52eb1d788596ee234c805875de6cc2cdd90ec1a7ad",
+      "bytes": 1593501
+    },
+    "index.html": {
+      "sha256": "80bb87eddf35747f076dcd5a6da0691d0c8c4b0e9eb157ae60afbdbf095bfbc4",
+      "bytes": 1015301
+    },
+    "requests.csv.gz": {
+      "sha256": "d87f277a3ccc5182c844494e9f33014fec4ac2d38d2c47cb8d65882135750b7d",
+      "bytes": 3142713
+    },
+    "tasks.csv.gz": {
+      "sha256": "1fb5bb18919f345b173693a75737530b241e7fdc19e102254380a4625b4bb18a",
+      "bytes": 503138
+    },
+    "tools.csv.gz": {
+      "sha256": "eccce89952e18d0f2f4798b2787f9a826c055cfccc5d6919e62a6e537ef8874e",
+      "bytes": 1331208
+    }
+  }
+}
