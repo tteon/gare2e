@@ -103,3 +103,20 @@ Free: dynamic work queue + persistent runner in `run_agentic_os_schedule.py`, st
 
 ### How to resume with Claude Code
 Say "이어서" / `/lab-resume`: the skill restores the handoff memo, board and beads, checks our Vast instances by label prefix only, and continues the recorded order. Commit lane work only through a temporary worktree of `agentic-os-e2e` (the seocho working tree is shared live with another agent); push to `gare2e`, never to public `origin` without the owner's say.
+
+## 10. Free harness continuation — 2026-09-13 (lab 023)
+
+The four core harness items from §9 are implemented with local contract tests:
+dynamic FIFO, persistent GRBench single-agent runner processes, a warmup/backlog
+window, and request-stage / aligned task-versus-token measurement. See
+[lab 023](lab/requests/023-throughput-harness.md) for flags, exact measurement
+semantics, validation and limitations. Opt in with `SEOCHO_SCHEDULE_MODE=dynamic`
+in a main pass; the default launcher remains static. No paid calls or Vast
+operations occurred in this continuation; the previously reported spend remains
+≈ $102.8. GPU performance and live parity are still unmeasured for this code.
+
+Basic CI's tests passed (1112, 3 skipped); its final identity check failed on five
+pre-existing Vast SSH fixture addresses. Focused worker/measurement/appliance tests: 91 passed.
+Synthetic replay and tool-stub preparation remain free follow-up work. The ~$13
+paid plan still awaits an explicit go. Continue committing only from a temporary
+worktree and pushing only to private `gare2e/agentic-os-e2e`.

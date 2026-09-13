@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """Execute a frozen paired schedule without silently reordering attempts.
 
-The coordinator launches one fresh runner process per scheduled attempt. This
-keeps every attempt independently recoverable and gives cold-cache control an
-explicit hook. It records only correlation IDs, durations, exit classes and
+By default the coordinator launches one fresh process per attempt. Explicit
+--workers / --runner-mode persistent options use a dynamic FIFO for warm
+GRBench single-agent schedules; cold-cache control stays serial. It records only correlation IDs, durations, exit classes and
 digests; model output remains in each runner's private artifacts.
 """
 
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+import threading
 import hashlib
 import json
+import math
 import subprocess
 import sys
 import time
@@ -28,6 +31,8 @@ from seocho.eval.agentic_os_artifacts import (
 
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from agentic_os_schedule_worker import PersistentRunner  # noqa: E402
 _LANE_ARMS = {
     "grbench-single": {"B0", "C-", "S1", "O1"},
     "grbench-graphcot": {"B0", "O1"},  # Graph-CoT hop actions (lab 017); B0 = tool signatures + vocabulary, O1 = + relation semantics
@@ -224,6 +229,119 @@ def _runner_command(args: argparse.Namespace, entry: dict[str, Any], root: Path,
     return command
 
 
+
+def _run_dynamic(
+    args: argparse.Namespace, entries: list[dict[str, Any]],
+    execution_digest: str, lifecycle_path: Path,
+) -> int:
+    """Refill the first free worker from the frozen FIFO, preserving ordinals."""
+    local = threading.local()
+    runners: list[PersistentRunner] = []
+    runner_lock = threading.Lock()
+    enqueued = time.time()
+    dispatches: list[float] = []
+    rows: list[dict[str, Any]] = []
+
+    def execute(ordinal: int, dispatched: float, pending: int) -> dict[str, Any]:
+        entry = entries[ordinal]
+        attempt_id = _attempt_id(args.lane, entry, execution_digest=execution_digest)
+        root = args.run_root / "attempts" / f"{ordinal:06d}-{attempt_id}"
+        run_id = f"{args.lane}-{attempt_id}"
+        command = _runner_command(args, entry, root, run_id)
+        start = time.time()
+        clock = time.perf_counter()
+        try:
+            if args.runner_mode == "persistent":
+                if not hasattr(local, "runner"):
+                    local.runner = PersistentRunner(_REPO_ROOT)
+                    with runner_lock:
+                        runners.append(local.runner)
+                result = local.runner.run(command, root)
+            else:
+                completed = subprocess.run(command, cwd=_REPO_ROOT, check=False, capture_output=True)
+                _persist_runner_streams(root, completed.stdout, completed.stderr)
+                result = {
+                    "runner_exit_code": completed.returncode,
+                    "runner_started_unix_s": start, "runner_finished_unix_s": time.time(),
+                    "runner_wall_ms": (time.perf_counter() - clock) * 1000,
+                    "runner_setup_ms": None,
+                }
+        except Exception as exc:
+            # Never put the exception body (possibly a provider response) in receipts.
+            result = {
+                "runner_exit_code": 1, "runner_error_class": type(exc).__name__,
+                "runner_started_unix_s": start, "runner_finished_unix_s": time.time(),
+                "runner_wall_ms": (time.perf_counter() - clock) * 1000,
+                "runner_setup_ms": None,
+            }
+        streams = {}
+        for stream in ("stdout", "stderr"):
+            path = root / f"runner.{stream}.private.log"
+            streams[f"{stream}_digest"] = hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
+        return {
+            **Correlation(run_id=run_id, case_id=str(entry["qid"]), arm=str(entry["arm"]),
+                          seed=int(entry["seed"]), repetition=int(entry["repetition"]),
+                          cache_phase=str(entry["cache_phase"]), role="schedule_coordinator").receipt_fields(),
+            "schema_version": "agentic_os.schedule_attempt_lifecycle.v1",
+            "paired_unit": str(entry["paired_unit"]), "schedule_ordinal": ordinal,
+            "runner_command_digest": canonical_digest(command),
+            "runner_mode": args.runner_mode, "worker_slot": threading.get_ident(),
+            "host_queue_wait_ms": (result["runner_started_unix_s"] - enqueued) * 1000,
+            "dispatch_to_runner_ms": (result["runner_started_unix_s"] - dispatched) * 1000,
+            "enqueued_unix_s": enqueued, "dispatched_unix_s": dispatched,
+            "pending_after_dispatch": pending,
+            **result, **streams,
+            "terminal_status": "ok" if result["runner_exit_code"] == 0 else "runner_process_error",
+        }
+
+    failures = 0
+    next_ordinal = 0
+    stopped = False
+    try:
+        with ThreadPoolExecutor(max_workers=args.workers) as pool:
+            active = set()
+            while active or (next_ordinal < len(entries) and not stopped):
+                while len(active) < args.workers and next_ordinal < len(entries) and not stopped:
+                    dispatched = time.time()
+                    dispatches.append(dispatched)
+                    active.add(pool.submit(execute, next_ordinal, dispatched, len(entries) - next_ordinal - 1))
+                    next_ordinal += 1
+                done, active = wait(active, return_when=FIRST_COMPLETED)
+                for future in done:
+                    row = future.result()
+                    rows.append(row)
+                    append_jsonl(lifecycle_path, row)
+                    if row["runner_exit_code"] != 0:
+                        failures += 1
+                        stopped = not args.continue_on_error
+    finally:
+        for runner in runners:
+            runner.close()
+    first_finishes: dict[int, float] = {}
+    for row in rows:
+        slot = row["worker_slot"]
+        first_finishes[slot] = min(first_finishes.get(slot, float("inf")), row["runner_finished_unix_s"])
+    # Each slot must complete a warmup case (including its first module import).
+    start = max(first_finishes.values()) + args.steady_state_warmup_s if len(first_finishes) == args.workers else None
+    # End when the last queued case is dispatched, excluding the drain tail.
+    end = dispatches[-1] if next_ordinal == len(entries) else None
+    valid = start is not None and end is not None and end > start and failures == 0
+    write_manifest(args.run_root / "coordinator-window.json", {
+        "schema_version": "agentic_os.backlog_window.v1",
+        "execution_digest": execution_digest, "workers": args.workers,
+        "runner_mode": args.runner_mode, "warmup_s": args.steady_state_warmup_s,
+        "window_status": "available" if valid else "insufficient_backlog_or_failed_run",
+        "started_unix_s": start if valid else None, "finished_unix_s": end if valid else None,
+        "duration_s": end - start if valid else None,
+        "completed_tasks": sum(start <= row["runner_finished_unix_s"] < end for row in rows) if valid else None,
+        "task_completions_per_s": sum(start <= row["runner_finished_unix_s"] < end for row in rows) / (end - start) if valid else None,
+        "scheduled_attempts": len(entries), "dispatched_attempts": next_ordinal,
+        "completed_attempts": len(rows), "skipped_attempts": len(entries) - next_ordinal,
+        "failed_attempts": failures,
+        "interpretation": "host FIFO backlog window; server saturation requires vLLM telemetry",
+    })
+    return 2 if failures else 0
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--lane", required=True, choices=tuple(_LANE_ARMS))
@@ -329,7 +447,24 @@ def main() -> int:
         type=int,
         help="Gate-only positive limit after filtering; omit for the full frozen schedule.",
     )
+    parser.add_argument("--dynamic-queue", action="store_true", help="Use the FIFO even with one fresh worker.")
+    parser.add_argument("--workers", type=int, default=1,
+                        help="Dynamic FIFO concurrency in one coordinator; do not combine with --shard.")
+    parser.add_argument("--runner-mode", choices=("fresh", "persistent"), default="fresh")
+    parser.add_argument("--steady-state-warmup-s", type=float, default=0.0,
+                        help="Exclude this many seconds after every worker completes its first case.")
     args = parser.parse_args()
+    if args.workers < 1 or not math.isfinite(args.steady_state_warmup_s) or args.steady_state_warmup_s < 0:
+        parser.error("workers must be positive and warmup non-negative")
+    dynamic = args.dynamic_queue or args.workers > 1 or args.runner_mode == "persistent"
+    if dynamic and (args.shard or args.cache_control_script or args.inter_attempt_gap_s):
+        parser.error("dynamic execution forbids static shards, shared cache control and idle gaps")
+    if dynamic and (args.lane not in ("grbench-single", "grbench-graphcot", "grbench-router", "grbench-grammar")):
+        parser.error("dynamic execution supports only GRBench single-agent lanes")
+    if args.runner_mode == "persistent" and args.lane == "grbench-router":
+        parser.error("router launches a child per case; use fresh mode until its dispatch is persistent")
+    if dynamic and (args.gpu_sampling != "appliance" or args.metrics_url):
+        parser.error("dynamic execution requires --gpu-sampling appliance and external pass telemetry")
     if args.run_root_suffix:
         args.run_root = args.run_root / str(args.run_root_suffix)
 
@@ -376,6 +511,7 @@ def main() -> int:
     harness_files = (
         Path(__file__).resolve(),
         _LANE_RUNNERS[args.lane],
+        Path(__file__).with_name("agentic_os_schedule_worker.py"),
         _REPO_ROOT / "src/seocho/eval/agentic_graph_agents.py",
         _REPO_ROOT / "src/seocho/eval/agentic_os_observability.py",
     )
@@ -405,11 +541,19 @@ def main() -> int:
         "max_attempts": args.max_attempts,
         "inter_attempt_gap_s": args.inter_attempt_gap_s,
         "harness_sha256": harness_sha256,
+        "workers": args.workers,
+        "dispatch_mode": "dynamic_fifo" if dynamic else "serial",
+        "runner_mode": args.runner_mode,
+        "steady_state_warmup_s": args.steady_state_warmup_s,
+        "prompt_profile": args.prompt_profile,
+        "grbench_workspace_id": args.grbench_workspace_id,
+        "row_cap": args.row_cap,
+        "byte_cap": args.byte_cap,
     }
     execution_digest = canonical_digest(execution_identity)
     manifest_path = args.run_root / "coordinator-manifest.json"
     lifecycle_path = args.run_root / "coordinator-receipts.jsonl"
-    require_fresh_outputs((manifest_path, lifecycle_path))
+    require_fresh_outputs((manifest_path, lifecycle_path, args.run_root / "coordinator-window.json"))
     write_manifest(
         manifest_path,
         {
@@ -438,6 +582,9 @@ def main() -> int:
             ),
         },
     )
+
+    if dynamic:
+        return _run_dynamic(args, entries, execution_digest, lifecycle_path)
 
     failures = 0
     for ordinal, entry in enumerate(entries):

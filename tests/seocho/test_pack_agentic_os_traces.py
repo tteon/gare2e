@@ -38,11 +38,15 @@ def _fake_run(root: Path, *, leak: bool = False) -> Path:
 
 def test_package_is_content_free_and_records_provenance(tmp_path: Path) -> None:
     run = _fake_run(tmp_path)
+    window = run / "run-test/e2e/grbench-single-tool-false/shard-dynamic/coordinator-window.json"
+    window.parent.mkdir(parents=True, exist_ok=True)
+    window.write_text('{"window_status": "available", "duration_s": 10}\n')
     out = tmp_path / "pkg"
     proc = subprocess.run([sys.executable, str(SCRIPT), str(run), "--output", str(out), "--lab-request", "013"], capture_output=True, text=True)
     assert proc.returncode == 0, proc.stderr
     manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
     paths = {f["path"] for f in manifest["files"]}
+    assert str(window.relative_to(run)) in paths
     assert "appliance-phases.tsv" in paths  # the one allowed private file, renamed
     assert not any("dozerdb" in p for p in paths)  # private logs never travel
     assert manifest["leak_scan"]["hits"] == []

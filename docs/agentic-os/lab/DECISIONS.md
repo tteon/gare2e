@@ -16,3 +16,8 @@
 - 2026-09-12 — Experiments focus on the single-agent lanes (grbench-single, gtsqa-single) from now on; the multi-agent lanes (manager + specialist) are dropped from new runs — too hard to control, and lab-s11/s13 showed 0 evidence in every cell regardless of schema or serving. Multi-agent evidence stays on the record for the talk's "adaptive depth, not more agents" point. (user, chat)
 - 2026-09-12 — Naming: the measured lanes are "iterative Text2Cypher / Text2SPARQL loops in the GraphCoT style", not the original Graph-CoT hop actions. Reports carry this note; a hop-tool lane (RetrieveNode / NodeFeature / NeighbourCheck / NodeDegree over DozerDB) is built as lab 017 for a direct comparison. (user, chat)
 - 2026-09-12 — When no A100 NVLink pair is admissible, H100/H200 NVLink pairs may be used (higher $/h accepted); NVLink-only rule unchanged. GPU-RAM floor for "2× 80 GB" is 160 000 MB. (user, chat)
+- 2026-09-13 — Lab 023 implements the already-authorized free harness repair as an
+  opt-in dynamic FIFO/persistent process mode. Backlog windows exclude worker
+  warmup and queue-drain tail; they do not alone establish server saturation.
+  Missing request stages/counters remain unobserved. The ~$13 paid plan still
+  awaits owner go; no GPU launch is authorized by the implementation.

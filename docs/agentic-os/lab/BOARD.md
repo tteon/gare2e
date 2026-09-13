@@ -30,3 +30,12 @@
 Updated: 2026-09-12 14:55 by Claude. Ledger ≈ $91.8. Live: ours none.
 
 Landing/bug beads outside the board: seocho-56wk (land V13-V17 fixes), seocho-e0ew (workspace mismatch), seocho-ffl4 (receipt token leak), seocho-npyq (multi-agent llm_ms attribution), seocho-twoh (wrapper exit 3), seocho-xvrr (trace packer / S3 sharing — lab-s8 + lab-s11 uploaded; colleague read access still to grant), seocho-h0yv (lab-resume/trace-share skills + secret-guard hook).
+
+### 2026-09-13 continuation
+
+| id | bead | title | state | waiting on | next |
+|---|---|---|---|---|---|
+| 023 | seocho-65n1 | Free throughput harness repair | implemented; local tests passed | paid measurement approval | opt-in dynamic/persistent runner, backlog window and exact request stages; replay/stub preparation remains |
+
+No paid execution or Vast operation in lab 023. See its Result for the pre-existing
+identity-check gap in basic CI; implementation is not throughput evidence.

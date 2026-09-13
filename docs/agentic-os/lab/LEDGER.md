@@ -34,3 +34,6 @@
 | 2026-09-13 11:13 → 12:29 | lab-s21 labs 019 + 020 grammar (host 125728, 2× A100 SXM4 NVLink, Czechia) | 50836154 | 2.375 | 76 min | 3.0 | router V0/V0A (90), held-out S1/V0 (50), grammar none/xgr/onto ×27B, 9B none/onto, suffix + batch-invariant retries (both failed to start); essential-only collection (8 064 files verified); destroyed + verified |
 
 Total ≈ **$102.8**. Live instances at last check (2026-09-13 12:35 KST): ours none (lab-s21 destroyed + verified); teammate instance gare2e-full-ondemand-a100-20260910-161803 still running on the shared key.
+
+- 2026-09-13, lab 023: local harness implementation/contract tests only, **$0**.
+  No new paid calls or Vast operations; cumulative reported spend unchanged.

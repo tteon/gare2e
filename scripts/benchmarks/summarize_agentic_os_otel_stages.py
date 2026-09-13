@@ -27,6 +27,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import statistics as st
 from collections import defaultdict
 from pathlib import Path
@@ -74,10 +75,10 @@ def _pct(vals: list[float], q: float) -> float | str:
 
 
 def build_rows(client_spans: list[dict[str, Any]], server_spans: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    by_parent: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    by_parent: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     for s in server_spans:
-        if s.get("service_name") not in (None, "seocho-agentic-os") and s.get("parent_span_id"):
-            by_parent[s["parent_span_id"]].append(s)
+        if s.get("service_name") not in (None, "seocho-agentic-os") and s.get("parent_span_id") and s.get("name") == "llm_request":
+            by_parent[(s["trace_id"], s["parent_span_id"])].append(s)
     cases: dict[str, dict[str, Any]] = {}
     children: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for s in client_spans:
@@ -92,7 +93,10 @@ def build_rows(client_spans: list[dict[str, Any]], server_spans: list[dict[str, 
         prev_end = case["start_unix_ns"]
         for i, c in enumerate(chats):
             a = c["attributes"]
-            srv = by_parent.get(c["span_id"], [])
+            srv = by_parent.get((c["trace_id"], c["span_id"]), [])
+            # Duplicate/retried matches are ambiguous, never select one arbitrarily.
+            match_count = len(srv)
+            srv = srv if match_count == 1 else []
             srv_attrs = srv[0]["attributes"] if srv else {}
             client_s = (c["end_unix_ns"] - c["start_unix_ns"]) / 1e9
             server_e2e = _first(srv_attrs, STAGE_KEYS["server_e2e_s"])
@@ -105,6 +109,9 @@ def build_rows(client_spans: list[dict[str, Any]], server_spans: list[dict[str, 
                 "request_ordinal": i + 1,
                 "client_span_id": c["span_id"],
                 "server_span_present": bool(srv),
+                "server_span_match_count": match_count,
+                "request_started_unix_s": c["start_unix_ns"] / 1e9,
+                "request_finished_unix_s": c["end_unix_ns"] / 1e9,
                 "gap_before_s": round(max(c["start_unix_ns"] - prev_end, 0) / 1e9, 3),
                 "client_latency_s": round(client_s, 3),
                 "client_input_tokens": a.get("gen_ai.usage.input_tokens"),
@@ -120,8 +127,14 @@ def build_rows(client_spans: list[dict[str, Any]], server_spans: list[dict[str, 
                 row[name] = _first(srv_attrs, keys)
             if isinstance(row.get("server_e2e_s"), float):
                 row["client_minus_server_s"] = round(client_s - row["server_e2e_s"], 4)
-                if isinstance(row.get("prefill_s"), float) and isinstance(row.get("decode_s"), float):
+                if all(isinstance(row.get(key), float) for key in ("prefill_s", "decode_s", "queue_s")):
                     row["server_unaccounted_s"] = round(row["server_e2e_s"] - row["prefill_s"] - row["decode_s"] - (row["queue_s"] if isinstance(row.get("queue_s"), float) else 0.0), 4)
+            decode, tokens = row.get("decode_s"), row.get("server_completion_tokens")
+            row["decode_tpot_ms"] = (
+                1000 * decode / (tokens - 1)
+                if isinstance(decode, (int, float)) and isinstance(tokens, (int, float)) and tokens > 1
+                else None
+            )
             rows.append(row)
             prev_end = c["end_unix_ns"]
     return rows
@@ -163,17 +176,85 @@ def _write(rows: list[dict[str, Any]], out: Path, name: str) -> None:
     (out / f"{name}.md").write_text("\n".join(md) + "\n", encoding="utf-8")
 
 
+
+def throughput_receipt(
+    window: dict[str, Any], samples: list[dict[str, Any]], lifecycle: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Use the same inner scrape interval for task completions and output tokens.
+
+    Missing samples, counter resets, or >2.5s gaps invalidate the rates. Histogram
+    iteration counts are engine steps, never completed tasks or generated tokens.
+    """
+    result: dict[str, Any] = {
+        "schema_version": "agentic_os.backlog_throughput.v1",
+        "execution_digest": window.get("execution_digest"),
+        "status": "unobserved", "task_completions_per_s": None,
+        "output_tokens_per_s": None, "iteration_tokens_per_step": None,
+        "server_saturation": "not_established_by_host_backlog",
+    }
+    if window.get("window_status") != "available":
+        return result
+    selected = sorted((s for s in samples if
+                       window["started_unix_s"] <= s["timestamp_unix_s"] <= window["finished_unix_s"]),
+                      key=lambda s: s["timestamp_unix_s"])
+    if len(selected) < 2 or not lifecycle:
+        return result
+    start, end = selected[0]["timestamp_unix_s"], selected[-1]["timestamp_unix_s"]
+    if end <= start or any(b["timestamp_unix_s"] - a["timestamp_unix_s"] > 2.5
+                           for a, b in zip(selected, selected[1:])):
+        return result
+
+    def delta(name: str) -> float | None:
+        values = [(s.get("metrics") or {}).get(name) for s in selected]
+        if any(not isinstance(v, (int, float)) or not math.isfinite(v) for v in values):
+            return None
+        if any(b < a for a, b in zip(values, values[1:])):
+            return None
+        return values[-1] - values[0]
+
+    output = delta("vllm:generation_tokens")
+    if output is None:
+        return result
+    tasks = sum(start <= row["runner_finished_unix_s"] < end and row["runner_exit_code"] == 0
+                for row in lifecycle)
+    step_tokens, steps = delta("vllm:iteration_tokens_total_sum"), delta("vllm:iteration_tokens_total_count")
+    result.update({
+        "status": "observed", "started_unix_s": start, "finished_unix_s": end,
+        "duration_s": end - start, "completed_tasks": tasks, "output_tokens": output,
+        "task_completions_per_s": tasks / (end - start),
+        "output_tokens_per_s": output / (end - start),
+        "iteration_tokens_per_step": step_tokens / steps if step_tokens is not None and steps else None,
+        "sample_count": len(selected),
+    })
+    return result
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--client", type=Path, required=True, help="receipt-exporter spans (otel/spans.jsonl)")
     ap.add_argument("--server", type=Path, help="collector file with vLLM spans (otel/collector-spans.jsonl); optional")
     ap.add_argument("--output-dir", type=Path, required=True)
+    ap.add_argument("--window", type=Path, help="Dynamic coordinator-window.json; marks requests in the backlog window")
+    ap.add_argument("--metrics", type=Path, help="Pass vllm-metrics.jsonl; requires --window")
     args = ap.parse_args()
     client = _load(args.client)
     server = _load(args.server) if args.server else []
     rows = build_rows(client, server)
+    if args.metrics and not args.window:
+        ap.error("--metrics requires --window")
+    window = json.loads(args.window.read_text()) if args.window else None
+    if window:
+        for row in rows:
+            row["in_backlog_window"] = (
+                window["window_status"] == "available"
+                and window["started_unix_s"] <= row["request_started_unix_s"]
+                and row["request_finished_unix_s"] <= window["finished_unix_s"]
+            )
     summary = lane_summary(rows, client)
     args.output_dir.mkdir(parents=True, exist_ok=True)
+    if window and args.metrics:
+        measurement = throughput_receipt(window, _load(args.metrics),
+                                         _load(args.window.parent / "coordinator-receipts.jsonl"))
+        (args.output_dir / "throughput.json").write_text(json.dumps(measurement, indent=2) + "\n")
     _write(rows, args.output_dir, "request-stages")
     _write(summary, args.output_dir, "lane-stages")
     vllm_attr_names = sorted({k for s in server for k in s.get("attributes", {}) if s.get("service_name") != "seocho-agentic-os"})

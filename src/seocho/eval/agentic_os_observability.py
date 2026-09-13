@@ -875,6 +875,7 @@ _VLLM_COUNTERS = frozenset(
 )
 _VLLM_HISTOGRAMS = frozenset(
     {
+        "vllm:iteration_tokens_total",  # Histogram, not an output-token counter (v0.27.1).
         "vllm:e2e_request_latency_seconds",
         "vllm:time_to_first_token_seconds",
         "vllm:inter_token_latency_seconds",
