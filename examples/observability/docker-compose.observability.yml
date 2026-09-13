@@ -22,6 +22,14 @@
 # Image tags are pinned (ADR-0144); bump deliberately.
 
 services:
+  otel-storage-init:
+    image: grafana/grafana:11.5.1
+    profiles: ["observability"]
+    user: "0:0"
+    entrypoint: ["chown", "10001:10001", "/var/lib/otelcol"]
+    network_mode: none
+    volumes:
+      - collector-data:/var/lib/otelcol
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.119.0
     container_name: seocho-otel-collector
@@ -29,12 +37,17 @@ services:
     command: ["--config=/etc/otel-collector.yaml"]
     volumes:
       - ./otel-collector.yaml:/etc/otel-collector.yaml:ro
+      - collector-data:/var/lib/otelcol
     ports:
       - "${SEOCHO_BIND_HOST:-127.0.0.1}:${OTLP_GRPC_PORT:-4317}:4317"
       - "${SEOCHO_BIND_HOST:-127.0.0.1}:${OTLP_HTTP_PORT:-4318}:4318"
       - "${SEOCHO_BIND_HOST:-127.0.0.1}:${OTEL_METRICS_PORT:-8889}:8889"
     networks: [graphrag-net]
-    depends_on: [tempo]
+    depends_on:
+      tempo:
+        condition: service_started
+      otel-storage-init:
+        condition: service_completed_successfully
 
   tempo:
     image: grafana/tempo:2.7.2
@@ -91,6 +104,7 @@ networks:
     driver: bridge
 
 volumes:
+  collector-data:
   tempo-data:
   prometheus-data:
   grafana-data:

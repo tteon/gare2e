@@ -10,6 +10,9 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, Mapping, TypeVar
 
+from ..tracing import current_span_identity
+from .experiment_observability import observe_experiment
+
 
 SCHEMA_DISCOVERY_TOOLS = frozenset({"inspect_graph_schema", "inspect_rdf_schema", "schema_introspect"})
 GRAPH_ROUTE_TOOLS = frozenset({"retrieve_graph_evidence"})
@@ -60,7 +63,7 @@ class AgentExecutionRecorder:
         reasoning_tokens = _usage_value(completion_details, "reasoning_tokens") or _usage_value(
             usage, "reasoning_tokens", "thinking_tokens"
         )
-        self.turns.append({"event_ordinal": event_ordinal, "started_elapsed_ms": round(started_elapsed_ms, 3), "input_tokens": _usage_value(usage, "prompt_tokens", "input_tokens"), "output_tokens": _usage_value(usage, "completion_tokens", "output_tokens"), "thinking_tokens": reasoning_tokens, "tool_call_tokens": _usage_value(usage, "tool_call_tokens"), "cached_tokens": int(cached) if isinstance(cached, int) else None, "latency_ms": round(latency_s * 1000, 3), "outcome": outcome, "output_kind": output_kind})
+        self.turns.append({**current_span_identity(), "event_ordinal": event_ordinal, "started_elapsed_ms": round(started_elapsed_ms, 3), "input_tokens": _usage_value(usage, "prompt_tokens", "input_tokens"), "output_tokens": _usage_value(usage, "completion_tokens", "output_tokens"), "thinking_tokens": reasoning_tokens, "tool_call_tokens": _usage_value(usage, "tool_call_tokens"), "cached_tokens": int(cached) if isinstance(cached, int) else None, "latency_ms": round(latency_s * 1000, 3), "outcome": outcome, "output_kind": output_kind})
 
     def record_tool(
         self,
@@ -72,6 +75,7 @@ class AgentExecutionRecorder:
     ) -> None:
         event_ordinal, started_elapsed_ms = self._next_event(latency_s=latency_s)
         event = {
+            **current_span_identity(),
             "event_ordinal": event_ordinal,
             "started_elapsed_ms": round(started_elapsed_ms, 3),
             "name": name,
@@ -165,6 +169,7 @@ def build_retrieval_funnel(
 T = TypeVar("T")
 
 
+@observe_experiment("graphcot.tool")
 def observe_tool(
     recorder: AgentExecutionRecorder,
     name: str,

@@ -5,10 +5,12 @@
 ARG VLLM_IMAGE=vllm/vllm-openai:v0.27.1
 ARG DOZERDB_IMAGE=graphstack/dozerdb:5.26.3.0
 
+FROM otel/opentelemetry-collector-contrib:0.119.0 AS otelcol
 FROM ${DOZERDB_IMAGE} AS dozerdb
 FROM ${VLLM_IMAGE}
 
 USER root
+COPY --from=otelcol /otelcol-contrib /usr/local/bin/otelcol-contrib
 
 # Reuse the tested DozerDB distribution and JRE rather than downloading an
 # unpinned graph database at experiment startup.  The appliance entrypoint
@@ -30,7 +32,7 @@ ENV JAVA_HOME=/opt/java/openjdk \
 
 WORKDIR /opt/seocho
 COPY . /opt/seocho
-RUN python -m pip install --no-cache-dir . \
+RUN python -m pip install --no-cache-dir ".[otel]" \
     && chmod +x /opt/seocho/docker/agentic-os-appliance/entrypoint.sh \
     && mkdir -p /artifacts /data /logs /plugins
 

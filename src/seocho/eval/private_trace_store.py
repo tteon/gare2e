@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from .agentic_os_artifacts import canonical_digest
+from .experiment_observability import experiment_identity
 
 _LOG = logging.getLogger(__name__)
 _SHA = re.compile(r"^[0-9a-f]{64}$")
@@ -119,6 +120,8 @@ def call_samples(events: list[dict[str, Any]], provenance: Mapping[str, Any]) ->
                 'schema_version': 'seocho.private_graph_call.v1',
                 'sample_id': sample_id, 'call_id': event['event_id'],
                 'parent_call_id': event.get('parent_call_id'),
+                'trace_id': attempt.get('trace_id', event.get('trace_id')),
+                'span_id': attempt.get('span_id', event.get('span_id')),
                 'branch_id': event.get('branch_id'),
                 'retry_of_sample_id': f"{event['event_id']}:attempt:{index - 1}" if index else None,
                 'attempt_index': index, 'event': event, 'http_attempt': attempt,
@@ -135,7 +138,10 @@ def call_samples(events: list[dict[str, Any]], provenance: Mapping[str, Any]) ->
 class PrivateTraceStore:
     def __init__(self, config: Mapping[str, Any], *, client: Any = None) -> None:
         self.config = dict(config)
+        self.identity = experiment_identity()
         self.root = Path(config['spool_root'])
+        if self.identity:
+            self.root = self.root.joinpath(*self.identity.values())
         self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
         self.root.chmod(0o700)
         self.bucket = str(config['bucket'])
@@ -144,6 +150,10 @@ class PrivateTraceStore:
         allowed = str(config['authorized_prefix']).strip('/')
         if not allowed or not self.prefix.startswith(allowed + '/private/'):
             raise ValueError('private prefix must be below authorized_prefix/private/')
+        if any(part in {'', '.', '..'} for part in self.prefix.split('/')):
+            raise ValueError('invalid private prefix segment')
+        if self.identity:
+            self.prefix = '/'.join([allowed, 'private', *self.identity.values(), 'calls'])
         self.client = client
         self.max_objects = int(config.get('flush_max_objects', 20))
         self.max_seconds = float(config.get('flush_max_seconds', 30))
@@ -190,6 +200,8 @@ class PrivateTraceStore:
         manifest = {
             'schema_version': 'seocho.private_graph_manifest.v1',
             'sha256': sha, 'bytes': len(body), 'sample_count': len(samples),
+            'experiment': self.identity, 'object_key': f'{self.prefix}/{sha}.jsonl',
+            'trace_ids': sorted({s['trace_id'] for s in samples if s.get('trace_id')}),
             'training_eligible_count': sum(s['training_eligible'] for s in samples),
             'samples': [{'sample_id': s['sample_id'], 'sha256': hashlib.sha256(_bytes(s)).hexdigest()} for s in samples],
         }
@@ -275,11 +287,22 @@ class PrivateTraceStore:
             'ineligible_reasons': reasons, 'selection_sha256': canonical_digest(self.selection),
             'frozen_exclusion_verified': isinstance(frozen, list) and bool(frozen) and str(case.case_id) not in {str(x) for x in frozen}}
         journal_id = uuid.uuid4().hex
-        return PrivateTrace({**correlation, 'capture_id': journal_id, 'workspace_id': case.workspace_id},
+        return PrivateTrace({**correlation, **self.identity, 'capture_id': journal_id, 'workspace_id': case.workspace_id},
+            checkpoint=lambda event: self.checkpoint(journal_id, event, provenance))
+
+    def trace_external(self, correlation: Mapping[str, Any]) -> Any:
+        """Capture non-GTSQA calls without claiming verified training provenance."""
+        from .agentic_graph_agents import PrivateTrace
+        journal_id = uuid.uuid4().hex
+        provenance = {'source_split': 'unknown', 'split': 'unknown',
+                      'ineligible_reasons': ['external_source_provenance_unverified']}
+        return PrivateTrace({**correlation, **self.identity, 'capture_id': journal_id},
             checkpoint=lambda event: self.checkpoint(journal_id, event, provenance))
 
     def finish(self, trace: Any) -> None:
-        self.seal(self.root / (trace.correlation['capture_id'] + '.journal'))
+        journal = self.root / (trace.correlation['capture_id'] + '.journal')
+        if journal.exists():
+            self.seal(journal)
 
 
 def store_from_env() -> PrivateTraceStore | None:

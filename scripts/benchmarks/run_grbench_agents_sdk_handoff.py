@@ -24,6 +24,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from seocho.eval.agent_execution import build_retrieval_funnel
+from seocho.eval.private_trace_store import store_from_env
 from seocho.eval.prompt_profiles import PROMPT_PROFILES, instructions_prefix, system_prompt_addendum
 from seocho.eval.agentic_graph_agents import (
     EvidenceHandoff,
@@ -136,7 +137,8 @@ async def _run(args: argparse.Namespace) -> int:
         questions = [question for question in questions if question.qid in selected]
         if {question.qid for question in questions} != selected:
             raise KeyError("one or more requested GRBench QIDs were not found within --limit")
-    llm_timer = LLMRequestTimer()
+    private_store = store_from_env()
+    llm_timer = LLMRequestTimer(capture_token_ids=bool(private_store and private_store.config.get("capture_token_ids")))
     model = make_vllm_chat_model(
         base_url=f"{args.base_url.rstrip('/')}/v1",
         api_key="EMPTY",
@@ -187,6 +189,8 @@ async def _run(args: argparse.Namespace) -> int:
                 "manager_specialist_as_tool",
                 args.seed,
             ).receipt_fields()
+            trace_metadata = {**correlation, "workspace_id": args.workspace_id}
+            private_trace = private_store.trace_external(trace_metadata) if private_store else None
             window = VllmMetricsWindow(metrics) if metrics else None
             process_window = ProcessMetricsWindow(roles)
             case_started = time.perf_counter()
@@ -197,6 +201,8 @@ async def _run(args: argparse.Namespace) -> int:
             try:
                 episode = await run_agents_sdk_agent_tool_episode(
                     question=question.question,
+                    private_trace=private_trace,
+                    trace_metadata=trace_metadata,
                     model=model,
                     execute_query=execute,
                     schema_discovery=lambda qid=question.qid: discovery.get(qid, _neutral_schema()),
@@ -287,6 +293,8 @@ async def _run(args: argparse.Namespace) -> int:
                     ),
                 }
             finally:
+                if private_store is not None:
+                    private_store.finish(private_trace)
                 if window:
                     window.__exit__(None, None, None)
                     receipt["vllm_metrics_window"] = window.receipt()

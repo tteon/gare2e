@@ -25,10 +25,23 @@ from urllib.request import Request, urlopen
 
 from pydantic import BaseModel, Field
 
+from ..tracing import current_span_identity
+from .experiment_observability import experiment_span, observe_experiment
+
 from .agent_execution import AgentExecutionRecorder, build_retrieval_funnel, observe_tool
 from .gold_graph import GoldGraphScore
 from .gtsqa import GTSQACase, score_gtsqa_retrieval
 from .oxigraph_runtime import GTSQAOxigraphExecutor, OxigraphQueryResult
+
+
+def _trace_headers() -> dict[str, str]:
+    try:
+        from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
+    except ImportError:
+        return {}
+    headers: dict[str, str] = {}
+    TraceContextTextMapPropagator().inject(headers)
+    return headers
 
 
 def _digest(value: str) -> str:
@@ -178,6 +191,7 @@ class PrivateTrace:
             "timestamp_unix_s": round(time.time(), 6),
             "elapsed_ms": round((time.perf_counter() - self._started) * 1000, 3),
             **fields,
+            **current_span_identity(),
         }
         self.events.append(record)
         self._checkpoint(record)
@@ -296,6 +310,7 @@ class PrivateTrace:
         if attempt_index is None:
             attempts.append(attempt)
         else:
+            attempt.update({k: attempts[attempt_index][k] for k in ("trace_id", "span_id") if k in attempts[attempt_index]})
             attempts[attempt_index] = attempt
         event.update(
             {
@@ -432,6 +447,7 @@ class OpenAICompatibleNativeToolModel:
             tool_choice={"type": "function", "function": {"name": tool_name}},
         )
 
+    @observe_experiment("graphcot.llm")
     def _complete(
         self,
         *,
@@ -456,7 +472,7 @@ class OpenAICompatibleNativeToolModel:
         request = Request(
             f"{self.base_url.rstrip('/')}/v1/chat/completions",
             data=request_body,
-            headers={"Content-Type": "application/json"},
+            headers={"Content-Type": "application/json", **_trace_headers()},
         )
         started = time.perf_counter()
         trace_event_id = None
@@ -577,6 +593,7 @@ class GTSQAReActResult:
     receipt: dict[str, Any]
 
 
+@observe_experiment("graphcot.case")
 def run_gtsqa_closed_book(
     case: GTSQACase,
     *,
@@ -766,6 +783,7 @@ def grbench_react_tools() -> tuple[dict[str, Any], ...]:
     )
 
 
+@observe_experiment("graphcot.case")
 def run_gtsqa_text2sparql_react(
     case: GTSQACase,
     *,
@@ -1343,6 +1361,7 @@ def _usage_delta(after: Mapping[str, int], before: Mapping[str, int]) -> dict[st
     }
 
 
+@observe_experiment("graphcot.case")
 async def run_agents_sdk_handoff_episode(
     *,
     question: str,
@@ -1392,7 +1411,7 @@ async def run_agents_sdk_handoff_episode(
     finalizer = Agent(
         name="OrchestratorFinal",
         instructions="Answer the user using only the typed graph evidence. Be concise. Do not expose hidden reasoning.",
-        model=(_private_role_model(model, role="manager_finalizer", trace=private_trace) if private_trace else model),
+        model=(_private_role_model(model, role="manager_finalizer", trace=private_trace)),
         model_settings=_agent_model_settings(enable_thinking, max_output_tokens),
     )
     private_input = json.dumps({"question": question, "evidence": evidence.model_dump()}, ensure_ascii=False)
@@ -1441,6 +1460,7 @@ async def run_agents_sdk_handoff_episode(
     return AgentsHandoffResult(answer=answer, evidence=evidence, receipt=receipt)
 
 
+@observe_experiment("graphcot.case")
 async def run_agents_sdk_agent_tool_episode(
     *,
     question: str,
@@ -1456,6 +1476,7 @@ async def run_agents_sdk_agent_tool_episode(
     specialist_instructions_addendum: str = "",
     shared_prefix: str = "",
     private_trace: PrivateTrace | None = None,
+    trace_metadata: Mapping[str, Any] | None = None,
 ) -> AgentsHandoffResult:
     """Run manager→specialist-as-tool→manager with endogenous retrieval choice."""
     from agents import Runner
@@ -1634,18 +1655,44 @@ class LLMRequestTimer:
     def http_client(self) -> Any:
         import httpx
 
-        return httpx.AsyncClient(event_hooks={"request": [self.on_request], "response": [self.on_response]})
+        class Transport(httpx.AsyncBaseTransport):
+            def __init__(self) -> None:
+                self.delegate = httpx.AsyncHTTPTransport()
+
+            async def handle_async_request(self, request: Any) -> Any:
+                with experiment_span("graphcot.http_attempt") as span:
+                    identity = current_span_identity()
+                    request.headers.update(_trace_headers())
+                    context = request.extensions.get("seocho_private_model_context")
+                    if context:
+                        trace = context["trace"]
+                        event = next(e for e in trace.events if e["event_id"] == context["event_id"])
+                        attempt = event["http_attempts"][request.extensions["seocho_private_attempt_index"]]
+                        attempt.update(identity)
+                        trace._checkpoint(event)
+                    response = await self.delegate.handle_async_request(request)
+                    if response.status_code >= 400:
+                        span.error = RuntimeError("HTTPStatusError")
+                    span.set_metadata({"http.response.status_code": response.status_code,
+                                       "timing.boundary": "send_to_response_headers"})
+                    return response
+
+            async def aclose(self) -> None:
+                await self.delegate.aclose()
+
+        return httpx.AsyncClient(transport=Transport(), event_hooks={"request": [self.on_request], "response": [self.on_response]})
 
 
-def _private_tool_output(tool: Any, trace: PrivateTrace) -> Any:
+def _private_tool_output(tool: Any, trace: PrivateTrace | None) -> Any:
     invoke = tool.on_invoke_tool
 
+    @observe_experiment("graphcot.tool")
     async def capture(context: Any, input_json: str) -> Any:
         token = _PRIVATE_TOOL_CONTEXT.set(context)
-        start = len(trace.events)
+        start = len(trace.events) if trace else 0
         try:
             output = await invoke(context, input_json)
-            for event in trace.events[start:]:
+            for event in trace.events[start:] if trace else []:
                 if event["event"] == "tool_call" and event.get("native_call_id") == getattr(context, "tool_call_id", None):
                     event["raw_tool_result"] = _private_jsonable(output)
                     trace._checkpoint(event)
@@ -1657,7 +1704,7 @@ def _private_tool_output(tool: Any, trace: PrivateTrace) -> Any:
     return tool
 
 
-def _private_role_model(model: Any, *, role: str, trace: PrivateTrace) -> Any:
+def _private_role_model(model: Any, *, role: str, trace: PrivateTrace | None) -> Any:
     """Tag SDK calls with their agent role while delegating provider behavior."""
 
     base_model_type = type(model)
@@ -1665,11 +1712,19 @@ def _private_role_model(model: Any, *, role: str, trace: PrivateTrace) -> Any:
     class _RoleModel(base_model_type):
         def __init__(self, delegate: Any) -> None:
             self.delegate = delegate
+            self.private_trace = trace
 
         def __getattr__(self, name: str) -> Any:
             return getattr(self.delegate, name)
 
+        @observe_experiment("graphcot.llm")
         async def get_response(self, system_instructions: Any, input: Any, model_settings: Any, tools: Any, output_schema: Any, handoffs: Any, tracing: Any, *, previous_response_id: Any = None, conversation_id: Any = None, prompt: Any = None) -> Any:
+            if trace is None:
+                return await self.delegate.get_response(
+                    system_instructions, input, model_settings, tools, output_schema,
+                    handoffs, tracing, previous_response_id=previous_response_id,
+                    conversation_id=conversation_id, prompt=prompt,
+                )
             event_id = trace.begin_model_call(
                 role=role,
                 system_instructions=system_instructions,
@@ -1779,8 +1834,8 @@ def build_agents_sdk_agent_tool_workflow(
         raise ValueError("specialist_max_turns must be positive")
     audit = recorder or HandoffReceiptRecorder()
     state = AgentToolInvocationState()
-    manager_model = _private_role_model(model, role="manager", trace=private_trace) if private_trace else model
-    specialist_model = _private_role_model(model, role="query_specialist", trace=private_trace) if private_trace else model
+    manager_model = _private_role_model(model, role="manager", trace=private_trace)
+    specialist_model = _private_role_model(model, role="query_specialist", trace=private_trace)
 
     @function_tool(
         name_override="inspect_graph_schema",
@@ -1891,9 +1946,8 @@ def build_agents_sdk_agent_tool_workflow(
         )
         return evidence.model_dump_json()
 
-    if private_trace is not None:
-        _private_tool_output(inspect_graph_schema, private_trace)
-        _private_tool_output(execute_graph_query, private_trace)
+    _private_tool_output(inspect_graph_schema, private_trace)
+    _private_tool_output(execute_graph_query, private_trace)
 
     specialist = Agent(
         name="GraphQuerySpecialist",
@@ -2046,8 +2100,7 @@ def build_agents_sdk_agent_tool_workflow(
         return output
 
     specialist_tool.on_invoke_tool = _audited_invoke
-    if private_trace is not None:
-        _private_tool_output(specialist_tool, private_trace)
+    _private_tool_output(specialist_tool, private_trace)
     manager = Agent(
         name="UserRequestAgent",
         instructions=(
@@ -2088,8 +2141,8 @@ def build_agents_sdk_handoff_workflow(
     from agents import Agent, RunConfig, function_tool, handoff
 
     audit = recorder or HandoffReceiptRecorder()
-    orchestrator_model = _private_role_model(model, role="manager", trace=private_trace) if private_trace else model
-    specialist_model = _private_role_model(model, role="query_specialist", trace=private_trace) if private_trace else model
+    orchestrator_model = _private_role_model(model, role="manager", trace=private_trace)
+    specialist_model = _private_role_model(model, role="query_specialist", trace=private_trace)
 
     @function_tool(
         name_override="inspect_graph_schema",
