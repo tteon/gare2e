@@ -129,6 +129,19 @@
       "source_bundle_sha256": "1b124f9254fd561a49e84f67b7c18ff0d9554e538e2103b27358b2213275bb48",
       "state": "failed",
       "uploaded_at": "2026-09-13T02:13:56Z"
+    },
+    {
+      "bytes": 12406294,
+      "files": 880,
+      "instance_id": 50836154,
+      "keep": true,
+      "lab_request": "019",
+      "manifest": "s3://seocho-agentic-os-traces/seocho-agentic-os/traces/lab-s21-try-111306/manifest.json",
+      "prefix": "s3://seocho-agentic-os-traces/seocho-agentic-os/traces/lab-s21-try-111306",
+      "run": "lab-s21-try-111306",
+      "source_bundle_sha256": "1b124f9254fd561a49e84f67b7c18ff0d9554e538e2103b27358b2213275bb48",
+      "state": "failed",
+      "uploaded_at": "2026-09-13T03:32:35Z"
     }
   ],
   "schema_version": "seocho.agentic_os_trace_index.v1"
