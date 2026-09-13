@@ -32,6 +32,7 @@ _LANE_ARMS = {
     "grbench-single": {"B0", "C-", "S1", "O1"},
     "grbench-graphcot": {"B0", "O1"},  # Graph-CoT hop actions (lab 017); B0 = tool signatures + vocabulary, O1 = + relation semantics
     "grbench-router": {"V0", "V0A"},  # lab 019: arm = router policy; the router picks the context arm per question
+    "grbench-grammar": {"B0", "S1", "O1"},  # lab 020: query-first plain-response Text2Cypher, optionally grammar-constrained (xgrammar)
     "grbench-multi": {"B0", "C-", "S1"},
     "gtsqa-single": {"B0", "C-", "S1", "S2a", "S2b", "S3", "S4", "O1"},
     "gtsqa-multi": {"B0", "S4"},
@@ -47,6 +48,7 @@ _LANE_RUNNERS = {
     "grbench-single": _REPO_ROOT / "scripts/benchmarks/run_direct_react_text2cypher.py",
     "grbench-graphcot": _REPO_ROOT / "scripts/benchmarks/run_grbench_graphcot_react.py",
     "grbench-router": _REPO_ROOT / "scripts/benchmarks/run_grbench_router.py",
+    "grbench-grammar": _REPO_ROOT / "scripts/benchmarks/run_grbench_grammar_cypher.py",
     "gtsqa-multi": _REPO_ROOT / "scripts/benchmarks/run_gtsqa_agents_sdk_handoff.py",
     "grbench-multi": _REPO_ROOT / "scripts/benchmarks/run_grbench_agents_sdk_handoff.py",
 }
@@ -137,7 +139,7 @@ def _runner_command(args: argparse.Namespace, entry: dict[str, Any], root: Path,
             "--condition", args.condition,
             *common,
         ]
-    elif args.lane in ("grbench-single", "grbench-router"):
+    elif args.lane in ("grbench-single", "grbench-router", "grbench-grammar"):
         command = [
             sys.executable,
             str(_LANE_RUNNERS[args.lane]),
@@ -158,8 +160,10 @@ def _runner_command(args: argparse.Namespace, entry: dict[str, Any], root: Path,
             command.extend(("--db-pid", str(args.db_pid)))
         if args.profile_query_plans and args.lane == "grbench-single":
             command.append("--profile-query-plans")
-        if getattr(args, "zero_row_hint", False) and args.lane == "grbench-single":
+        if getattr(args, "zero_row_hint", False) and args.lane in ("grbench-single", "grbench-grammar"):
             command.append("--zero-row-hint")   # the router decides the hint per plan
+        if args.lane == "grbench-grammar":
+            command.extend(("--constrained", str(getattr(args, "constrained", None) or "xgrammar")))
         # Result-size axis (lab 014): the executor's LIMIT / byte caps, forwarded
         # only when set so frozen defaults (20 rows / 12 000 bytes) stay in force.
         if getattr(args, "row_cap", None) is not None:
@@ -283,6 +287,12 @@ def main() -> int:
         help="lab 021: grbench-single executor appends a content-free anchor/degree diagnosis to empty results.",
     )
     parser.add_argument(
+        "--constrained",
+        choices=("xgrammar", "none"),
+        default=None,
+        help="lab 020 grbench-grammar lane: decode query turns under the read-only Cypher grammar (xgrammar) or run the same protocol unconstrained (none).",
+    )
+    parser.add_argument(
         "--cache-control-script",
         type=Path,
         help="Executable invoked as SCRIPT PHASE PAIRED_UNIT before every attempt",
@@ -388,6 +398,7 @@ def main() -> int:
         "discovery_cache_sha256": discovery_cache_sha256,
         "profile_query_plans": args.profile_query_plans,
         "zero_row_hint": bool(getattr(args, "zero_row_hint", False)),
+        "constrained": getattr(args, "constrained", None),
         "only_arm": args.only_arm,
         "only_stratum": sorted(args.only_stratum),
         "shard": args.shard,

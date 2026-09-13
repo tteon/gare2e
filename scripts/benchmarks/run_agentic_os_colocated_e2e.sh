@@ -40,6 +40,7 @@ set -euo pipefail
 : "${SEOCHO_GRAPHCOT_MAX_TURNS:=12}"
 : "${SEOCHO_PROFILE_QUERY_PLANS:=0}"   # lab 021: 1 = replay every successful Cypher under PROFILE after timing (grbench-single)   # hop actions need more turns than whole-query lanes (6)
 : "${SEOCHO_ZERO_ROW_HINT:=0}"   # lab 021: 1 = executor appends anchor/degree diagnosis to empty results (grbench-single)
+: "${SEOCHO_GRAMMAR_CONSTRAINED:=xgrammar}"   # lab 020: grbench-grammar lane decoding: xgrammar | none
 : "${SEOCHO_MAIN_ARMS:=B0}"          # lab 015 schema axis: space/comma list, e.g. "B0 S1 S4"; non-B0 arms get a -<arm> run-root suffix
 : "${SEOCHO_GRBENCH_ROW_CAP:=}"    # lab 014 result-size axis; empty = runner default (20 rows)
 : "${SEOCHO_GRBENCH_BYTE_CAP:=}"   # empty = runner default (12000 bytes)
@@ -190,6 +191,7 @@ arm_supported() {
     grbench-single) case "$arm" in B0|C-|S1|O1) ok=0;; esac;;
     grbench-graphcot) case "$arm" in B0|O1) ok=0;; esac;;
     grbench-router) case "$arm" in V0|V0A) ok=0;; esac;;
+    grbench-grammar) case "$arm" in B0|S1|O1) ok=0;; esac;;
     grbench-multi) case "$arm" in B0|C-|S1) ok=0;; esac;;
     gtsqa-single) case "$arm" in B0|C-|S1|S2a|S2b|S3|S4|O1) ok=0;; esac;;
     gtsqa-multi) case "$arm" in B0|S4) ok=0;; esac;;
@@ -249,6 +251,18 @@ main_matrix() {
     --lane grbench-router --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" \
     --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
     --run-root "$ROOT/grbench-router-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
+    --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition tool_auto \
+    --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
+    --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --db-pid "$DOZERDB_PID" \
+      --only-arm "$arm" --continue-on-error \
+      ${SEOCHO_GRBENCH_ROW_CAP:+--row-cap "$SEOCHO_GRBENCH_ROW_CAP"} ${SEOCHO_GRBENCH_BYTE_CAP:+--byte-cap "$SEOCHO_GRBENCH_BYTE_CAP"} \
+      --cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh" ${SEOCHO_MAIN_STRATUM:+--only-stratum "$SEOCHO_MAIN_STRATUM"}
+    fi
+    # lab 020 guided decoding: query-first plain-response Text2Cypher; SEOCHO_GRAMMAR_CONSTRAINED=xgrammar|none.
+    if lane_enabled grbench-grammar && arm_supported grbench-grammar "$arm"; then run "raw-grbench-grammar-tool-$thinking$suffix" \
+    --lane grbench-grammar --grbench-workspace-id "$SEOCHO_GRBENCH_WORKSPACE_ID" --schedule "$INPUT/$SEOCHO_GRBENCH_SCHEDULE" --constrained "$SEOCHO_GRAMMAR_CONSTRAINED" "${hint_flag[@]}" \
+    --dataset "$INPUT/grbench-questions.json" --discovery-cache "$INPUT/$SEOCHO_GRBENCH_DISCOVERY" \
+    --run-root "$ROOT/grbench-grammar-tool-$thinking$suffix" --base-url http://127.0.0.1:8000 \
     --model "$VLLM_MODEL" --enable-thinking "$thinking" --condition tool_auto \
     --max-turns "$SEOCHO_MAX_TURNS" --max-output-tokens "$SEOCHO_MAX_OUTPUT_TOKENS" \
     --token-budget "$SEOCHO_TOKEN_BUDGET" --gpu-sampling appliance --db-pid "$DOZERDB_PID" \

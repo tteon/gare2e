@@ -209,3 +209,15 @@ def test_router_lane_uses_router_script_and_leaves_hint_to_the_plan(tmp_path) ->
     assert command[command.index("--arm") + 1] == "V0"
     assert "--zero-row-hint" not in command and "--profile-query-plans" not in command
     assert module._LANE_ARMS["grbench-router"] == {"V0", "V0A"}
+
+
+def test_grammar_lane_forwards_constrained_mode_and_hint(tmp_path) -> None:
+    module = _coordinator()
+    args = _args("grbench-grammar")
+    args.zero_row_hint = True
+    command = module._runner_command(args, _entry("S1"), tmp_path, "run")
+    assert command[1].endswith("run_grbench_grammar_cypher.py")
+    assert command[command.index("--constrained") + 1] == "xgrammar" and "--zero-row-hint" in command
+    args.constrained = "none"
+    assert module._runner_command(args, _entry("S1"), tmp_path, "run")[command.index("--constrained") + 1] == "none"
+    assert module._LANE_ARMS["grbench-grammar"] == {"B0", "S1", "O1"}
