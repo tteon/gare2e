@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-08-31
-- Related: ADR-0224, ADR-0225, `docs/experiments/AGENTIC_OS_GRAPH_QUERY_PROTOCOL.md`
+- Related: ADR-0224, `docs/experiments/AGENTIC_OS_GRAPH_QUERY_PROTOCOL.md`
 
 ## Context
 

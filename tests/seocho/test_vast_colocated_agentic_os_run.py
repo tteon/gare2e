@@ -40,12 +40,12 @@ def test_ssh_prefix_accepts_current_vast_uri_shape(monkeypatch: pytest.MonkeyPat
     module = _runner()
 
     class _Result:
-        stdout = "ssh://root@ssh6.vast.ai:16123\n"
+        stdout = "ssh://root@ssh6.vast.example:16123\n"
 
     monkeypatch.setattr(module, "_run", lambda *args, **kwargs: _Result())
     prefix = module._ssh_prefix(7)
 
-    assert prefix[-1] == "root@ssh6.vast.ai"
+    assert prefix[-1] == "root@ssh6.vast.example"
     assert prefix[prefix.index("-p") + 1] == "16123"
 
 
@@ -54,7 +54,7 @@ def test_scp_prefix_reuses_direct_ssh_port() -> None:
 
     prefix = [
         "ssh", "-p", "16123", "-o", "BatchMode=yes", "-o",
-        "StrictHostKeyChecking=accept-new", "root@ssh6.vast.ai",
+        "StrictHostKeyChecking=accept-new", "root@ssh6.vast.example",
     ]
 
     assert module._scp_prefix(prefix) == [
@@ -413,10 +413,10 @@ def test_copy_from_remote_avoids_dot_suffix_and_flattens_into_local_root(
         (destination / "lifecycle.tsv").write_text("x", encoding="utf-8")
 
     monkeypatch.setattr(module, "_run", fake_run)
-    prefix = ["ssh", "-p", "16123", "-o", "BatchMode=yes", "root@ssh6.vast.ai"]
+    prefix = ["ssh", "-p", "16123", "-o", "BatchMode=yes", "root@ssh6.vast.example"]
     module._copy_from_remote(prefix, "/artifacts", tmp_path)
 
-    assert seen[0][-2] == "root@ssh6.vast.ai:/artifacts"
+    assert seen[0][-2] == "root@ssh6.vast.example:/artifacts"
     assert not seen[0][-2].endswith("/.")
     assert (tmp_path / "e2e" / "receipt.json").is_file()
     assert (tmp_path / "lifecycle.tsv").is_file()

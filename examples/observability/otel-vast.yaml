@@ -1,0 +1,58 @@
+# Run inside the existing appliance; no nested Docker. Forward through a
+# private tunnel to the durable host. The queue must survive process restarts.
+extensions:
+  file_storage:
+    directory: ${env:SEOCHO_OTEL_QUEUE_DIR}
+  health_check:
+    endpoint: 127.0.0.1:13133
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 127.0.0.1:4317
+      http:
+        endpoint: 127.0.0.1:4318
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: vllm
+          scrape_interval: 5s
+          static_configs:
+            - targets: ["${env:SEOCHO_VLLM_METRICS_TARGET}"]
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+  batch:
+    timeout: 1s
+    send_batch_size: 512
+exporters:
+  otlp/central:
+    endpoint: ${env:SEOCHO_OBSERVABILITY_ENDPOINT}
+    # This endpoint must be a local SSH tunnel, never an unencrypted WAN URL.
+    tls:
+      insecure: true
+    sending_queue:
+      storage: file_storage
+      queue_size: 10000
+    retry_on_failure:
+      max_elapsed_time: 0s
+service:
+  extensions: [file_storage, health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/central]
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/central]
+  telemetry:
+    metrics:
+      readers:
+        - pull:
+            exporter:
+              prometheus:
+                host: 127.0.0.1
+                port: 8888

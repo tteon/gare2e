@@ -1444,3 +1444,5 @@ Use this block for new entries:
     so re-export can't clobber approvals); pull → diff → human confirm →
     snapshot save; infra-free review path stays first-class; docs say
     "DataHub integration", never "DataHub-compatible"
+
+- [Accepted] ADR-0144 amendment — GraphCoT experiments reuse native OTel IDs, persistent Collector queues and private S3 linkage; see [operating contract](../GRAPHCOT_OBSERVABILITY.md).
