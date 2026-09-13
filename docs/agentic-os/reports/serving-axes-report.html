@@ -1,0 +1,247 @@
+<title>Faster Tokens, Fewer Tokens</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --ink:#18212b; --muted:#5c6773; --line:#d9dee4; --line-soft:#eceff2;
+  --accent:#0e8f82; --accent-ink:#0b6f65; --mark:#0e8f82; --mark-hi:#c2620a; --bar-bg:#e3ebee;
+  --good:#2e7d32; --warn:#b26a00; --bad:#b3261e;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1419; --surface:#171d24; --ink:#e6eaee; --muted:#9aa5b1; --line:#2a333d; --line-soft:#202832;
+    --accent:#26a693; --accent-ink:#4fc3b1; --mark:#26a693; --mark-hi:#e08a3c; --bar-bg:#22303a;
+    --good:#6fbf73; --warn:#e0a53a; --bad:#ef7b74;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1419; --surface:#171d24; --ink:#e6eaee; --muted:#9aa5b1; --line:#2a333d; --line-soft:#202832;
+  --accent:#26a693; --accent-ink:#4fc3b1; --mark:#26a693; --mark-hi:#e08a3c; --bar-bg:#22303a;
+  --good:#6fbf73; --warn:#e0a53a; --bad:#ef7b74;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans KR","IBM Plex Sans",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:15px;line-height:1.65;margin:0;word-break:keep-all}
+main{max-width:960px;margin:0 auto;padding-block:40px 80px;padding-inline:20px;display:flex;flex-direction:column;gap:44px}
+header{display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:28px;font-weight:600;letter-spacing:-.01em;margin:0;text-wrap:balance;line-height:1.3}
+h2{font-size:19px;font-weight:600;margin:0 0 12px;padding-top:6px;border-top:1px solid var(--line);text-wrap:balance}
+h3{font-size:15.5px;font-weight:600;margin:18px 0 6px}
+p{margin:0 0 10px;max-width:72ch} .lede{font-size:16.5px;max-width:74ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:13px} .meta b{color:var(--ink);font-weight:500}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);padding:16px 18px;display:flex;flex-direction:column;gap:4px}
+.tile .n{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:26px;font-weight:500;font-variant-numeric:tabular-nums}
+.tile .l{font-size:12.5px;color:var(--muted);letter-spacing:.02em} .tile .d{font-size:13px}
+.verdict{display:inline-flex;align-items:center;font-size:12px;font-weight:500;padding:2px 8px;border-radius:2px;border:1px solid var(--line);width:max-content}
+.verdict.good{color:var(--good);border-color:var(--good)} .verdict.warn{color:var(--warn);border-color:var(--warn)} .verdict.bad{color:var(--bad);border-color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+th{font-weight:500;color:var(--muted);font-size:12px;letter-spacing:.03em;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child,.t{text-align:left;white-space:normal}
+tbody tr:last-child td{border-bottom:none} tr.hi td{font-weight:600}
+.note{font-size:13px;color:var(--muted);margin-top:8px;max-width:78ch}
+figure{margin:0;background:var(--surface);border:1px solid var(--line);padding:14px 16px 8px}
+figcaption{font-size:13px;color:var(--muted);margin-top:6px}
+svg text{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;fill:var(--muted)} svg .lbl{fill:var(--ink)} svg .grid{stroke:var(--line-soft)} svg .ax{stroke:var(--line)}
+ul{margin:0 0 10px;padding-left:20px;max-width:76ch} li{margin-bottom:7px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);padding:16px 18px} .card h3{margin-top:0}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;background:var(--line-soft);padding:1px 5px;border-radius:2px}
+.prov{font-size:13px;color:var(--muted)} .prov dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 16px;margin:0} .prov dt{color:var(--muted)} .prov dd{margin:0;color:var(--ink);font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;overflow-wrap:anywhere}
+a{color:var(--accent-ink)}
+</style>
+
+<main>
+<header>
+  <div class="eyebrow">SEOCHO agentic-os lab · requests 019 · 020 · 021 · 022 · lab-s18 → lab-s21 · 2026-09-13</div>
+  <h1>Decode가 wall의 82–98 %라면 모든 개선은 둘 중 하나다: 토큰을 더 빨리 만들거나, 덜 만들거나</h1>
+  <p class="lede">하루 동안 네 개의 유료 세션(≈ $11)에서 같은 90문항(GRBench MAPLE/Physics, strata-v2, 층별 30)을 같은 조건(S1 스키마 슬라이스, K=8, TP=2, Qwen3.6-27B, reasoning off)으로 돌리며 서빙 축과 에이전트 축을 하나씩 바꿨습니다. vLLM 쪽(prefix caching, chunked prefill, block size, speculative decoding 세 가지, grammar-constrained decoding 두 가지), 모델 쪽(9B dense, 27B dense, 35B MoE), 에이전트 쪽(0행 진단 힌트, 요청 분석 기반 라우터). 이 페이지는 그 결과를 "토큰당 시간"과 "케이스당 토큰"으로 나눠 읽습니다.</p>
+  <div class="meta">
+    <span>세션 <b>lab-s18 · s19 · s20 · s21</b></span><span>GPU <b>2× A100 SXM4 NVLink</b> (host 458442 ×3, 125728 ×1)</span><span>비용 <b>$1.7 + $4.2 + $2.1 + $3.0</b></span><span>누계 <b>≈ $102.8</b></span>
+  </div>
+  <p class="note"><b>용어.</b> 여기서 측정한 에이전트는 <em>GraphCoT 형태의 반복 Text2Cypher 루프</em>(schema 도구 → 질의 도구 → 관찰 → 다음 turn, 최대 6 turn)입니다. answered는 "근거 있는 최종 답을 냈는가"이고 gold 채점이 아닙니다. 회차 편차: 같은 S1 설정을 네 번 돌려 52 / 52 / 54 / 56 answered였으므로 ±4 안의 차이는 읽지 않습니다.</p>
+</header>
+
+<section>
+  <div class="tiles">
+    <div class="tile"><span class="l">MTP speculative (Qwen3.6 자체 MTP 층, k=2)</span><span class="n">TPOT −30 %</span><span class="d">27.7 → 19.5 ms, 케이스 wall −18 %, 처리량 +37 %, answered 51 vs 52. 유일하게 decode를 움직인 서빙 축.</span><span class="verdict good">faster tokens, parity 유지</span></div>
+    <div class="tile"><span class="l">ngram speculative (k=4)</span><span class="n">18 / 90</span><span class="d">답이 52에서 18로 붕괴. 질의 형태가 아닌 출력 45건, RETURN 누락 25건, DB 오류 82건. GPU util 62 %.</span><span class="verdict bad">출력 붕괴, 사용 금지</span></div>
+    <div class="tile"><span class="l">grammar-constrained Cypher (xgrammar)</span><span class="n">TPOT ×1.9–2.6</span><span class="d">scope·label 거절 0건이 되지만 토큰당 시간이 두 배. answered +2–4. 온톨로지로 어휘를 닫은 문법(C)이 일반 문법(B)보다 빠르고 정확.</span><span class="verdict warn">형태 오류 제거, decode 비용 증가</span></div>
+    <div class="tile"><span class="l">요청 분석 라우터 (정책 V0, 규칙 5개)</span><span class="n">토큰 −22 %</span><span class="d">answered 56 = 최고 S1 회차, 거절 48 → 10, wall −21 %. held-out 50문항은 31 vs 34.</span><span class="verdict good">fewer tokens, 같은 답</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>1 · 서빙 축 한 장 — 무엇이 토큰당 시간을 바꿨나</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>arm (lab-s19, 27B, S1, K=8)</th><th>answered e/m/h</th><th>합</th><th>거절(정책+DB)</th><th>케이스 wall p50</th><th>TPOT p50</th><th>gen tok/s</th><th>prefix hit</th><th>running /8</th><th>GPU util</th></tr></thead>
+    <tbody>
+      <tr><td class="t">a0 baseline</td><td>20/27/5</td><td>52</td><td>39</td><td>8.6 s</td><td>27.7 ms</td><td>170</td><td>0.48</td><td>4.5</td><td>93 %</td></tr>
+      <tr><td class="t">a1 prefix caching off</td><td>18/28/7</td><td>53</td><td>40</td><td>10.3 s</td><td>31.8 ms</td><td>170</td><td>0.00</td><td>5.1</td><td>96 %</td></tr>
+      <tr><td class="t">a2 chunked prefill 2048</td><td>18/29/5</td><td>52</td><td>42</td><td>9.0 s</td><td>28.0 ms</td><td>190</td><td>0.48</td><td>5.1</td><td>95 %</td></tr>
+      <tr><td class="t">a3 chunked prefill 8192</td><td>20/29/7</td><td>56</td><td>38</td><td>9.4 s</td><td>29.0 ms</td><td>190</td><td>0.47</td><td>5.3</td><td>94 %</td></tr>
+      <tr><td class="t">a4 block size 32</td><td>18/29/5</td><td>52</td><td>42</td><td>9.4 s</td><td>28.1 ms</td><td>179</td><td>0.48</td><td>4.9</td><td>93 %</td></tr>
+      <tr><td class="t">a5 block size 128</td><td>19/29/5</td><td>53</td><td>49</td><td>10.0 s</td><td>28.3 ms</td><td>199</td><td>0.50</td><td>5.4</td><td>94 %</td></tr>
+      <tr><td class="t">a6 ngram spec (k=4, lookup 2–4)</td><td>5/12/1</td><td>18</td><td>186</td><td>18.8 s</td><td>36.8 ms</td><td>159</td><td>0.51</td><td>5.5</td><td>62 %</td></tr>
+      <tr class="hi"><td class="t">a8 qwen3_5_mtp (k=2)</td><td>18/28/5</td><td>51</td><td>40</td><td>7.0 s</td><td>19.5 ms</td><td>234</td><td>0.06</td><td>4.2</td><td>91 %</td></tr>
+      <tr><td class="t">a7 suffix · a9 batch-invariant</td><td colspan="9" class="t">vLLM 기동 실패(suffix: arctic-inference 의존성, 설치 후에도 20 s 내 실패 — 원인 미수집; batch-invariant: 엔진 코어 worker 초기화 실패). 보류.</td></tr>
+    </tbody>
+  </table></div>
+  <figure>
+    <svg viewBox="0 0 760 250" width="100%" role="img" aria-label="arm별 TPOT p50 (ms)">
+      <g class="grid"><line x1="220" y1="20" x2="220" y2="228"/><line x1="360" y1="20" x2="360" y2="228"/><line x1="500" y1="20" x2="500" y2="228"/><line x1="640" y1="20" x2="640" y2="228"/></g>
+      <text x="220" y="244" text-anchor="middle">10</text><text x="360" y="244" text-anchor="middle">20</text><text x="500" y="244" text-anchor="middle">30</text><text x="640" y="244" text-anchor="middle">40 ms</text>
+      <g>
+        <text class="lbl" x="200" y="36" text-anchor="end">a0 baseline</text><rect x="80" y="26" width="387.8" height="14" rx="0" fill="var(--mark)"><title>27.7 ms</title></rect><text x="474" y="37">27.7</text>
+        <text class="lbl" x="200" y="62" text-anchor="end">a1 prefix off</text><rect x="80" y="52" width="445.2" height="14" fill="var(--mark)"><title>31.8 ms</title></rect><text x="531" y="63">31.8</text>
+        <text class="lbl" x="200" y="88" text-anchor="end">a2 chunk 2048</text><rect x="80" y="78" width="392" height="14" fill="var(--mark)"><title>28.0 ms</title></rect><text x="478" y="89">28.0</text>
+        <text class="lbl" x="200" y="114" text-anchor="end">a3 chunk 8192</text><rect x="80" y="104" width="406" height="14" fill="var(--mark)"><title>29.0 ms</title></rect><text x="492" y="115">29.0</text>
+        <text class="lbl" x="200" y="140" text-anchor="end">a4 block 32</text><rect x="80" y="130" width="393.4" height="14" fill="var(--mark)"><title>28.1 ms</title></rect><text x="480" y="141">28.1</text>
+        <text class="lbl" x="200" y="166" text-anchor="end">a5 block 128</text><rect x="80" y="156" width="396.2" height="14" fill="var(--mark)"><title>28.3 ms</title></rect><text x="483" y="167">28.3</text>
+        <text class="lbl" x="200" y="192" text-anchor="end">a6 ngram spec</text><rect x="80" y="182" width="515.2" height="14" fill="var(--mark)"><title>36.8 ms (출력 붕괴)</title></rect><text x="601" y="193">36.8 ✕</text>
+        <text class="lbl" x="200" y="218" text-anchor="end">a8 MTP k=2</text><rect x="80" y="208" width="273" height="14" fill="var(--mark-hi)"><title>19.5 ms</title></rect><text x="359" y="219">19.5</text>
+      </g>
+      <line class="ax" x1="80" y1="20" x2="80" y2="228"/>
+    </svg>
+    <figcaption>turn당 TPOT p50(latency ÷ output tokens, ms). 막대 하나가 arm 하나. a8만 색이 다른 이유: 유일하게 20 ms 아래로 내려간 arm.</figcaption>
+  </figure>
+  <ul>
+    <li><b>MTP.</b> Qwen3.6-27B 체크포인트에 든 MTP 층(mtp_num_hidden_layers=1)을 두 번 이어 써 step당 유효 토큰 ≈ 1.4. 별도 draft 모델·다운로드·학습 없음. funnel(거절 코드 분포, 0행 수)이 baseline과 같아 parity가 유지됩니다. prefix hit이 0.06으로 떨어지는 부작용(speculative 검증 경로가 캐시 집계를 우회)이 있어도 이득이 남습니다.</li>
+    <li><b>ngram.</b> 컨텍스트에서 n-gram을 찾아 그 뒤를 draft하는 모델 없는 방식. K=8·1–3 k 토큰 컨텍스트에서 CPU측 lookup이 GPU를 멈추게 하고(util 93 → 62 %), 채택된 draft가 Cypher를 깨뜨렸습니다. lab-s4/s7에서 본 "parity 실패"의 정체입니다.</li>
+    <li><b>prefix caching.</b> prefill 비중이 4–11 %인데 끄면 TPOT +15 %, wall +20 %. 재계산된 prefill 조각이 K=8의 decode step 사이에 끼어들어 모두의 ITL로 청구되기 때문입니다. KV 점유는 ≤ 3 %라 켜 두는 데 비용이 없습니다.</li>
+    <li><b>chunked prefill 크기·block size.</b> 이 컨텍스트 길이와 K에서는 레버가 아닙니다(TPOT 28–29 ms 동일).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>2 · 배치는 얼마나 차 있었나 — speculative가 놀고 있는 compute를 쓰는 이유</h2>
+  <div class="two">
+    <div class="card"><h3>스케줄러 점유 (모든 arm, 1 s 샘플)</h3>
+      <div class="tablewrap"><table><thead><tr><th>지표</th><th>범위</th></tr></thead><tbody>
+        <tr><td class="t">running 평균 (K=8)</td><td>4.2 – 5.5</td></tr>
+        <tr><td class="t">active 샘플 중 running &lt; 8</td><td>70 – 96 %</td></tr>
+        <tr><td class="t">waiting 평균</td><td>0.00 – 0.05</td></tr>
+        <tr><td class="t">KV cache 사용 최대</td><td>2.5 – 7.9 %</td></tr>
+        <tr><td class="t">GPU util (dense 27B)</td><td>91 – 96 %</td></tr>
+        <tr><td class="t">GPU util (MoE 35B-A3B)</td><td>70 %</td></tr>
+      </tbody></table></div>
+    </div>
+    <div class="card"><h3>읽는 법</h3>
+      <p>decode step은 가중치 읽기에 묶여 있어 SM은 바쁘지만(util 93 %) FLOP은 놀고 있습니다. 배치가 평균 55–70 %만 차는 이유는 vLLM이 아니라 에이전트입니다: 8개 중 평균 3개는 그 순간 도구 호출·DozerDB·다음 turn 조립 중이라 큐에 없습니다. 대기(waiting)는 없고 메모리는 92 % 비어 있으니 스케줄러 쪽 헤드룸은 큽니다.</p>
+      <p>그래서 최종 지표는 <b>step당 유효 토큰 = 배치 점유 × (1 + 채택된 speculative 토큰)</b>입니다. K를 올리면 첫 항이 커지지만 요청당 지연이 대가이고(lab 014), MTP는 둘째 항을 놀고 있는 compute로 키웁니다. 에이전트 쪽에서는 turn 수 자체를 줄이는 것(라우터·힌트)이 빈 슬롯을 줄이는 길입니다.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>3 · guided decoding A / B / C — 형태 오류는 사라지고, 토큰당 시간은 두 배</h2>
+  <p>query-first protocol(스키마 컨텍스트를 system prompt에 두고, 매 turn Cypher 한 문장만 답하게 함)로 A(무제약), B(읽기 전용 Cypher 문법: 라벨 노드는 반드시 scoped 형태, 쓰기·CALL·UNION 불가), C(같은 문법에 속성·관계·node_type 이름을 O1 온톨로지로 닫음)를 비교했습니다. 27B와 9B 모두.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>pass (lab-s21)</th><th>모델</th><th>answered e/m/h</th><th>합</th><th>거절(정책+DB)</th><th>scope/label 거절</th><th>질의 turn TPOT</th><th>답변 turn TPOT</th><th>케이스 wall</th><th>출력 토큰</th><th>GPU util</th></tr></thead>
+    <tbody>
+      <tr><td class="t">참조: tool-calling S1 (lab-s20)</td><td>27B</td><td>19/29/8</td><td>56</td><td>48</td><td>17</td><td>27.9 ms</td><td>—</td><td>9.0 s</td><td>41 k</td><td>95 %</td></tr>
+      <tr><td class="t">A none</td><td>27B</td><td>13/22/11</td><td>46</td><td>38</td><td>2</td><td>26.1 ms</td><td>39.9 ms</td><td>10.4 s</td><td>35 k</td><td>75 %</td></tr>
+      <tr><td class="t">B xgrammar</td><td>27B</td><td>17/20/11</td><td>48</td><td>16</td><td>0</td><td>67.7 ms</td><td>79.6 ms</td><td>14.2 s</td><td>41 k</td><td>57 %</td></tr>
+      <tr><td class="t">C xgrammar-ontology</td><td>27B</td><td>18/21/11</td><td>50</td><td>16</td><td>0</td><td>49.4 ms</td><td>54.6 ms</td><td>11.6 s</td><td>41 k</td><td>63 %</td></tr>
+      <tr><td class="t">참조: tool-calling S1 (lab-s20)</td><td>9B</td><td>5/12/3</td><td>20</td><td>267</td><td>171</td><td>10.5 ms</td><td>—</td><td>6.4 s</td><td>56 k</td><td>85 %</td></tr>
+      <tr class="hi"><td class="t">A none</td><td>9B</td><td>14/20/11</td><td>45</td><td>66</td><td>11</td><td>9.7 ms</td><td>17.5 ms</td><td>3.6 s</td><td>38 k</td><td>49 %</td></tr>
+      <tr><td class="t">C xgrammar-ontology</td><td>9B</td><td>17/20/11</td><td>48</td><td>31</td><td>0</td><td>35.8 ms</td><td>38.4 ms</td><td>13.1 s</td><td>92 k</td><td>27 %</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">pass의 첫 constrained 요청은 문법 컴파일을 84–141 s 기다렸고 이후 요청은 0.8–1.4 s(캐시). 9B·C의 출력 92 k는 문법 안에서 길게 늘어진 질의(512 토큰에서 잘린 turn 31개, `missing_return` 24) 때문입니다.</p>
+  <ul>
+    <li><b>문법은 약속을 지킵니다.</b> scope·label 거절이 구조적으로 0, 잘못된 Cypher가 드라이버에 닿지 않아 DB 오류 28 → 6–7, answered +2–4.</li>
+    <li><b>그러나 토큰당 비용이 27B 1.9–2.6배, 9B 3.7배.</b> 토큰 마스크 계산이 CPU측이라 K=8에서 엔진 step 전체를 멈추고, 같은 배치의 <em>무제약</em> 답변 turn까지 느려집니다(40 → 55–80 ms). vLLM 0.27의 xgrammar 백엔드, 24.8만 vocabulary, K=8 조건에서는 "형태의 정확성"을 decode 시간으로 지불합니다. 낮은 K나 CPU가 넉넉한 서빙에 맞는 도구입니다.</li>
+    <li><b>C가 B보다 낫습니다.</b> 어휘를 닫으면 상태당 살아 있는 토큰이 줄어 마스크가 싸지고 answered도 +2. 문법을 쓴다면 온톨로지에서 뽑아야 합니다.</li>
+    <li><b>작은 모델에는 protocol이 문법보다 컸습니다.</b> 9B는 tool-calling에서 scope 맵을 171번 빠뜨려 20/90이었는데, "Cypher만 답하라"는 protocol만으로 45/90, 케이스 3.6 s — 27B tool-calling의 80 % 답을 2.5배 빠르게. 문법을 더하면 48이지만 속도를 잃습니다.</li>
+    <li><b>27B에는 query-first가 손해</b>(56 → 46–50, 0행 57 → 150): 스키마 도구 호출이 없으면 관계 이름을 더 자주 추측합니다. 이 pass들은 힌트 off였고, 힌트가 켜진 라우터의 Text2Cypher lane이 결합할 자리입니다.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>4 · 세 모델, 같은 워크로드 — 빠른 토큰이 답을 사주지 않았다</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>모델 (lab-s20, tool-calling S1, K=8, TP=2)</th><th>answered e/m/h</th><th>합</th><th>정책 거절</th><th>DB 오류</th><th>turn p50</th><th>출력 토큰</th><th>TPOT</th><th>케이스 wall</th><th>gen tok/s</th><th>GPU util</th></tr></thead>
+    <tbody>
+      <tr class="hi"><td class="t">Qwen3.6-27B (dense)</td><td>19/29/8</td><td>56</td><td>17</td><td>31</td><td>4.5</td><td>41 k</td><td>27.9 ms</td><td>9.0 s</td><td>180</td><td>95 %</td></tr>
+      <tr><td class="t">Qwen3.6-35B-A3B (MoE, 활성 3B)</td><td>3/10/7</td><td>20</td><td>147 (scope 137)</td><td>12</td><td>6.0</td><td>54 k</td><td>15.6 ms</td><td>8.8 s</td><td>274</td><td>70 %</td></tr>
+      <tr><td class="t">Qwen3.5-9B (dense)</td><td>5/12/3</td><td>20</td><td>232 (scope 171, RETURN 50)</td><td>35</td><td>6.0</td><td>56 k</td><td>10.5 ms</td><td>6.4 s</td><td>517</td><td>85 %</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li>9B는 토큰당 2.7배, MoE는 1.8배 빠르지만 둘 다 20/90. 6 turn을 repair에 다 쓰느라 토큰은 27B보다 30 % 많고 wall은 거의 줄지 않습니다.</li>
+    <li>실패는 추론이 아니라 <b>protocol</b>(스코프 맵 누락 137·171건)이고, 3절에서 protocol을 바꾸자 9B가 45로 올라왔습니다. "워크로드에 맞는 모델을 고르고, 그 모델이 지킬 수 있는 protocol을 준다"가 측정된 문장이 됩니다.</li>
+    <li>답 하나당 GPU 시간: 27B 8.5 s, 9B 5.8 s(tool-calling) → 9B query-first는 훨씬 아래. hit당 싼 모델이 task당 쓸모 있으려면 protocol이 먼저입니다.</li>
+    <li><b>draft-model speculative는 이 스택에서 불가.</b> vLLM 0.27.1은 draft가 qwen3_5 계열이면 <code>method=draft_model</code>을 무시하고 MTP 설정으로 다시 써 27B에 35B-A3B의 MTP head를 붙이려다 실패합니다. 같은 vocabulary(248 k)의 다른 계열이 없어 대안이 없고, Qwen3.6에서 모델 기반 speculation은 1절의 MTP입니다.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>5 · 라우터 — 요청을 먼저 읽으면 토큰이 22 % 줄고 답은 같다</h2>
+  <p>LLM 호출 전에 질문을 분석합니다: template family(정규식, 12종) → intent(lookup / count / set-intersection / argmax / recommendation), 이름 붙은 엔티티 추출 → 인덱스 조회(exact → CONTAINS → 대소문자 접기)로 anchor 노드 확정 → 관계별 degree → degree class. 정책 V0는 규칙 5개의 표이고 receipt에 결정 이유가 남습니다. 비용은 요청당 8–12 ms.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>pass</th><th>cohort</th><th>answered e/m/h</th><th>합</th><th>거절(정책+DB)</th><th>0행</th><th>출력 토큰</th><th>케이스 wall p50</th></tr></thead>
+    <tbody>
+      <tr><td class="t">S1 baseline (lab-s20)</td><td>90 in-sample</td><td>19/29/8</td><td>56</td><td>48</td><td>57</td><td>41 k</td><td>9.0 s</td></tr>
+      <tr class="hi"><td class="t">router V0</td><td>90 in-sample</td><td>21/23/12</td><td>56</td><td>10</td><td>53</td><td>32 k</td><td>7.1 s</td></tr>
+      <tr><td class="t">router V0A (미해석 anchor면 abstain)</td><td>90 in-sample</td><td>22/24/12</td><td>58</td><td>8</td><td>47</td><td>33 k</td><td>6.9 s</td></tr>
+      <tr><td class="t">S1 baseline</td><td>50 held-out</td><td>5/27/2</td><td>34</td><td>17</td><td>29</td><td>20.6 k</td><td>8.0 s</td></tr>
+      <tr><td class="t">router V0</td><td>50 held-out</td><td>4/21/6</td><td>31</td><td>4</td><td>26</td><td>19.9 k</td><td>7.2 s</td></tr>
+    </tbody>
+  </table></div>
+  <div class="two">
+    <div class="card"><h3>어디로 보냈나 (V0, in-sample)</h3>
+      <ul>
+        <li>lookup 35건 → Graph-CoT hop 행동(B0), 26 답</li>
+        <li>argmax·recommendation 20건 → Text2Cypher O1 + row cap 50, 10 답</li>
+        <li>count·set-intersection·기타 35건 → Text2Cypher S1(+0행 힌트), 20 답</li>
+        <li>이름 붙은 80건 모두 anchor가 해석돼 V0A는 한 번도 abstain하지 않음 → V0A ≡ V0, +2는 회차 편차</li>
+      </ul>
+    </div>
+    <div class="card"><h3>맞은 규칙과 틀린 규칙</h3>
+      <ul>
+        <li><b>맞음:</b> argmax → O1 + row cap 50. most_cited_paper_of_author가 in-sample 5/7, held-out 3/3 — S1은 0/7, 0/3. lab 021이 "패턴 오류 패밀리"로 지목한 곳.</li>
+        <li><b>틀림:</b> count에 4 turn 상한(author_paper_count 1/4 vs 4/4), 1-hop lookup을 hop lane으로(authors_of_paper 3/6 vs 5/6). held-out −3의 전부.</li>
+        <li><b>V1은 한 줄 수정:</b> count 상한 제거, anchor가 <em>exact</em>로 풀린 경우에만 hop lane, argmax는 그대로. held-out 재실행 ≈ $1.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note">oracle(013–017의 lane별 최고를 문항마다 고른 상한) 69/90 대비 V0 56. 남은 차이는 아무 lane도 못 답한 21문항 + 위의 misroute.</p>
+</section>
+
+<section>
+  <h2>6 · 0행 진단 힌트 (021) — 싸고 정확하지만 throughput 레버는 아니다</h2>
+  <p>PROFILE 재실행 317건에서 모든 질의가 인덱스 anchor를 탔고(스캔 0, page-cache miss 0) 서버 시간 11–19 ms — DB에는 고칠 plan이 없었습니다. 대신 0행 질의 58건 중 52건이 "anchor는 맞고 그 뒤 패턴이 빔"이라, 0행일 때 실행기가 anchor 존재·관계별 degree를 ≈ 10 ms에 붙여 주는 힌트를 만들어 A/B했습니다.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>lab-s18 (S1, 90, K=8)</th><th>answered e/m/h</th><th>합</th><th>0행 이벤트</th><th>hard 힌트 중 anchor 해석됨</th><th>케이스 wall p50</th><th>출력 토큰</th><th>힌트 비용</th></tr></thead>
+    <tbody>
+      <tr><td class="t">hint off</td><td>18/29/5</td><td>52</td><td>16/2/40</td><td>—</td><td>10.2/6.1/18.6 s</td><td>40.9 k</td><td>—</td></tr>
+      <tr><td class="t">hint on</td><td>17/28/9</td><td>54</td><td>25/3/34</td><td>30/34</td><td>9.1/6.4/18.7 s</td><td>40.1 k</td><td>p50 5–12 ms, 90건 합 0.8 s</td></tr>
+    </tbody>
+  </table></div>
+  <p>argmax 패밀리(closest_collaborator 1 → 5)와 hard(5 → 9)를 움직였지만 전체는 회차 편차 안이고 turn·wall·토큰은 그대로입니다. 모델은 여전히 turn을 쓰고, anchor 대신 패턴을 고칠 뿐입니다. 라우터의 Text2Cypher lane 기본값으로 켜 두고, 서빙 비교에서는 꺼 둡니다.</p>
+</section>
+
+<section>
+  <h2>7 · 발표 문장으로</h2>
+  <ul>
+    <li><b>더 빨리 만들기.</b> 체크포인트에 든 MTP 층이 −30 % TPOT를 공짜로 줍니다. ngram은 이 워크로드에서 출력을 깨뜨리고, draft 모델은 이 스택에서 열리지 않습니다. prefix caching은 prefill 지표가 말해주는 것보다 훨씬 중요합니다.</li>
+    <li><b>덜 만들기.</b> 요청 분석 라우터가 −22 % 토큰·−80 % 거절을 같은 답으로 줍니다. 스키마 슬라이스(S1)는 여전히 가장 큰 단일 레버(7/16/3 → 20/29/7, lab 015)입니다.</li>
+    <li><b>둘 사이의 함정.</b> grammar-constrained decoding은 repair turn을 없애지만 이 스택에서는 남은 토큰마다 2–4배를 지불합니다. 형태 오류를 없애는 더 싼 길은 작은 모델엔 protocol, 큰 모델엔 컨텍스트였습니다.</li>
+    <li><b>배치는 절반이 비어 있다.</b> waiting 0, KV 2 %, running 5/8. speculative는 그 빈 compute를 쓰는 방법이고, 라우터는 빈 슬롯을 만드는 turn을 줄이는 방법입니다.</li>
+  </ul>
+</section>
+
+<section class="prov">
+  <h2>출처</h2>
+  <dl>
+    <dt>lab-s18</dt><dd>runs/lab-s18-try-083420 · session-summary/zero-row-ab.md · s3://seocho-agentic-os-traces/…/lab-s18-try-083420</dd>
+    <dt>lab-s19</dt><dd>runs/lab-s19-try-090808 · session-summary/{serving-arms,scheduler-occupancy}.md · session-M queue · s3 …/lab-s19-try-090808</dd>
+    <dt>lab-s20</dt><dd>runs/lab-s20-try-103026 · session-summary/{serving-arms,scheduler-occupancy}.md · session-N queue · s3 …/lab-s20-try-103026</dd>
+    <dt>lab-s21</dt><dd>runs/lab-s21-try-111306 · session-summary/{serving-arms,scheduler-occupancy,router-eval,grammar-eval}.md · session-O queue · s3 …/lab-s21-try-111306</dd>
+    <dt>코드</dt><dd>gare2e agentic-os-e2e 4afb2c6b → db8c6c8e: request_analysis.py, request_router.py, run_grbench_router.py, cypher_grammar.py, run_grbench_grammar_cypher.py, summarize_agentic_os_{serving_arms,scheduler_occupancy,router,grammar,zero_row_ab}.py</dd>
+    <dt>요청서</dt><dd>.agents/lab/requests/019, 020, 021, 022 (Result 절) · LEDGER 누계 ≈ $102.8</dd>
+  </dl>
+</section>
+</main>

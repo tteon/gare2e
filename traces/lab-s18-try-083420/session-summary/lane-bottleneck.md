@@ -1,0 +1,4 @@
+| pass | lane | stratum | cases | wall_s_median | llm_share | graph_db_share | tool_other_share | framework_residual_share | graph_db_s_p50 | graph_db_s_p90 | graph_call_ms_p50 | graph_call_ms_p90 | turns_median | llm_turns_before_first_graph_tool_median | time_to_first_graph_tool_s_median | query_retries_plus_repairs_mean | graph_query_calls_mean | reasoning_output_tokens | tool_call_output_tokens |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| hint-off-s1-k8 | grbench-single | all | 90 | 9.8 | 0.908 | 0.092 | 0.0 | 0.0 | 0.113 | 0.752 | 52.275 | 139.552 | 4.5 | 1.0 | 0.57 | 2.53 | 3.06 | 2842 | 38069 |
+| hint-on-s1-k8 | grbench-single | all | 90 | 9.7 | 0.882 | 0.118 | 0.0 | 0.0 | 0.044 | 0.602 | 18.362 | 106.983 | 5.0 | 1.0 | 0.6 | 2.62 | 3.06 | 2288 | 37819 |
