@@ -866,6 +866,11 @@ _VLLM_COUNTERS = frozenset(
         "vllm:kv_offload_load_time",
         "vllm:kv_offload_allocation_failure",
         "vllm:kv_offload_stores_skipped",
+        # speculative decoding (lab 020 / 022): drafts, draft tokens, accepted tokens — acceptance rate per window
+        "vllm:spec_decode_num_drafts",
+        "vllm:spec_decode_num_draft_tokens",
+        "vllm:spec_decode_num_accepted_tokens",
+        "vllm:spec_decode_num_accepted_tokens_per_pos",
     }
 )
 _VLLM_HISTOGRAMS = frozenset(
