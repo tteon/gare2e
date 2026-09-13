@@ -62,8 +62,8 @@ def call_samples(events: list[dict[str, Any]], provenance: Mapping[str, Any]) ->
             response = attempt.get('response') or {}
             request = request if isinstance(request, dict) else {}
             response = response if isinstance(response, dict) else {}
-            choices = response.get('choices') or []
-            choice = choices[0] if choices and isinstance(choices[0], dict) else {}
+            choices = response.get('choices')
+            choice = choices[0] if isinstance(choices, list) and choices and isinstance(choices[0], dict) else {}
             prompt_ids, output_ids = response.get('prompt_token_ids'), choice.get('token_ids')
             reasons = list(provenance.get('ineligible_reasons', []))
             for field in ('dataset_sha256', 'case_sha256', 'graph_sha256', 'selection_sha256'):
@@ -98,14 +98,19 @@ def call_samples(events: list[dict[str, Any]], provenance: Mapping[str, Any]) ->
                             reasons.append(f'exact_{side}_mismatch')
                     except ValueError:
                         reasons.append(f'exact_{side}_invalid_json')
-            usage = response.get('usage') or {}
+            usage = response.get('usage')
+            usage = usage if isinstance(usage, dict) else {}
             if _ids(prompt_ids) and usage.get('prompt_tokens') != len(prompt_ids):
                 reasons.append('prompt_token_count_mismatch')
             if _ids(output_ids) and usage.get('completion_tokens') != len(output_ids):
                 reasons.append('response_token_count_mismatch')
-            emitted_calls = (choice.get('message') or {}).get('tool_calls') or []
+            message = choice.get('message')
+            emitted_calls = message.get('tool_calls') or [] if isinstance(message, dict) else []
+            if not isinstance(emitted_calls, list):
+                reasons.append('invalid_native_tool_calls')
+                emitted_calls = []
             for tool in emitted_calls:
-                if not any(e.get('native_call_id') == tool.get('id') and 'raw_tool_result' in e for e in tool_events):
+                if not isinstance(tool, dict) or not tool.get('id') or not any(e.get('native_call_id') == tool.get('id') and 'raw_tool_result' in e for e in tool_events):
                     reasons.append('tool_result_unavailable')
             if not response.get('usage') or not choice.get('finish_reason'):
                 reasons.append('usage_or_finish_reason_unavailable')

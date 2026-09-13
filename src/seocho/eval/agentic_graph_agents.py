@@ -517,6 +517,12 @@ class OpenAICompatibleNativeToolModel:
                     wire_response=response_body if self.capture_wire_bytes else None,
                 )
             raise
+        if trace_event_id is not None:
+            event["http_response"] = _private_jsonable(body)
+            event["status_code"] = 200
+            if self.capture_wire_bytes:
+                event.update(_private_wire_fields("response", response_body))
+            self.private_trace._checkpoint(event)
         choice = (body.get("choices") or [{}])[0]
         message = choice.get("message") or {}
         calls: list[NativeToolCall] = []
@@ -1591,7 +1597,8 @@ class LLMRequestTimer:
                 response_body = json.loads(raw_body.decode("utf-8"))
             except Exception as error:
                 response_body = {"private_capture_error": type(error).__name__}
-            choice = (response_body.get("choices") or [{}])[0] if isinstance(response_body, Mapping) else {}
+            choices = response_body.get("choices") if isinstance(response_body, Mapping) else None
+            choice = choices[0] if isinstance(choices, list) and choices else {}
             finish_reason = choice.get("finish_reason") if isinstance(choice, Mapping) else None
             trace = context.get("trace")
             if isinstance(trace, PrivateTrace):

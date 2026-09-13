@@ -310,3 +310,13 @@ def test_partial_manifest_upload_and_bounded_resume(tmp_path):
     assert store.flush() == {'verified': 1, 'failed': 0, 'pending': 1}
     assert store.flush() == {'verified': 1, 'failed': 0, 'pending': 0}
     assert len(client.objects) == 4
+
+
+def test_malformed_provider_payload_stays_exportable():
+    trace = PrivateTrace({'run_id': 'r', 'case_id': '7'})
+    finish(trace)
+    for malformed in [{'choices': 1}, {'choices': [{'message': 'invalid'}], 'usage': 'invalid'}]:
+        trace.events[0]['http_response'] = malformed
+        sample = call_samples(trace.events, {})[0]
+        assert not sample['training_eligible']
+        assert sample['http_attempt']['response'] == malformed
