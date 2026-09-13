@@ -34,6 +34,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from agentic_os_schedule_worker import PersistentRunner  # noqa: E402
 _LANE_ARMS = {
+    "grbench-replay": {"S1"},
     "grbench-single": {"B0", "C-", "S1", "O1"},
     "grbench-graphcot": {"B0", "O1"},  # Graph-CoT hop actions (lab 017); B0 = tool signatures + vocabulary, O1 = + relation semantics
     "grbench-router": {"V0", "V0A"},  # lab 019: arm = router policy; the router picks the context arm per question
@@ -49,6 +50,7 @@ _LANE_ARMS = {
 GRBENCH_WORKSPACE_ID = "grbench-maple-physics"
 
 _LANE_RUNNERS = {
+    "grbench-replay": _REPO_ROOT / "scripts/benchmarks/run_agentic_os_fixed_replay.py",
     "gtsqa-single": _REPO_ROOT / "scripts/benchmarks/run_gtsqa_text2sparql_react.py",
     "grbench-single": _REPO_ROOT / "scripts/benchmarks/run_direct_react_text2cypher.py",
     "grbench-graphcot": _REPO_ROOT / "scripts/benchmarks/run_grbench_graphcot_react.py",
@@ -144,7 +146,7 @@ def _runner_command(args: argparse.Namespace, entry: dict[str, Any], root: Path,
             "--condition", args.condition,
             *common,
         ]
-    elif args.lane in ("grbench-single", "grbench-router", "grbench-grammar"):
+    elif args.lane in ("grbench-single", "grbench-router", "grbench-grammar", "grbench-replay"):
         command = [
             sys.executable,
             str(_LANE_RUNNERS[args.lane]),
@@ -226,6 +228,12 @@ def _runner_command(args: argparse.Namespace, entry: dict[str, Any], root: Path,
             command.extend(("--db-pid", str(args.db_pid)))
         if args.profile_query_plans:
             command.append("--profile-query-plans")
+    if args.lane == "grbench-replay":
+        command.extend(("--replay-mode", getattr(args, "replay_mode", "tool-stub")))
+    if args.lane == "grbench-grammar":
+        command.extend(("--constrained-ratio", str(getattr(args, "constrained_ratio", 1.0))))
+    if getattr(args, "record_replay", False):
+        command.extend(("--replay-out", str(root / "replay.private.jsonl")))
     return command
 
 
@@ -294,6 +302,10 @@ def _run_dynamic(
             "terminal_status": "ok" if result["runner_exit_code"] == 0 else "runner_process_error",
         }
 
+    first_finishes: dict[int, float] = {}
+    duration = getattr(args, "measurement_duration_s", None)
+    deadline: float | None = None
+    duration_reached = False
     failures = 0
     next_ordinal = 0
     stopped = False
@@ -301,19 +313,29 @@ def _run_dynamic(
         with ThreadPoolExecutor(max_workers=args.workers) as pool:
             active = set()
             while active or (next_ordinal < len(entries) and not stopped):
+                if deadline is not None and time.time() >= deadline:
+                    duration_reached = True
+                    stopped = True
                 while len(active) < args.workers and next_ordinal < len(entries) and not stopped:
                     dispatched = time.time()
                     dispatches.append(dispatched)
                     active.add(pool.submit(execute, next_ordinal, dispatched, len(entries) - next_ordinal - 1))
                     next_ordinal += 1
-                done, active = wait(active, return_when=FIRST_COMPLETED)
+                if not active:
+                    break
+                wait_s = max(0.001, deadline - time.time()) if deadline is not None and not stopped else None
+                done, active = wait(active, timeout=wait_s, return_when=FIRST_COMPLETED)
                 for future in done:
                     row = future.result()
                     rows.append(row)
                     append_jsonl(lifecycle_path, row)
+                    slot = row["worker_slot"]
+                    first_finishes.setdefault(slot, row["runner_finished_unix_s"])
+                    if duration is not None and len(first_finishes) == args.workers and deadline is None:
+                        deadline = max(first_finishes.values()) + args.steady_state_warmup_s + duration
                     if row["runner_exit_code"] != 0:
                         failures += 1
-                        stopped = not args.continue_on_error
+                        stopped = stopped or not args.continue_on_error
     finally:
         for runner in runners:
             runner.close()
@@ -324,7 +346,9 @@ def _run_dynamic(
     # Each slot must complete a warmup case (including its first module import).
     start = max(first_finishes.values()) + args.steady_state_warmup_s if len(first_finishes) == args.workers else None
     # End when the last queued case is dispatched, excluding the drain tail.
-    end = dispatches[-1] if next_ordinal == len(entries) else None
+    end = deadline if duration_reached and next_ordinal < len(entries) else (dispatches[-1] if next_ordinal == len(entries) else None)
+    if duration is not None and (not duration_reached or next_ordinal == len(entries)):
+        end = None  # Backlog drained before the registered measurement duration.
     valid = start is not None and end is not None and end > start and failures == 0
     write_manifest(args.run_root / "coordinator-window.json", {
         "schema_version": "agentic_os.backlog_window.v1",
@@ -338,6 +362,7 @@ def _run_dynamic(
         "scheduled_attempts": len(entries), "dispatched_attempts": next_ordinal,
         "completed_attempts": len(rows), "skipped_attempts": len(entries) - next_ordinal,
         "failed_attempts": failures,
+        "requested_duration_s": duration, "duration_reached": duration_reached,
         "interpretation": "host FIFO backlog window; server saturation requires vLLM telemetry",
     })
     return 2 if failures else 0
@@ -453,13 +478,26 @@ def main() -> int:
     parser.add_argument("--runner-mode", choices=("fresh", "persistent"), default="fresh")
     parser.add_argument("--steady-state-warmup-s", type=float, default=0.0,
                         help="Exclude this many seconds after every worker completes its first case.")
+    parser.add_argument("--measurement-duration-s", type=float,
+                        help="Stop FIFO dispatch after this measured duration, then drain in-flight cases.")
+    parser.add_argument("--constrained-ratio", type=float, default=1.0)
+    parser.add_argument("--record-replay", action="store_true")
+    parser.add_argument("--replay-mode", choices=("serving-only", "tool-stub", "real-db"), default="tool-stub")
     args = parser.parse_args()
     if args.workers < 1 or not math.isfinite(args.steady_state_warmup_s) or args.steady_state_warmup_s < 0:
         parser.error("workers must be positive and warmup non-negative")
     dynamic = args.dynamic_queue or args.workers > 1 or args.runner_mode == "persistent"
+    if args.measurement_duration_s is not None and (
+        not dynamic or not math.isfinite(args.measurement_duration_s) or args.measurement_duration_s <= 0
+    ):
+        parser.error("--measurement-duration-s requires dynamic execution and a finite positive value")
+    if not 0 <= args.constrained_ratio <= 1:
+        parser.error("constrained ratio must be between zero and one")
+    if args.record_replay and args.lane != "grbench-single":
+        parser.error("replay capture supports grbench-single only")
     if dynamic and (args.shard or args.cache_control_script or args.inter_attempt_gap_s):
         parser.error("dynamic execution forbids static shards, shared cache control and idle gaps")
-    if dynamic and (args.lane not in ("grbench-single", "grbench-graphcot", "grbench-router", "grbench-grammar")):
+    if dynamic and (args.lane not in ("grbench-single", "grbench-graphcot", "grbench-router", "grbench-grammar", "grbench-replay")):
         parser.error("dynamic execution supports only GRBench single-agent lanes")
     if args.runner_mode == "persistent" and args.lane == "grbench-router":
         parser.error("router launches a child per case; use fresh mode until its dispatch is persistent")
@@ -514,6 +552,8 @@ def main() -> int:
         Path(__file__).with_name("agentic_os_schedule_worker.py"),
         _REPO_ROOT / "src/seocho/eval/agentic_graph_agents.py",
         _REPO_ROOT / "src/seocho/eval/agentic_os_observability.py",
+        _REPO_ROOT / "src/seocho/eval/agentic_os_replay.py",
+        _REPO_ROOT / "scripts/benchmarks/run_direct_react_text2cypher.py",
     )
     harness_sha256 = canonical_digest(
         {
@@ -542,6 +582,10 @@ def main() -> int:
         "inter_attempt_gap_s": args.inter_attempt_gap_s,
         "harness_sha256": harness_sha256,
         "workers": args.workers,
+        "measurement_duration_s": args.measurement_duration_s,
+        "constrained_ratio": args.constrained_ratio,
+        "record_replay": args.record_replay,
+        "replay_mode": args.replay_mode if args.lane == "grbench-replay" else None,
         "dispatch_mode": "dynamic_fifo" if dynamic else "serial",
         "runner_mode": args.runner_mode,
         "steady_state_warmup_s": args.steady_state_warmup_s,

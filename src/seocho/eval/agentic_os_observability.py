@@ -115,6 +115,43 @@ def _read_meminfo() -> tuple[int | None, int | None]:
     return values.get("MemTotal"), values.get("MemAvailable")
 
 
+def memory_pressure_sample(*, proc: Path = Path("/proc"), cgroup: Path = Path("/sys/fs/cgroup")) -> dict[str, Any]:
+    """Observe numeric host/cgroup memory counters; unavailable is never zero.
+
+    cgroup paths refer to the sampler's visible cgroup mount, not individual
+    service containers. Host Cached includes shmem and is not DB page-cache use.
+    """
+    def numbers(path: Path, allowed: set[str], *, kib: bool = False) -> dict[str, int]:
+        result: dict[str, int] = {}
+        try:
+            for line in path.read_text().splitlines():
+                fields = line.replace(":", "").split()
+                if len(fields) >= 2 and fields[0] in allowed and fields[1].isdigit():
+                    result[fields[0]] = int(fields[1]) * (1024 if kib else 1)
+        except OSError:
+            pass
+        return result
+
+    def scalar(path: Path) -> int | str | None:
+        try:
+            value = path.read_text().strip()
+            return int(value) if value.isdigit() else "max" if value == "max" else None
+        except OSError:
+            return None
+
+    return {
+        "schema_version": "agentic_os.memory_pressure.v1",
+        "scope": "sampler_visible_host_and_cgroup_mount",
+        "host_bytes": numbers(proc / "meminfo", {"MemTotal", "MemAvailable", "Cached", "Buffers", "Shmem", "SReclaimable", "SwapTotal", "SwapFree"}, kib=True),
+        "cgroup_version": 2 if (cgroup / "cgroup.controllers").exists() else None,
+        "cgroup_current_bytes": scalar(cgroup / "memory.current"),
+        "cgroup_limit_bytes": scalar(cgroup / "memory.max"),
+        "cgroup_stat_bytes": numbers(cgroup / "memory.stat", {"anon", "file", "shmem", "kernel", "file_dirty", "file_writeback", "sock"}),
+        "cgroup_events": numbers(cgroup / "memory.events", {"low", "high", "max", "oom", "oom_kill"}),
+        "unobserved": ["db_page_cache_residency", "jvm_heap_used", "jvm_gc_pause", "kv_restore_latency_unless_exported"],
+    }
+
+
 @dataclass(frozen=True)
 class _ProcessSnapshot:
     pid: int
@@ -321,6 +358,7 @@ class HostProcessSampler:
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
         self._prepare_file()
+        self.memory_path = self.path.with_name(self.path.stem + "-memory.jsonl")
 
     def _prepare_file(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -336,6 +374,8 @@ class HostProcessSampler:
     def sample_once(self) -> list[dict[str, Any]]:
         """Collect one timestamp-aligned row per configured role."""
         unix_s, monotonic_s = time.time(), time.monotonic()
+        with self.memory_path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps({"timestamp_unix_s": unix_s, "timestamp_monotonic_s": monotonic_s, **memory_pressure_sample()}) + "\n")
         mem_total, mem_available = _read_meminfo()
         try:
             load1 = round(os.getloadavg()[0], 6)
@@ -853,6 +893,8 @@ _VLLM_GAUGES = frozenset(
 )
 _VLLM_COUNTERS = frozenset(
     {
+        "vllm:num_preemptions",
+        "vllm:prompt_tokens_cached",
         "vllm:request_success",
         "vllm:prompt_tokens",
         "vllm:generation_tokens",
@@ -875,6 +917,7 @@ _VLLM_COUNTERS = frozenset(
 )
 _VLLM_HISTOGRAMS = frozenset(
     {
+        "vllm:request_prefill_kv_computed_tokens",
         "vllm:iteration_tokens_total",  # Histogram, not an output-token counter (v0.27.1).
         "vllm:e2e_request_latency_seconds",
         "vllm:time_to_first_token_seconds",

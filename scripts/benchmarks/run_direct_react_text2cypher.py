@@ -28,6 +28,7 @@ from seocho.eval.agentic_os_artifacts import (
     require_fresh_outputs,
     write_manifest,
 )
+from seocho.eval.agentic_os_replay import append_private_event
 from seocho.eval.agentic_os_trace import case_trace, inject_traceparent
 from seocho.eval.grbench_runtime import GRBenchDozerExecutor, QueryPolicyError
 from seocho.eval.agentic_graph_agents import (
@@ -192,7 +193,10 @@ def main() -> int:
         action="store_true",
         help="lab 021: on an empty result the executor appends a content-free diagnosis (anchor resolved?, outgoing degree per relation) to the tool result.",
     )
+    parser.add_argument("--replay-out", type=Path, help="Opt-in private fixed-request capture for serving diagnostics")
     args = parser.parse_args()
+    if args.replay_out is not None and ".private." not in args.replay_out.name:
+        raise ValueError("replay capture must have a .private. filename")
     if args.token_budget <= 0:
         raise ValueError("--token-budget must be positive")
     if args.max_output_tokens < 1:
@@ -203,7 +207,7 @@ def main() -> int:
     if args.stage == "main" and spec.tools_enabled and args.discovery_cache is None:
         raise ValueError("main tool_auto requires a frozen discovery cache")
     require_fresh_outputs(
-        (args.receipt_out, args.predictions_out, args.manifest_out, args.host_samples_out, args.gpu_samples_out)
+        (args.receipt_out, args.predictions_out, args.manifest_out, args.host_samples_out, args.gpu_samples_out, args.replay_out)
     )
     password = os.environ.get("NEO4J_PASSWORD", "").strip()
     if spec.tools_enabled and not password:
@@ -315,6 +319,9 @@ def main() -> int:
                       turns.append({"latency_ms": None, "outcome": type(exc).__name__, "output_kind": "error"})
                       terminal = "llm_error"
                       break
+                  append_private_event(args.replay_out, {"kind": "llm", "payload": payload,
+                      "input_tokens": (response.get("usage") or {}).get("prompt_tokens"),
+                      "output_tokens": (response.get("usage") or {}).get("completion_tokens")})
                   turn_receipt = _usage_receipt(response, llm_ms)
                   turn_receipt["started_elapsed_ms"] = round((time.perf_counter() - case_clock_started) * 1000 - llm_ms, 3)
                   if response.get("_seocho_span_id"):
@@ -342,6 +349,7 @@ def main() -> int:
                       break
                   for call in calls[:1]:
                       tool_started = time.perf_counter()
+                      arguments: dict[str, Any] = {}
                       tool_argument_decode_ms: float | None = None
                       try:
                           function = call.get("function") or {}
@@ -392,6 +400,10 @@ def main() -> int:
                           }
                       )
                       detail.setdefault("started_elapsed_ms", round((tool_started - case_clock_started) * 1000, 3))
+                      append_private_event(args.replay_out, {"kind": "tool", "name": detail["name"],
+                          "query": str(arguments.get("query", "")) if isinstance(arguments, dict) else "",
+                          "observation": observation, "outcome": outcome, "error_code": detail.get("error_code"),
+                          "workspace_id": args.workspace_id, "row_cap": args.row_cap, "byte_cap": args.byte_cap})
                       tools.append(detail)
                       messages.append({"role": "tool", "tool_call_id": call.get("id"), "content": observation})
               if case_metrics_window:
@@ -564,7 +576,7 @@ def main() -> int:
     args.receipt_out.parent.mkdir(parents=True, exist_ok=True)
     args.predictions_out.parent.mkdir(parents=True, exist_ok=True)
     args.predictions_out.write_text(json.dumps(predictions, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    config = {"model": args.model, "workspace_id": args.workspace_id, "database": args.database, "initial_context": "question_only", "max_turns": args.max_turns, "token_budget": args.token_budget, "row_cap": args.row_cap, "byte_cap": args.byte_cap, "enable_thinking": args.enable_thinking, "arm": args.arm, "condition": args.condition, "stage": args.stage, "run_id": args.run_id, "seed": args.seed, "repetition": args.repetition, "cache_phase": args.cache_phase, "evidence_class": spec.evidence_class, "profile_query_plans": args.profile_query_plans, "zero_row_hint": args.zero_row_hint, "discovery_cache_digest": discovery_cache_digest, "tool_schema_digest": runtime_tool_schema_digest if spec.tools_enabled else None, "system_prompt_digest": _digest(system), **prompt_profile_receipt(args.prompt_profile, "cypher")}
+    config = {"model": args.model, "workspace_id": args.workspace_id, "database": args.database, "initial_context": "question_only", "max_turns": args.max_turns, "token_budget": args.token_budget, "row_cap": args.row_cap, "byte_cap": args.byte_cap, "enable_thinking": args.enable_thinking, "arm": args.arm, "condition": args.condition, "stage": args.stage, "run_id": args.run_id, "seed": args.seed, "repetition": args.repetition, "cache_phase": args.cache_phase, "evidence_class": spec.evidence_class, "profile_query_plans": args.profile_query_plans, "zero_row_hint": args.zero_row_hint, "private_replay_capture": args.replay_out is not None, "discovery_cache_digest": discovery_cache_digest, "tool_schema_digest": runtime_tool_schema_digest if spec.tools_enabled else None, "system_prompt_digest": _digest(system), **prompt_profile_receipt(args.prompt_profile, "cypher")}
     receipt = {
         "schema_version": "agentic_os.direct_react_text2cypher_receipt.v3",
         "execution_surface": "direct_openai_compatible_vllm_and_stock_neo4j_driver",

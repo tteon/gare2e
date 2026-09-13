@@ -39,3 +39,5 @@ Landing/bug beads outside the board: seocho-56wk (land V13-V17 fixes), seocho-e0
 
 No paid execution or Vast operation in lab 023. See its Result for the pre-existing
 identity-check gap in basic CI; implementation is not throughput evidence.
+
+- 024: owner approved five ~\$13 throughput comparisons; free preparation and explanatory memory/cache observability implemented. Paid launch pending final staging. Bead seocho-7yaz; see request024 and HANDOFF§11.

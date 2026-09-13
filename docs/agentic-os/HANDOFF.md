@@ -120,3 +120,21 @@ pre-existing Vast SSH fixture addresses. Focused worker/measurement/appliance te
 Synthetic replay and tool-stub preparation remain free follow-up work. The ~$13
 paid plan still awaits an explicit go. Continue committing only from a temporary
 worktree and pushing only to private `gare2e/agentic-os-e2e`.
+
+## 11. Approved continuation and observability (2026-09-13)
+
+Owner said “네 모두 진행하시죠”: the five ~\$13 comparisons in §9–10 and free
+replay preparation are now approved. Lab [024](lab/requests/024-approved-throughput-and-observability.md)
+tracks this work (bead seocho-7yaz). The later memory/cache discussion adds the
+[observability factor contract](OBSERVABILITY_FACTORS.md), without adding paid
+DB/KV allocation or offloading sweeps. Primary sequence remains supply/K then MTP.
+
+Preparation includes duration-bounded FIFO windows, private fixed-request capture,
+three replay substrates, grammar query ratio/CPU affinity, and a full appliance
+pass queue (`run_agentic_os_throughput_session.py --print-plan`). Existing plus
+new focused tests: 100 passed. Basic CI1112 passed3 skipped; final existing SSH
+fixture identity check remains failing. Exact-image incremental preflight passed;
+unchanged Dozer/image combined live evidence is reused by hash. No paid instance
+created yet at this checkpoint. Keep temporary-worktree commits/private gare2e
+branch and protected colleague-instance rules from §9. §9's separate router V1
+and public SEOCHO landing are not included in this authorization.

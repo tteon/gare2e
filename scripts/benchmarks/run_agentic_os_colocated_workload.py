@@ -31,6 +31,7 @@ from seocho.eval.agentic_os_observability import (
     validate_gpu_samples,
     validate_host_process_samples,
     validate_vllm_metrics_samples,
+    memory_pressure_sample,
 )
 
 
@@ -73,13 +74,20 @@ def _hardware_receipt() -> dict[str, Any]:
     except OSError:
         pass
     return {
-        "schema_version": "agentic_os.colocated_hardware.v1",
+        "schema_version": "agentic_os.colocated_hardware.v2",
         "timestamp_unix_s": round(time.time(), 6),
         "platform": platform.platform(),
         "python": sys.version.split()[0],
         "cpu_count": os.cpu_count(),
         "mem_total_bytes": mem_total,
         "cgroup_cpu_max": cgroup_cpu_max,
+        "cpu_affinity_count": len(os.sched_getaffinity(0)),
+        "memory_observation": memory_pressure_sample(),
+        "configured_budgets": {key: os.environ.get(key) for key in (
+            "DOZERDB_HEAP_INITIAL_SIZE", "DOZERDB_HEAP_MAX_SIZE", "DOZERDB_PAGECACHE_SIZE",
+            "VLLM_MAX_NUM_SEQS", "VLLM_TENSOR_PARALLEL_SIZE", "VLLM_REPLICAS",
+            "SEOCHO_VLLM_CPU_COUNT", "SEOCHO_VLLM_CPU_LIST",
+        )},
         "vllm_version": _command_version("vllm", "--version"),
         "java_version": _command_version("java", "-version"),
         "nvidia_smi_version": _command_version("nvidia-smi", "--version"),

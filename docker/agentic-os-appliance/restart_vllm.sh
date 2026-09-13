@@ -106,6 +106,12 @@ if [ "${#extra[@]}" -gt 0 ]; then
   vllm_command=("${deduped[@]}")
 fi
 vllm_command+=("${extra[@]}")
+# Experimental CPU-affinity axis; scope only this server and its descendants.
+export SEOCHO_VLLM_CPU_LIST=""
+if [ -n "${SEOCHO_VLLM_CPU_COUNT:-}" ]; then
+  SEOCHO_VLLM_CPU_LIST="$(python3 -c 'import os,sys; n=int(sys.argv[1]); allowed=sorted(os.sched_getaffinity(0)); assert 0<n<=len(allowed); print(",".join(map(str,allowed[:n])))' "$SEOCHO_VLLM_CPU_COUNT")"
+  vllm_command=(taskset -c "$SEOCHO_VLLM_CPU_LIST" "${vllm_command[@]}")
+fi
 : "${VLLM_REPLICAS:=1}" "${SEOCHO_ROUTER_POLICY:=sticky}" "${LMCACHE_SHARED:=0}" "${LMCACHE_PORT:=65432}"
 started_s="$(date +%s.%N)"
 wait_ready() { # url attempts -> 0 when /v1/models and /metrics answer
@@ -119,7 +125,7 @@ wait_ready() { # url attempts -> 0 when /v1/models and /metrics answer
 }
 write_receipt() { # pid
   python3 - "$SEOCHO_VLLM_RECEIPT_DIR" "$started_s" "$(date +%s.%N)" "$1" "${VLLM_EXTRA_ARGS:-}" "$VLLM_REPLICAS" "$SEOCHO_ROUTER_POLICY" "$LMCACHE_SHARED" <<'PY'
-import hashlib, json, sys
+import hashlib, json, os, sys
 out, started, ready, pid, extra, replicas, policy, lmc = sys.argv[1:9]
 json.dump({
     "schema_version": "seocho.agentic_os.vllm_restart_receipt.v2",
@@ -130,6 +136,7 @@ json.dump({
     "replicas": int(replicas),
     "router_policy": policy if int(replicas) > 1 else None,
     "lmcache_shared": lmc == "1",
+    "cpu_affinity": os.environ.get("SEOCHO_VLLM_CPU_LIST") or None,
 }, open(f"{out}/vllm-restart-receipt.json", "w"), indent=2, sort_keys=True)
 PY
 }

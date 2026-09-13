@@ -52,6 +52,10 @@ set -euo pipefail
 SEOCHO_GATE_STRATA="${SEOCHO_GATE_STRATA//,/ }"
 SEOCHO_MAIN_ARMS="${SEOCHO_MAIN_ARMS//,/ }"
 SEOCHO_MAIN_LANES="${SEOCHO_MAIN_LANES//,/ }"
+measurement_flags=()
+[ -n "${SEOCHO_MEASUREMENT_DURATION_S:-}" ] && measurement_flags+=(--measurement-duration-s "$SEOCHO_MEASUREMENT_DURATION_S")
+[ "${SEOCHO_RECORD_REPLAY:-0}" = "1" ] && measurement_flags+=(--record-replay)
+measurement_flags+=(--constrained-ratio "${SEOCHO_CONSTRAINED_RATIO:-1}")
 main_cache_flags=(--cache-control-script "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/cache_control.sh")
 case "$SEOCHO_SCHEDULE_MODE" in
   static) ;;
@@ -87,7 +91,7 @@ run() {
   local status=0
   if [ "$SEOCHO_SCHEDULE_MODE" = "dynamic" ]; then
     python3 "$SEOCHO_REPO_ROOT/scripts/benchmarks/run_agentic_os_schedule.py" \
-      "$@" --dynamic-queue --workers "$SEOCHO_CONCURRENCY" --runner-mode "$SEOCHO_RUNNER_MODE" \
+      "$@" "${measurement_flags[@]}" --dynamic-queue --workers "$SEOCHO_CONCURRENCY" --runner-mode "$SEOCHO_RUNNER_MODE" \
       --steady-state-warmup-s "$SEOCHO_STEADY_STATE_WARMUP_S" \
       --prompt-profile "$SEOCHO_PROMPT_PROFILE" --run-root-suffix shard-dynamic || status=$?
   elif [ "$SEOCHO_CONCURRENCY" -le 1 ]; then

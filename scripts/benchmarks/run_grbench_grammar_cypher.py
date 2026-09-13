@@ -181,7 +181,10 @@ def main() -> int:
     parser.add_argument("--prompt-profile", choices=PROMPT_PROFILES, default="baseline", help="accepted for parity")
     parser.add_argument("--profile-query-plans", action="store_true", help="accepted for parity; not implemented in this lane")
     parser.add_argument("--stage", choices=("smoke", "main"), default="smoke")
+    parser.add_argument("--constrained-ratio", type=float, default=1.0)
     args = parser.parse_args()
+    if not 0 <= args.constrained_ratio <= 1:
+        raise ValueError("constrained ratio must be between zero and one")
     if args.token_budget <= 0 or args.max_output_tokens < 1 or args.max_turns < 2 or args.max_query_turns < 1:
         raise ValueError("budgets must be positive and max-turns must leave room for the answer turn")
     spec = raw_condition_spec(args.condition, stage=args.stage)
@@ -256,15 +259,17 @@ def main() -> int:
                         "max_tokens": args.max_output_tokens,
                         "chat_template_kwargs": {"enable_thinking": args.enable_thinking == "true"},
                     }
-                    if constrained and not answer_turn:
+                    selection = int(hashlib.sha256(f"{item['qid']}:{args.seed}:{args.repetition}:{turn_index}".encode()).hexdigest()[:8], 16) / 2**32
+                    constrain_turn = constrained and not answer_turn and selection < args.constrained_ratio
+                    if constrain_turn:
                         payload["structured_outputs"] = {"grammar": grammar}
                     try:
                         response, llm_ms = _post(f"{args.base_url.rstrip('/')}/v1/chat/completions", payload)
                     except Exception as exc:  # class only, never provider/body text
-                        turns.append({"latency_ms": None, "outcome": type(exc).__name__, "output_kind": "error", "constrained": constrained and not answer_turn})
+                        turns.append({"latency_ms": None, "outcome": type(exc).__name__, "output_kind": "error", "constrained": constrain_turn})
                         terminal = "llm_error"
                         break
-                    turn_receipt = _usage_receipt(response, llm_ms, output_kind="message" if answer_turn else "cypher", constrained=constrained and not answer_turn)
+                    turn_receipt = _usage_receipt(response, llm_ms, output_kind="message" if answer_turn else "cypher", constrained=constrain_turn)
                     turn_receipt["started_elapsed_ms"] = round((time.perf_counter() - case_clock_started) * 1000 - llm_ms, 3)
                     if response.get("_seocho_span_id"):
                         turn_receipt["span_id"] = response["_seocho_span_id"]
@@ -395,7 +400,7 @@ def main() -> int:
     args.predictions_out.write_text(json.dumps(predictions, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     config = {
         "model": args.model, "workspace_id": args.workspace_id, "database": args.database, "initial_context": "schema_context_in_system_prompt",
-        "protocol": "query_first_plain_response", "constrained": args.constrained, "grammar_digest": GRAMMAR_DIGESTS.get(args.constrained),
+        "protocol": "query_first_plain_response", "constrained": args.constrained, "constrained_ratio": args.constrained_ratio, "grammar_digest": GRAMMAR_DIGESTS.get(args.constrained),
         "max_turns": args.max_turns, "max_query_turns": args.max_query_turns, "token_budget": args.token_budget, "row_cap": args.row_cap, "byte_cap": args.byte_cap,
         "zero_row_hint": args.zero_row_hint, "enable_thinking": args.enable_thinking, "arm": args.arm, "condition": args.condition, "stage": args.stage,
         "run_id": args.run_id, "seed": args.seed, "repetition": args.repetition, "cache_phase": args.cache_phase, "evidence_class": spec.evidence_class,

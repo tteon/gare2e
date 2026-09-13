@@ -37,3 +37,5 @@ Total ≈ **$102.8**. Live instances at last check (2026-09-13 12:35 KST): ours 
 
 - 2026-09-13, lab 023: local harness implementation/contract tests only, **$0**.
   No new paid calls or Vast operations; cumulative reported spend unchanged.
+
+- 2026-09-13 / lab024 preparation: \$0 paid usage so far. Owner approved ~\$13 total for the five pending comparisons; proposed bound \$3.60/h ×13000s = \$13. No owned instance created at this checkpoint.
