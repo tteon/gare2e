@@ -29,6 +29,7 @@ from seocho.eval.agentic_os_artifacts import (
     write_manifest,
 )
 from seocho.eval.agentic_os_replay import append_private_event
+from seocho.eval.agentic_os_characterization import context_bytes, query_shape
 from seocho.eval.agentic_os_trace import case_trace, inject_traceparent
 from seocho.eval.grbench_runtime import GRBenchDozerExecutor, QueryPolicyError
 from seocho.eval.agentic_graph_agents import (
@@ -280,6 +281,7 @@ def main() -> int:
     try:
         for item in questions:
           with case_trace(args.run_id, item["qid"]) as case_trace_ctx:
+              case_started_unix_s = time.time()
               case_clock_started = time.perf_counter()  # absolute offsets for turns/tools (OTel spans)
               process_window = ProcessMetricsWindow(process_roles)
               process_window.__enter__()
@@ -328,6 +330,7 @@ def main() -> int:
                       turn_receipt["span_id"] = response["_seocho_span_id"]
                   budget_prompt_tokens += int(turn_receipt.get("input_tokens") or 0)
                   budget_completion_tokens += int(turn_receipt.get("output_tokens") or 0)
+                  turn_receipt.update({"step_id": len(turns) + 1, "llm_request_id": response.get("_seocho_span_id"), "context_composition": context_bytes(messages)})
                   turns.append(turn_receipt)
                   if budget_prompt_tokens + budget_completion_tokens > args.token_budget:
                       terminal = "budget_exceeded"
@@ -404,6 +407,10 @@ def main() -> int:
                           "query": str(arguments.get("query", "")) if isinstance(arguments, dict) else "",
                           "observation": observation, "outcome": outcome, "error_code": detail.get("error_code"),
                           "workspace_id": args.workspace_id, "row_cap": args.row_cap, "byte_cap": args.byte_cap})
+                      detail.update({"tool_call_id": f"tool-{len(tools) + 1}", "parent_request_id": turn_receipt.get("llm_request_id"), "step_id": turn_receipt["step_id"],
+                          "query_shape": query_shape(str(arguments.get("query", ""))) if detail["name"] == "execute_cypher" and isinstance(arguments, dict) else "schema",
+                          "result_class": "error" if outcome != "ok" else "empty_valid" if detail.get("rows") == 0 else "nonempty_or_schema",
+                          "previous_tool_call_id": tools[-1].get("tool_call_id") if tools else None})
                       tools.append(detail)
                       messages.append({"role": "tool", "tool_call_id": call.get("id"), "content": observation})
               if case_metrics_window:
@@ -495,6 +502,7 @@ def main() -> int:
               )
               case_receipt = {
                   **correlation,
+                  "started_unix_s": case_started_unix_s, "task_id": args.run_id, "agent_id": "single_agent",
                   "trace": case_trace_ctx.receipt(),
                   "qid": item["qid"],
                   "terminal": terminal,

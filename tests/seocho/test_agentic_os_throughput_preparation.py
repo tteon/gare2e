@@ -123,3 +123,26 @@ def test_backlog_interleaves_strata_and_retains_pair_identity() -> None:
     assert len({e['paired_unit'] for e in output['entries']}) == 12
     assert [e['stratum'] for e in output['entries'][:4]] == ['a', 'b', 'a', 'b']
     assert all(':none:' in e['paired_unit'] for e in output['entries'])
+
+
+def test_repeated_question_trace_anchors_keep_run_identity(tmp_path: Path) -> None:
+    from seocho.eval.agentic_os_otel import iter_case_receipts
+    rows = []
+    for index in range(2):
+        root = tmp_path / 'attempts' / str(index)
+        root.mkdir(parents=True)
+        case = {'run_id': f'run{index}', 'case_id': 'same'}
+        (root / 'run-receipt.json').write_text(json.dumps({'cases': [case]}))
+        rows.append({**case, 'runner_started_unix_s': 10 + index})
+    (tmp_path / 'coordinator-receipts.jsonl').write_text('\n'.join(map(json.dumps, rows)))
+    assert [anchor for _, anchor in iter_case_receipts(tmp_path)] == [10, 11]
+
+
+def test_query_shape_ignores_literals_and_keeps_context_units_explicit() -> None:
+    from seocho.eval.agentic_os_characterization import context_bytes, query_shape
+    assert query_shape("MATCH (n) WHERE n.name='ORDER BY count(x)' RETURN n") == 'entity_lookup'
+    assert query_shape('MATCH (n)-->(m) RETURN count(m)') == 'aggregation'
+    assert query_shape('MATCH (n)-[*1..3]->(m) RETURN m') == 'path'
+    result = context_bytes([{'role': 'user', 'content': 'Result: []'}])
+    assert result['token_components'] is None
+    assert result['components']['tool_observation'] == len('Result: []')

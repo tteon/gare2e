@@ -201,7 +201,9 @@ class GRBenchDozerExecutor:
                 if len(rows) >= self.row_cap:
                     break
             hydrate_ms = (time.perf_counter() - iterate_started) * 1000
+            consume_started = time.perf_counter()
             summary = result.consume()
+            consume_ms = (time.perf_counter() - consume_started) * 1000
         diagnostic_receipt: dict[str, Any] | None = None
         payload: Any = rows
         if self.zero_row_hint and not rows:
@@ -220,6 +222,9 @@ class GRBenchDozerExecutor:
             "bolt_submit_ms": round(bolt_submit_ms, 3),
             "first_record_ms": round(first_record_ms, 3) if first_record_ms is not None else None,
             "hydrate_ms": round(hydrate_ms, 3),
+            "bolt_consume_ms": round(consume_ms, 3),
+            "session_create_ms": round(pool_acquire_ms, 3),
+            "connection_pool_wait_ms": None,
             "serialize_ms": round((time.perf_counter() - serialize_started) * 1000, 3),
             "server_available_ms": float(summary.result_available_after or 0),
             "server_consumed_ms": float(summary.result_consumed_after or 0),

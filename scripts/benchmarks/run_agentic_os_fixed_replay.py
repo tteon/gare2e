@@ -49,6 +49,7 @@ def main() -> int:
     turns: list[dict[str, Any]] = []
     tools: list[dict[str, Any]] = []
     mismatches = 0
+    case_started_unix_s = time.time()
     clock = time.perf_counter()
     terminal = 'replayed'
     with case_trace(args.run_id, args.qid) as trace:
@@ -103,6 +104,7 @@ def main() -> int:
     wall = (time.perf_counter() - clock) * 1000
     case = {**Correlation(run_id=args.run_id, case_id=args.qid, arm=args.arm, seed=args.seed,
             repetition=args.repetition, cache_phase=args.cache_phase, role='fixed_replay').receipt_fields(),
+            'started_unix_s': case_started_unix_s, 'task_id': args.run_id, 'agent_id': 'single_agent',
             'trace': trace.receipt(), 'turns': turns, 'tools': tools, 'terminal': terminal,
             'success': terminal == 'replayed', 'answer_status': 'not_evaluated',
             'time': {'wall_ms': wall, 'llm_ms': sum(row['latency_ms'] for row in turns),

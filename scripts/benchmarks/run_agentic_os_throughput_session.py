@@ -27,6 +27,7 @@ def plan() -> list[dict[str, Any]]:
         *[dict(id=f'block-{block}', k=64, serving=baseline + f',--block-size,{block}') for block in (32, 128)],
         dict(id='chunk-2048', k=64, serving='--max-num-batched-tokens,2048'),
         dict(id='chunk-8192', k=64),
+        *[dict(id=f'grammar-k8-cpu16-r{ratio}', k=8, cpu=16, lane='grbench-grammar', ratio=ratio) for ratio in (0.0, 0.5, 1.0)],
         *[dict(id=f'grammar-cpu{cpu}-r{ratio}', k=64, cpu=cpu, lane='grbench-grammar', ratio=ratio) for cpu in (16, 4) for ratio in (0.0, 0.5, 1.0)],
         dict(id='tp2-control', k=64), dict(id='replicas2', k=64, replicas=2),
     ]

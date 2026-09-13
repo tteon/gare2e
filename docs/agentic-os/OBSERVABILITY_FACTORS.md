@@ -1,5 +1,48 @@
 # Workload factors and observability
 
+## Three linked characterization views
+
+The owner's latest requirement is categorized **results**, following
+[Agentic AI Workload Characteristics, §§4–6](https://arxiv.org/pdf/2605.26297),
+not three disconnected dashboards or an expanded intervention matrix.
+
+| View | Result tables and comparisons |
+| --- | --- |
+| Agent Execution Characterization | Per-task LLM/tool calls, total and maximum input length, output tokens by response kind, context growth, repair/empty-result retries, terminal and answer status; successful versus unsuccessful completion |
+| Runtime Performance Characterization | Common-window output tok/s/GPU and task/s; request queue/TTFT/prefill/decode/TPOT; linked task/LLM/tool/GPU timeline; K8 versus high K, baseline versus MTP, KV/cache/preemption observations |
+| Tool Call Characterization | Lexical Cypher shape versus tool latency, rows/bytes, validation/submit/hydrate/consume/serialization timing and error class; schema observations separate from graph rows |
+
+Use `(run_id, case_id)` to distinguish repeated questions. Each task records an
+actual wall-clock anchor; `step_id` identifies one LLM invocation, and
+`tool_call_id` plus `parent_request_id` connects every tool to the generating
+LLM request. The existing trace/span IDs connect serving and graph spans.
+Historical task timelines anchored only by question ID require re-export from
+their lifecycle receipts; do not reuse those timestamps for repeated schedules.
+
+Runtime percentages must state their denominator: request decode/LLM time is
+not a fraction of GPU-exclusive time. TP ranks must not duplicate output-token
+counters. Cypher/tool-argument generation is output; returned graph data is a
+later input. Where component token counts are unexported, content-free UTF-8
+message byte counts are labeled **bytes**, not substituted for tokens. Output
+totals grouped by response kind are not exact token attribution within a mixed
+response. Semantic answer accuracy remains unscored unless a separate evaluator
+supplies it; the completion/evidence funnel is not accuracy.
+
+The three new grammar K8 controls use the same 16-logical-CPU setup and query
+ratios 0/.5/1 as the K64 conditions. This adds a load interaction comparison
+within the existing cost cap. Offloading remains a future hypothesis requiring
+actual long contexts, reuse and memory pressure. A low-pressure null result
+does not reject it.
+
+The paper's cache/decode findings describe resident contexts without capacity
+eviction/offloading. Its hardware and vLLM version differ from this appliance;
+its reported percentages are background, not this run's results.
+
+Detailed engine scheduled/decode sequence counts, active versus reclaimable KV,
+and grammar/kernel-gap CPU tracing remain explicit instrumentation gaps where
+the pinned engine does not export them. Do not replace these with running-request
+gauges, iteration-token averages or sums of overlapping request durations.
+
 The research question is how graph retrieval and agent execution shape the
 request lengths, arrival gaps and prefix reuse presented to vLLM, and which
 serving strategy improves sustainable output tokens/s/GPU for that workload.
@@ -71,6 +114,9 @@ the DB call; it does not continuously occupy GPU compute across the task.
 Prefix caching saves repeated prefill work; it does not make long-context decode
 free. See the [vLLM APC limits](https://docs.vllm.ai/en/latest/features/automatic_prefix_caching/).
 New entity access is a DB locality question; KV reuse concerns token prefixes.
+The prior n-gram output collapse is an anomaly in the tested version/model/
+sampling/parser combination. It does not establish that n-gram speculative
+decoding generally breaks Cypher; no algorithm-wide conclusion is justified.
 DB page cache, JVM heap and OS file cache are separate accounting categories;
 see [Neo4j memory configuration](https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/).
 The actual runtime is the pinned DozerDB appliance: current Neo4j documentation

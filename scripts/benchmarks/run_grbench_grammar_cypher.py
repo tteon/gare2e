@@ -18,6 +18,8 @@ produces the final answer.
 
 from __future__ import annotations
 
+from seocho.eval.agentic_os_characterization import context_bytes, query_shape
+
 import argparse
 import hashlib
 import json
@@ -222,6 +224,7 @@ def main() -> int:
     try:
         for item in questions:
             with case_trace(args.run_id, item["qid"]) as case_trace_ctx:
+                case_started_unix_s = time.time()
                 case_clock_started = time.perf_counter()
                 process_window = ProcessMetricsWindow(process_roles)
                 process_window.__enter__()
@@ -275,6 +278,7 @@ def main() -> int:
                         turn_receipt["span_id"] = response["_seocho_span_id"]
                     budget_prompt_tokens += int(turn_receipt.get("input_tokens") or 0)
                     budget_completion_tokens += int(turn_receipt.get("output_tokens") or 0)
+                    turn_receipt.update({"step_id": len(turns) + 1, "llm_request_id": response.get("_seocho_span_id"), "context_composition": context_bytes(messages)})
                     turns.append(turn_receipt)
                     if budget_prompt_tokens + budget_completion_tokens > args.token_budget:
                         terminal = "budget_exceeded"
@@ -300,6 +304,7 @@ def main() -> int:
                         outcome = "rejected"
                     detail.update({"name": "execute_cypher", "outcome": outcome, "latency_ms": round((time.perf_counter() - tool_started) * 1000, 3), "tool_argument_decode_ms": 0.0})
                     detail.setdefault("started_elapsed_ms", round((tool_started - case_clock_started) * 1000, 3))
+                    detail.update({"tool_call_id": f"tool-{len(tool_events) + 1}", "parent_request_id": turn_receipt.get("llm_request_id"), "step_id": turn_receipt["step_id"], "query_shape": query_shape(query), "result_class": "error" if outcome != "ok" else "empty_valid" if detail.get("rows") == 0 else "nonempty_or_schema"})
                     tool_events.append(detail)
                     messages.append({"role": "user", "content": "Result: " + observation + ("" if have_rows else "\n\n" + REPAIR_INSTRUCTION)})
                 if case_metrics_window:
@@ -330,6 +335,7 @@ def main() -> int:
                 observability_overhead_ms = round(float((case_vllm_metrics or {}).get("observer_overhead_ms") or 0), 3)
                 server_reported_ms = round(sum(float(e.get("server_available_ms") or 0) + float(e.get("server_consumed_ms") or 0) for e in ok_events), 3)
                 case_receipt = {
+                    "started_unix_s": case_started_unix_s, "task_id": args.run_id, "agent_id": "single_agent",
                     **correlation,
                     "trace": case_trace_ctx.receipt(),
                     "qid": item["qid"],

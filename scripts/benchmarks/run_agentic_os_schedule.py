@@ -553,6 +553,9 @@ def main() -> int:
         _REPO_ROOT / "src/seocho/eval/agentic_graph_agents.py",
         _REPO_ROOT / "src/seocho/eval/agentic_os_observability.py",
         _REPO_ROOT / "src/seocho/eval/agentic_os_replay.py",
+        _REPO_ROOT / "src/seocho/eval/agentic_os_characterization.py",
+        _REPO_ROOT / "src/seocho/eval/agentic_os_otel.py",
+        _REPO_ROOT / "src/seocho/eval/grbench_runtime.py",
         _REPO_ROOT / "scripts/benchmarks/run_direct_react_text2cypher.py",
     )
     harness_sha256 = canonical_digest(

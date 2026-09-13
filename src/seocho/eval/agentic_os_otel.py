@@ -103,6 +103,9 @@ def build_case_spans(
     root_id = str(trace.get("root_span_id") or derived_span_id(run_id, case_id, "case"))
     time_block = receipt.get("time") if isinstance(receipt.get("time"), Mapping) else {}
     wall_ms = float(time_block.get("wall_ms") or receipt.get("wall_ms") or 0.0)
+    measured_anchor = receipt.get("started_unix_s")
+    if isinstance(measured_anchor, (int, float)):
+        anchor_unix_s = float(measured_anchor)
     start_ns = _ns(anchor_unix_s)
     end_ns = start_ns + int(wall_ms * 1_000_000)
     funnel = receipt.get("retrieval_funnel") if isinstance(receipt.get("retrieval_funnel"), Mapping) else {}
@@ -126,7 +129,7 @@ def build_case_spans(
         "seocho.time.llm_ms": time_block.get("llm_ms"),
         "seocho.time.tool_ms": time_block.get("tool_ms"),
         "seocho.time.wall_ms": wall_ms or None,
-        "seocho.timing.anchor": "coordinator_runner_start",
+        "seocho.timing.anchor": "case_clock" if isinstance(measured_anchor, (int, float)) else "coordinator_runner_start",
         **(extra_attributes or {}),
     })
     spans: list[SpanRecord] = [SpanRecord(trace_id, root_id, None, "agentic_os.case", "INTERNAL", start_ns, end_ns, root_attrs,
@@ -156,6 +159,8 @@ def build_case_spans(
             "seocho.usage.reasoning_tokens": t.get("thinking_tokens") or t.get("reasoning_tokens"),
             "seocho.output_kind": t.get("output_kind"),
             "seocho.turn_ordinal": t.get("event_ordinal", i + 1),
+            "seocho.llm_request_id": t.get("llm_request_id") or sid,
+            "seocho.step_id": t.get("step_id", i + 1),
             "seocho.timing": "measured" if isinstance(started, (int, float)) else "reconstructed",
         }, "OK" if outcome == "ok" else "ERROR", None if outcome == "ok" else outcome)
 
@@ -223,6 +228,10 @@ def build_case_spans(
         child(tool_sid, parent, f"execute_tool {name}", "INTERNAL", s_ms, lat, {
             "gen_ai.operation.name": "execute_tool",
             "gen_ai.tool.name": name,
+            "seocho.tool_call_id": e.get("tool_call_id") or tool_sid,
+            "seocho.parent_request_id": e.get("parent_request_id"),
+            "seocho.query_shape": e.get("query_shape"),
+            "seocho.tool.result_class": e.get("result_class"),
             "gen_ai.tool.type": "function",
             "seocho.tool.outcome": outcome,
             "seocho.tool.error_code": error_code,
@@ -249,14 +258,14 @@ def build_case_spans(
 
 def iter_case_receipts(root: Path) -> Iterable[tuple[Mapping[str, Any], float]]:
     """Yield (receipt, anchor_unix_s) for every attempt under a coordinator root."""
-    anchors: dict[str, float] = {}
+    anchors: dict[tuple[str, str], float] = {}
     coord = root / "coordinator-receipts.jsonl"
     if coord.exists():
         for line in coord.read_text(encoding="utf-8").splitlines():
             if not line.strip():
                 continue
             row = json.loads(line)
-            anchors[str(row.get("case_id"))] = float(row.get("runner_started_unix_s") or 0)
+            anchors[(str(row.get("run_id")), str(row.get("case_id")))] = float(row.get("runner_started_unix_s") or 0)
     for attempt in sorted((root / "attempts").glob("*")) if (root / "attempts").is_dir() else []:
         run_receipt = attempt / "run-receipt.json"
         receipts = attempt / "receipts.jsonl"
@@ -266,7 +275,7 @@ def iter_case_receipts(root: Path) -> Iterable[tuple[Mapping[str, Any], float]]:
         elif receipts.exists():
             cases = [json.loads(l) for l in receipts.read_text(encoding="utf-8").splitlines() if l.strip()]
         for c in cases:
-            anchor = anchors.get(str(c.get("case_id") or c.get("qid")))
+            anchor = anchors.get((str(c.get("run_id")), str(c.get("case_id") or c.get("qid"))))
             if anchor is None:
                 anchor = float(c.get("started_unix_s") or 0.0)
             yield c, anchor
