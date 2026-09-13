@@ -18,7 +18,7 @@ def main() -> int:
     parser.add_argument('--bundle', type=Path, required=True)
     parser.add_argument('--preflight', type=Path, required=True)
     parser.add_argument('--run-root', type=Path, required=True)
-    parser.add_argument('--offer-id', type=int, required=True)
+    parser.add_argument('--offer-id', type=int, help='Omit to admit a fresh candidate immediately before creation')
     parser.add_argument('--dry-run', action='store_true')
     args = parser.parse_args()
     repo = Path(__file__).resolve().parents[3]
@@ -50,7 +50,7 @@ def main() -> int:
         'bash', '/workspace/bootstrap/bootstrap_agentic_os_appliance.sh', 'python3',
         '/workspace/seocho/scripts/benchmarks/run_agentic_os_throughput_session.py']
     command = [sys.executable, str(repo / 'scripts/benchmarks/vast_colocated_agentic_os_run.py'),
-        '--offer-id', str(args.offer_id), '--offer-query', 'num_gpus=2 rentable=true cuda_max_good>=13.0 gpu_ram>=79 bw_nvlink>0',
+        '--offer-query', 'num_gpus=2 rentable=true cuda_max_good>=13.0 gpu_ram>=79 bw_nvlink>0',
         '--gpu-name-regex', 'A100|H100|H200', '--require-nvlink', '--min-num-gpus', '2', '--min-gpu-total-ram', '160000',
         '--min-effective-cpu', '16', '--min-cpu-ram-mb', '65536', '--min-reliability', '0.98',
         '--exclude-host-id', '3497', '--exclude-host-id', '60897', '--exclude-host-id', '258806',
@@ -60,6 +60,8 @@ def main() -> int:
         '--local-artifacts', str(args.run_root), '--remote-command', shlex.join(remote)]
     for local, destination in uploads:
         command += ['--upload', str(local.resolve()) + '=' + destination]
+    if args.offer_id is not None:
+        command += ['--offer-id', str(args.offer_id)]
     print(json.dumps({'label': 'seocho-agentic-os-lab-s22', 'offer_id': args.offer_id, 'max_dph': 3.6,
         'max_runtime_s': 13000, 'worst_hourly_cost_usd': 13.0, 'upload_count': len(uploads), 'run_root': str(args.run_root)}), flush=True)
     if args.dry_run:
