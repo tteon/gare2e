@@ -67,6 +67,25 @@ s3://seocho-agentic-os-traces/
 키 관리 규칙: 키는 `~/.aws/credentials`에만 둡니다. 코드·노트·스크린샷에 나타나면 즉시 소유자에게 알려 비활성화·재발급합니다.
 소유자는 90일마다 키를 회전하고 CloudTrail로 사용 내역을 확인합니다.
 
+## 3a. 소유자: 읽기 전용 사용자 만들기 (동료 1명당 한 번)
+
+업로더 사용자(`seocho-traces-uploader`)는 PutObject만 갖고 있어 동료의 조회용으로 쓸 수 없습니다(presign도 서명자에게 GetObject가 없어 403). 동료마다 **읽기 전용 IAM 사용자**를 만들고 키를 별도 채널로 전달합니다. 관리자 자격증명이 있는 **별도 터미널 세션**에서만 실행하고, 키 출력은 그 자리에서 비밀번호 관리자에 옮긴 뒤 닫습니다.
+
+```bash
+# 관리자 프로필로 (계정 096036901062). READER 이름은 동료 식별자로 바꿉니다.
+READER=seocho-traces-reader-<name>
+aws iam create-user --user-name "$READER" --tags Key=purpose,Value=seocho-agentic-os-trace-reader
+aws iam put-user-policy --user-name "$READER" --policy-name seocho-traces-read-prefix \
+  --policy-document file://docs/agentic-os/iam/seocho-traces-reader-policy.json
+aws iam create-access-key --user-name "$READER"      # AccessKeyId / SecretAccessKey: 여기서만 보고 전달, 리포·채팅 금지
+```
+
+정책(`docs/agentic-os/iam/seocho-traces-reader-policy.json`)은 `seocho-agentic-os/traces/` prefix에 한정된 `ListBucket` + `GetObject`만 허용합니다. 다른 prefix·쓰기·삭제는 불가. 동료는 §3의 절차대로 `aws configure --profile seocho-traces`에 이 키를 넣으면 `aws s3 ls …/traces/`가 보입니다.
+
+회수: `aws iam delete-access-key --user-name "$READER" --access-key-id <id>` → `aws iam delete-user-policy … --policy-name seocho-traces-read-prefix` → `aws iam delete-user --user-name "$READER"`. 키 회전은 90일.
+
+키 없이 보는 방법: gare2e 리포의 `traces/index.json`(run 목록·크기·요청 번호)과 `traces/<run>/manifest.json`(파일 목록·sha256)은 S3 없이 읽을 수 있습니다. 데이터 자체는 버킷에만 있습니다.
+
 ## 4. 내려받기
 
 ```bash
