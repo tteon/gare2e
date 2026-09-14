@@ -243,3 +243,18 @@ host/session and label cross-session grammar comparisons accordingly.
 Sources: https://docs.nvidia.com/deploy/cuda-compatibility/forward-compatibility.html
 and https://docs.vllm.ai/en/stable/getting_started/installation/gpu/ plus exact
 local image inspection.71 focused tests passed; no local GPU was exercised.
+
+### §12 live checkpoint: lab-s23b created
+
+Owned instance51011956 created at unix1789387181.891499 on offer36994173 /
+host109790, A100 SXM4x2 NVLink300,38 logical CPUs and515966MB host RAM. Source
+42ed5bd1/v55, official CUDA forward compatibility enabled. Independent watchdog
+deadline1789392581.891499 (5400s) is armed. Unitgare2e-lab-s23b-20260914 owns the
+controller; local run `.../colocated-appliance/runs/lab-s23b`. Do not create a
+replacement while this instance may exist. Original lab-s23 admission remains$0.
+
+Provider currently loading the container; SSH and live CUDA probe are not yet
+complete. Do not claim a successful runtime/throughput gate. Remaining queue is
+fully pre-staged and does not need agent interaction once readiness/gate pass.
+The same max$5.40 budget is active. This supersedes earlier no-instance/unspent
+snapshots. Keep checking lifecycle/watchdog; collect+verify+destroy at completion.

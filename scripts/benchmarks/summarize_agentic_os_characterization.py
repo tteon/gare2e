@@ -118,6 +118,8 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -
         if not factor_path.exists():
             continue
         factors = json.loads(factor_path.read_text())
+        pass_receipt_path = directory / 'pass-receipt.json'
+        config = json.loads(pass_receipt_path.read_text()).get('config', {}) if pass_receipt_path.exists() else {}
         rate = factors.get('throughput', {})
         if rate.get('status') != 'observed':
             continue
@@ -138,6 +140,7 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -
                 contained = (start <= coordinator.get('runner_started_unix_s', begun)
                              and coordinator.get('runner_finished_unix_s', finished) <= end)
                 task = {'pass': pass_name, 'task_id': task_id, 'trace_id': trace,
+                        'recorded_task_id': case.get('task_id'),
                         'case_id': case.get('case_id') or case.get('qid'), 'agent_id': 'single_agent',
                         'started_unix_s': begun, 'finished_unix_s': finished,
                         'clock_source': case_span['attributes'].get('seocho.timing.anchor'),
@@ -157,6 +160,11 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -
                 for row in build_rows(spans, matching):
                     row.update({'pass': pass_name, 'task_id': task_id, 'task_fully_contained': contained,
                                 'clock_source': task['clock_source']})
+                    turn = next((t for t in turns if t.get('span_id') == row['client_span_id']), {})
+                    composition = turn.get('context_composition') or {}
+                    row['step_id'] = turn.get('step_id')
+                    row['context_components_bytes'] = composition.get('components') if composition.get('unit') == 'utf8_content_bytes' else None
+                    row['context_component_unit'] = composition.get('unit')
                     matches = server_index.get((trace, row['client_span_id']), [])
                     if len(matches) == 1:
                         row['server_started_unix_s'] = matches[0]['start_unix_ns'] / 1e9
@@ -175,6 +183,8 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -
         prefill = complete_sum(cr, 'prefill_s')
         decode = complete_sum(cr, 'decode_s')
         summary = {'pass': pass_name, 'application_k': factors.get('application_k'),
+                   'serving_layout': '2 x TP=1' if config.get('replicas') == 2 else 'TP=2' if config.get('replicas') == 1 else 'unrecorded',
+                   'configured_logical_cpus': config.get('cpu'),
                    'throughput': rate, 'output_tok_s_gpu': factors.get('output_tokens_per_s_per_gpu'),
                    'observed_gpu_count': factors.get('observed_physical_gpu_count'),
                    'cohort_scope': 'tasks fully contained in validated inner window; excludes boundary tasks',
@@ -219,7 +229,7 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -
         all_tasks.extend(tasks)
         all_requests.extend(requests)
         all_tools.extend(tools)
-    result = {'schema_version': 'agentic_os.three_view_characterization.v1', 'passes': summaries,
+    result = {'schema_version': 'agentic_os.three_view_characterization.v1', 'run_id': root.name, 'passes': summaries,
               'counts': {'tasks': len(all_tasks), 'requests': len(all_requests), 'tools': len(all_tools)},
               'limitations': [
                   'Single ordered pass per condition; no independent repeats or confidence intervals.',
@@ -232,8 +242,8 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -
                   'Session creation is not connection-pool wait; Bolt submit may include lazy acquisition.',
                   'Result bytes are not tokens. Reasoning/Cypher argument and context token components unobserved.',
                   'Actual decode sequences, grammar CPU step time, kernel gaps, DB page-cache occupancy and offload transfers unobserved.',
-                  'Three passes lack GPU samples inside window: primary per-GPU rate remains null.',
-                  'Artifact archive locally reconciled; independent remote digest checkpoint unavailable.',
+                  'When GPU samples are absent inside the window, primary per-GPU rate remains null.',
+                  'Consult this session lifecycle and copy receipt for artifact verification status.',
               ]}
     for name, rows in (('tasks', all_tasks), ('requests', all_requests), ('tools', all_tools)):
         write_csv(output / f'{name}.csv', rows)

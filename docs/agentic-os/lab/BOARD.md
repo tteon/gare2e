@@ -57,3 +57,8 @@ identity-check gap in basic CI; implementation is not throughput evidence.
   preflight ready. lab-s23 admission found no compatible A100 pair; no instance
   created,$0 additional spend. Five remaining cells unrun. Inventory blocked,
   not approval pending; no automatic polling watcher. See latest HANDOFF§12.
+
+- Latest024 live checkpoint: lab-s23b created51011956, source42ed5bd1/v55,
+  built-in CUDA forward compatibility. Loading; live GPU/service gates pending.
+  Watchdog deadline1789392581.891499; no duplicate launch. Earlier no-live snapshot
+  superseded. Same approved$5.40/90min extension; see HANDOFF§12.
