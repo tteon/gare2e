@@ -179,3 +179,16 @@ def test_gpu_sampler_recovers_after_transient_failure_and_retains_gap_receipt(tm
     with pytest.raises(RuntimeError, match='TimeoutExpired'):
         sampler.stop()
     assert json.loads((tmp_path / 'gpu-sampling-errors.jsonl').read_text())['error'].endswith('TimeoutExpired')
+
+
+def test_cuda_compat_probe_failure_writes_failed_receipt(tmp_path: Path, monkeypatch) -> None:
+    module = load('probe_agentic_os_cuda_compat')
+    output = tmp_path / 'probe.json'
+    def fail() -> dict[str, Any]:
+        raise RuntimeError('CUDA did not expose exactly two devices')
+    monkeypatch.setattr(module, 'probe', fail)
+    monkeypatch.setattr(sys, 'argv', ['probe', '--output', str(output)])
+    assert module.main() == 2
+    receipt = json.loads(output.read_text())
+    assert receipt['passed'] is False
+    assert receipt['error_type'] == 'RuntimeError'

@@ -148,3 +148,12 @@ admission cannot accept it. No replacement GPU/image/driver was substituted.
 Extension$5.40 is approved and entirely unspent. No live instance or polling
 watcher exists. Resume on a fresh compatible offer using a new run root; preserve
 lab-s23 admission failure. Details in latest HANDOFF§12 update.
+
+### Admission correction: built-in forward compatibility
+
+The pinned image supports R570 A100 via its built-in CUDA13 compatibility library
+and VLLM_ENABLE_CUDA_COMPATIBILITY=1. Earlier blanket CUDA>=13 exclusion was too
+strict. New --cuda-forward-compat is A100-continuation-only, requires exact-image
+library preflight and a fail-closed live GPU/peer/loaded-library probe before
+model/DB startup. No driver/image/model replacement. Same five cells and approved
+cost cap; record compatibility mode as a cross-session condition. See HANDOFF§12.

@@ -87,6 +87,11 @@ tar -xzf "$SEOCHO_DOZERDB_RUNTIME" -C /
 record_phase "source_extract"
 mkdir -p "$SEOCHO_APPLIANCE_ROOT"
 tar -xzf "$SEOCHO_SOURCE_BUNDLE" -C "$SEOCHO_APPLIANCE_ROOT"
+if [ "${SEOCHO_CUDA_COMPAT_PROBE:-0}" = "1" ]; then
+  record_phase "cuda_forward_compat_probe"
+  python3 "$SEOCHO_APPLIANCE_ROOT/scripts/benchmarks/probe_agentic_os_cuda_compat.py" \
+    --output "$SEOCHO_APPLIANCE_ARTIFACTS/cuda-compat-probe.json"
+fi
 record_phase "runtime_layout_preflight"
 for required_path in \
   /opt/java/openjdk/bin/java \

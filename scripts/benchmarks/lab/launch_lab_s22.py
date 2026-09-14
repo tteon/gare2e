@@ -21,7 +21,10 @@ def main() -> int:
     parser.add_argument('--offer-id', type=int, help='Omit to admit a fresh candidate immediately before creation')
     parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--continuation', action='store_true', help='Approved lab-s23: five remaining cells, max $5.40 / 90 min')
+    parser.add_argument('--cuda-forward-compat', action='store_true', help='Pinned image built-in CUDA13 libraries on R570 A100 only')
     args = parser.parse_args()
+    if args.cuda_forward_compat and not args.continuation:
+        parser.error('forward compatibility is registered only for the A100 continuation')
     lifetime_s = 5400 if args.continuation else 13000
     label = 'seocho-agentic-os-lab-s23' if args.continuation else 'seocho-agentic-os-lab-s22'
     repo = Path(__file__).resolve().parents[3]
@@ -49,13 +52,19 @@ def main() -> int:
         DOZERDB_HEAP_INITIAL_SIZE='8g', DOZERDB_HEAP_MAX_SIZE='8g', DOZERDB_PAGECACHE_SIZE='24g',
         SEOCHO_REPO_ROOT='/workspace/seocho', SEOCHO_APPLIANCE_INPUT='/workspace/input', SEOCHO_APPLIANCE_ARTIFACTS='/artifacts',
         SEOCHO_SPLIT_GATE_MAIN='0', SEOCHO_DISABLE_GPU_SAMPLER='1', SEOCHO_OTLP_ENDPOINT='http://127.0.0.1:4317', SEOCHO_OTEL_FILE_RECEIVER='1')
+    if args.cuda_forward_compat:
+        if not preflight.get('checks', {}).get('cuda_compat_libraries', {}).get('passed'):
+            raise ValueError('forward compatibility requires exact-image library preflight')
+        env.update(VLLM_ENABLE_CUDA_COMPATIBILITY='1', VLLM_CUDA_COMPATIBILITY_PATH='/usr/local/cuda-13.0/compat',
+                   LD_LIBRARY_PATH='/usr/local/cuda-13.0/compat:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/local/nvidia/lib',
+                   SEOCHO_CUDA_COMPAT_PROBE='1')
     remote = ['timeout', '--signal=TERM', '4200' if args.continuation else '12000', 'env', *[f'{k}={v}' for k, v in env.items()],
         'bash', '/workspace/bootstrap/bootstrap_agentic_os_appliance.sh', 'python3',
         '/workspace/seocho/scripts/benchmarks/run_agentic_os_throughput_session.py']
     if args.continuation:
         remote += ['--continuation', '--max-session-s', '3000', '--reserve-s', '600']
     command = [sys.executable, str(repo / 'scripts/benchmarks/vast_colocated_agentic_os_run.py'),
-        '--offer-query', 'num_gpus=2 rentable=true cuda_max_good>=13.0 gpu_ram>=79 bw_nvlink>0',
+        '--offer-query', 'num_gpus=2 rentable=true gpu_ram>=79 bw_nvlink>0 ' + ('cuda_max_good=12.8' if args.cuda_forward_compat else 'cuda_max_good>=13.0'),
         '--gpu-name-regex', 'A100.*SXM' if args.continuation else 'A100|H100|H200', '--require-nvlink', '--min-num-gpus', '2', '--min-gpu-total-ram', '160000',
         '--min-effective-cpu', '32' if args.continuation else '16', '--min-cpu-ram-mb', '65536', '--min-reliability', '0.98',
         '--exclude-host-id', '3497', '--exclude-host-id', '60897', '--exclude-host-id', '258806',
@@ -67,7 +76,7 @@ def main() -> int:
         command += ['--upload', str(local.resolve()) + '=' + destination]
     if args.offer_id is not None:
         command += ['--offer-id', str(args.offer_id)]
-    print(json.dumps({'label': label, 'offer_id': args.offer_id, 'max_dph': 3.6,
+    print(json.dumps({'label': label, 'offer_id': args.offer_id, 'max_dph': 3.6, 'cuda_forward_compat': args.cuda_forward_compat,
         'max_runtime_s': lifetime_s, 'worst_hourly_cost_usd': lifetime_s / 3600 * 3.6, 'upload_count': len(uploads), 'run_root': str(args.run_root)}), flush=True)
     if args.dry_run:
         return 0

@@ -215,3 +215,31 @@ Resume by querying fresh compatible A100 inventory; once admitted, use a NEW run
 root (lab-s23b) and fresh detached unit with the existing continuation flags.
 Approval persists; do not ask again for the same $5.40/90min scope. Existing lab-s23
 failure receipt must remain intact. The five remaining comparisons are still unrun.
+
+### §12 update: CUDA compatibility path validated locally (2026-09-14)
+
+The previous CUDA>=13 provider filter was overly restrictive for this pinned
+image. Official NVIDIA forward-compatibility documentation supports CUDA13
+compatibility libraries on data-center R570 GPUs; the exact vLLM0.27.1 image
+already contains `/usr/local/cuda-13.0/compat/libcuda.so.580.95.05`, admits R570 in
+NVIDIA_REQUIRE_CUDA, and implements VLLM_ENABLE_CUDA_COMPATIBILITY. No image,
+model or host driver replacement is needed. This corrects the earlier admission
+interpretation; live compatibility is still a required gate, not assumed.
+
+`--continuation --cuda-forward-compat` selects only A100 SXM / CUDA12.8 offers,
+enables built-in compatibility with explicit library path, and requires the new
+exact-image library preflight. After source extraction and before model/DB
+startup, a live probe checks exactly two R570 A100s, CUDA13 BF16 matmul on both,
+bidirectional peer access, actual compat libcuda mapping and driver API>=13000.
+Failures stop bootstrap, preserve the receipt and trigger normal teardown.
+The subsequent service readiness, live graph/trace gate and six-pass queue remain.
+
+Source-v55 SHA25648d05226e7a8533a2fa562f6aecd811f5568a532349b1330f73932cc28871504.
+Additional budget remains max$5.40/90min and currently unspent. Use new lab-s23b
+root/unit; preserve original zero-cost admission failure. This is a recorded
+runtime-environment difference from lab-s22b; compare TP controls within the new
+host/session and label cross-session grammar comparisons accordingly.
+
+Sources: https://docs.nvidia.com/deploy/cuda-compatibility/forward-compatibility.html
+and https://docs.vllm.ai/en/stable/getting_started/installation/gpu/ plus exact
+local image inspection.71 focused tests passed; no local GPU was exercised.
