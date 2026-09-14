@@ -125,3 +125,17 @@ does not establish which metrics that edition/version exports.
 The cached-token, preemption and computed-prefill families were checked in the
 local `vllm/vllm-openai:v0.27.1` image before adding them to the allowlist.
 Actual availability must still be recorded on the live endpoint.
+
+## Replica fractions and additive observation
+
+The current router sums all numeric series. This is correct for request counts
+and generation counters but its sum of per-replica KV fractions is **not** a
+single cache-usage fraction. Reports label it as a sum, leave a global fraction
+unknown, and use separately sampled backend endpoints when available.
+`sample_agentic_os_replica_metrics.py` adds two content-free metrics GETs per
+cycle, records sample timestamps/scrape cost and stops on pass completion or a
+bounded deadline. It never changes the request workload. Full-window coverage
+is checked separately; late or missing samples are not labeled complete coverage.
+Lab-s23b received this observer additively after startup; its source/remote hashes
+and staging receipt are preserved. Treat the extra observation cost as part of
+the measured setup. It is not a runtime scheduler or memory-policy intervention.

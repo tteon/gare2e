@@ -104,6 +104,22 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         writer.writerows({k: json.dumps(v) if isinstance(v, (list, dict)) else v for k, v in r.items()} for r in rows)
 
 
+def replica_observations(directory: Path, start: float, end: float) -> list[dict[str, Any]]:
+    output = []
+    for path in sorted((directory / 'workload').glob('replica-*-metrics.jsonl')):
+        rows = [r for r in read_rows(path) if r.get('available')
+                and start <= r['timestamp_unix_s'] <= end]
+        stamps = sorted(r['timestamp_unix_s'] for r in rows)
+        covered = bool(len(stamps) >= 2 and stamps[0] - start <= 2.5 and end - stamps[-1] <= 2.5
+                       and all(b - a <= 2.5 for a, b in zip(stamps, stamps[1:])))
+        output.append({'source': path.name, 'full_window_coverage': covered,
+                       'first_unix_s': stamps[0] if stamps else None,
+                       'last_unix_s': stamps[-1] if stamps else None,
+                       'gauges': {k: distribution([r['metrics'].get(k) for r in rows]) for k in (
+                           'vllm:kv_cache_usage_perc', 'vllm:num_requests_running', 'vllm:num_requests_waiting')}})
+    return output
+
+
 def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -> dict[str, Any]:
     output.mkdir(parents=True, exist_ok=True)
     server = read_rows(root / 'otel/collector-spans.jsonl')
@@ -182,6 +198,9 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -
         stages = ('queue_s', 'ttft_s', 'prefill_s', 'decode_s', 'gap_before_s', 'decode_tpot_ms', 'client_latency_s')
         prefill = complete_sum(cr, 'prefill_s')
         decode = complete_sum(cr, 'decode_s')
+        gauges = dict(factors.get('sampled_gauges') or {})
+        if config.get('replicas') == 2 and 'vllm:kv_cache_usage_perc' in gauges:
+            gauges['kv_usage_fraction_sum_across_replicas'] = gauges.pop('vllm:kv_cache_usage_perc')
         summary = {'pass': pass_name, 'application_k': factors.get('application_k'),
                    'serving_layout': '2 x TP=1' if config.get('replicas') == 2 else 'TP=2' if config.get('replicas') == 1 else 'unrecorded',
                    'configured_logical_cpus': config.get('cpu'),
@@ -200,7 +219,8 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -
                    'all_pass_requests': len(requests), 'all_pass_matched_requests': sum(r['server_span_present'] for r in requests),
                    'decode_share_of_summed_request_prefill_decode': decode / (prefill + decode)
                        if prefill is not None and decode is not None and prefill + decode else None,
-                   'sampled_gauges': factors.get('sampled_gauges'), 'counter_deltas': factors.get('counter_deltas'),
+                   'sampled_gauges': gauges, 'counter_deltas': factors.get('counter_deltas'),
+                   'replica_observations': replica_observations(directory, start, end),
                    'actual_constrained_query_ratio': factors.get('actual_constrained_query_ratio'),
                    'tools': [{'shape': key, 'calls': len(rows), 'latency_ms': distribution([t['latency_ms'] for t in rows]),
                               'result_bytes': distribution([t['result_bytes'] for t in rows]),
@@ -223,7 +243,8 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -
                 'runtime_samples': [{'elapsed_s': s['timestamp_unix_s'] - task['started_unix_s'],
                                      'running': s.get('metrics', {}).get('vllm:num_requests_running'),
                                      'waiting': s.get('metrics', {}).get('vllm:num_requests_waiting'),
-                                     'kv_fraction': s.get('metrics', {}).get('vllm:kv_cache_usage_perc')}
+                                     'kv_fraction': s.get('metrics', {}).get('vllm:kv_cache_usage_perc') if config.get('replicas') != 2 else None,
+                                     'kv_replica_fraction_sum': s.get('metrics', {}).get('vllm:kv_cache_usage_perc') if config.get('replicas') == 2 else None}
                                     for s in samples if task['started_unix_s'] <= s['timestamp_unix_s'] <= task['finished_unix_s']]})
         summaries.append(summary)
         all_tasks.extend(tasks)
@@ -236,6 +257,7 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -
                   'Throughput uses engine output counter and same-window completions; task token means use contained tasks.',
                   'Completed or answered is not semantic accuracy. Replayed output lengths are controlled.',
                   'Request durations overlap across tasks and are not exclusive GPU time.',
+                  'Router KV fractions are summed across replicas, not a global usage fraction; consult per-backend samples and coverage.',
                   'TTFT overlaps queue and prefill; do not stack these as disjoint stages.',
                   'Historical process-window clock approximates the case anchor; coordinator fallback includes startup.',
                   'Query labels are lexical shapes from exact capture digest matches; missing matches are unknown.',

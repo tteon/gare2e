@@ -65,3 +65,16 @@ def test_report_rejects_ambiguous_server_join_and_keeps_boundary_scope(tmp_path:
     assert result['passes'][0]['output_tok_s_gpu'] is None
     assert result['passes'][0]['decode_share_of_summed_request_prefill_decode'] is None
     assert json.loads((attempt / 'run-receipt.json').read_text())['cases'][0] == case
+
+
+def test_partial_replica_samples_do_not_claim_whole_window(tmp_path: Path) -> None:
+    module = _module()
+    work = tmp_path / 'workload'
+    work.mkdir()
+    rows = [{'timestamp_unix_s': t, 'available': True,
+             'metrics': {'vllm:kv_cache_usage_perc': .6}} for t in (12., 13., 14.)]
+    (work / 'replica-0-metrics.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+    result = module.replica_observations(tmp_path, 0, 15)[0]
+    assert result['full_window_coverage'] is False
+    assert result['gauges']['vllm:kv_cache_usage_perc']['n'] == 3
+    assert result['gauges']['vllm:kv_cache_usage_perc']['max'] == .6
