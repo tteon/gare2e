@@ -138,3 +138,13 @@ Launcher `launch_lab_s22.py --continuation` sets label lab-s23,5400s watchdog,
 passes including gate; collection remains bounded and partial failures preserved.
 49 focused tests and Ruff pass before staging. Exact bundle/image preflight and
 live readiness/gate remain required before the five comparisons.
+
+### Continuation admission result — 2026-09-14
+
+Source2f99840c/v54 preflight passed;49 focused tests pass. Lab-s23 stopped at
+admission, before any instance creation or paid workload. Current A100 SXM pair
+inventory has only a CUDA12.8/driver570 candidate; registered CUDA>=13 image
+admission cannot accept it. No replacement GPU/image/driver was substituted.
+Extension$5.40 is approved and entirely unspent. No live instance or polling
+watcher exists. Resume on a fresh compatible offer using a new run root; preserve
+lab-s23 admission failure. Details in latest HANDOFF§12 update.

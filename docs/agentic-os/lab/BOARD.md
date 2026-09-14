@@ -52,3 +52,8 @@ identity-check gap in basic CI; implementation is not throughput evidence.
 - Collection partial provenance reconciled; exact archive selection/checkpoint fix
   locally validated. See HANDOFF§12 and request024 Result; earlier snapshots above
   describe their checkpoint only.
+
+- 2026-09-14 latest024: extension$5.40/90min APPROVED; source2f99840c and v54
+  preflight ready. lab-s23 admission found no compatible A100 pair; no instance
+  created,$0 additional spend. Five remaining cells unrun. Inventory blocked,
+  not approval pending; no automatic polling watcher. See latest HANDOFF§12.

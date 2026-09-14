@@ -190,3 +190,28 @@ will run only gate105, TP2/2×TP1 at K64, grammar K8 CPU16 ratios0/.5/1; same A1
 SXM80GB class with NVLink, same model/data/image. `launch_lab_s22.py --continuation`
 enforces5400s lifetime and <=$3.60/h. Earlier budget-pending text is superseded;
 no further approval within this extension. Results and lifecycle pending launch.
+
+### §12 update: 2026-09-14 admission blocked, no additional spend
+
+Continuation source **2f99840c**, v54 SHA256
+`61e0a357c4691bea0047eae0a00c9180a6260d58c2f24519830596af912fa447`.
+Exact-image/source/unchanged-runtime/entrypoint preflight all passed.49 focused
+checks and Ruff passed. Basic CI1112 passed3skipped; same five pre-existing identity
+fixture errors remain. Source and budget extension are pushed to private branch.
+
+Detached lab-s23 controller attempted admission and exited before create:
+`selected offer is absent or ambiguous`. No instance ID, no new billed usage.
+A fresh provider query returned no A100 SXM80GB pair satisfying CUDA>=13.0,
+NVLink, <=$3.60/h and the registered capacities. A separate read-only query found
+A100 SXM4 offer36994173 / host109790, $2.0543/h, NVLink300,38 CPUs, but driver
+570.172.08 / cuda_max_good12.8; it fails the pinned-image admission requirement.
+No image/driver substitution was attempted. This is inventory/admission blockage,
+not a model/runtime experiment failure. Other provider instances were not modified.
+
+**Current state: no owned live instance; approved extension$5.40 remains unspent.**
+Artifacts: local `.../runs/lab-s23/vast-colocated-lifecycle.json` records failed
+admission without creation. No watcher is polling or scheduling a later launch.
+Resume by querying fresh compatible A100 inventory; once admitted, use a NEW run
+root (lab-s23b) and fresh detached unit with the existing continuation flags.
+Approval persists; do not ask again for the same $5.40/90min scope. Existing lab-s23
+failure receipt must remain intact. The five remaining comparisons are still unrun.

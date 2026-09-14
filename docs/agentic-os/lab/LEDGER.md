@@ -50,3 +50,7 @@ Total ≈ **$102.8**. Live instances at last check (2026-09-13 12:35 KST): ours 
 Current total ≈**$114.92** (prior$102.8 +$12.1227), hourly estimate rather than
 final invoice. No owned live instance. Protected colleague unchanged. See
 HANDOFF§12 for recovery and remaining work. No new paid resources launched.
+
+- 2026-09-14 lab-s23: **$0**, failed admission before create (no compatible A100
+  SXM pair for pinned CUDA>=13 image). Approved extra$5.40 remains unspent.
+  No owned live instance; cumulative estimate stays≈$114.92.
