@@ -15,7 +15,7 @@ from prepare_agentic_os_throughput import backlog_schedule, capture_index, write
 from summarize_agentic_os_factors import summarize
 
 
-def plan() -> list[dict[str, Any]]:
+def plan(*, continuation: bool = False) -> list[dict[str, Any]]:
     baseline = '--max-num-batched-tokens,8192'
     mtp = baseline + ',--speculative-config,{"method":"qwen3_5_mtp","num_speculative_tokens":2}'
     passes: list[dict[str, Any]] = [
@@ -31,6 +31,10 @@ def plan() -> list[dict[str, Any]]:
         *[dict(id=f'grammar-cpu{cpu}-r{ratio}', k=64, cpu=cpu, lane='grbench-grammar', ratio=ratio) for cpu in (16, 4) for ratio in (0.0, 0.5, 1.0)],
         dict(id='tp2-control', k=64), dict(id='replicas2', k=64, replicas=2),
     ]
+    if continuation:
+        by_id = {p['id']: p for p in passes}
+        passes = [by_id[name] for name in ('gate', 'tp2-control', 'replicas2',
+                  'grammar-k8-cpu16-r0.0', 'grammar-k8-cpu16-r0.5', 'grammar-k8-cpu16-r1.0')]
     return [{**{'lane': 'grbench-single', 'serving': baseline, 'cpu': None, 'replicas': 1, 'runner': 'persistent'}, **p} for p in passes]
 
 
@@ -56,10 +60,15 @@ def main() -> int:
     parser.add_argument('--artifacts', type=Path, default=Path('/artifacts'))
     parser.add_argument('--duration-s', type=float, default=90)
     parser.add_argument('--max-session-s', type=int, default=10500)
+    parser.add_argument('--reserve-s', type=int, default=1500)
+    parser.add_argument('--continuation', action='store_true', help='Only live gate, TP pair and grammar K8 ratios')
     parser.add_argument('--print-plan', action='store_true')
     args = parser.parse_args()
+    if args.reserve_s < 0 or args.max_session_s <= args.reserve_s:
+        parser.error('max session must exceed nonnegative reserve')
+    registered = plan(continuation=args.continuation)
     if args.print_plan:
-        print(json.dumps(plan(), indent=2))
+        print(json.dumps(registered, indent=2))
         return 0
     os.umask(0o077)
     os.environ['NEO4J_PASSWORD'] = Path(os.environ.get('SEOCHO_APPLIANCE_SECRET_FILE', '/workspace/appliance.secret')).read_text().strip()
@@ -74,7 +83,8 @@ def main() -> int:
         raise ValueError('registered live gate case 105 is missing or ambiguous')
     write_new(args.input / 'throughput-gate.json', {**cohort, 'entries': gate_entries})
     write_new(args.input / 'throughput-backlog.json', backlog_schedule(source, repeats=40))
-    write_new(args.artifacts / 'session-summary/registered-plan.json', {'passes': plan(), 'duration_s': args.duration_s,
+    write_new(args.artifacts / 'session-summary/registered-plan.json', {'passes': registered, 'duration_s': args.duration_s,
+        'continuation': args.continuation, 'reserve_s': args.reserve_s,
         'max_session_s': args.max_session_s, 'context': '32768 cap; observed lengths reported separately',
         'db_cache': 'warm intent; no OS cache flush; capacities fixed', 'quality': 'recorded separately; replay has no answer-quality evaluation',
         'high_load_k': 64, 'high_load_is_saturation': 'only if measured K curve establishes plateau'})
@@ -89,8 +99,8 @@ def main() -> int:
         return code
     began = time.monotonic()
     shape: tuple[Any, ...] | None = None
-    for spec in plan():
-        if time.monotonic() - began > args.max_session_s - 1500:
+    for spec in registered:
+        if time.monotonic() - began > args.max_session_s - args.reserve_s:
             write_new(args.artifacts / 'session-summary/budget-stop.json', {'next_pass': spec['id'], 'elapsed_s': time.monotonic() - began})
             return 4
         root = args.artifacts / ('run-' + spec['id'])

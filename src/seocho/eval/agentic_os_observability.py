@@ -666,7 +666,10 @@ class NvidiaSmiSampler:
                     self.sample_once()
                 except RuntimeError as exc:
                     self._error = str(exc)
-                    self._stop.set()
+                    # A transient driver timeout must not erase all later samples.
+                    # Keep the gap visible and report degradation on stop().
+                    with self.path.with_name('gpu-sampling-errors.jsonl').open('a', encoding='utf-8') as handle:
+                        handle.write(json.dumps({'timestamp_unix_s': time.time(), 'error': self._error}) + '\n')
 
         self._thread = threading.Thread(target=_loop, name="agentic-os-gpu-sampler", daemon=True)
         self._thread.start()

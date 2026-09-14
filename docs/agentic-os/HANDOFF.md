@@ -182,3 +182,11 @@ made. This exceeds the nearly consumed original ~$13 allocation, so obtain the
 owner's budget extension before creating another instance. No DB/KV allocation
 or offloading matrix is included. Commit through the temporary worktree; push
 private gare2e/agentic-os-e2e only. Do not touch colleague instances.
+
+### §12 update: continuation budget approved
+
+Owner approved the proposed additional max$5.40/90min (“네 모두 하시죠”). Lab-s23
+will run only gate105, TP2/2×TP1 at K64, grammar K8 CPU16 ratios0/.5/1; same A100
+SXM80GB class with NVLink, same model/data/image. `launch_lab_s22.py --continuation`
+enforces5400s lifetime and <=$3.60/h. Earlier budget-pending text is superseded;
+no further approval within this extension. Results and lifecycle pending launch.

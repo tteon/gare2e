@@ -112,3 +112,29 @@ still fails on the same five existing SSH fixture addresses. This is not a full
 green-CI claim. Headless Chrome rendered10 tables,1 timeline SVG and25 selectors'
 options; JavaScript `node --check` passed. These checks validate report/collection
 contracts, not new live GPU/DB behavior.
+
+### Approved bounded continuation — lab-s23
+
+Owner explicitly approved the additional **maximum$5.40 /90minutes** with
+“네 모두 하시죠” after the remaining scope and cost were presented. No approval
+is pending within this extension. New instance must use A100 SXM80GB NVLink pair,
+at least32 logical CPUs, <=$3.60/h including disk. Protected peers remain excluded.
+
+Registered order: live gate105; TP2-control K64; twoTP1 sticky replicas K64;
+grammar K8 CPU16 at constrained query ratio0/.5/1. No completed K/MTP/replay/
+block/chunk/K64 grammar arm is repeated. The TP2 control is a necessary same-host
+comparator for the previously unrun replica condition. Fresh host/cache/order are
+recorded; comparison with prior K64 grammar remains cross-session exploratory.
+
+Same model revision/image/data/schema/budgets and DB capacities as lab-s22b.
+New explicit task clocks, LLM/tool parent IDs, lexical query shape and context byte
+composition are enabled; these are not retroactively claimed for lab-s22b. No
+engine CPU/kernel/decode-step instrumentation or offloading intervention added.
+GPU sampler now resumes after transient sample failures and records error/gaps.
+Collection uses exact file globs and persisted copy/extraction checkpoints.
+
+Launcher `launch_lab_s22.py --continuation` sets label lab-s23,5400s watchdog,
+4200s remote command cap. Session3000s with600s reserve runs only the six registered
+passes including gate; collection remains bounded and partial failures preserved.
+49 focused tests and Ruff pass before staging. Exact bundle/image preflight and
+live readiness/gate remain required before the five comparisons.

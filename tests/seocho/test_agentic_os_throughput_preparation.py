@@ -146,3 +146,36 @@ def test_query_shape_ignores_literals_and_keeps_context_units_explicit() -> None
     result = context_bytes([{'role': 'user', 'content': 'Result: []'}])
     assert result['token_components'] is None
     assert result['components']['tool_observation'] == len('Result: []')
+
+
+def test_continuation_runs_only_unmeasured_cells_with_new_live_gate() -> None:
+    module = load('run_agentic_os_throughput_session')
+    cells = module.plan(continuation=True)
+    assert [c['id'] for c in cells] == ['gate', 'tp2-control', 'replicas2',
+        'grammar-k8-cpu16-r0.0', 'grammar-k8-cpu16-r0.5', 'grammar-k8-cpu16-r1.0']
+    assert cells[1]['k'] == cells[2]['k'] == 64
+    assert cells[1]['replicas'] == 1 and cells[2]['replicas'] == 2
+    assert [c['ratio'] for c in cells[3:]] == [0., .5, 1.]
+    assert all(c['k'] == 8 and c['cpu'] == 16 for c in cells[3:])
+    assert len(module.plan()) == 29
+
+
+def test_gpu_sampler_recovers_after_transient_failure_and_retains_gap_receipt(tmp_path: Path, monkeypatch) -> None:
+    import threading
+    from seocho.eval.agentic_os_observability import NvidiaSmiSampler
+    sampler = NvidiaSmiSampler(tmp_path / 'gpu.csv', interval_s=.01)
+    recovered = threading.Event()
+    calls = []
+    def sample() -> list[dict[str, Any]]:
+        calls.append(1)
+        if len(calls) == 2:
+            raise RuntimeError('nvidia-smi sampling failed: TimeoutExpired')
+        if len(calls) >= 3:
+            recovered.set()
+        return []
+    monkeypatch.setattr(sampler, 'sample_once', sample)
+    sampler.start()
+    assert recovered.wait(1)
+    with pytest.raises(RuntimeError, match='TimeoutExpired'):
+        sampler.stop()
+    assert json.loads((tmp_path / 'gpu-sampling-errors.jsonl').read_text())['error'].endswith('TimeoutExpired')
