@@ -342,3 +342,55 @@ maximum$3.40, combined extension~$5.3208. Do not reset spent money or widen scop
 New labelseocho-agentic-os-lab-s24/rootlab-s24/unitgare2e-lab-s24-20260915; no
 instance created at this preparation checkpoint. Once created, lifecycle and
 watchdog are authoritative; never create a replacement while one may exist.
+
+### §15 lab025 complete + paper-inspired charts (2026-09-15)
+
+Latest state: no owned live instance. Lab-s24 admission-only$0, then lab-s24b
+instance51057078 on native driver595.71.05 A100 SXM4 80GBx2/NVLink300/host458442,
+32 effective CPUs. Source1e0608de / bundle SHA8a4c7aad21acc988cac8311df1b730585072ec7d45091eafda079bb69d073884.
+Same vLLM0.27.1/model revision/Dozer/data; no CUDA forward-compat override.
+Three graph gates and three K64 comparisons all exit0; remote command exit0.
+
+| condition | output tok/s/GPU | task/s | exact server/stage requests |
+| --- | ---: | ---: | ---: |
+| TP2 | 426.09 | 1.887 | 2251/2251 |
+| sticky2TP1 | 322.63 | 1.385 | 2065/2065 |
+| task-rr2TP1 | 378.24 | 1.720 | 2016/2016 |
+
+Replica router joins are also complete. Per-backend89 samples cover each whole
+window. Mean running41.46/18.72 (sticky) vs30.26/29.11 (task-rr); mean KV fractions
+0.568/0.256 vs0.384/0.365. Task assignments232/212 vs219/219, no affinity violations.
+Task-rr improved tok/s/GPU17.24% and task/s24.19% relative to sticky, still below
+TP2 in this single same-host sequential run. Token demand/cache reuse/cohort mix
+also differ; no pure kernel/accuracy-equivalence or universal layout conclusion.
+Observed preemptions0; max contained input3062. Engine decode-sequence/kernel-gap,
+grammar CPU, long-context/offload and DB/KV allocation effects remain unmeasured.
+
+Raw root `.seocho/benchmarks/agentic-os/colocated-appliance/runs/lab-s24b`, derived
+`characterization-v1`:1371 tasks/6332 requests/5491 tools. Included cohort260 tasks,
+1056 requests. [Report](reports/lab025-replicas/README.md), compact CSV/manifest,
+trace-admission and router-balance receipts under `traces/lab-s24b/session-summary`.
+Old missing replica stages are not backfilled.
+
+User's paper-inspired chart request is delivered at
+[characterization-charts](reports/characterization-charts/index.html):30 selectable
+conditions,90 Runtime/Tool/Agent SVGs plus concurrency overview, input hashes and
+numerical data. Interval unions distinguish overlap/unattributed wall time;
+prefill/decode uses exact request joins; cache denominators and per-backend KV are
+explicit. Tool activity is a rule-based call-progress proxy; final is not judged
+success. No new experimental factor or paid call was needed for chart generation.
+
+Essential2,853files/5,324,095bytes verified remote=local SHA256
+e4ea6040b582b495964566a2cd099b50904138ddb6a7a2a06cf88a2c64b601f9; extraction complete.
+Bulk intentionally skipped; preserve lifecycle failed/_PartialArtifacts and
+artifact_copy_verified=false. Parent destroyed+verified; watchdog stopped with
+parent_teardown_verified_absent; independent provider query shows no owned runs.
+Create1789421771.2381241→finish1789424143.9911594 (2372.75s) at$2.38592593/h≈$1.5726.
+Approved extension cumulative≈$3.4933/$5.40; overall cumulative≈$118.42 from prior
+approximate$102.8 base, not an invoice. No automatic new run or budget reset.
+
+Chart numeric contracts10 tests and existing router4 tests pass; Ruff, all30
+condition conservation checks and Chrome rendering/condition selection checked.
+Basic CI1112pass3skip and structural contracts pass; same5 existing SSH fixture
+identity violations remain. Private raw inputs/credentials are not published.
+Continue using temporary worktrees and private gare2e/agentic-os-e2e only.

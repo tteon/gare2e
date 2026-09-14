@@ -164,3 +164,27 @@ The bounded W3C task-rr reference alternates new task assignments and retains
 turn affinity; it does not imply balanced decode load. Default content-hash
 sticky is unchanged. See [request025](lab/requests/025-replica-trace-and-affinity.md)
 for comparison scope, historical gate rejection and the live validation gap.
+
+## Paper-inspired chartbook (2026-09-15)
+
+[The chartbook](reports/characterization-charts/index.html) selects one measured
+condition and presents Runtime / Tool / Agent figures together. The companion
+[measurement contract](reports/characterization-charts/README.md) maps paper
+figures7–9,10–12/tables1–2 and3–6 to our data, with units and coverage.
+Task-time interval unions prevent overlapping work from being double-counted;
+prefill/decode requires an exact server parent match. Missing metrics remain
+unknown. Tool activity uses explicit call-progress rules, not inferred intent;
+Cypher work types replace Bash subcommands. Final termination is not semantic
+success. Input hashes and numerical data are exported alongside standalone SVGs.
+This is free postprocessing of preserved traces, not a new experimental factor.
+
+
+### Live replica closure (lab025)
+
+The follow-up is now measured: all6332 TP2/sticky/task-rr comparison requests have
+exact server parents and queue/TTFT/prefill/decode, all4081 replica requests also
+have one successful router receipt. Per-backend metrics cover both full windows.
+See [lab025 evidence](reports/lab025-replicas/README.md). This closes the W3C
+propagation gap for the new run; historical lab-s23b stages remain unknown.
+It does not add engine-internal decode sequence, grammar CPU, kernel-gap or
+active-versus-cached KV instrumentation. These remain explicit telemetry gaps.

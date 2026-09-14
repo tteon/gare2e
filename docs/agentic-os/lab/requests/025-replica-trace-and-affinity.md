@@ -100,3 +100,34 @@ built-in CUDA compatibility libraries. No GPU exercised in local preflight.
 Bundle SHA256 `8a4c7aad21acc988cac8311df1b730585072ec7d45091eafda079bb69d073884`.
 Basic CI1112 pass3skip; final same five existing SSH identity fixture violations.
 Live gates and measurements remain pending; do not treat readiness as results.
+
+## Result — 2026-09-15 (supersedes preparation snapshots)
+
+Completed lab-s24b on native CUDA-capable A100 SXM80 NVLink host458442, instance
+51057078. The first lab-s24 compat-only admission found no offer and cost$0;
+the native candidate used the same pinned source/image/model/data and no CUDA
+compat override. No duplicate owned instance was created.
+
+All three graph gates and three K64 comparisons exit0, remote command exit0.
+TP2/sticky/task-rr output tok/s/GPU426.09/322.63/378.24, task/s1.887/1.385/1.720.
+All6,332 comparison requests have exact server parents and complete stages;
+all4,081 replica requests also match one successful router receipt. Both replica
+windows have89 samples per backend and full coverage. Sticky running41.46/18.72
+becomes30.26/29.11 with task-rr; task assignments232/212 become219/219, affinity
+violations0. This is one sequential same-host experiment, not a universal TP
+ranking or an accuracy-equivalent kernel benchmark. No long-context/offload claim.
+
+[Measured report](../../reports/lab025-replicas/README.md),
+[admission receipts](../../../../traces/lab-s24b/session-summary/trace-admissions.json),
+[three-category charts](../../reports/characterization-charts/index.html).
+User's added chart request is implemented as free postprocessing across all30
+lab024/lab025 conditions: Runtime / Tool / Agent, explicit denominators and
+missingness, paper-to-Graph-RAG mapping, source hashes and downloadable SVGs.
+
+Essential archive2,853files/5,324,095bytes remote=local SHA256
+e4ea6040b582b495964566a2cd099b50904138ddb6a7a2a06cf88a2c64b601f9, extraction
+complete. Bulk intentionally skipped; preserve failed/_PartialArtifacts lifecycle
+and artifact_copy_verified=false. Instance destroyed/absent, independent provider
+check returns no owned instances, watchdog parent_teardown_verified_absent.
+2,372.75s at$2.38592593/h ≈$1.5726; extension cumulative$3.4933/$5.40. No running
+experiment or replacement scheduled. See HANDOFF§15 and LEDGER.

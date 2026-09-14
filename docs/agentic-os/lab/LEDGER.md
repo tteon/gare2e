@@ -67,3 +67,19 @@ previous approximate$102.8 base. These are hourly estimates, not final invoices.
 No owned live instance. Lab-s23 admission-only failure remains$0. No new launch
 scheduled; previous unspent/live ledger snapshots are superseded. Bulk archive
 coverage is partial by explicit essential-only mode; see HANDOFF§13.
+
+
+### Latest: 2026-09-15 lab025 settled (hourly estimate)
+
+| run | owned instance | disk-inclusive $/h | elapsed | estimate USD | outcome |
+| --- | --- | ---: | ---: | ---: | --- |
+| lab-s24 | none | — | admission only | 0 | compat-only offer unavailable before create |
+| lab-s24b | 51057078 | 2.38592593 | 2372.75s | 1.5726 | three graph/trace gates + three comparisons exit0; essential verified; destroyed/absent + watchdog stopped |
+
+Prior approved extension$5.40: previous$1.920787 + current$1.572559 ≈**$3.4933**,
+remaining≈$1.9067. Prior spend is retained; the3600s watchdog was per instance,
+stricter than the previous5400s bound. No monetary reset or new scope inferred.
+Overall cumulative≈**$118.42** (approximate$102.8 base +$12.122666 +$1.920787
++$1.572559), not a final invoice. Charts are free postprocessing. No owned live
+instance, no replacement scheduled; colleagues untouched. Essential-only bulk
+limitation preserved in original lifecycle. See HANDOFF§15 and request025 Result.

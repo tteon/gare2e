@@ -1,5 +1,9 @@
 # Lab report pages (content-free HTML, also published as Claude artifacts)
 
+[Three-category characterization chartbook](characterization-charts/index.html)
+adds selectable Runtime / Tool / Agent figures for30 measured lab024/lab025 conditions.
+[Definitions and source reports](characterization-charts/README.md).
+
 | file | labs | artifact |
 |---|---|---|
 | lab-s11-wider-cohort.html | 013 | https://claude.ai/code/artifact/04719482-b362-477d-b154-769afb6bb263 |

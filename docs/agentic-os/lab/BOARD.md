@@ -84,3 +84,18 @@ identity-check gap in basic CI; implementation is not throughput evidence.
   $3.4792, capped$3.40/60min per new instance. No budget reset. Beadseocho-odhn.
 - See request025 and HANDOFF§14. Owned-instance state must be read from lifecycle
   once launch begins; preparation checkpoint has no new instance.
+
+
+### Latest: lab025 + chartbook complete (2026-09-15)
+
+- Three K64 comparisons + three graph/trace gates exit0. TP2/sticky/task-rr
+  426.09/322.63/378.24 output tok/s/GPU. All6332 comparison requests linked to
+  complete server stages; replica router joins also complete.
+- [Lab025 report](../reports/lab025-replicas/README.md) and
+  [Runtime / Tool / Agent charts](../reports/characterization-charts/index.html)
+  cover30 total comparison conditions. User chart request implemented without
+  adding experimental factors or paid calls.
+- lab-s24b instance51057078 destroyed+verified, watchdog stopped, no owned runs.
+  Essential2853files remote/local SHA verified; bulk intentionally skipped.
+  Additional cost≈$1.5726, extension total≈$3.4933/$5.40, cumulative≈$118.42.
+- Request025/HANDOFF§15 supersede prepared/live snapshots. No next run scheduled.

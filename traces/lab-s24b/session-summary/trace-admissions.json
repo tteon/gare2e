@@ -1,0 +1,126 @@
+{
+  "run-gate": {
+    "schema_version": "agentic_os.trace_admission.v1",
+    "passed": true,
+    "client_requests": 3,
+    "unique_client_requests": 3,
+    "exact_server_matches": 3,
+    "complete_stage_requests": 3,
+    "exact_router_matches": 0,
+    "observed_backend_indices": [],
+    "expected_replicas": 1,
+    "require_all_backends": false,
+    "required_stages": [
+      "queue_s",
+      "ttft_s",
+      "prefill_s",
+      "decode_s"
+    ],
+    "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+  },
+  "run-replicas2": {
+    "schema_version": "agentic_os.trace_admission.v1",
+    "passed": true,
+    "client_requests": 2065,
+    "unique_client_requests": 2065,
+    "exact_server_matches": 2065,
+    "complete_stage_requests": 2065,
+    "exact_router_matches": 2065,
+    "observed_backend_indices": [
+      0,
+      1
+    ],
+    "expected_replicas": 2,
+    "require_all_backends": true,
+    "required_stages": [
+      "queue_s",
+      "ttft_s",
+      "prefill_s",
+      "decode_s"
+    ],
+    "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+  },
+  "run-replicas2-gate": {
+    "schema_version": "agentic_os.trace_admission.v1",
+    "passed": true,
+    "client_requests": 3,
+    "unique_client_requests": 3,
+    "exact_server_matches": 3,
+    "complete_stage_requests": 3,
+    "exact_router_matches": 3,
+    "observed_backend_indices": [
+      1
+    ],
+    "expected_replicas": 2,
+    "require_all_backends": false,
+    "required_stages": [
+      "queue_s",
+      "ttft_s",
+      "prefill_s",
+      "decode_s"
+    ],
+    "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+  },
+  "run-task-rr": {
+    "schema_version": "agentic_os.trace_admission.v1",
+    "passed": true,
+    "client_requests": 2016,
+    "unique_client_requests": 2016,
+    "exact_server_matches": 2016,
+    "complete_stage_requests": 2016,
+    "exact_router_matches": 2016,
+    "observed_backend_indices": [
+      0,
+      1
+    ],
+    "expected_replicas": 2,
+    "require_all_backends": true,
+    "required_stages": [
+      "queue_s",
+      "ttft_s",
+      "prefill_s",
+      "decode_s"
+    ],
+    "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+  },
+  "run-task-rr-gate": {
+    "schema_version": "agentic_os.trace_admission.v1",
+    "passed": true,
+    "client_requests": 3,
+    "unique_client_requests": 3,
+    "exact_server_matches": 3,
+    "complete_stage_requests": 3,
+    "exact_router_matches": 3,
+    "observed_backend_indices": [
+      0
+    ],
+    "expected_replicas": 2,
+    "require_all_backends": false,
+    "required_stages": [
+      "queue_s",
+      "ttft_s",
+      "prefill_s",
+      "decode_s"
+    ],
+    "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+  },
+  "run-tp2-control": {
+    "schema_version": "agentic_os.trace_admission.v1",
+    "passed": true,
+    "client_requests": 2251,
+    "unique_client_requests": 2251,
+    "exact_server_matches": 2251,
+    "complete_stage_requests": 2251,
+    "exact_router_matches": 0,
+    "observed_backend_indices": [],
+    "expected_replicas": 1,
+    "require_all_backends": false,
+    "required_stages": [
+      "queue_s",
+      "ttft_s",
+      "prefill_s",
+      "decode_s"
+    ],
+    "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+  }
+}
