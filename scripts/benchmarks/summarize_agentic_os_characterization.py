@@ -202,6 +202,7 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -
         if config.get('replicas') == 2 and 'vllm:kv_cache_usage_perc' in gauges:
             gauges['kv_usage_fraction_sum_across_replicas'] = gauges.pop('vllm:kv_cache_usage_perc')
         summary = {'pass': pass_name, 'application_k': factors.get('application_k'),
+                   'router_policy': config.get('router_policy'),
                    'serving_layout': '2 x TP=1' if config.get('replicas') == 2 else 'TP=2' if config.get('replicas') == 1 else 'unrecorded',
                    'configured_logical_cpus': config.get('cpu'),
                    'throughput': rate, 'output_tok_s_gpu': factors.get('output_tokens_per_s_per_gpu'),

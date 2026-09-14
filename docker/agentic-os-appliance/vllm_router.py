@@ -9,6 +9,9 @@ Policies (``--policy``):
   rr      per-request round robin.  Every turn of a case may land on a
           different replica, so a case's growing prefix is re-prefilled unless
           the replicas share KV (the LMCache arm).
+  task-rr  new W3C task trace IDs alternate replicas; later turns retain affinity.
+           Assignments are bounded and never evicted mid-task; capacity fails closed.
+           Equal admissions do not imply equal decode load.
   sticky  per-case: replica = sha256(first two message contents) mod N.  All
           turns of one case stay on one replica, so local prefix caching works
           and cross-replica sharing only helps the common system prefix.
@@ -35,6 +38,17 @@ from pathlib import Path
 from typing import Any
 
 from aiohttp import ClientSession, ClientTimeout, web
+
+TRACEPARENT_RE = re.compile(r"00-([0-9a-f]{32})-([0-9a-f]{16})-([0-9a-f]{2})$")
+
+
+def trace_context(header: str) -> dict[str, str | None]:
+    """Only content-free W3C IDs; never persist arbitrary header values."""
+    match = TRACEPARENT_RE.fullmatch(header)
+    if not match or int(match[1], 16) == 0 or int(match[2], 16) == 0:
+        return {"trace_id": None, "parent_span_id": None}
+    return {"trace_id": match[1], "parent_span_id": match[2]}
+
 
 FORWARD_HEADERS = ("Content-Type", "Authorization", "Accept", "X-Request-Id", "traceparent", "tracestate")
 
@@ -107,7 +121,11 @@ def merge_metrics(texts: list[str]) -> str:
 
 
 class Router:
-    def __init__(self, backends: list[str], policy: str, receipt: Path | None) -> None:
+    def __init__(self, backends: list[str], policy: str, receipt: Path | None, *, max_task_assignments: int = 16384) -> None:
+        if not backends or policy not in ("sticky", "rr", "task-rr") or max_task_assignments <= 0:
+            raise ValueError("invalid router configuration")
+        self.task_assignments: dict[str, int] = {}
+        self.max_task_assignments = max_task_assignments
         self.backends = backends
         self.policy = policy
         self.receipt = receipt
@@ -124,8 +142,17 @@ class Router:
         if self.session:
             await self.session.close()
 
-    def pick(self, body: dict[str, Any]) -> tuple[int, str]:
+    def pick(self, body: dict[str, Any], *, trace_id: str | None = None) -> tuple[int, str]:
         n = len(self.backends)
+        if self.policy == "task-rr":
+            if trace_id is None:
+                raise web.HTTPBadRequest(text="task-rr requires valid W3C trace context")
+            if trace_id not in self.task_assignments:
+                if len(self.task_assignments) >= self.max_task_assignments:
+                    raise web.HTTPServiceUnavailable(text="task affinity capacity exhausted")
+                self.task_assignments[trace_id] = self.counter % n
+                self.counter += 1
+            return self.task_assignments[trace_id], hashlib.sha256(trace_id.encode()).hexdigest()
         if self.policy == "sticky":
             key = routing_key(body)
             return int(key[:8], 16) % n, key
@@ -144,7 +171,8 @@ class Router:
             body = json.loads(raw or b"{}")
         except json.JSONDecodeError:
             body = {}
-        idx, key = self.pick(body)
+        context = trace_context(request.headers.get("traceparent", ""))
+        idx, key = self.pick(body, trace_id=context["trace_id"])
         t0 = time.monotonic()
         assert self.session
         async with self.session.post(f"{self.backends[idx]}{request.rel_url}", data=raw, headers=forward_headers(request)) as r:
@@ -152,7 +180,9 @@ class Router:
             status = r.status
             ctype = r.headers.get("Content-Type", "application/json")
         self.record({
-            "schema_version": "seocho.agentic_os.vllm_router_receipt.v1",
+            "schema_version": "seocho.agentic_os.vllm_router_receipt.v2",
+            **context,
+            "task_assignments": len(self.task_assignments),
             "policy": self.policy,
             "replica": idx,
             "status": status,
@@ -235,7 +265,7 @@ def main() -> int:
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=8000)
     ap.add_argument("--backend", action="append", required=True, help="http://127.0.0.1:8001 (repeat per replica)")
-    ap.add_argument("--policy", choices=("rr", "sticky"), default="sticky")
+    ap.add_argument("--policy", choices=("rr", "sticky", "task-rr"), default="sticky")
     ap.add_argument("--receipt", type=Path, help="content-free per-request routing receipt JSONL")
     args = ap.parse_args()
     router = Router(args.backend, args.policy, args.receipt)

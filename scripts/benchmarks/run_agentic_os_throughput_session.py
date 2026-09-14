@@ -13,9 +13,12 @@ from typing import Any
 
 from prepare_agentic_os_throughput import backlog_schedule, capture_index, write_new
 from summarize_agentic_os_factors import summarize
+from summarize_agentic_os_characterization import replica_observations
 
 
-def plan(*, continuation: bool = False) -> list[dict[str, Any]]:
+def plan(*, continuation: bool = False, replica_audit: bool = False) -> list[dict[str, Any]]:
+    if continuation and replica_audit:
+        raise ValueError('choose one continuation scope')
     baseline = '--max-num-batched-tokens,8192'
     mtp = baseline + ',--speculative-config,{"method":"qwen3_5_mtp","num_speculative_tokens":2}'
     passes: list[dict[str, Any]] = [
@@ -35,7 +38,13 @@ def plan(*, continuation: bool = False) -> list[dict[str, Any]]:
         by_id = {p['id']: p for p in passes}
         passes = [by_id[name] for name in ('gate', 'tp2-control', 'replicas2',
                   'grammar-k8-cpu16-r0.0', 'grammar-k8-cpu16-r0.5', 'grammar-k8-cpu16-r1.0')]
-    return [{**{'lane': 'grbench-single', 'serving': baseline, 'cpu': None, 'replicas': 1, 'runner': 'persistent'}, **p} for p in passes]
+    if replica_audit:
+        passes = [dict(id='gate', k=1, limit=1), dict(id='tp2-control', k=64),
+                  dict(id='replicas2-gate', k=1, limit=1, replicas=2),
+                  dict(id='replicas2', k=64, replicas=2),
+                  dict(id='task-rr-gate', k=1, limit=1, replicas=2, router_policy='task-rr'),
+                  dict(id='task-rr', k=64, replicas=2, router_policy='task-rr')]
+    return [{**{'router_policy': 'sticky', 'lane': 'grbench-single', 'serving': baseline, 'cpu': None, 'replicas': 1, 'runner': 'persistent'}, **p} for p in passes]
 
 
 def run(command: list[str], log: Path, *, timeout: int) -> int:
@@ -46,6 +55,34 @@ def run(command: list[str], log: Path, *, timeout: int) -> int:
             return subprocess.run(command, stdout=stream, stderr=subprocess.STDOUT, timeout=timeout, check=False).returncode
         except subprocess.TimeoutExpired:
             return 124
+
+
+
+def run_observed(command: list[str], root: Path, scripts: Path, *, replicas: int) -> int:
+    """Stop the bounded backend observer even when the workload fails."""
+    if replicas == 1:
+        return run(command, root / 'pass.private.log', timeout=1200)
+    stop = root / 'workload/replica-observer.stop.json'
+    log = root / 'replica-observer.private.log'
+    with log.open('xb') as stream:
+        log.chmod(0o600)
+        observer = subprocess.Popen([sys.executable, str(scripts / 'sample_agentic_os_replica_metrics.py'),
+            '--pass-root', str(root), '--max-seconds', '1260', '--stop-file', str(stop)],
+            stdout=stream, stderr=subprocess.STDOUT)
+        try:
+            return run(command, root / 'pass.private.log', timeout=1200)
+        finally:
+            stop.parent.mkdir(parents=True, exist_ok=True)
+            stop.write_text(json.dumps({'requested_unix_s': time.time()}) + '\n')
+            try:
+                observer.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                observer.terminate()
+                try:
+                    observer.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    observer.kill()
+                    observer.wait(timeout=5)
 
 
 def pids(pattern: str) -> list[int]:
@@ -62,11 +99,12 @@ def main() -> int:
     parser.add_argument('--max-session-s', type=int, default=10500)
     parser.add_argument('--reserve-s', type=int, default=1500)
     parser.add_argument('--continuation', action='store_true', help='Only live gate, TP pair and grammar K8 ratios')
+    parser.add_argument('--replica-audit', action='store_true', help='TP2/sticky/task-rr with strict trace gates')
     parser.add_argument('--print-plan', action='store_true')
     args = parser.parse_args()
     if args.reserve_s < 0 or args.max_session_s <= args.reserve_s:
         parser.error('max session must exceed nonnegative reserve')
-    registered = plan(continuation=args.continuation)
+    registered = plan(continuation=args.continuation, replica_audit=args.replica_audit)
     if args.print_plan:
         print(json.dumps(registered, indent=2))
         return 0
@@ -84,7 +122,7 @@ def main() -> int:
     write_new(args.input / 'throughput-gate.json', {**cohort, 'entries': gate_entries})
     write_new(args.input / 'throughput-backlog.json', backlog_schedule(source, repeats=40))
     write_new(args.artifacts / 'session-summary/registered-plan.json', {'passes': registered, 'duration_s': args.duration_s,
-        'continuation': args.continuation, 'reserve_s': args.reserve_s,
+        'continuation': args.continuation, 'replica_audit': args.replica_audit, 'reserve_s': args.reserve_s,
         'max_session_s': args.max_session_s, 'context': '32768 cap; observed lengths reported separately',
         'db_cache': 'warm intent; no OS cache flush; capacities fixed', 'quality': 'recorded separately; replay has no answer-quality evaluation',
         'high_load_k': 64, 'high_load_is_saturation': 'only if measured K curve establishes plateau'})
@@ -105,9 +143,10 @@ def main() -> int:
             return 4
         root = args.artifacts / ('run-' + spec['id'])
         root.mkdir()
-        next_shape = (spec['serving'], spec['cpu'], spec['replicas'])
+        next_shape = (spec['serving'], spec['cpu'], spec['replicas'], spec['router_policy'])
         if next_shape != shape:
             os.environ.update(VLLM_EXTRA_ARGS=spec['serving'], VLLM_REPLICAS=str(spec['replicas']),
+                SEOCHO_ROUTER_POLICY=spec['router_policy'],
                 SEOCHO_VLLM_CPU_COUNT=str(spec['cpu']) if spec['cpu'] else '', SEOCHO_VLLM_RECEIPT_DIR=str(root / 'vllm-restart'))
             code = run(['bash', str(args.repo / 'docker/agentic-os-appliance/restart_vllm.sh')], root / 'restart.private.log', timeout=1100)
             if code:
@@ -143,7 +182,8 @@ def main() -> int:
             '--role-pid', f'dozerdb={min(db_pids)}']
         for index, pid in enumerate(sorted(server_pids)):
             wrapper += ['--role-pid', f'{"vllm" if index == 0 else "vllm_replica" + str(index)}={pid}']
-        code = run(wrapper + ['--workload', *command], root / 'pass.private.log', timeout=1200)
+        code = run_observed(wrapper + ['--workload', *command], root, scripts,
+                            replicas=spec['replicas'] if args.replica_audit else 1)
         export_code = run([sys.executable, str(scripts / 'export_agentic_os_otel.py'), str(coordinator),
             '--jsonl', str(root / 'otel/spans.jsonl')], root / 'export.private.log', timeout=120)
         receipt = {'pass_id': spec['id'], 'exit_code': code, 'export_exit_code': export_code, 'config': spec}
@@ -166,6 +206,29 @@ def main() -> int:
             write_new(root / 'otel/factors.json', factors)
             write_new(root / 'otel/throughput.json', factors['throughput'])
             receipt['throughput_status'] = factors['throughput']['status']
+            if args.replica_audit:
+                rate = factors['throughput']
+                valid_window = rate['status'] == 'observed' and factors.get('observed_physical_gpu_count') == 2
+                if spec['replicas'] > 1 and valid_window:
+                    observations = replica_observations(root, rate['started_unix_s'], rate['finished_unix_s'])
+                    valid_window = len(observations) == spec['replicas'] and all(r['full_window_coverage'] for r in observations)
+                    receipt['replica_metric_window_coverage'] = valid_window
+                if not valid_window:
+                    code = 3
+                    receipt['failed_stage'] = 'metric_window'
+        if args.replica_audit and not code:
+            gate = [sys.executable, str(scripts / 'audit_agentic_os_trace_gate.py'),
+                    '--client', str(root / 'otel/spans.jsonl'),
+                    '--server', str(args.artifacts / 'otel/collector-spans.jsonl'),
+                    '--replicas', str(spec['replicas']), '--output', str(root / 'otel/trace-admission.json')]
+            if spec['replicas'] > 1:
+                gate += ['--router', str(Path(os.environ['SEOCHO_VLLM_RECEIPT_DIR']) / 'router-receipts.jsonl')]
+                if not spec.get('limit'):
+                    gate += ['--require-all-backends']
+            code = export_code or run(gate, root / 'trace-admission.private.log', timeout=30)
+            receipt['trace_admission_passed'] = code == 0
+            if code:
+                receipt['failed_stage'] = 'trace_admission'
         receipt['exit_code'] = code
         write_new(root / 'pass-receipt.json', receipt)
         print(json.dumps({'pass_id': spec['id'], 'exit_code': code, 'elapsed_s': round(time.monotonic() - began)}), flush=True)

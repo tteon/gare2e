@@ -74,3 +74,13 @@ identity-check gap in basic CI; implementation is not throughput evidence.
 - Essential2,409-file transfer hash/extraction verified; full bulk intentionally
   skipped. Old s22b partial provenance and3 missing GPU-normalized rates unchanged.
 - See HANDOFF§13 and request024; preceding pending/live snapshots are historical.
+
+
+### Latest follow-up: lab025 prepared (2026-09-15)
+
+- User continuation: exact stage/router gates and task-rr reference implemented;
+  54 focused tests and exact-image preflight passed. No new performance claim.
+- New bounded TP2/sticky/task-rr validation planned within remaining approved
+  $3.4792, capped$3.40/60min per new instance. No budget reset. Beadseocho-odhn.
+- See request025 and HANDOFF§14. Owned-instance state must be read from lifecycle
+  once launch begins; preparation checkpoint has no new instance.

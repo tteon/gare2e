@@ -154,3 +154,13 @@ Replica samples covered the complete inner window and exposed unequal mean
 running requests (47.60 versus13.33) and KV fractions (0.648 versus0.169).
 The measured TP comparison therefore describes this sticky routing configuration;
 it does not establish the intrinsic performance ranking of balanced TP layouts.
+
+## Follow-up admission (lab025, implemented-only)
+
+The opt-in replica-audit queue gates each serving/routing configuration on a real
+graph request and exact client/server stages. Timed replica passes require both
+backend indices in router receipts and complete per-backend metric windows.
+The bounded W3C task-rr reference alternates new task assignments and retains
+turn affinity; it does not imply balanced decode load. Default content-hash
+sticky is unchanged. See [request025](lab/requests/025-replica-trace-and-affinity.md)
+for comparison scope, historical gate rejection and the live validation gap.

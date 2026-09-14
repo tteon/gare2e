@@ -318,3 +318,27 @@ fix deployment and live gates; do not rerun automatically or reuse consumed budg
 
 Keep subsequent commits in a temporary worktree and push only private
 `gare2e/agentic-os-e2e`. Update these state/evidence copies at each session end.
+
+
+### §14 lab025 follow-up prepared (2026-09-15)
+
+User requested continuation after lab024. Follow-up beadseocho-odhn and request025
+implement exact W3C/router/stage admission, automatic full-window per-backend
+sampling and bounded task-rr affinity. Default sticky unchanged. Same-host plan:
+TP2 gate/control, sticky2TP1 gate/control, task-rr2TP1 gate/control. Gates require
+a real graph call and complete request-stage joins; timed replica arms additionally
+require both backends and complete metric windows. Missing evidence stops queue.
+
+54 focused tests (including local HTTP) and Ruff pass. Historical original TP2
+2278/2278 joins pass; old replica0/1918 fails. This is an audit of old evidence,
+not a new performance result. Basic CI1112pass3skip; same five identity-fixture
+violations remain. Exact-image/source/unchanged-Dozer/entrypoint/compat preflight
+all pass; no local GPU exercised. Bundle lab025-20260915-v1 SHA256
+8a4c7aad21acc988cac8311df1b730585072ec7d45091eafda079bb69d073884.
+
+Prior approved extension$5.40 used$1.9208, remaining~$3.4792. User continuation is
+bounded to <=$3.40/h and NEW3600s instance watchdog (stricter than former5400s),
+maximum$3.40, combined extension~$5.3208. Do not reset spent money or widen scope.
+New labelseocho-agentic-os-lab-s24/rootlab-s24/unitgare2e-lab-s24-20260915; no
+instance created at this preparation checkpoint. Once created, lifecycle and
+watchdog are authoritative; never create a replacement while one may exist.

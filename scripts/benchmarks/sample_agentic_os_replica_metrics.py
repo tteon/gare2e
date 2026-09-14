@@ -15,6 +15,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--pass-root', type=Path, required=True)
     parser.add_argument('--max-seconds', type=int, default=1800)
+    parser.add_argument('--stop-file', type=Path)
     args = parser.parse_args()
     if args.max_seconds <= 0:
         parser.error('max seconds must be positive')
@@ -35,14 +36,16 @@ def main() -> int:
                 client=VllmMetricsClient(f'http://127.0.0.1:{8001+i}/metrics', timeout_s=.5),
                 require_available=False) for i in range(2)]
     cycles = 0
-    while time.monotonic() < deadline and not (args.pass_root / 'pass-receipt.json').exists():
+    while (time.monotonic() < deadline and not (args.pass_root / 'pass-receipt.json').exists()
+           and not (args.stop_file and args.stop_file.exists())):
         began = time.monotonic()
         for sampler in samplers:
             sampler.sample_once()
         cycles += 1
         time.sleep(max(0, 1 - (time.monotonic() - began)))
     receipt.update(finished_unix_s=time.time(), cycles=cycles,
-                   pass_finished=(args.pass_root / 'pass-receipt.json').exists())
+                   pass_finished=(args.pass_root / 'pass-receipt.json').exists(),
+                   stop_requested=bool(args.stop_file and args.stop_file.exists()))
     (output / 'replica-observer.json').write_text(json.dumps(receipt, indent=2) + '\n')
     return 0
 

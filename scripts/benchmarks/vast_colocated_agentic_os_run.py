@@ -405,7 +405,7 @@ ESSENTIAL_GLOBS = (
     "queue-receipt.jsonl", "appliance-phases.private.tsv", "bootstrap-phases.private.tsv",
     "e2e/*.json", "otel/collector-spans.jsonl", "*discovery-serving.json",
     "run-*/pass-receipt.json", "run-*/otel-export-receipt.json", "run-*/otel/spans.jsonl",
-    "run-*/otel/throughput.json", "run-*/otel/factors.json", "run-*/otel/*.csv",
+    "run-*/otel/trace-admission.json", "run-*/otel/throughput.json", "run-*/otel/factors.json", "run-*/otel/*.csv",
     "session-summary/*.json", "session-summary/*.csv", "session-summary/*.md",
     "run-*/e2e/*/shard-*/attempts/*/replay.private.jsonl",
     "run-*/vllm-restart/*.json", "run-*/vllm-restart/router-receipts.jsonl", "run-*/workload/*.csv", "run-*/workload/*.json", "run-*/workload/*.jsonl",
