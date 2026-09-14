@@ -15,3 +15,8 @@ tables under `traces/<run>/` and the `## Result` sections of `docs/agentic-os/la
 Lab024: [linked Agent / Runtime / Tool report](lab024-characterization/index.html),
 [findings and provenance](lab024-characterization/README.md). Self-contained HTML,
 full content-free CSV.gz exports, no external UI dependencies.
+
+Lab024 continuation: [TP/grammar three-view report](lab024-continuation/index.html),
+[findings, trace gap and replica imbalance](lab024-continuation/README.md). Five
+additional comparisons complete the executed27-condition matrix. Sessions remain
+separate because host/runtime conditions differ.

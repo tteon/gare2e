@@ -5,6 +5,10 @@ Agent Execution, Runtime Performance and Tool Call views. All chart/table data
 are embedded; the compressed CSVs contain the full content-free task/request/tool
 records. [Compact comparison table](../../../../traces/lab-s22b/session-summary/characterization.csv).
 
+The five deferred TP/grammar conditions are now measured in the
+[2026-09-14 continuation report](../lab024-continuation/README.md). This page
+retains the original lab-s22b session and its historical collection/telemetry limits.
+
 ## Observed outcome
 
 | Application K | Baseline output tok/s/GPU | MTP output tok/s/GPU | MTP change |

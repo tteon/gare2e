@@ -62,3 +62,15 @@ identity-check gap in basic CI; implementation is not throughput evidence.
   built-in CUDA forward compatibility. Loading; live GPU/service gates pending.
   Watchdog deadline1789392581.891499; no duplicate launch. Earlier no-live snapshot
   superseded. Same approved$5.40/90min extension; see HANDOFF§12.
+
+### Latest: 2026-09-14 lab024 approved matrix executed
+
+- 27 comparisons measured across22+5 passes. Reports: [initial22](../reports/lab024-characterization/README.md), [continuation5](../reports/lab024-continuation/README.md).
+- Owned51011956 destroyed+absence verified, watchdog stopped. Additional$1.9208;
+  cumulative estimate≈$116.84. No live owned instance or scheduled paid continuation.
+- Explicit clocks/IDs/context bytes measured. Replica parent trace propagation
+  gap identified and locally fixed; live revalidation remains a gap. Sticky
+  replica load imbalance prevents a pure TP-topology conclusion.
+- Essential2,409-file transfer hash/extraction verified; full bulk intentionally
+  skipped. Old s22b partial provenance and3 missing GPU-normalized rates unchanged.
+- See HANDOFF§13 and request024; preceding pending/live snapshots are historical.

@@ -54,3 +54,16 @@ HANDOFF§12 for recovery and remaining work. No new paid resources launched.
 - 2026-09-14 lab-s23: **$0**, failed admission before create (no compatible A100
   SXM pair for pinned CUDA>=13 image). Approved extra$5.40 remains unspent.
   No owned live instance; cumulative estimate stays≈$114.92.
+
+### Latest: 2026-09-14 continuation settled (hourly estimate)
+
+| run | owned instance | disk-inclusive $/h | billed-span estimate | estimate USD | result |
+| --- | --- | ---: | ---: | ---: | --- |
+| lab-s23b | 51011956 | 2.09037037 | 3307.95s | 1.9208 | gate+5 comparisons exit0; essential copy verified; parent destroyed+absence verified; watchdog stopped |
+
+Additional extension usage≈$1.9208 within approved$5.40/90min. Lab024 combined
+original and continuation≈$14.0435. Overall cumulative≈**$116.84** using the
+previous approximate$102.8 base. These are hourly estimates, not final invoices.
+No owned live instance. Lab-s23 admission-only failure remains$0. No new launch
+scheduled; previous unspent/live ledger snapshots are superseded. Bulk archive
+coverage is partial by explicit essential-only mode; see HANDOFF§13.

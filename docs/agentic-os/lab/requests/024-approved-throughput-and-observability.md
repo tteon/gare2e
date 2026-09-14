@@ -1,7 +1,7 @@
 ---
 id: 024
 title: Approved throughput comparisons and explanatory observability
-state: measured partial; report available; remaining TP comparison budget-limited
+state: approved matrix executed; categorized reports available; telemetry gaps recorded
 created: 2026-09-13
 bead: seocho-7yaz
 ---
@@ -157,3 +157,28 @@ strict. New --cuda-forward-compat is A100-continuation-only, requires exact-imag
 library preflight and a fail-closed live GPU/peer/loaded-library probe before
 model/DB startup. No driver/image/model replacement. Same five cells and approved
 cost cap; record compatibility mode as a cross-session condition. See HANDOFF§12.
+
+### Final continuation result — lab-s23b (2026-09-14)
+
+The five previously unrun cells all completed with exit0 after live GPU/DB/trace
+readiness and gate105. [Categorized results](../../reports/lab024-continuation/index.html)
+and [findings/provenance](../../reports/lab024-continuation/README.md) record the
+conditions,1,156 tasks/5,077 requests/4,285 tools and every telemetry limitation.
+TP2 vs sticky2xTP1:439.59 vs273.73 output tok/s/GPU; task/s1.873 vs1.240.
+Grammar K8 ratios0/.5/1:139.43/91.73/70.64 output tok/s/GPU.
+
+Replica metrics reveal unequal load (mean running47.60 vs13.33). Deployed router
+omitted W3C headers, so1,918 replica requests have no exact server parent links;
+those request-stage values remain null. Other contained-cohort859 requests match
+exactly. Header forwarding fixed and locally tested after teardown; no paid
+revalidation is claimed. Complete-window per-backend fraction sampling is valid.
+
+The approved paid matrix is executed, with the3 older block/chunk GPU sampling
+gaps and replica linkage gap explicitly retained. Further hypothesis/pressure/
+balanced-routing runs are separate experiments, not silently repeated gates.
+Essential2,409 files/3,974,580bytes transferred with matching remote/local hashes;
+bulk skipped intentionally and original lifecycle remains _PartialArtifacts.
+Instance51011956 destroyed and absent; watchdog stopped. Additional$1.9208,
+lab024 combined≈$14.0435; cumulative≈$116.84. See HANDOFF§13 for exact receipts.
+36 focused tests/Ruff and browser/JS checks pass. BasicCI1112 pass3skip, unchanged
+five pre-existing SSH identity fixture failures remain; not fully green CI.

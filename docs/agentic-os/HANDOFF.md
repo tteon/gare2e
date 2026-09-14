@@ -258,3 +258,63 @@ complete. Do not claim a successful runtime/throughput gate. Remaining queue is
 fully pre-staged and does not need agent interaction once readiness/gate pass.
 The same max$5.40 budget is active. This supersedes earlier no-instance/unspent
 snapshots. Keep checking lifecycle/watchdog; collect+verify+destroy at completion.
+
+### §13 final: lab024 continuation measured and owned instance destroyed (2026-09-14)
+
+This is the latest state; the earlier pending/admission/live checkpoints are
+historical. The approved matrix has now executed27 comparison conditions across
+lab-s22b (22) and lab-s23b (5), plus their gates/capture. No owned instance or
+active watchdog remains. No additional paid launch is scheduled.
+
+[Continuation three-view report](reports/lab024-continuation/index.html),
+[findings/conditions/gaps](reports/lab024-continuation/README.md), and
+[compact CSV](../../traces/lab-s23b/session-summary/characterization.csv).
+TP2 / sticky2xTP1 K64:439.59 /273.73 output tok/s/GPU and1.873 /1.240 task/s.
+Grammar K8 CPU16 ratios0/.5/1:139.43 /91.73 /70.64 output tok/s/GPU.
+Same-window primary rates observe both physical GPUs. Single ordered passes;
+no confidence interval, balanced-topology ranking, saturation or accuracy claim.
+
+1,156 comparison tasks,5,077 client requests,4,285 tools. All task clocks/IDs,
+request step IDs/context bytes and tool/parent IDs are explicitly recorded.
+Single-engine contained-cohort859 requests all match server stages. Replica1,918
+client requests lack exact server parent links because the deployed router drops
+W3C headers; report timings remain null. Header forwarding is fixed and locally
+tested after teardown, not live revalidated. Future essential collection includes
+router receipts. Replica metrics cover both full windows: mean running47.60 vs
+13.33 and KV fractions0.648 vs0.169, exposing sticky routing imbalance. Fraction
+sums are labeled as sums, not overall utilization. Do not infer pure TP effects.
+
+Source42ed5bd1/v55, same model/image/data/Dozer; R570 A100 built-in CUDA13 compat
+probe/readiness/gate105 passed. Five comparisons + gate all exit0. Added observer
+source SHA256db21bba777c78249ea2eeaad438d71b3c1e2abc404bafcf2411a9151478aca3a
+was staged read-only during replicas2; complete window coverage verified.
+
+Essential transfer3,974,580bytes/2,409files verified remote=local SHA256
+`dd5aa025f879acddd79f78074c6f11f37fc2fd39e6facb195e9692d35219bac7`, extraction
+complete. The successful collector deletes the transfer archive and retains
+extracted originals/checkpoint. Bulk was intentionally skipped by essential-only;
+raw lifecycle stays failed/_PartialArtifacts and artifact_copy_verified=false.
+This is a verified essential subset, not a fully archived bulk run. Do not rewrite
+this receipt or copy private payloads into Git. Manifest records the distinction.
+
+Instance51011956 created1789387181.891499, destroyed/absence verified by parent;
+watchdog terminalparent_teardown_verified_absent, finished1789390489.8383522.
+$2.09037037/h ×3307.95s ≈$1.9208 additional, within$5.40/90min. Lab024 total
+≈$14.0435 across original+extension; cumulative prior estimate≈$116.84. Not an
+invoice. Provider list independently confirmed no owned run; peers untouched.
+
+Raw root `.seocho/benchmarks/agentic-os/colocated-appliance/runs/lab-s23b`, derived
+`characterization-v1`; private originals stay local. Report+CSV.gz under
+reports/lab024-continuation; compact table+manifest in traces/lab-s23b/session-summary.
+
+Validation:36 focused appliance/report tests, Ruff, JS node check, TP2 and replica
+headless rendering (11 tables/1 SVG each) passed. Basic CI1112 passed3skipped;
+final identity check still rejects the same five pre-existing SSH fixture entries.
+No full-green CI claim. Primary rates remain missing for the three older block/
+chunk windows without GPU samples. Engine decode-sequence/grammar CPU/kernel-gap
+instrumentation and long-context/offload/DB-KV allocation interventions remain
+outside measured evidence. Any next run must specify the incremental hypothesis,
+fix deployment and live gates; do not rerun automatically or reuse consumed budget.
+
+Keep subsequent commits in a temporary worktree and push only private
+`gare2e/agentic-os-e2e`. Update these state/evidence copies at each session end.
