@@ -268,6 +268,21 @@ def test_vllm_router_forwards_content_type_on_every_proxied_call() -> None:
     assert src.count("headers=forward_headers(request)") == 3
 
 
+
+def test_replica_router_preserves_w3c_parent_context_without_forwarding_baggage() -> None:
+    from aiohttp.test_utils import make_mocked_request
+
+    router = _router_module()
+    parent = "00-0123456789abcdef0123456789abcdef-0123456789abcdef-01"
+    request = make_mocked_request("POST", "/v1/chat/completions", headers={
+        "Content-Type": "application/json", "Traceparent": parent,
+        "Tracestate": "vendor=value", "Baggage": "private=not-forwarded",
+    })
+    headers = router.forward_headers(request)
+    assert headers["traceparent"] == parent
+    assert headers["tracestate"] == "vendor=value"
+    assert "Baggage" not in headers and "baggage" not in headers
+
 def test_wrapper_strict_telemetry_is_opt_in_from_the_appliance() -> None:
     entry = (ROOT / "docker/agentic-os-appliance/entrypoint.sh").read_text(encoding="utf-8")
     lab_pass = (ROOT / "docker/agentic-os-appliance/run_lab_pass.sh").read_text(encoding="utf-8")

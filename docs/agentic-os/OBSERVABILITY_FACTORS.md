@@ -139,3 +139,18 @@ is checked separately; late or missing samples are not labeled complete coverage
 Lab-s23b received this observer additively after startup; its source/remote hashes
 and staging receipt are preserved. Treat the extra observation cost as part of
 the measured setup. It is not a runtime scheduler or memory-policy intervention.
+
+## Lab-s23b trace propagation audit
+
+The deployed replica router omitted W3C traceparent/tracestate from its forwarded
+headers. All1,918 replica client requests lack an exact server parent match even
+though standalone vLLM server spans exist. Keep request-level server stages null;
+do not join by timestamps or token counts. Single-engine contained-cohort requests
+all match. The router allowlist is now fixed and locally regression-tested; this
+fix was made after teardown and has not been verified in a new live replica run.
+Future essential collection also includes the content-free router receipt JSONL.
+
+Replica samples covered the complete inner window and exposed unequal mean
+running requests (47.60 versus13.33) and KV fractions (0.648 versus0.169).
+The measured TP comparison therefore describes this sticky routing configuration;
+it does not establish the intrinsic performance ranking of balanced TP layouts.

@@ -408,7 +408,7 @@ ESSENTIAL_GLOBS = (
     "run-*/otel/throughput.json", "run-*/otel/factors.json", "run-*/otel/*.csv",
     "session-summary/*.json", "session-summary/*.csv", "session-summary/*.md",
     "run-*/e2e/*/shard-*/attempts/*/replay.private.jsonl",
-    "run-*/vllm-restart/*.json", "run-*/workload/*.csv", "run-*/workload/*.json", "run-*/workload/*.jsonl",
+    "run-*/vllm-restart/*.json", "run-*/vllm-restart/router-receipts.jsonl", "run-*/workload/*.csv", "run-*/workload/*.json", "run-*/workload/*.jsonl",
     "run-*/e2e/progress.tsv", "run-*/e2e/*/coordinator-*.json*", "run-*/e2e/*/shard-*/coordinator-*.json*",
     "run-*/e2e/*/shard-*/attempts/*/run-receipt.json", "run-*/e2e/*/shard-*/attempts/*/receipts.jsonl",
     "run-*/e2e/*/shard-*/attempts/*/manifest.json", "run-*/e2e/*/attempts/*/run-receipt.json",

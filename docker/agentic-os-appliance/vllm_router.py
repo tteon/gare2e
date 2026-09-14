@@ -36,11 +36,11 @@ from typing import Any
 
 from aiohttp import ClientSession, ClientTimeout, web
 
-FORWARD_HEADERS = ("Content-Type", "Authorization", "Accept", "X-Request-Id")
+FORWARD_HEADERS = ("Content-Type", "Authorization", "Accept", "X-Request-Id", "traceparent", "tracestate")
 
 
 def forward_headers(request: web.Request) -> dict[str, str]:
-    """Headers vLLM needs to see (it rejects a JSON body without its Content-Type)."""
+    """Preserve JSON content type and W3C parent context across the proxy hop."""
     return {h: request.headers[h] for h in FORWARD_HEADERS if h in request.headers}
 
 
