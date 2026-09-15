@@ -108,3 +108,8 @@ higher-K baseline/MTP and actual long-context/prefix-reuse pressure, sequentiall
 without further confirmation. Local implementation passed73 focused tests and
 basic CI. Exact-image preflight pending; no new instance or measured result yet.
 Operator bound$12.60 /12600s at<=3.60/h; prior spending remains separate.
+
+
+### 2026-09-16 lab026 checkpoint
+
+Lab026 stage1 complete; baselineK8/K64 measured; K128 client thread-capacity failure, not GPU saturation. Instance destroyed; recovery with child-scoped native-thread=1 preparing. Stages2/3 still pending.

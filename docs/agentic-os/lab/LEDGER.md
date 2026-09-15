@@ -83,3 +83,8 @@ Overall cumulative≈**$118.42** (approximate$102.8 base +$12.122666 +$1.920787
 +$1.572559), not a final invoice. Charts are free postprocessing. No owned live
 instance, no replacement scheduled; colleagues untouched. Essential-only bulk
 limitation preserved in original lifecycle. See HANDOFF§15 and request025 Result.
+
+
+### 2026-09-16 lab026 checkpoint
+
+Lab-s25 instance51135854 destroyed/absent:2902.9403s at3.3562963/h =2.706424USD. New scope used2.706424/12.60; historical cumulativeapprox121.12USD. Recoverymax9.80 retains totalbound12.506424. No currently owned live instance.

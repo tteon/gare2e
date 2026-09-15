@@ -53,6 +53,7 @@ def main() -> int:
     parser.add_argument('--source', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--factors', type=Path)
+    parser.add_argument('--client', type=Path, help='Restrict a one-case gate to its own client interval')
     args = parser.parse_args()
     rows = []
     for path in sorted(args.source.glob('engine-*.jsonl')):
@@ -61,12 +62,16 @@ def main() -> int:
         for line in path.read_bytes().splitlines(keepends=True):
             if line.endswith(b'\n'):
                 rows.append(json.loads(line))
-    start, end = 0., float('inf')
+    start, end = 0., 0.
     if args.factors:
         rate = json.loads(args.factors.read_text())['throughput']
         start, end = rate['started_unix_s'], rate['finished_unix_s']
     elif rows:
         start, end = min(r['unix_s'] for r in rows), max(r['unix_s'] for r in rows)
+    if args.client:
+        spans = [json.loads(line) for line in args.client.read_text().splitlines() if line.strip()]
+        start = min(s['start_unix_ns'] for s in spans) / 1e9
+        end = max(s['end_unix_ns'] for s in spans) / 1e9
     result = summarize(rows, start, end)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open('x') as stream:

@@ -108,3 +108,29 @@ def test_report_keeps_serving_diagnostic_separate_and_missing_metrics_unknown(tm
     assert [r['category'] for r in result['conditions']] == ['saturation', 'context']
     assert all(r['factors'] == {} for r in result['conditions'])
     assert len(result['source_sha256']) == 2
+
+
+def test_worker_thread_limit_is_child_scoped_and_errno_is_content_free(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import os
+    module = load_script('agentic_os_schedule_worker')
+    monkeypatch.setenv('OPENBLAS_NUM_THREADS', '17')
+    script = tmp_path / 'lane.py'
+    script.write_text("import os\ndef main():\n assert os.environ['OPENBLAS_NUM_THREADS']=='1'\n raise BlockingIOError(11,'private payload must not enter protocol')\n")
+    runner = module.PersistentRunner(tmp_path, native_threads=1)
+    try:
+        result = runner.run([sys.executable, str(script)], tmp_path / 'attempt')
+    finally:
+        runner.close()
+    assert result['runner_error_class'] == 'BlockingIOError'
+    assert result['runner_error_errno'] == 11
+    assert 'private payload' not in str(result)
+    assert os.environ['OPENBLAS_NUM_THREADS'] == '17'
+
+
+def test_recovery_reuses_stage1_evidence_but_repeats_same_host_controls() -> None:
+    module = load_script('run_agentic_os_throughput_session')
+    plan = module.plan(runtime_recovery=True)
+    assert len(plan) == 20
+    assert plan[0]['id'] == 'base-r1-gate'
+    assert all(c['observer'] for c in plan)
+    assert not any(c.get('profile') or c['id'] == 'grammar-observer' for c in plan)

@@ -17,7 +17,8 @@ from summarize_agentic_os_factors import summarize
 from summarize_agentic_os_characterization import replica_observations
 
 
-def plan(*, continuation: bool = False, replica_audit: bool = False, runtime_audit: bool = False) -> list[dict[str, Any]]:
+def plan(*, continuation: bool = False, replica_audit: bool = False, runtime_audit: bool = False, runtime_recovery: bool = False) -> list[dict[str, Any]]:
+    runtime_audit = runtime_audit or runtime_recovery
     if sum((continuation, replica_audit, runtime_audit)) > 1:
         raise ValueError('choose one continuation scope')
     baseline = '--max-num-batched-tokens,8192'
@@ -56,6 +57,8 @@ def plan(*, continuation: bool = False, replica_audit: bool = False, runtime_aud
                 passes.append(dict(id=f'{name}-r{repetition}-gate', k=1, limit=1, serving=serving, observer=True))
                 passes.extend(dict(id=f'{name}-r{repetition}-k{k}', k=k, serving=serving, observer=True)
                               for k in ((8, 64, 128, 256) if repetition == 1 else (256, 128, 64, 8)))
+        if runtime_recovery:
+            passes = [p for p in passes if p['id'].startswith(('base-r', 'mtp-r'))]
     return [{**{'observer': False, 'router_policy': 'sticky', 'lane': 'grbench-single', 'serving': baseline, 'cpu': None, 'replicas': 1, 'runner': 'persistent'}, **p} for p in passes]
 
 
@@ -119,11 +122,13 @@ def main() -> int:
     parser.add_argument('--continuation', action='store_true', help='Only live gate, TP pair and grammar K8 ratios')
     parser.add_argument('--replica-audit', action='store_true', help='TP2/sticky/task-rr with strict trace gates')
     parser.add_argument('--runtime-audit', action='store_true', help='Lab026 observer gate and replicated K8/64/128/256 baseline/MTP')
+    parser.add_argument('--runtime-recovery', action='store_true', help='Continue after validated stage1 with scoped worker thread limits')
     parser.add_argument('--print-plan', action='store_true')
     args = parser.parse_args()
+    args.runtime_audit = args.runtime_audit or args.runtime_recovery
     if args.reserve_s < 0 or args.max_session_s <= args.reserve_s:
         parser.error('max session must exceed nonnegative reserve')
-    registered = plan(continuation=args.continuation, replica_audit=args.replica_audit, runtime_audit=args.runtime_audit)
+    registered = plan(continuation=args.continuation, replica_audit=args.replica_audit, runtime_audit=args.runtime_audit, runtime_recovery=args.runtime_recovery)
     strict = args.replica_audit or args.runtime_audit
     if args.print_plan:
         print(json.dumps(registered, indent=2))
@@ -132,7 +137,7 @@ def main() -> int:
     os.environ['NEO4J_PASSWORD'] = Path(os.environ.get('SEOCHO_APPLIANCE_SECRET_FILE', '/workspace/appliance.secret')).read_text().strip()
     os.environ.update(VLLM_MAX_NUM_SEQS='128', VLLM_MAX_MODEL_LEN='32768', VLLM_TENSOR_PARALLEL_SIZE='2',
                       VLLM_REPLICAS='1', SEOCHO_ROUTER_POLICY='sticky', VLLM_READY_ATTEMPTS='400')
-    if args.runtime_audit:
+    if args.runtime_audit and not args.runtime_recovery:
         os.environ['SEOCHO_ENGINE_PROFILER'] = '1'
     scripts = args.repo / 'scripts/benchmarks'
     source = json.loads((args.input / 'strata-grbench-single-schedule.json').read_text())
@@ -144,7 +149,8 @@ def main() -> int:
     write_new(args.input / 'throughput-gate.json', {**cohort, 'entries': gate_entries})
     write_new(args.input / 'throughput-backlog.json', backlog_schedule(source, repeats=40))
     write_new(args.artifacts / 'session-summary/registered-plan.json', {'passes': registered, 'duration_s': args.duration_s,
-        'continuation': args.continuation, 'replica_audit': args.replica_audit, 'runtime_audit': args.runtime_audit, 'reserve_s': args.reserve_s,
+        'continuation': args.continuation, 'replica_audit': args.replica_audit, 'runtime_audit': args.runtime_audit, 'runtime_recovery': args.runtime_recovery,
+        'worker_native_threads': 1 if args.runtime_recovery else None, 'reserve_s': args.reserve_s,
         'max_session_s': args.max_session_s, 'context': '32768 cap; observed lengths reported separately',
         'db_cache': 'warm intent; no OS cache flush; capacities fixed', 'quality': 'recorded separately; replay has no answer-quality evaluation',
         'high_load_k': 64, 'high_load_is_saturation': 'only if measured K curve establishes plateau'})
@@ -197,6 +203,8 @@ def main() -> int:
             command += ['--record-replay']
         else:
             command += ['--measurement-duration-s', str(args.duration_s)]
+        if args.runtime_recovery:
+            command += ['--worker-native-threads', '1']
         if replay:
             command += ['--replay-mode', spec['replay']]
         if spec['lane'] == 'grbench-grammar':
@@ -266,6 +274,8 @@ def main() -> int:
                     '--output', str(root / 'otel/engine-steps.json')]
             if not spec.get('limit'):
                 gate += ['--factors', str(root / 'otel/factors.json')]
+            else:
+                gate += ['--client', str(root / 'otel/spans.jsonl')]
             code = run(gate, root / 'engine-admission.private.log', timeout=60)
             receipt['engine_admission_passed'] = code == 0
         if spec.get('profile') and not code:

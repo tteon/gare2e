@@ -1,0 +1,2342 @@
+{
+  "schema_version": "seocho.runtime_pressure_report.v1",
+  "conditions": [
+    {
+      "id": "base-r1-gate",
+      "category": "saturation",
+      "receipt": {
+        "pass_id": "base-r1-gate",
+        "exit_code": 0,
+        "export_exit_code": 0,
+        "config": {
+          "observer": true,
+          "router_policy": "sticky",
+          "lane": "grbench-single",
+          "serving": "--max-num-batched-tokens,8192",
+          "cpu": null,
+          "replicas": 1,
+          "runner": "persistent",
+          "id": "base-r1-gate",
+          "k": 1,
+          "limit": 1
+        },
+        "live_graph_gate_passed": true,
+        "trace_admission_passed": true,
+        "engine_admission_passed": true
+      },
+      "factors": {},
+      "engine": {
+        "schema_version": "seocho.engine_summary.v1",
+        "passed": true,
+        "started_unix_s": 1789491037.7751374,
+        "finished_unix_s": 1789491635.6026766,
+        "scheduled_steps": 8604,
+        "output_steps": 8604,
+        "schedules": {
+          "scheduled_sequences": {
+            "n": 8604,
+            "mean": 27.32171083217108,
+            "p50": 8.0,
+            "p95": 63,
+            "max": 64
+          },
+          "decode_sequences": {
+            "n": 8604,
+            "mean": 27.023942352394236,
+            "p50": 8.0,
+            "p95": 62,
+            "max": 64
+          },
+          "prompt_sequences": {
+            "n": 8604,
+            "mean": 0.297768479776848,
+            "p50": 0.0,
+            "p95": 2,
+            "max": 18
+          },
+          "scheduled_tokens": {
+            "n": 8604,
+            "mean": 156.4592050209205,
+            "p50": 8.0,
+            "p95": 791,
+            "max": 8190
+          },
+          "scheduled_prompt_tokens": {
+            "n": 8604,
+            "mean": 129.43526266852626,
+            "p50": 0.0,
+            "p95": 737,
+            "max": 8158
+          },
+          "draft_tokens_scheduled": {
+            "n": 8604,
+            "mean": 0,
+            "p50": 0.0,
+            "p95": 0,
+            "max": 0
+          },
+          "scheduler_wall_s": {
+            "n": 8604,
+            "mean": 0.0007440815556061383,
+            "p50": 0.0002646945067681372,
+            "p95": 0.0017345189116895199,
+            "max": 0.0037797779077664018
+          },
+          "scheduler_thread_cpu_s": {
+            "n": 8604,
+            "mean": 0.0007451671916551087,
+            "p50": 0.00026574849999860817,
+            "p95": 0.0017361459999989393,
+            "max": 0.0037823440000011033
+          },
+          "schedule_interval_s": {
+            "n": 8603,
+            "mean": 0.06683775956850883,
+            "p50": 0.028968303930014372,
+            "p95": 0.1823532850248739,
+            "max": 29.58577988401521
+          },
+          "running_sequences": {
+            "n": 8604,
+            "mean": 27.32171083217108,
+            "p50": 8.0,
+            "p95": 63,
+            "max": 64
+          },
+          "waiting_sequences": {
+            "n": 8604,
+            "mean": 0.012319851231985124,
+            "p50": 0.0,
+            "p95": 0,
+            "max": 37
+          }
+        },
+        "committed_output_tokens": 232514,
+        "committed_tokens_per_step": {
+          "n": 8604,
+          "mean": 27.023942352394236,
+          "p50": 8.0,
+          "p95": 62,
+          "max": 64
+        },
+        "schedule_to_output_s": {
+          "n": 8604,
+          "mean": 0.10264238592447279,
+          "p50": 0.05969293101225048,
+          "p95": 0.26360657799523324,
+          "max": 7.806448793038726
+        },
+        "kv": {
+          "active_blocks": {
+            "n": 489,
+            "mean": 163.08179959100204,
+            "p50": 39,
+            "p95": 329,
+            "max": 355
+          },
+          "reclaimable_cached_blocks": {
+            "n": 489,
+            "mean": 448.4764826175869,
+            "p50": 274,
+            "p95": 1241,
+            "max": 1270
+          },
+          "free_uncached_blocks": {
+            "n": 489,
+            "mean": 1312.441717791411,
+            "p50": 1329,
+            "p95": 1892,
+            "max": 1924
+          },
+          "usable_blocks": {
+            "n": 489,
+            "mean": 1924,
+            "p50": 1924,
+            "p95": 1924,
+            "max": 1924
+          },
+          "scan_wall_s": {
+            "n": 489,
+            "mean": 0.0002172665391022107,
+            "p50": 0.00020542298443615437,
+            "p95": 0.0003052100073546171,
+            "max": 0.0006885559996590018
+          }
+        },
+        "grammar": {
+          "grammar_compile": {
+            "wall_s": {
+              "n": 146,
+              "mean": 0.03524217153309321,
+              "p50": 0.00015336653450503945,
+              "p95": 0.63892993691843,
+              "max": 0.6415941420709714
+            },
+            "thread_cpu_s": {
+              "n": 146,
+              "mean": 0.00019805860273972603,
+              "p50": 0.0001453819999999999,
+              "p95": 0.00027857200000000004,
+              "max": 0.005729474
+            }
+          },
+          "grammar_bitmask": {
+            "wall_s": {
+              "n": 3045,
+              "mean": 0.05632833856775782,
+              "p50": 0.0036234960425645113,
+              "p95": 0.2586253850022331,
+              "max": 0.7510970759904012
+            },
+            "thread_cpu_s": {
+              "n": 3045,
+              "mean": 0.05632479570410543,
+              "p50": 0.0036239060000298196,
+              "p95": 0.2586288470000113,
+              "max": 0.7510907080000493
+            }
+          }
+        },
+        "preempted_sequences": 0,
+        "limitations": [
+          "Schedule-to-output overlaps async batches; not exclusive GPU time.",
+          "Decode positions may include recomputation. Grammar wrapper CPU excludes other worker threads.",
+          "KV block counts are engine-level, not summed across TP ranks."
+        ]
+      },
+      "kernel": {},
+      "trace_admission": {
+        "schema_version": "agentic_os.trace_admission.v1",
+        "passed": true,
+        "client_requests": 3,
+        "unique_client_requests": 3,
+        "exact_server_matches": 3,
+        "complete_stage_requests": 3,
+        "exact_router_matches": 0,
+        "observed_backend_indices": [],
+        "expected_replicas": 1,
+        "require_all_backends": false,
+        "required_stages": [
+          "queue_s",
+          "ttft_s",
+          "prefill_s",
+          "decode_s"
+        ],
+        "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+      }
+    },
+    {
+      "id": "base-r1-k128",
+      "category": "saturation",
+      "receipt": {
+        "pass_id": "base-r1-k128",
+        "exit_code": 2,
+        "export_exit_code": 0,
+        "config": {
+          "observer": true,
+          "router_policy": "sticky",
+          "lane": "grbench-single",
+          "serving": "--max-num-batched-tokens,8192",
+          "cpu": null,
+          "replicas": 1,
+          "runner": "persistent",
+          "id": "base-r1-k128",
+          "k": 128
+        }
+      },
+      "factors": {},
+      "engine": {},
+      "kernel": {},
+      "trace_admission": {}
+    },
+    {
+      "id": "base-r1-k64",
+      "category": "saturation",
+      "receipt": {
+        "pass_id": "base-r1-k64",
+        "exit_code": 0,
+        "export_exit_code": 0,
+        "config": {
+          "observer": true,
+          "router_policy": "sticky",
+          "lane": "grbench-single",
+          "serving": "--max-num-batched-tokens,8192",
+          "cpu": null,
+          "replicas": 1,
+          "runner": "persistent",
+          "id": "base-r1-k64",
+          "k": 64
+        },
+        "throughput_status": "observed",
+        "trace_admission_passed": true,
+        "engine_admission_passed": true
+      },
+      "factors": {
+        "schema_version": "agentic_os.workload_factors.v1",
+        "throughput": {
+          "schema_version": "agentic_os.backlog_throughput.v1",
+          "execution_digest": "508ada71a4bc68adeb780f898bcc46fcfcda510c8779df5822e989ae20f7d106",
+          "status": "observed",
+          "task_completions_per_s": 1.8480198750398014,
+          "output_tokens_per_s": 872.7917866801612,
+          "iteration_tokens_per_step": 313.8872472783826,
+          "server_saturation": "not_established_by_host_backlog",
+          "started_unix_s": 1789492016.451073,
+          "finished_unix_s": 1789492105.735827,
+          "duration_s": 89.28475403785706,
+          "completed_tasks": 165,
+          "output_tokens": 77927.0,
+          "sample_count": 89
+        },
+        "application_k": 64,
+        "request_scope": "fully_contained_case_cohort",
+        "actual_scheduled_decode_sequences": null,
+        "saturation": "requires_cross_K_comparison",
+        "limitations": [
+          "running requests are not decode sequences",
+          "process RSS is not exclusive physical memory",
+          "host Cached is not DB page cache",
+          "unexported metrics remain unknown",
+          "completed tasks are not correct answers",
+          "finite windows can bias the completed-case length distribution"
+        ],
+        "sampled_gauges": {
+          "vllm:num_requests_running": {
+            "n": 89,
+            "mean": 60.764044943820224,
+            "p50": 61.0,
+            "p95": 63.0,
+            "max": 64.0
+          },
+          "vllm:num_requests_waiting": {
+            "n": 89,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "vllm:kv_cache_usage_perc": {
+            "n": 89,
+            "mean": 0.16721950991613913,
+            "p50": 0.16787941787941785,
+            "p95": 0.17515592515592515,
+            "max": 0.17671517671517667
+          }
+        },
+        "active_task_samples": {
+          "n": 89,
+          "mean": 64.0,
+          "p50": 64.0,
+          "p95": 64.0,
+          "max": 64.0
+        },
+        "counter_deltas": {
+          "vllm:num_preemptions": 0.0,
+          "vllm:prompt_tokens_cached": 588000.0,
+          "vllm:prompt_tokens": 913732.0,
+          "vllm:request_prefill_kv_computed_tokens_sum": 326322.0,
+          "vllm:request_prefill_kv_computed_tokens_count": 783.0,
+          "vllm:prefix_cache_hits": 588000.0,
+          "vllm:prefix_cache_queries": 913376.0,
+          "vllm:kv_offload_load_bytes": null,
+          "vllm:kv_offload_load_time": null,
+          "vllm:spec_decode_num_draft_tokens": null,
+          "vllm:spec_decode_num_accepted_tokens": null
+        },
+        "request_distributions": {
+          "input_tokens": {
+            "n": 447,
+            "mean": 1096.2125279642057,
+            "p50": 1044.0,
+            "p95": 1702.0,
+            "max": 3062.0
+          },
+          "output_tokens": {
+            "n": 447,
+            "mean": 81.38702460850112,
+            "p50": 86.0,
+            "p95": 172.0,
+            "max": 326.0
+          },
+          "cached_tokens": {
+            "n": 447,
+            "mean": 684.0268456375838,
+            "p50": 784.0,
+            "p95": 1568.0,
+            "max": 2352.0
+          },
+          "latency_ms": {
+            "n": 447,
+            "mean": 5811.294217002237,
+            "p50": 6252.684,
+            "p95": 11963.751,
+            "max": 22600.01
+          }
+        },
+        "case_distributions": {
+          "wall_ms": {
+            "n": 103,
+            "mean": 25417.68330097087,
+            "p50": 19696.876,
+            "p95": 51535.628,
+            "max": 64019.27
+          },
+          "llm_ms": {
+            "n": 103,
+            "mean": 25219.88849514563,
+            "p50": 19691.26,
+            "p95": 48717.378,
+            "max": 56936.239
+          },
+          "tool_ms": {
+            "n": 103,
+            "mean": 197.3496699029126,
+            "p50": 6.67,
+            "p95": 93.343,
+            "max": 15568.548
+          }
+        },
+        "case_terminal_counts": {
+          "turn_budget_exhausted": 29,
+          "abstained": 1,
+          "final": 73
+        },
+        "case_answer_status_counts": {
+          "answered": 73,
+          "abstained": 1,
+          "empty": 29
+        },
+        "actual_constrained_query_ratio": null,
+        "observed_physical_gpu_count": 2,
+        "output_tokens_per_s_per_gpu": 436.3958933400806
+      },
+      "engine": {
+        "schema_version": "seocho.engine_summary.v1",
+        "passed": true,
+        "started_unix_s": 1789492016.451073,
+        "finished_unix_s": 1789492105.735827,
+        "scheduled_steps": 1286,
+        "output_steps": 1286,
+        "schedules": {
+          "scheduled_sequences": {
+            "n": 1286,
+            "mean": 61.21306376360809,
+            "p50": 61.0,
+            "p95": 63,
+            "max": 64
+          },
+          "decode_sequences": {
+            "n": 1286,
+            "mean": 60.59642301710731,
+            "p50": 61.0,
+            "p95": 63,
+            "max": 64
+          },
+          "prompt_sequences": {
+            "n": 1286,
+            "mean": 0.6166407465007776,
+            "p50": 0.0,
+            "p95": 2,
+            "max": 4
+          },
+          "scheduled_tokens": {
+            "n": 1286,
+            "mean": 314.104199066874,
+            "p50": 63.0,
+            "p95": 1062,
+            "max": 2380
+          },
+          "scheduled_prompt_tokens": {
+            "n": 1286,
+            "mean": 253.5077760497667,
+            "p50": 0.0,
+            "p95": 1005,
+            "max": 2323
+          },
+          "draft_tokens_scheduled": {
+            "n": 1286,
+            "mean": 0,
+            "p50": 0.0,
+            "p95": 0,
+            "max": 0
+          },
+          "scheduler_wall_s": {
+            "n": 1286,
+            "mean": 0.001617925816605195,
+            "p50": 0.0015870634815655649,
+            "p95": 0.001884107943624258,
+            "max": 0.0036924139130860567
+          },
+          "scheduler_thread_cpu_s": {
+            "n": 1286,
+            "mean": 0.0016194115995331675,
+            "p50": 0.0015887950000319506,
+            "p95": 0.0018858569999338215,
+            "max": 0.0036957910000410266
+          },
+          "schedule_interval_s": {
+            "n": 1286,
+            "mean": 0.06951193583281537,
+            "p50": 0.03270740952575579,
+            "p95": 0.1671713050454855,
+            "max": 0.30768812098540366
+          },
+          "running_sequences": {
+            "n": 1286,
+            "mean": 61.21306376360809,
+            "p50": 61.0,
+            "p95": 63,
+            "max": 64
+          },
+          "waiting_sequences": {
+            "n": 1286,
+            "mean": 0,
+            "p50": 0.0,
+            "p95": 0,
+            "max": 0
+          }
+        },
+        "committed_output_tokens": 77927,
+        "committed_tokens_per_step": {
+          "n": 1286,
+          "mean": 60.59642301710731,
+          "p50": 61.0,
+          "p95": 63,
+          "max": 64
+        },
+        "schedule_to_output_s": {
+          "n": 1286,
+          "mean": 0.1389735609886467,
+          "p50": 0.12838340643793344,
+          "p95": 0.2789629070321098,
+          "max": 0.4413266440387815
+        },
+        "kv": {
+          "active_blocks": {
+            "n": 85,
+            "mean": 322.7176470588235,
+            "p50": 323,
+            "p95": 336,
+            "max": 339
+          },
+          "reclaimable_cached_blocks": {
+            "n": 85,
+            "mean": 971.5294117647059,
+            "p50": 972,
+            "p95": 1118,
+            "max": 1134
+          },
+          "free_uncached_blocks": {
+            "n": 85,
+            "mean": 629.7529411764706,
+            "p50": 633,
+            "p95": 757,
+            "max": 801
+          },
+          "usable_blocks": {
+            "n": 85,
+            "mean": 1924,
+            "p50": 1924,
+            "p95": 1924,
+            "max": 1924
+          },
+          "scan_wall_s": {
+            "n": 85,
+            "mean": 0.00021869749351240256,
+            "p50": 0.00021288706921041012,
+            "p95": 0.00029728503432124853,
+            "max": 0.0003408560296520591
+          }
+        },
+        "grammar": {
+          "grammar_compile": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          },
+          "grammar_bitmask": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          }
+        },
+        "preempted_sequences": 0,
+        "limitations": [
+          "Schedule-to-output overlaps async batches; not exclusive GPU time.",
+          "Decode positions may include recomputation. Grammar wrapper CPU excludes other worker threads.",
+          "KV block counts are engine-level, not summed across TP ranks."
+        ]
+      },
+      "kernel": {},
+      "trace_admission": {
+        "schema_version": "agentic_os.trace_admission.v1",
+        "passed": true,
+        "client_requests": 2350,
+        "unique_client_requests": 2350,
+        "exact_server_matches": 2350,
+        "complete_stage_requests": 2350,
+        "exact_router_matches": 0,
+        "observed_backend_indices": [],
+        "expected_replicas": 1,
+        "require_all_backends": false,
+        "required_stages": [
+          "queue_s",
+          "ttft_s",
+          "prefill_s",
+          "decode_s"
+        ],
+        "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+      }
+    },
+    {
+      "id": "base-r1-k8",
+      "category": "saturation",
+      "receipt": {
+        "pass_id": "base-r1-k8",
+        "exit_code": 0,
+        "export_exit_code": 0,
+        "config": {
+          "observer": true,
+          "router_policy": "sticky",
+          "lane": "grbench-single",
+          "serving": "--max-num-batched-tokens,8192",
+          "cpu": null,
+          "replicas": 1,
+          "runner": "persistent",
+          "id": "base-r1-k8",
+          "k": 8
+        },
+        "throughput_status": "observed",
+        "trace_admission_passed": true,
+        "engine_admission_passed": true
+      },
+      "factors": {
+        "schema_version": "agentic_os.workload_factors.v1",
+        "throughput": {
+          "schema_version": "agentic_os.backlog_throughput.v1",
+          "execution_digest": "e3bb5591b37a0fd948a6313004323d0cdf412b2c140c93af400e498d0713a2de",
+          "status": "observed",
+          "task_completions_per_s": 0.5602341451917952,
+          "output_tokens_per_s": 247.27614700475453,
+          "iteration_tokens_per_step": 49.87926180794495,
+          "server_saturation": "not_established_by_host_backlog",
+          "started_unix_s": 1789491722.95919,
+          "finished_unix_s": 1789491812.207588,
+          "duration_s": 89.24839806556702,
+          "completed_tasks": 50,
+          "output_tokens": 22069.0,
+          "sample_count": 89
+        },
+        "application_k": 8,
+        "request_scope": "fully_contained_case_cohort",
+        "actual_scheduled_decode_sequences": null,
+        "saturation": "requires_cross_K_comparison",
+        "limitations": [
+          "running requests are not decode sequences",
+          "process RSS is not exclusive physical memory",
+          "host Cached is not DB page cache",
+          "unexported metrics remain unknown",
+          "completed tasks are not correct answers",
+          "finite windows can bias the completed-case length distribution"
+        ],
+        "sampled_gauges": {
+          "vllm:num_requests_running": {
+            "n": 89,
+            "mean": 6.932584269662922,
+            "p50": 7.0,
+            "p95": 8.0,
+            "max": 8.0
+          },
+          "vllm:num_requests_waiting": {
+            "n": 89,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "vllm:kv_cache_usage_perc": {
+            "n": 89,
+            "mean": 0.0194176458221402,
+            "p50": 0.01975051975051978,
+            "p95": 0.024428274428274444,
+            "max": 0.02598752598752596
+          }
+        },
+        "active_task_samples": {
+          "n": 89,
+          "mean": 8.0,
+          "p50": 8.0,
+          "p95": 8.0,
+          "max": 8.0
+        },
+        "counter_deltas": {
+          "vllm:num_preemptions": 0.0,
+          "vllm:prompt_tokens_cached": 128576.0,
+          "vllm:prompt_tokens": 265971.0,
+          "vllm:request_prefill_kv_computed_tokens_sum": 140231.0,
+          "vllm:request_prefill_kv_computed_tokens_count": 232.0,
+          "vllm:prefix_cache_hits": 129360.0,
+          "vllm:prefix_cache_queries": 267094.0,
+          "vllm:kv_offload_load_bytes": null,
+          "vllm:kv_offload_load_time": null,
+          "vllm:spec_decode_num_draft_tokens": null,
+          "vllm:spec_decode_num_accepted_tokens": null
+        },
+        "request_distributions": {
+          "input_tokens": {
+            "n": 187,
+            "mean": 1116.4705882352941,
+            "p50": 1054.0,
+            "p95": 1778.0,
+            "max": 3062.0
+          },
+          "output_tokens": {
+            "n": 187,
+            "mean": 90.56149732620321,
+            "p50": 97.0,
+            "p95": 195.0,
+            "max": 295.0
+          },
+          "cached_tokens": {
+            "n": 187,
+            "mean": 507.29411764705884,
+            "p50": 784.0,
+            "p95": 1568.0,
+            "max": 1568.0
+          },
+          "latency_ms": {
+            "n": 187,
+            "mean": 2609.642518716578,
+            "p50": 2682.156,
+            "p95": 5507.409,
+            "max": 8127.559
+          }
+        },
+        "case_distributions": {
+          "wall_ms": {
+            "n": 42,
+            "mean": 13176.156809523809,
+            "p50": 8654.269,
+            "p95": 30238.489,
+            "max": 67418.773
+          },
+          "llm_ms": {
+            "n": 42,
+            "mean": 11619.122642857143,
+            "p50": 8645.605,
+            "p95": 22529.929,
+            "max": 30223.253
+          },
+          "tool_ms": {
+            "n": 42,
+            "mean": 1556.5682142857142,
+            "p50": 9.87,
+            "p95": 1966.539,
+            "max": 46674.176
+          }
+        },
+        "case_terminal_counts": {
+          "turn_budget_exhausted": 13,
+          "final": 29
+        },
+        "case_answer_status_counts": {
+          "answered": 29,
+          "empty": 13
+        },
+        "actual_constrained_query_ratio": null,
+        "observed_physical_gpu_count": 2,
+        "output_tokens_per_s_per_gpu": 123.63807350237727
+      },
+      "engine": {
+        "schema_version": "seocho.engine_summary.v1",
+        "passed": true,
+        "started_unix_s": 1789491722.95919,
+        "finished_unix_s": 1789491812.207588,
+        "scheduled_steps": 3197,
+        "output_steps": 3197,
+        "schedules": {
+          "scheduled_sequences": {
+            "n": 3197,
+            "mean": 6.991867375664686,
+            "p50": 7,
+            "p95": 8,
+            "max": 8
+          },
+          "decode_sequences": {
+            "n": 3197,
+            "mean": 6.9030340944635595,
+            "p50": 7,
+            "p95": 8,
+            "max": 8
+          },
+          "prompt_sequences": {
+            "n": 3197,
+            "mean": 0.08883328120112606,
+            "p50": 0,
+            "p95": 1,
+            "max": 2
+          },
+          "scheduled_tokens": {
+            "n": 3197,
+            "mean": 49.9852987175477,
+            "p50": 7,
+            "p95": 395,
+            "max": 2357
+          },
+          "scheduled_prompt_tokens": {
+            "n": 3197,
+            "mean": 43.08226462308414,
+            "p50": 0,
+            "p95": 388,
+            "max": 2352
+          },
+          "draft_tokens_scheduled": {
+            "n": 3197,
+            "mean": 0,
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "scheduler_wall_s": {
+            "n": 3197,
+            "mean": 0.00022402911025752286,
+            "p50": 0.0002181279705837369,
+            "p95": 0.0003222719533368945,
+            "max": 0.0005837699864059687
+          },
+          "scheduler_thread_cpu_s": {
+            "n": 3197,
+            "mean": 0.0002251094779473425,
+            "p50": 0.00021916099990448856,
+            "p95": 0.0003238169999804086,
+            "max": 0.0005857789999481611
+          },
+          "schedule_interval_s": {
+            "n": 3197,
+            "mean": 0.027910771879235276,
+            "p50": 0.02181225805543363,
+            "p95": 0.08533223194535822,
+            "max": 0.29294426494743675
+          },
+          "running_sequences": {
+            "n": 3197,
+            "mean": 6.991867375664686,
+            "p50": 7,
+            "p95": 8,
+            "max": 8
+          },
+          "waiting_sequences": {
+            "n": 3197,
+            "mean": 0,
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          }
+        },
+        "committed_output_tokens": 22069,
+        "committed_tokens_per_step": {
+          "n": 3197,
+          "mean": 6.9030340944635595,
+          "p50": 7,
+          "p95": 8,
+          "max": 8
+        },
+        "schedule_to_output_s": {
+          "n": 3197,
+          "mean": 0.05576753172057619,
+          "p50": 0.04366405005566776,
+          "p95": 0.1336177500197664,
+          "max": 0.43115569197107106
+        },
+        "kv": {
+          "active_blocks": {
+            "n": 87,
+            "mean": 37.770114942528735,
+            "p50": 38,
+            "p95": 44,
+            "max": 47
+          },
+          "reclaimable_cached_blocks": {
+            "n": 87,
+            "mean": 438.7701149425287,
+            "p50": 445,
+            "p95": 561,
+            "max": 565
+          },
+          "free_uncached_blocks": {
+            "n": 87,
+            "mean": 1447.4597701149426,
+            "p50": 1447,
+            "p95": 1585,
+            "max": 1601
+          },
+          "usable_blocks": {
+            "n": 87,
+            "mean": 1924,
+            "p50": 1924,
+            "p95": 1924,
+            "max": 1924
+          },
+          "scan_wall_s": {
+            "n": 87,
+            "mean": 0.00021912346074850052,
+            "p50": 0.00020248792134225368,
+            "p95": 0.0003148170653730631,
+            "max": 0.0003801899729296565
+          }
+        },
+        "grammar": {
+          "grammar_compile": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          },
+          "grammar_bitmask": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          }
+        },
+        "preempted_sequences": 0,
+        "limitations": [
+          "Schedule-to-output overlaps async batches; not exclusive GPU time.",
+          "Decode positions may include recomputation. Grammar wrapper CPU excludes other worker threads.",
+          "KV block counts are engine-level, not summed across TP ranks."
+        ]
+      },
+      "kernel": {},
+      "trace_admission": {
+        "schema_version": "agentic_os.trace_admission.v1",
+        "passed": true,
+        "client_requests": 459,
+        "unique_client_requests": 459,
+        "exact_server_matches": 459,
+        "complete_stage_requests": 459,
+        "exact_router_matches": 0,
+        "observed_backend_indices": [],
+        "expected_replicas": 1,
+        "require_all_backends": false,
+        "required_stages": [
+          "queue_s",
+          "ttft_s",
+          "prefill_s",
+          "decode_s"
+        ],
+        "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+      }
+    },
+    {
+      "id": "grammar-observer",
+      "category": "instrumentation",
+      "receipt": {
+        "pass_id": "grammar-observer",
+        "exit_code": 0,
+        "export_exit_code": 0,
+        "config": {
+          "observer": true,
+          "router_policy": "sticky",
+          "lane": "grbench-grammar",
+          "serving": "--max-num-batched-tokens,8192",
+          "cpu": null,
+          "replicas": 1,
+          "runner": "persistent",
+          "id": "grammar-observer",
+          "k": 8,
+          "ratio": 1.0
+        },
+        "throughput_status": "observed",
+        "trace_admission_passed": true,
+        "engine_admission_passed": true
+      },
+      "factors": {
+        "schema_version": "agentic_os.workload_factors.v1",
+        "throughput": {
+          "schema_version": "agentic_os.backlog_throughput.v1",
+          "execution_digest": "2f86991681f5ac3eca29e2c8e1404e27cc77b8b0f7d149736571e176af1092df",
+          "status": "observed",
+          "task_completions_per_s": 0.30281259104987085,
+          "output_tokens_per_s": 106.97135160865437,
+          "iteration_tokens_per_step": 49.35289323553382,
+          "server_saturation": "not_established_by_host_backlog",
+          "started_unix_s": 1789491507.912295,
+          "finished_unix_s": 1789491597.076355,
+          "duration_s": 89.16405987739563,
+          "completed_tasks": 27,
+          "output_tokens": 9538.0,
+          "sample_count": 89
+        },
+        "application_k": 8,
+        "request_scope": "fully_contained_case_cohort",
+        "actual_scheduled_decode_sequences": null,
+        "saturation": "requires_cross_K_comparison",
+        "limitations": [
+          "running requests are not decode sequences",
+          "process RSS is not exclusive physical memory",
+          "host Cached is not DB page cache",
+          "unexported metrics remain unknown",
+          "completed tasks are not correct answers",
+          "finite windows can bias the completed-case length distribution"
+        ],
+        "sampled_gauges": {
+          "vllm:num_requests_running": {
+            "n": 89,
+            "mean": 7.764044943820225,
+            "p50": 8.0,
+            "p95": 8.0,
+            "max": 8.0
+          },
+          "vllm:num_requests_waiting": {
+            "n": 89,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "vllm:kv_cache_usage_perc": {
+            "n": 89,
+            "mean": 0.017578079375832164,
+            "p50": 0.017671517671517645,
+            "p95": 0.019230769230769273,
+            "max": 0.02079002079002079
+          }
+        },
+        "active_task_samples": {
+          "n": 89,
+          "mean": 8.0,
+          "p50": 8.0,
+          "p95": 8.0,
+          "max": 8.0
+        },
+        "counter_deltas": {
+          "vllm:num_preemptions": 0.0,
+          "vllm:prompt_tokens_cached": 11760.0,
+          "vllm:prompt_tokens": 62778.0,
+          "vllm:request_prefill_kv_computed_tokens_sum": 51064.0,
+          "vllm:request_prefill_kv_computed_tokens_count": 95.0,
+          "vllm:prefix_cache_hits": 11760.0,
+          "vllm:prefix_cache_queries": 62402.0,
+          "vllm:kv_offload_load_bytes": null,
+          "vllm:kv_offload_load_time": null,
+          "vllm:spec_decode_num_draft_tokens": null,
+          "vllm:spec_decode_num_accepted_tokens": null
+        },
+        "request_distributions": {
+          "input_tokens": {
+            "n": 64,
+            "mean": 632.203125,
+            "p50": 539.0,
+            "p95": 1143.0,
+            "max": 1258.0
+          },
+          "output_tokens": {
+            "n": 64,
+            "mean": 88.734375,
+            "p50": 97.0,
+            "p95": 168.0,
+            "max": 171.0
+          },
+          "cached_tokens": {
+            "n": 64,
+            "mean": 110.25,
+            "p50": 0.0,
+            "p95": 784.0,
+            "max": 784.0
+          },
+          "latency_ms": {
+            "n": 64,
+            "mean": 6636.64325,
+            "p50": 7462.614,
+            "p95": 12715.361,
+            "max": 13531.23
+          }
+        },
+        "case_distributions": {
+          "wall_ms": {
+            "n": 19,
+            "mean": 22442.147315789472,
+            "p50": 14432.565,
+            "p95": 48273.752,
+            "max": 48273.752
+          },
+          "llm_ms": {
+            "n": 19,
+            "mean": 22355.008842105264,
+            "p50": 14367.154,
+            "p95": 48189.245,
+            "max": 48189.245
+          },
+          "tool_ms": {
+            "n": 19,
+            "mean": 86.74242105263158,
+            "p50": 83.948,
+            "p95": 203.94,
+            "max": 203.94
+          }
+        },
+        "case_terminal_counts": {
+          "unsupported_answer": 8,
+          "final": 11
+        },
+        "case_answer_status_counts": {
+          "unsupported_answer": 8,
+          "answered": 11
+        },
+        "actual_constrained_query_ratio": 1.0,
+        "observed_physical_gpu_count": 2,
+        "output_tokens_per_s_per_gpu": 53.48567580432719
+      },
+      "engine": {
+        "schema_version": "seocho.engine_summary.v1",
+        "passed": true,
+        "started_unix_s": 1789491507.912295,
+        "finished_unix_s": 1789491597.076355,
+        "scheduled_steps": 1227,
+        "output_steps": 1227,
+        "schedules": {
+          "scheduled_sequences": {
+            "n": 1227,
+            "mean": 7.863895680521598,
+            "p50": 8,
+            "p95": 8,
+            "max": 8
+          },
+          "decode_sequences": {
+            "n": 1227,
+            "mean": 7.773431132844336,
+            "p50": 8,
+            "p95": 8,
+            "max": 8
+          },
+          "prompt_sequences": {
+            "n": 1227,
+            "mean": 0.09046454767726161,
+            "p50": 0,
+            "p95": 1,
+            "max": 2
+          },
+          "scheduled_tokens": {
+            "n": 1227,
+            "mean": 49.04645476772616,
+            "p50": 8,
+            "p95": 379,
+            "max": 931
+          },
+          "scheduled_prompt_tokens": {
+            "n": 1227,
+            "mean": 41.273023634881824,
+            "p50": 0,
+            "p95": 372,
+            "max": 925
+          },
+          "draft_tokens_scheduled": {
+            "n": 1227,
+            "mean": 0,
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "scheduler_wall_s": {
+            "n": 1227,
+            "mean": 0.0002523537718758485,
+            "p50": 0.0002372130984440446,
+            "p95": 0.000362978084012866,
+            "max": 0.0005196999991312623
+          },
+          "scheduler_thread_cpu_s": {
+            "n": 1227,
+            "mean": 0.0002533607522406198,
+            "p50": 0.0002383970000323643,
+            "p95": 0.0003642629999944802,
+            "max": 0.00052133799999865
+          },
+          "schedule_interval_s": {
+            "n": 1227,
+            "mean": 0.072661055083168,
+            "p50": 0.02367627900093794,
+            "p95": 0.2696939139859751,
+            "max": 0.6088319210102782
+          },
+          "running_sequences": {
+            "n": 1227,
+            "mean": 7.863895680521598,
+            "p50": 8,
+            "p95": 8,
+            "max": 8
+          },
+          "waiting_sequences": {
+            "n": 1227,
+            "mean": 0.0008149959250203749,
+            "p50": 0,
+            "p95": 0,
+            "max": 1
+          }
+        },
+        "committed_output_tokens": 9538,
+        "committed_tokens_per_step": {
+          "n": 1227,
+          "mean": 7.773431132844336,
+          "p50": 8,
+          "p95": 8,
+          "max": 8
+        },
+        "schedule_to_output_s": {
+          "n": 1227,
+          "mean": 0.0911434908856136,
+          "p50": 0.043587218038737774,
+          "p95": 0.2709948200499639,
+          "max": 0.6103966330410913
+        },
+        "kv": {
+          "active_blocks": {
+            "n": 82,
+            "mean": 34.71951219512195,
+            "p50": 34.0,
+            "p95": 38,
+            "max": 40
+          },
+          "reclaimable_cached_blocks": {
+            "n": 82,
+            "mean": 141.3780487804878,
+            "p50": 135.5,
+            "p95": 190,
+            "max": 194
+          },
+          "free_uncached_blocks": {
+            "n": 82,
+            "mean": 1747.9024390243903,
+            "p50": 1756.0,
+            "p95": 1784,
+            "max": 1792
+          },
+          "usable_blocks": {
+            "n": 82,
+            "mean": 1924,
+            "p50": 1924.0,
+            "p95": 1924,
+            "max": 1924
+          },
+          "scan_wall_s": {
+            "n": 82,
+            "mean": 0.0002242743148377574,
+            "p50": 0.00021509651560336351,
+            "p95": 0.00029764592181891203,
+            "max": 0.00038462807424366474
+          }
+        },
+        "grammar": {
+          "grammar_compile": {
+            "wall_s": {
+              "n": 69,
+              "mean": 0.00016068338173563066,
+              "p50": 0.00014824699610471725,
+              "p95": 0.00027155689895153046,
+              "max": 0.0003537100274115801
+            },
+            "thread_cpu_s": {
+              "n": 69,
+              "mean": 0.00014741463768115943,
+              "p50": 0.00014072400000000006,
+              "p95": 0.00022143499999999986,
+              "max": 0.00034174099999999957
+            }
+          },
+          "grammar_bitmask": {
+            "wall_s": {
+              "n": 1227,
+              "mean": 0.05395349847212033,
+              "p50": 0.004060031031258404,
+              "p95": 0.26037466200068593,
+              "max": 0.5915227009681985
+            },
+            "thread_cpu_s": {
+              "n": 1227,
+              "mean": 0.053947772002445826,
+              "p50": 0.004060364999986632,
+              "p95": 0.26037860899998577,
+              "max": 0.5915292039999827
+            }
+          }
+        },
+        "preempted_sequences": 0,
+        "limitations": [
+          "Schedule-to-output overlaps async batches; not exclusive GPU time.",
+          "Decode positions may include recomputation. Grammar wrapper CPU excludes other worker threads.",
+          "KV block counts are engine-level, not summed across TP ranks."
+        ]
+      },
+      "kernel": {},
+      "trace_admission": {
+        "schema_version": "agentic_os.trace_admission.v1",
+        "passed": true,
+        "client_requests": 203,
+        "unique_client_requests": 203,
+        "exact_server_matches": 203,
+        "complete_stage_requests": 203,
+        "exact_router_matches": 0,
+        "observed_backend_indices": [],
+        "expected_replicas": 1,
+        "require_all_backends": false,
+        "required_stages": [
+          "queue_s",
+          "ttft_s",
+          "prefill_s",
+          "decode_s"
+        ],
+        "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+      }
+    },
+    {
+      "id": "kernel-profile",
+      "category": "instrumentation",
+      "receipt": {
+        "pass_id": "kernel-profile",
+        "exit_code": 0,
+        "export_exit_code": 0,
+        "config": {
+          "observer": true,
+          "router_policy": "sticky",
+          "lane": "grbench-single",
+          "serving": "--max-num-batched-tokens,8192",
+          "cpu": null,
+          "replicas": 1,
+          "runner": "persistent",
+          "id": "kernel-profile",
+          "k": 1,
+          "limit": 1,
+          "profile": true
+        },
+        "live_graph_gate_passed": true,
+        "trace_admission_passed": true,
+        "engine_admission_passed": true,
+        "kernel_admission_passed": true
+      },
+      "factors": {},
+      "engine": {
+        "schema_version": "seocho.engine_summary.v1",
+        "passed": true,
+        "started_unix_s": 1789491037.7751374,
+        "finished_unix_s": 1789491383.5538902,
+        "scheduled_steps": 5411,
+        "output_steps": 5411,
+        "schedules": {
+          "scheduled_sequences": {
+            "n": 5411,
+            "mean": 39.4189613749769,
+            "p50": 59,
+            "p95": 63,
+            "max": 64
+          },
+          "decode_sequences": {
+            "n": 5411,
+            "mean": 38.9902051376825,
+            "p50": 58,
+            "p95": 63,
+            "max": 64
+          },
+          "prompt_sequences": {
+            "n": 5411,
+            "mean": 0.4287562372944003,
+            "p50": 0,
+            "p95": 2,
+            "max": 18
+          },
+          "scheduled_tokens": {
+            "n": 5411,
+            "mean": 224.13491036776935,
+            "p50": 60,
+            "p95": 878,
+            "max": 8190
+          },
+          "scheduled_prompt_tokens": {
+            "n": 5411,
+            "mean": 185.14470523008686,
+            "p50": 0,
+            "p95": 819,
+            "max": 8158
+          },
+          "draft_tokens_scheduled": {
+            "n": 5411,
+            "mean": 0,
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "scheduler_wall_s": {
+            "n": 5411,
+            "mean": 0.0010493985991105726,
+            "p50": 0.0014456589706242085,
+            "p95": 0.0017907139845192432,
+            "max": 0.0037797779077664018
+          },
+          "scheduler_thread_cpu_s": {
+            "n": 5411,
+            "mean": 0.0010506409748663407,
+            "p50": 0.0014470940000137489,
+            "p95": 0.0017921609999973498,
+            "max": 0.0037823440000011033
+          },
+          "schedule_interval_s": {
+            "n": 5410,
+            "mean": 0.06215589997042728,
+            "p50": 0.029793275520205498,
+            "p95": 0.1497081300476566,
+            "max": 29.58577988401521
+          },
+          "running_sequences": {
+            "n": 5411,
+            "mean": 39.4189613749769,
+            "p50": 59,
+            "p95": 63,
+            "max": 64
+          },
+          "waiting_sequences": {
+            "n": 5411,
+            "mean": 0.019035298466087598,
+            "p50": 0,
+            "p95": 0,
+            "max": 37
+          }
+        },
+        "committed_output_tokens": 210976,
+        "committed_tokens_per_step": {
+          "n": 5411,
+          "mean": 38.9902051376825,
+          "p50": 58,
+          "p95": 63,
+          "max": 64
+        },
+        "schedule_to_output_s": {
+          "n": 5411,
+          "mean": 0.1103494454636205,
+          "p50": 0.06062279699835926,
+          "p95": 0.2570933409733698,
+          "max": 7.806448793038726
+        },
+        "kv": {
+          "active_blocks": {
+            "n": 277,
+            "mean": 262.6714801444043,
+            "p50": 314,
+            "p95": 333,
+            "max": 355
+          },
+          "reclaimable_cached_blocks": {
+            "n": 277,
+            "mean": 718.7148014440434,
+            "p50": 730,
+            "p95": 1258,
+            "max": 1270
+          },
+          "free_uncached_blocks": {
+            "n": 277,
+            "mean": 942.6137184115523,
+            "p50": 885,
+            "p95": 1648,
+            "max": 1920
+          },
+          "usable_blocks": {
+            "n": 277,
+            "mean": 1924,
+            "p50": 1924,
+            "p95": 1924,
+            "max": 1924
+          },
+          "scan_wall_s": {
+            "n": 277,
+            "mean": 0.00021183441959603922,
+            "p50": 0.0001929400023072958,
+            "p95": 0.0003177030012011528,
+            "max": 0.0006885559996590018
+          }
+        },
+        "grammar": {
+          "grammar_compile": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          },
+          "grammar_bitmask": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          }
+        },
+        "preempted_sequences": 0,
+        "limitations": [
+          "Schedule-to-output overlaps async batches; not exclusive GPU time.",
+          "Decode positions may include recomputation. Grammar wrapper CPU excludes other worker threads.",
+          "KV block counts are engine-level, not summed across TP ranks."
+        ]
+      },
+      "kernel": {
+        "schema_version": "seocho.kernel_profile.v1",
+        "passed": true,
+        "observed_rank_traces": 2,
+        "traces": [
+          {
+            "trace_sha256": "d850bd5faf8d78b7964890bfc25fe89f91ab227727f72f32ae769df38687760a",
+            "devices": {
+              "0": {
+                "kernel_events": 36478,
+                "observed": true,
+                "first_to_last_kernel_us": 936770.732421875,
+                "kernel_union_us": 886760.7880859375,
+                "gap_fraction": 0.05338546840233205,
+                "gap_us": {
+                  "n": 22004,
+                  "mean": 2.272766057804831,
+                  "p50": 0.0654296875,
+                  "p95": 9.759765625,
+                  "max": 1122.271484375
+                }
+              }
+            }
+          },
+          {
+            "trace_sha256": "a5eb9fdbdf756ba2dcc5f924289b8fdb77cd53371427d908bc809f0521b8c6cc",
+            "devices": {
+              "1": {
+                "kernel_events": 36478,
+                "observed": true,
+                "first_to_last_kernel_us": 936273.5634765625,
+                "kernel_union_us": 839202.7685546875,
+                "gap_fraction": 0.10367781245625751,
+                "gap_us": {
+                  "n": 22229,
+                  "mean": 4.3668538810506545,
+                  "p50": 0.0654296875,
+                  "p95": 11.4873046875,
+                  "max": 1651.583984375
+                }
+              }
+            }
+          }
+        ],
+        "denominator": "Per trace/device first kernel start to last kernel end; overlapping kernels unioned.",
+        "limitations": [
+          "Profiler changes timing; excluded from throughput.",
+          "Kernel gaps are observed inactivity intervals, not proof of CPU causality.",
+          "No summing output tokens across TP ranks."
+        ]
+      },
+      "trace_admission": {
+        "schema_version": "agentic_os.trace_admission.v1",
+        "passed": true,
+        "client_requests": 3,
+        "unique_client_requests": 3,
+        "exact_server_matches": 3,
+        "complete_stage_requests": 3,
+        "exact_router_matches": 0,
+        "observed_backend_indices": [],
+        "expected_replicas": 1,
+        "require_all_backends": false,
+        "required_stages": [
+          "queue_s",
+          "ttft_s",
+          "prefill_s",
+          "decode_s"
+        ],
+        "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+      }
+    },
+    {
+      "id": "observed-gate",
+      "category": "instrumentation",
+      "receipt": {
+        "pass_id": "observed-gate",
+        "exit_code": 0,
+        "export_exit_code": 0,
+        "config": {
+          "observer": true,
+          "router_policy": "sticky",
+          "lane": "grbench-single",
+          "serving": "--max-num-batched-tokens,8192",
+          "cpu": null,
+          "replicas": 1,
+          "runner": "persistent",
+          "id": "observed-gate",
+          "k": 1,
+          "limit": 1
+        },
+        "live_graph_gate_passed": true,
+        "trace_admission_passed": true,
+        "engine_admission_passed": true
+      },
+      "factors": {},
+      "engine": {
+        "schema_version": "seocho.engine_summary.v1",
+        "passed": true,
+        "started_unix_s": 1789491037.7751374,
+        "finished_unix_s": 1789491050.3331318,
+        "scheduled_steps": 135,
+        "output_steps": 135,
+        "schedules": {
+          "scheduled_sequences": {
+            "n": 135,
+            "mean": 1,
+            "p50": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "decode_sequences": {
+            "n": 135,
+            "mean": 0.9703703703703703,
+            "p50": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "prompt_sequences": {
+            "n": 135,
+            "mean": 0.02962962962962963,
+            "p50": 0,
+            "p95": 0,
+            "max": 1
+          },
+          "scheduled_tokens": {
+            "n": 135,
+            "mean": 14.851851851851851,
+            "p50": 1,
+            "p95": 1,
+            "max": 784
+          },
+          "scheduled_prompt_tokens": {
+            "n": 135,
+            "mean": 13.881481481481481,
+            "p50": 0,
+            "p95": 0,
+            "max": 784
+          },
+          "draft_tokens_scheduled": {
+            "n": 135,
+            "mean": 0,
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "scheduler_wall_s": {
+            "n": 135,
+            "mean": 7.693341639996678e-05,
+            "p50": 6.811704952269793e-05,
+            "p95": 0.00010577694047242403,
+            "max": 0.0005248700035735965
+          },
+          "scheduler_thread_cpu_s": {
+            "n": 135,
+            "mean": 7.798124444449244e-05,
+            "p50": 6.91590000023723e-05,
+            "p95": 0.00010710100000110856,
+            "max": 0.0005264670000002525
+          },
+          "schedule_interval_s": {
+            "n": 134,
+            "mean": 0.023374203701135216,
+            "p50": 0.02036846795817837,
+            "p95": 0.02610270702280104,
+            "max": 0.2572123180143535
+          },
+          "running_sequences": {
+            "n": 135,
+            "mean": 1,
+            "p50": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "waiting_sequences": {
+            "n": 135,
+            "mean": 0,
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          }
+        },
+        "committed_output_tokens": 131,
+        "committed_tokens_per_step": {
+          "n": 135,
+          "mean": 0.9703703703703703,
+          "p50": 1,
+          "p95": 1,
+          "max": 1
+        },
+        "schedule_to_output_s": {
+          "n": 135,
+          "mean": 0.04710805939286258,
+          "p50": 0.04072203696705401,
+          "p95": 0.08319146803114563,
+          "max": 0.2783715120749548
+        },
+        "kv": {
+          "active_blocks": {
+            "n": 4,
+            "mean": 4.75,
+            "p50": 5.0,
+            "p95": 5,
+            "max": 5
+          },
+          "reclaimable_cached_blocks": {
+            "n": 4,
+            "mean": 2.25,
+            "p50": 3.0,
+            "p95": 3,
+            "max": 3
+          },
+          "free_uncached_blocks": {
+            "n": 4,
+            "mean": 1917,
+            "p50": 1916.0,
+            "p95": 1920,
+            "max": 1920
+          },
+          "usable_blocks": {
+            "n": 4,
+            "mean": 1924,
+            "p50": 1924.0,
+            "p95": 1924,
+            "max": 1924
+          },
+          "scan_wall_s": {
+            "n": 4,
+            "mean": 0.0002668134984560311,
+            "p50": 0.0002393819740973413,
+            "p95": 0.00040611904114484787,
+            "max": 0.00040611904114484787
+          }
+        },
+        "grammar": {
+          "grammar_compile": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          },
+          "grammar_bitmask": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          }
+        },
+        "preempted_sequences": 0,
+        "limitations": [
+          "Schedule-to-output overlaps async batches; not exclusive GPU time.",
+          "Decode positions may include recomputation. Grammar wrapper CPU excludes other worker threads.",
+          "KV block counts are engine-level, not summed across TP ranks."
+        ]
+      },
+      "kernel": {},
+      "trace_admission": {
+        "schema_version": "agentic_os.trace_admission.v1",
+        "passed": true,
+        "client_requests": 3,
+        "unique_client_requests": 3,
+        "exact_server_matches": 3,
+        "complete_stage_requests": 3,
+        "exact_router_matches": 0,
+        "observed_backend_indices": [],
+        "expected_replicas": 1,
+        "require_all_backends": false,
+        "required_stages": [
+          "queue_s",
+          "ttft_s",
+          "prefill_s",
+          "decode_s"
+        ],
+        "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+      }
+    },
+    {
+      "id": "observed-k64",
+      "category": "instrumentation",
+      "receipt": {
+        "pass_id": "observed-k64",
+        "exit_code": 0,
+        "export_exit_code": 0,
+        "config": {
+          "observer": true,
+          "router_policy": "sticky",
+          "lane": "grbench-single",
+          "serving": "--max-num-batched-tokens,8192",
+          "cpu": null,
+          "replicas": 1,
+          "runner": "persistent",
+          "id": "observed-k64",
+          "k": 64
+        },
+        "throughput_status": "observed",
+        "trace_admission_passed": true,
+        "engine_admission_passed": true
+      },
+      "factors": {
+        "schema_version": "agentic_os.workload_factors.v1",
+        "throughput": {
+          "schema_version": "agentic_os.backlog_throughput.v1",
+          "execution_digest": "508ada71a4bc68adeb780f898bcc46fcfcda510c8779df5822e989ae20f7d106",
+          "status": "observed",
+          "task_completions_per_s": 1.904756139737334,
+          "output_tokens_per_s": 864.8713319195577,
+          "iteration_tokens_per_step": 318.34775888717155,
+          "server_saturation": "not_established_by_host_backlog",
+          "started_unix_s": 1789491201.30296,
+          "finished_unix_s": 1789491290.55323,
+          "duration_s": 89.25027012825012,
+          "completed_tasks": 170,
+          "output_tokens": 77190.0,
+          "sample_count": 89
+        },
+        "application_k": 64,
+        "request_scope": "fully_contained_case_cohort",
+        "actual_scheduled_decode_sequences": null,
+        "saturation": "requires_cross_K_comparison",
+        "limitations": [
+          "running requests are not decode sequences",
+          "process RSS is not exclusive physical memory",
+          "host Cached is not DB page cache",
+          "unexported metrics remain unknown",
+          "completed tasks are not correct answers",
+          "finite windows can bias the completed-case length distribution"
+        ],
+        "sampled_gauges": {
+          "vllm:num_requests_running": {
+            "n": 89,
+            "mean": 59.97752808988764,
+            "p50": 60.0,
+            "p95": 63.0,
+            "max": 63.0
+          },
+          "vllm:num_requests_waiting": {
+            "n": 89,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "vllm:kv_cache_usage_perc": {
+            "n": 89,
+            "mean": 0.16397252914106847,
+            "p50": 0.1642411642411642,
+            "p95": 0.17359667359667363,
+            "max": 0.17671517671517667
+          }
+        },
+        "active_task_samples": {
+          "n": 89,
+          "mean": 64.0,
+          "p50": 64.0,
+          "p95": 64.0,
+          "max": 64.0
+        },
+        "counter_deltas": {
+          "vllm:num_preemptions": 0.0,
+          "vllm:prompt_tokens_cached": 584864.0,
+          "vllm:prompt_tokens": 919616.0,
+          "vllm:request_prefill_kv_computed_tokens_sum": 336660.0,
+          "vllm:request_prefill_kv_computed_tokens_count": 796.0,
+          "vllm:prefix_cache_hits": 584864.0,
+          "vllm:prefix_cache_queries": 919293.0,
+          "vllm:kv_offload_load_bytes": null,
+          "vllm:kv_offload_load_time": null,
+          "vllm:spec_decode_num_draft_tokens": null,
+          "vllm:spec_decode_num_accepted_tokens": null
+        },
+        "request_distributions": {
+          "input_tokens": {
+            "n": 463,
+            "mean": 1082.390928725702,
+            "p50": 1037.0,
+            "p95": 1749.0,
+            "max": 3062.0
+          },
+          "output_tokens": {
+            "n": 463,
+            "mean": 81.82721382289417,
+            "p50": 83.0,
+            "p95": 174.0,
+            "max": 256.0
+          },
+          "cached_tokens": {
+            "n": 463,
+            "mean": 667.1619870410367,
+            "p50": 784.0,
+            "p95": 1568.0,
+            "max": 2352.0
+          },
+          "latency_ms": {
+            "n": 463,
+            "mean": 5767.0184838012965,
+            "p50": 5950.442,
+            "p95": 12273.525,
+            "max": 17608.905
+          }
+        },
+        "case_distributions": {
+          "wall_ms": {
+            "n": 109,
+            "mean": 24692.762935779818,
+            "p50": 19101.304,
+            "p95": 52072.925,
+            "max": 73247.188
+          },
+          "llm_ms": {
+            "n": 109,
+            "mean": 24496.601449541286,
+            "p50": 19094.442,
+            "p95": 52032.606,
+            "max": 73225.881
+          },
+          "tool_ms": {
+            "n": 109,
+            "mean": 195.70961467889907,
+            "p50": 8.027,
+            "p95": 145.183,
+            "max": 15780.061
+          }
+        },
+        "case_terminal_counts": {
+          "turn_budget_exhausted": 29,
+          "unsupported_answer": 1,
+          "abstained": 1,
+          "final": 78
+        },
+        "case_answer_status_counts": {
+          "unsupported_answer": 1,
+          "answered": 78,
+          "abstained": 1,
+          "empty": 29
+        },
+        "actual_constrained_query_ratio": null,
+        "observed_physical_gpu_count": 2,
+        "output_tokens_per_s_per_gpu": 432.4356659597789
+      },
+      "engine": {
+        "schema_version": "seocho.engine_summary.v1",
+        "passed": true,
+        "started_unix_s": 1789491201.30296,
+        "finished_unix_s": 1789491290.55323,
+        "scheduled_steps": 1294,
+        "output_steps": 1294,
+        "schedules": {
+          "scheduled_sequences": {
+            "n": 1294,
+            "mean": 60.278979907264294,
+            "p50": 61.0,
+            "p95": 63,
+            "max": 63
+          },
+          "decode_sequences": {
+            "n": 1294,
+            "mean": 59.65378670788253,
+            "p50": 60.0,
+            "p95": 63,
+            "max": 63
+          },
+          "prompt_sequences": {
+            "n": 1294,
+            "mean": 0.625193199381762,
+            "p50": 0.0,
+            "p95": 2,
+            "max": 7
+          },
+          "scheduled_tokens": {
+            "n": 1294,
+            "mean": 317.6081916537867,
+            "p50": 63.0,
+            "p95": 1057,
+            "max": 3538
+          },
+          "scheduled_prompt_tokens": {
+            "n": 1294,
+            "mean": 257.9544049459042,
+            "p50": 0.0,
+            "p95": 997,
+            "max": 3483
+          },
+          "draft_tokens_scheduled": {
+            "n": 1294,
+            "mean": 0,
+            "p50": 0.0,
+            "p95": 0,
+            "max": 0
+          },
+          "scheduler_wall_s": {
+            "n": 1294,
+            "mean": 0.0015725138052179546,
+            "p50": 0.0015465780161321163,
+            "p95": 0.0018335339846089482,
+            "max": 0.0030420899856835604
+          },
+          "scheduler_thread_cpu_s": {
+            "n": 1294,
+            "mean": 0.0015738908114378497,
+            "p50": 0.001548013000004289,
+            "p95": 0.0018349220000004607,
+            "max": 0.003044710000011719
+          },
+          "schedule_interval_s": {
+            "n": 1294,
+            "mean": 0.06902830586169517,
+            "p50": 0.03328897198662162,
+            "p95": 0.16714565106667578,
+            "max": 0.44931675400584936
+          },
+          "running_sequences": {
+            "n": 1294,
+            "mean": 60.278979907264294,
+            "p50": 61.0,
+            "p95": 63,
+            "max": 63
+          },
+          "waiting_sequences": {
+            "n": 1294,
+            "mean": 0,
+            "p50": 0.0,
+            "p95": 0,
+            "max": 0
+          }
+        },
+        "committed_output_tokens": 77190,
+        "committed_tokens_per_step": {
+          "n": 1294,
+          "mean": 59.65224111282844,
+          "p50": 60.0,
+          "p95": 63,
+          "max": 63
+        },
+        "schedule_to_output_s": {
+          "n": 1294,
+          "mean": 0.13802738732867406,
+          "p50": 0.12898981699254364,
+          "p95": 0.27429403597489,
+          "max": 0.5235777370398864
+        },
+        "kv": {
+          "active_blocks": {
+            "n": 84,
+            "mean": 316.5,
+            "p50": 317.5,
+            "p95": 333,
+            "max": 345
+          },
+          "reclaimable_cached_blocks": {
+            "n": 84,
+            "mean": 899.5714285714286,
+            "p50": 899.5,
+            "p95": 1029,
+            "max": 1042
+          },
+          "free_uncached_blocks": {
+            "n": 84,
+            "mean": 707.9285714285714,
+            "p50": 699.0,
+            "p95": 865,
+            "max": 873
+          },
+          "usable_blocks": {
+            "n": 84,
+            "mean": 1924,
+            "p50": 1924.0,
+            "p95": 1924,
+            "max": 1924
+          },
+          "scan_wall_s": {
+            "n": 84,
+            "mean": 0.0002086029285454147,
+            "p50": 0.0001923089730553329,
+            "p95": 0.0003081350587308407,
+            "max": 0.00041343201883137226
+          }
+        },
+        "grammar": {
+          "grammar_compile": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          },
+          "grammar_bitmask": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          }
+        },
+        "preempted_sequences": 0,
+        "limitations": [
+          "Schedule-to-output overlaps async batches; not exclusive GPU time.",
+          "Decode positions may include recomputation. Grammar wrapper CPU excludes other worker threads.",
+          "KV block counts are engine-level, not summed across TP ranks."
+        ]
+      },
+      "kernel": {},
+      "trace_admission": {
+        "schema_version": "agentic_os.trace_admission.v1",
+        "passed": true,
+        "client_requests": 2174,
+        "unique_client_requests": 2174,
+        "exact_server_matches": 2174,
+        "complete_stage_requests": 2174,
+        "exact_router_matches": 0,
+        "observed_backend_indices": [],
+        "expected_replicas": 1,
+        "require_all_backends": false,
+        "required_stages": [
+          "queue_s",
+          "ttft_s",
+          "prefill_s",
+          "decode_s"
+        ],
+        "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+      }
+    },
+    {
+      "id": "unobserved-gate",
+      "category": "instrumentation",
+      "receipt": {
+        "pass_id": "unobserved-gate",
+        "exit_code": 0,
+        "export_exit_code": 0,
+        "config": {
+          "observer": false,
+          "router_policy": "sticky",
+          "lane": "grbench-single",
+          "serving": "--max-num-batched-tokens,8192",
+          "cpu": null,
+          "replicas": 1,
+          "runner": "persistent",
+          "id": "unobserved-gate",
+          "k": 1,
+          "limit": 1
+        },
+        "live_graph_gate_passed": true,
+        "trace_admission_passed": true
+      },
+      "factors": {},
+      "engine": {},
+      "kernel": {},
+      "trace_admission": {
+        "schema_version": "agentic_os.trace_admission.v1",
+        "passed": true,
+        "client_requests": 3,
+        "unique_client_requests": 3,
+        "exact_server_matches": 3,
+        "complete_stage_requests": 3,
+        "exact_router_matches": 0,
+        "observed_backend_indices": [],
+        "expected_replicas": 1,
+        "require_all_backends": false,
+        "required_stages": [
+          "queue_s",
+          "ttft_s",
+          "prefill_s",
+          "decode_s"
+        ],
+        "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+      }
+    },
+    {
+      "id": "unobserved-k64",
+      "category": "instrumentation",
+      "receipt": {
+        "pass_id": "unobserved-k64",
+        "exit_code": 0,
+        "export_exit_code": 0,
+        "config": {
+          "observer": false,
+          "router_policy": "sticky",
+          "lane": "grbench-single",
+          "serving": "--max-num-batched-tokens,8192",
+          "cpu": null,
+          "replicas": 1,
+          "runner": "persistent",
+          "id": "unobserved-k64",
+          "k": 64
+        },
+        "throughput_status": "observed",
+        "trace_admission_passed": true
+      },
+      "factors": {
+        "schema_version": "agentic_os.workload_factors.v1",
+        "throughput": {
+          "schema_version": "agentic_os.backlog_throughput.v1",
+          "execution_digest": "508ada71a4bc68adeb780f898bcc46fcfcda510c8779df5822e989ae20f7d106",
+          "status": "observed",
+          "task_completions_per_s": 1.8927295836494047,
+          "output_tokens_per_s": 856.4881355596937,
+          "iteration_tokens_per_step": 318.2725155279503,
+          "server_saturation": "not_established_by_host_backlog",
+          "started_unix_s": 1789490811.891161,
+          "finished_unix_s": 1789490901.180197,
+          "duration_s": 89.28903603553772,
+          "completed_tasks": 169,
+          "output_tokens": 76475.0,
+          "sample_count": 89
+        },
+        "application_k": 64,
+        "request_scope": "fully_contained_case_cohort",
+        "actual_scheduled_decode_sequences": null,
+        "saturation": "requires_cross_K_comparison",
+        "limitations": [
+          "running requests are not decode sequences",
+          "process RSS is not exclusive physical memory",
+          "host Cached is not DB page cache",
+          "unexported metrics remain unknown",
+          "completed tasks are not correct answers",
+          "finite windows can bias the completed-case length distribution"
+        ],
+        "sampled_gauges": {
+          "vllm:num_requests_running": {
+            "n": 89,
+            "mean": 59.348314606741575,
+            "p50": 60.0,
+            "p95": 63.0,
+            "max": 63.0
+          },
+          "vllm:num_requests_waiting": {
+            "n": 89,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "vllm:kv_cache_usage_perc": {
+            "n": 89,
+            "mean": 0.16263519353406994,
+            "p50": 0.16216216216216217,
+            "p95": 0.17359667359667363,
+            "max": 0.17671517671517667
+          }
+        },
+        "active_task_samples": {
+          "n": 89,
+          "mean": 64.0,
+          "p50": 64.0,
+          "p95": 64.0,
+          "max": 64.0
+        },
+        "counter_deltas": {
+          "vllm:num_preemptions": 0.0,
+          "vllm:prompt_tokens_cached": 591920.0,
+          "vllm:prompt_tokens": 925380.0,
+          "vllm:request_prefill_kv_computed_tokens_sum": 332303.0,
+          "vllm:request_prefill_kv_computed_tokens_count": 790.0,
+          "vllm:prefix_cache_hits": 591920.0,
+          "vllm:prefix_cache_queries": 926098.0,
+          "vllm:kv_offload_load_bytes": null,
+          "vllm:kv_offload_load_time": null,
+          "vllm:spec_decode_num_draft_tokens": null,
+          "vllm:spec_decode_num_accepted_tokens": null
+        },
+        "request_distributions": {
+          "input_tokens": {
+            "n": 453,
+            "mean": 1079.841059602649,
+            "p50": 1044.0,
+            "p95": 1668.0,
+            "max": 3062.0
+          },
+          "output_tokens": {
+            "n": 453,
+            "mean": 80.21633554083886,
+            "p50": 83.0,
+            "p95": 175.0,
+            "max": 295.0
+          },
+          "cached_tokens": {
+            "n": 453,
+            "mean": 666.3134657836645,
+            "p50": 784.0,
+            "p95": 1568.0,
+            "max": 2352.0
+          },
+          "latency_ms": {
+            "n": 453,
+            "mean": 5734.962326710816,
+            "p50": 6111.414,
+            "p95": 12281.508,
+            "max": 20503.041
+          }
+        },
+        "case_distributions": {
+          "wall_ms": {
+            "n": 106,
+            "mean": 24731.00428301887,
+            "p50": 20223.805,
+            "p95": 50879.997,
+            "max": 76796.137
+          },
+          "llm_ms": {
+            "n": 106,
+            "mean": 24508.848433962263,
+            "p50": 20213.639,
+            "p95": 47929.837,
+            "max": 76627.537
+          },
+          "tool_ms": {
+            "n": 106,
+            "mean": 221.69514150943397,
+            "p50": 8.724,
+            "p95": 167.84,
+            "max": 15581.394
+          }
+        },
+        "case_terminal_counts": {
+          "turn_budget_exhausted": 28,
+          "unsupported_answer": 1,
+          "final": 77
+        },
+        "case_answer_status_counts": {
+          "unsupported_answer": 1,
+          "answered": 77,
+          "empty": 28
+        },
+        "actual_constrained_query_ratio": null,
+        "observed_physical_gpu_count": 2,
+        "output_tokens_per_s_per_gpu": 428.24406777984683
+      },
+      "engine": {},
+      "kernel": {},
+      "trace_admission": {
+        "schema_version": "agentic_os.trace_admission.v1",
+        "passed": true,
+        "client_requests": 2293,
+        "unique_client_requests": 2293,
+        "exact_server_matches": 2293,
+        "complete_stage_requests": 2293,
+        "exact_router_matches": 0,
+        "observed_backend_indices": [],
+        "expected_replicas": 1,
+        "require_all_backends": false,
+        "required_stages": [
+          "queue_s",
+          "ttft_s",
+          "prefill_s",
+          "decode_s"
+        ],
+        "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+      }
+    }
+  ],
+  "source_sha256": {
+    "run-base-r1-gate/otel/trace-admission.json": "12fdba1d5460ec25982b910c7a3376b632a339a2f37bc63f1f90db7da58015fe",
+    "run-base-r1-gate/otel/engine-steps.json": "b47feb05ac642cb5f8ab25e47859d1913a5ce9cfd73b04fa47869ab41ab78a60",
+    "run-base-r1-gate/pass-receipt.json": "0d399c30b0d38eed79d873af6c565e4fc37fb4fbbb6be8024e7c2f3226af2432",
+    "run-base-r1-k128/pass-receipt.json": "8b4c10f89f8b65f6636910b0b0e4cd46a258d872b029a4ca360c6446f0acb8be",
+    "run-base-r1-k64/otel/factors.json": "33dc8a93d57149265fe968597ff982efe3c366d9a1230fad62c207abcdbf611a",
+    "run-base-r1-k64/otel/throughput.json": "796cde093a7c2fb14c082d642595765a02576e38c461b2461193461a2d89b1fb",
+    "run-base-r1-k64/otel/trace-admission.json": "dabd4d762d0ae3f26dad95b5ea479085e00b82945357c33af54fa3bf9e15c9e8",
+    "run-base-r1-k64/otel/engine-steps.json": "daaa98566ce832185bfb0f35a2202787bc936f66810144b4504e63d4ddd33191",
+    "run-base-r1-k64/pass-receipt.json": "afc7cd0248f6103dd756bf1c7637edd64e37fabe809d54d7def580ac70955c84",
+    "run-base-r1-k8/otel/factors.json": "d2afc948da862320d9a78d970626e138fb4aec9bdfcd8c8137be4806be7cc402",
+    "run-base-r1-k8/otel/throughput.json": "b5ee6ab5798bd10e6b8ad185167395e056ca34be7efa839883b2f6e270380a29",
+    "run-base-r1-k8/otel/trace-admission.json": "74f4b4b2f067c781b264241d41eec87c7c0022ce0a4dc415293561ed4f084835",
+    "run-base-r1-k8/otel/engine-steps.json": "9cea96f3d5384a78c95b37f7ae912aa9c8eea9c516fad02526993e44cbd018bb",
+    "run-base-r1-k8/pass-receipt.json": "da06df589e69f63849e5bbc733deb38fba8ccb358796c2badeec05ebba42e499",
+    "run-grammar-observer/otel/factors.json": "cef779d0b0d9b081ed5b3be1984aed8a606d02d46e7737f2083b3541cecf38e3",
+    "run-grammar-observer/otel/throughput.json": "042d15ef72c95ae3238df9d3b965a5a76a91e36cb302e3dc2d40786a9f5414a3",
+    "run-grammar-observer/otel/trace-admission.json": "2c401dbb1f6f5311831838660c1d780e8676a56201447d29130172ffad38ae84",
+    "run-grammar-observer/otel/engine-steps.json": "22e862da0c7a17add3fc55a0e798a657c4995f116bcc3f1f74bd27f1caa503d9",
+    "run-grammar-observer/pass-receipt.json": "69aa7cbe4c4de890e315f1abddb4676baa0b6764c24aa627d025be1861e2c48b",
+    "run-kernel-profile/otel/kernel-profile.json": "b6e72d3f16326f6da030d7d630d9da9673799b11ca1f0fccd154347b966df309",
+    "run-kernel-profile/otel/trace-admission.json": "12fdba1d5460ec25982b910c7a3376b632a339a2f37bc63f1f90db7da58015fe",
+    "run-kernel-profile/otel/engine-steps.json": "19ae9fe115c6d87f6193395476eaa30326f7f6ff5af45e9be508c94434380530",
+    "run-kernel-profile/pass-receipt.json": "46ebfd0432883c58d2391f6a8a6176fddcdccd3225ccc8f03b7f5d42423687a5",
+    "run-observed-gate/otel/trace-admission.json": "12fdba1d5460ec25982b910c7a3376b632a339a2f37bc63f1f90db7da58015fe",
+    "run-observed-gate/otel/engine-steps.json": "1ca3a9d43f6cec91232a38c106c05d0eabb6d180ce68f162fbc08c8549e51582",
+    "run-observed-gate/pass-receipt.json": "12ee171c76ea669b388f1a0871dc63319af7e0b4bb2d74841bf136f94583ccb0",
+    "run-observed-k64/otel/factors.json": "d43a7c1e6b7f892bcdf7ec85afc885230bb98128ee8857dd711c6a62f42ebcf7",
+    "run-observed-k64/otel/throughput.json": "20fe22f93ddfe39e57114bb709f024a86183b0be2649880aa87ade84b9c67b7e",
+    "run-observed-k64/otel/trace-admission.json": "cc4619ce627cd5402a9d261644b153f9d7dc62557b07d35149d1d9d3dde8d3ea",
+    "run-observed-k64/otel/engine-steps.json": "ed36907fc948ad58a9d22ef9ee1aaf06f364859f44bc3ba154f24efff3caf2e5",
+    "run-observed-k64/pass-receipt.json": "6d7b31da6b394daa2a3ab802db2b408e0195e472093e948e012675de63017686",
+    "run-unobserved-gate/otel/trace-admission.json": "12fdba1d5460ec25982b910c7a3376b632a339a2f37bc63f1f90db7da58015fe",
+    "run-unobserved-gate/pass-receipt.json": "657f92b3858d65aafccf4d9a66a9b9b8abf55e9a2fd331bdffa31b4816de72cf",
+    "run-unobserved-k64/otel/factors.json": "3599770e991c4399615b283f6e857acfa1a225c5c5757a4d09366235ea92fe29",
+    "run-unobserved-k64/otel/throughput.json": "821f146fc06d69919d0cb10995c9d35db6524590b840a6b3b332ef7c7db452b0",
+    "run-unobserved-k64/otel/trace-admission.json": "d815b2487d986b8fe9714ac74413ba4dac4abda63fc9a901e1e0fe041fa5da72",
+    "run-unobserved-k64/pass-receipt.json": "d07cf2719e0754dc5f7011b84f39d43f5b16960543134db6227a193e297b2f22"
+  }
+}

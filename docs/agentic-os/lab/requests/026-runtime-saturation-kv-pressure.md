@@ -1,7 +1,7 @@
 ---
 id: 026
 title: Engine observations, same-host saturation, and actual long-context KV pressure
-state: live staging
+state: recovery prepared; instrumentation complete
 created: 2026-09-15
 bead: seocho-6niy
 ---
@@ -67,3 +67,50 @@ Local implementation and exact-image preflight passed.73focused tests; basic
 43ee747ef962adc160073fab6ebd8f02f544a440d793a349c014571de1503f71.
 Owned51135854 created1789489330.799 on A100NVLink host195410; staging running,
 no comparison result yet. Initial live$3.3562963/h, watchdog12600s. See HANDOFF17.
+
+
+## First run result and recovery registration (2026-09-16 KST)
+
+Lab-s25 completed stage1: observer OFF/ON K64 428.2441/432.4357 output tok/s/GPU
+and1.89273/1.90476task/s. OFF2293requests all exact; ON trace/engine gates pass.
+This pair shows no throughput regression, but one evolving agent workload is
+not a precise instrumentation-overhead estimate. Direct observed K64 decode
+sequences mean59.65; baseline-r1K8/K64 mean6.90/60.60 with123.6381/436.3959
+tok/s/GPU. No saturation conclusion yet.
+
+Two GPU rank traces contain36478kernel events each, with interval-union gaps
+5.34%/10.37% over~0.94s captured per rank. These profiled timings are diagnostic,
+excluded from primary throughput. GrammarK8 produced1227bitmask observations
+within the common window: mean53.95ms wall and53.95ms calling-threadCPU. Warm
+grammar creation mean0.161ms wall. This separates grammar CPU from GPU kernels.
+Gate-only engine summaries before the repair cover the scheduler lifetime up
+to that gate; they are admission evidence, not isolated per-gate performance.
+Timed summaries already use the common window.
+
+K128 failed before a valid window:106of128workers failed; GPU sampler process
+creation also raised BlockingIOError. Agent process-tree threads peaked4289 at
+K64 and6745 atK128, total measured service threads7576. No GPU saturation or
+K128 throughput claim. Original per-worker stderr was outside essential-copy
+coverage, so the first exception and original pids limit remain unknown.
+
+A bounded local test in the exact image reproduced native-thread exhaustion:
+8NumPy processes under pids.max64 yielded7thread-creation failures; scoped
+native-thread=1 yielded8successful processes. This verifies a client-runtime
+mechanism, not GPU performance. Recovery sets native-library thread counts to1
+only in persistent workload workers, records error class/errno and cgroup
+pids.current/max/events, and preserves worker stderr privately. Serving/DB
+thread policies remain their existing settings. See
+[OpenBLAS usage](https://github.com/OpenMathLib/OpenBLAS/blob/develop/USAGE.md).
+
+Owned51135854 destroyed and absent; watchdog parent_teardown_verified_absent.
+Lifetime2902.9403s at$3.3562963/h ≈$2.706424. Essential3433files/12025743bytes
+remote=localSHA25680be72fc5cafea23d29548db1ad08e6510c9b9ef9e71c077fb6c003edb8c801d.
+Bulk remains intentionally partial; original failed/_PartialArtifacts lifecycle
+is preserved. Original task failure exit2 is independent of partial-copy status.
+
+Recovery `--runtime-recovery` skips completed stage1, retains all16baseline/MTP
+K8/64/128/256 comparisons (two sweeps) and the10context cells. Low-K controls
+repeat because client policy changed and every new-host comparison must be
+within that host. A fresh lab-s25b has9800swatchdog, <=3.60/h =>max$9.80;
+combined hourly bound$12.506424 stays below$12.60. Remote8600s, session7400s,
+reserve600s. No replacement while prior ownership is unresolved.

@@ -217,3 +217,20 @@ new gate rather than being filled with zero.
 sequential K sweeps and real-corpus context-pressure diagnostics. The latter
 use actual tokenized graph records with fixed output lengths and two calls per
 task. They are serving/reuse evidence, not autonomous-agent or accuracy claims.
+
+
+### High-K client capacity (lab026 recovery)
+
+Native numerical libraries can create a thread pool in every persistent
+workload process. Lab-s25 measured4289agent threads atK64 and6745atK128;
+process-creation BlockingIOError coincided with106worker failures. This is
+client capacity evidence, not GPU saturation. The original cgroup PID limit
+and worker exception body were not preserved and remain unknown.
+
+Recovery records cgroup pids.current/pids.max/pids.events alongside memory
+observations, plus content-free worker error class/errno. Only persistent
+workload workers opt into native-thread=1; server and DB settings remain fixed.
+Private worker stderr is included in essential recovery artifacts, never in
+public numerical exports. Gate engine summaries now select their own client
+time interval; original cumulative gate summaries are retained as admission
+evidence and excluded from performance comparisons.

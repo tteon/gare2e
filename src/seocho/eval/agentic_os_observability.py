@@ -148,6 +148,9 @@ def memory_pressure_sample(*, proc: Path = Path("/proc"), cgroup: Path = Path("/
         "cgroup_limit_bytes": scalar(cgroup / "memory.max"),
         "cgroup_stat_bytes": numbers(cgroup / "memory.stat", {"anon", "file", "shmem", "kernel", "file_dirty", "file_writeback", "sock"}),
         "cgroup_events": numbers(cgroup / "memory.events", {"low", "high", "max", "oom", "oom_kill"}),
+        "cgroup_pids_current": scalar(cgroup / "pids.current"),
+        "cgroup_pids_limit": scalar(cgroup / "pids.max"),
+        "cgroup_pids_events": numbers(cgroup / "pids.events", {"max"}),
         "unobserved": ["db_page_cache_residency", "jvm_heap_used", "jvm_gc_pause", "kv_restore_latency_unless_exported"],
     }
 

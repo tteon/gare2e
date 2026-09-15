@@ -462,12 +462,16 @@ def test_require_nvlink_refuses_pcie_only_pairs():
     assert module._offer_is_admitted(dict(base, bw_nvlink=0.0), **kwargs)  # default keeps the old behaviour
 
 
-def test_essentials_tar_command_lists_only_content_free_globs_and_hashes_the_archive():
+def test_essentials_tar_command_limits_private_logs_to_worker_failure_diagnostics():
     module = _runner()
     cmd = module._essentials_tar_command("/artifacts", "/tmp/e.tgz")
     assert cmd.startswith("cd /artifacts && ")
     assert "run-*/e2e/*/shard-*/attempts/*/run-receipt.json" in cmd and "otel/collector-spans.jsonl" in cmd
-    assert "private.log" not in cmd  # bulky private logs never travel in the essential archive
+    # Lab026 lost the exact high-K worker failure because stderr was omitted.
+    # Preserve this named diagnostic; never include broad service/log globs.
+    private_logs = [pattern for pattern in module.ESSENTIAL_GLOBS if pattern.endswith('private.log')]
+    assert private_logs == ['run-*/e2e/*/shard-*/attempts/*/runner.stderr.private.log']
+    assert 'vllm.stdout.private.log' not in cmd and 'runner.stdout.private.log' not in cmd
     assert "sha256sum -- /tmp/e.tgz" in cmd and "recursive=False" in cmd
 
 

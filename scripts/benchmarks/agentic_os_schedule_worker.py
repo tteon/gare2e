@@ -18,11 +18,19 @@ from typing import Any
 
 
 class PersistentRunner:
-    def __init__(self, repo_root: Path) -> None:
+    def __init__(self, repo_root: Path, *, native_threads: int | None = None) -> None:
+        environment = os.environ.copy()
+        if native_threads is not None:
+            if native_threads < 1:
+                raise ValueError('native thread bound must be positive')
+            for key in ('OPENBLAS_NUM_THREADS', 'OMP_NUM_THREADS', 'MKL_NUM_THREADS',
+                        'NUMEXPR_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS', 'BLIS_NUM_THREADS', 'RAYON_NUM_THREADS'):
+                environment[key] = str(native_threads)
+            environment['TOKENIZERS_PARALLELISM'] = 'false'
         self.process = subprocess.Popen(
             [sys.executable, str(Path(__file__).resolve())],
             cwd=repo_root, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL, text=True,
+            stderr=subprocess.DEVNULL, text=True, env=environment,
         )
 
     def run(self, command: list[str], root: Path) -> dict[str, Any]:
@@ -66,6 +74,8 @@ def main() -> int:
         clock = time.perf_counter()
         setup_ms = None
         code = 0
+        error_class = None
+        error_errno = None
         try:
             os.dup2(handles[0], 1)
             os.dup2(handles[1], 2)
@@ -84,8 +94,11 @@ def main() -> int:
             code = int(modules[script].main() or 0)
         except SystemExit as exc:
             code = exc.code if isinstance(exc.code, int) else (0 if exc.code is None else 1)
-        except BaseException:
+        except BaseException as exc:
             traceback.print_exc()
+            error_class = type(exc).__name__
+            candidate_errno = getattr(exc, 'errno', None)
+            error_errno = candidate_errno if isinstance(candidate_errno, int) else None
             code = 1
         finally:
             sys.stdout.flush()
@@ -99,6 +112,7 @@ def main() -> int:
             "runner_started_unix_s": started, "runner_finished_unix_s": time.time(),
             "runner_wall_ms": (time.perf_counter() - clock) * 1000,
             "runner_setup_ms": setup_ms,
+            "runner_error_class": error_class, "runner_error_errno": error_errno,
         }) + "\n")
     protocol.close()
     os.close(saved_stdout)

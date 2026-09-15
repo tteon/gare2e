@@ -261,7 +261,7 @@ def _run_dynamic(
         try:
             if args.runner_mode == "persistent":
                 if not hasattr(local, "runner"):
-                    local.runner = PersistentRunner(_REPO_ROOT)
+                    local.runner = PersistentRunner(_REPO_ROOT, native_threads=getattr(args, 'worker_native_threads', None))
                     with runner_lock:
                         runners.append(local.runner)
                 result = local.runner.run(command, root)
@@ -476,6 +476,7 @@ def main() -> int:
     parser.add_argument("--workers", type=int, default=1,
                         help="Dynamic FIFO concurrency in one coordinator; do not combine with --shard.")
     parser.add_argument("--runner-mode", choices=("fresh", "persistent"), default="fresh")
+    parser.add_argument('--worker-native-threads', type=int, help='Bound native libraries inside persistent worker processes only')
     parser.add_argument("--steady-state-warmup-s", type=float, default=0.0,
                         help="Exclude this many seconds after every worker completes its first case.")
     parser.add_argument("--measurement-duration-s", type=float,
@@ -484,6 +485,8 @@ def main() -> int:
     parser.add_argument("--record-replay", action="store_true")
     parser.add_argument("--replay-mode", choices=("serving-only", "tool-stub", "real-db"), default="tool-stub")
     args = parser.parse_args()
+    if args.worker_native_threads is not None and (args.worker_native_threads < 1 or args.runner_mode != 'persistent'):
+        parser.error('worker-native-threads requires persistent mode and a positive count')
     if args.workers < 1 or not math.isfinite(args.steady_state_warmup_s) or args.steady_state_warmup_s < 0:
         parser.error("workers must be positive and warmup non-negative")
     dynamic = args.dynamic_queue or args.workers > 1 or args.runner_mode == "persistent"
@@ -591,6 +594,7 @@ def main() -> int:
         "replay_mode": args.replay_mode if args.lane == "grbench-replay" else None,
         "dispatch_mode": "dynamic_fifo" if dynamic else "serial",
         "runner_mode": args.runner_mode,
+        "worker_native_threads": args.worker_native_threads,
         "steady_state_warmup_s": args.steady_state_warmup_s,
         "prompt_profile": args.prompt_profile,
         "grbench_workspace_id": args.grbench_workspace_id,

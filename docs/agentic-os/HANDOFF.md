@@ -441,3 +441,30 @@ Raw receipts live under the operator's ignored colocated-appliance/runs/lab-s25.
 Runtime/Tool/Agent charts remain based on the previous completed30conditions
 until the new live gates and measured windows finish. Preserve peers and
 content-free publication; raw profiler traces remain private.
+
+
+## 18. Lab026 stage1 passed; client-capacity recovery prepared (2026-09-16 KST)
+
+Supersedes live section17: owned51135854 is destroyed and independently absent.
+Watchdog terminalparent_teardown_verified_absent; lifetime2902.9403s, cost
+$2.706424, historical cumulativeapprox$121.12. Essential3433files/12025743bytes
+verified SHA80be72fc5cafea23d29548db1ad08e6510c9b9ef9e71c077fb6c003edb8c801d;
+bulk remains partial. Stage1 observer, two-rank kernel profiler and grammar CPU
+allpassed. Five measured windows: OFFK64 428.24, ONK64 432.44, grammarK8 53.49,
+base-r1K8 123.64, base-r1K64 436.40 outputtok/s/GPU.
+
+K128worker failures106/128 preceded any valid window. Agent thread count grew
+from4289(K64) to6745(K128); sampler also reportedBlockingIOError. Precise initial
+worker exception/originalpidslimit unknown because stderr was omitted. Local
+exact-image bounded process test reproduces native-thread exhaustion and verifies
+child-scoped native-thread=1 initialization. Bugseocho-zcc9 underseocho-6niy.
+Recovery adds scopedworker limits, errno/classes, cgroupPID counters and private
+stderr preservation. No GPU saturation claim from the failed condition.
+
+The user's stages1/2/3 authorization remains active. Prepared runtime-recovery
+queue skips completedstage1 and reruns all16baseline/MTP cells on one new host
+with corrected workers, then10real-corpus context cells. Prior low-K results
+remain separate; new controls are necessary after the harness change. New
+lab-s25b:9800s watchdog at<=3.60/h,max9.80 plus2.706424 alreadyspent totals
+12.506424<12.60. Exact-image preflight and localCI precede create. At this
+checkpoint no owned liveinstance. Stage2/3 are still pending.

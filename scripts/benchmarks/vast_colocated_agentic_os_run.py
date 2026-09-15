@@ -396,7 +396,8 @@ def _copy_to_remote(ssh_prefix: list[str], local: Path, remote: str) -> None:
 
 
 
-# Content-free essentials that must survive a slow or broken bulk copy (lab-s15:
+# Essential receipts plus explicitly private replay/profiler/failure diagnostics
+# that must survive a slow or broken bulk copy (lab-s15:
 # a UAE host pushed 27 MB in 30 min, the 1800 s scp timed out and the fail-closed
 # destroy threw away the whole session's receipts).  Everything needed for the
 # funnel / bottleneck / stage tables is small; the private logs are the bulk.
@@ -410,6 +411,7 @@ ESSENTIAL_GLOBS = (
     "run-*/otel/engine-steps.json", "run-*/otel/kernel-profile.json", "run-*/vllm-restart/profiles.private/*.gz",
     "run-*/e2e/*/shard-*/context-contract.json",
     "run-*/e2e/*/shard-*/attempts/*/replay.private.jsonl",
+    "run-*/e2e/*/shard-*/attempts/*/runner.stderr.private.log",
     "run-*/vllm-restart/*.json", "run-*/vllm-restart/router-receipts.jsonl", "run-*/vllm-restart/engine-observer/*.jsonl", "run-*/workload/*.csv", "run-*/workload/*.json", "run-*/workload/*.jsonl",
     "run-*/e2e/progress.tsv", "run-*/e2e/*/coordinator-*.json*", "run-*/e2e/*/shard-*/coordinator-*.json*",
     "run-*/e2e/*/shard-*/attempts/*/run-receipt.json", "run-*/e2e/*/shard-*/attempts/*/receipts.jsonl",
