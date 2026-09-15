@@ -106,6 +106,18 @@ if [ "${#extra[@]}" -gt 0 ]; then
   vllm_command=("${deduped[@]}")
 fi
 vllm_command+=("${extra[@]}")
+if [ "${SEOCHO_ENGINE_OBSERVER:-0}" = "1" ]; then
+  export SEOCHO_ENGINE_OBSERVER_DIR="$SEOCHO_VLLM_RECEIPT_DIR/engine-observer"
+  export PYTHONPATH="$(dirname "${BASH_SOURCE[0]}"):${PYTHONPATH:-}"
+  vllm_command+=(--scheduler-cls observed_scheduler.ObservedAsyncScheduler)
+fi
+if [ "${SEOCHO_ENGINE_PROFILER:-0}" = "1" ]; then
+  vllm_command+=(--profiler-config.profiler torch
+    --profiler-config.torch_profiler_dir "$SEOCHO_VLLM_RECEIPT_DIR/profiles.private"
+    --profiler-config.torch_profiler_with_stack false
+    --profiler-config.ignore_frontend true
+    --profiler-config.max_iterations 32)
+fi
 # Experimental CPU-affinity axis; scope only this server and its descendants.
 export SEOCHO_VLLM_CPU_LIST=""
 if [ -n "${SEOCHO_VLLM_CPU_COUNT:-}" ]; then

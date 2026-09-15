@@ -10,14 +10,15 @@ import sys
 import time
 from pathlib import Path
 from typing import Any
+from urllib.request import Request, urlopen
 
 from prepare_agentic_os_throughput import backlog_schedule, capture_index, write_new
 from summarize_agentic_os_factors import summarize
 from summarize_agentic_os_characterization import replica_observations
 
 
-def plan(*, continuation: bool = False, replica_audit: bool = False) -> list[dict[str, Any]]:
-    if continuation and replica_audit:
+def plan(*, continuation: bool = False, replica_audit: bool = False, runtime_audit: bool = False) -> list[dict[str, Any]]:
+    if sum((continuation, replica_audit, runtime_audit)) > 1:
         raise ValueError('choose one continuation scope')
     baseline = '--max-num-batched-tokens,8192'
     mtp = baseline + ',--speculative-config,{"method":"qwen3_5_mtp","num_speculative_tokens":2}'
@@ -44,7 +45,24 @@ def plan(*, continuation: bool = False, replica_audit: bool = False) -> list[dic
                   dict(id='replicas2', k=64, replicas=2),
                   dict(id='task-rr-gate', k=1, limit=1, replicas=2, router_policy='task-rr'),
                   dict(id='task-rr', k=64, replicas=2, router_policy='task-rr')]
-    return [{**{'router_policy': 'sticky', 'lane': 'grbench-single', 'serving': baseline, 'cpu': None, 'replicas': 1, 'runner': 'persistent'}, **p} for p in passes]
+    if runtime_audit:
+        passes = [dict(id='unobserved-gate', k=1, limit=1), dict(id='unobserved-k64', k=64),
+                  dict(id='observed-gate', k=1, limit=1, observer=True),
+                  dict(id='observed-k64', k=64, observer=True),
+                  dict(id='kernel-profile', k=1, limit=1, observer=True, profile=True),
+                  dict(id='grammar-observer', k=8, observer=True, lane='grbench-grammar', ratio=1.0)]
+        for repetition in (1, 2):
+            for name, serving in (('base', baseline), ('mtp', mtp)):
+                passes.append(dict(id=f'{name}-r{repetition}-gate', k=1, limit=1, serving=serving, observer=True))
+                passes.extend(dict(id=f'{name}-r{repetition}-k{k}', k=k, serving=serving, observer=True)
+                              for k in ((8, 64, 128, 256) if repetition == 1 else (256, 128, 64, 8)))
+    return [{**{'observer': False, 'router_policy': 'sticky', 'lane': 'grbench-single', 'serving': baseline, 'cpu': None, 'replicas': 1, 'runner': 'persistent'}, **p} for p in passes]
+
+
+def control(endpoint: str) -> None:
+    """Bounded calls to the already owned loopback development endpoint."""
+    with urlopen(Request('http://127.0.0.1:8000/' + endpoint, data=b'', method='POST'), timeout=120) as response:
+        response.read()
 
 
 def run(command: list[str], log: Path, *, timeout: int) -> int:
@@ -100,11 +118,13 @@ def main() -> int:
     parser.add_argument('--reserve-s', type=int, default=1500)
     parser.add_argument('--continuation', action='store_true', help='Only live gate, TP pair and grammar K8 ratios')
     parser.add_argument('--replica-audit', action='store_true', help='TP2/sticky/task-rr with strict trace gates')
+    parser.add_argument('--runtime-audit', action='store_true', help='Lab026 observer gate and replicated K8/64/128/256 baseline/MTP')
     parser.add_argument('--print-plan', action='store_true')
     args = parser.parse_args()
     if args.reserve_s < 0 or args.max_session_s <= args.reserve_s:
         parser.error('max session must exceed nonnegative reserve')
-    registered = plan(continuation=args.continuation, replica_audit=args.replica_audit)
+    registered = plan(continuation=args.continuation, replica_audit=args.replica_audit, runtime_audit=args.runtime_audit)
+    strict = args.replica_audit or args.runtime_audit
     if args.print_plan:
         print(json.dumps(registered, indent=2))
         return 0
@@ -112,6 +132,8 @@ def main() -> int:
     os.environ['NEO4J_PASSWORD'] = Path(os.environ.get('SEOCHO_APPLIANCE_SECRET_FILE', '/workspace/appliance.secret')).read_text().strip()
     os.environ.update(VLLM_MAX_NUM_SEQS='128', VLLM_MAX_MODEL_LEN='32768', VLLM_TENSOR_PARALLEL_SIZE='2',
                       VLLM_REPLICAS='1', SEOCHO_ROUTER_POLICY='sticky', VLLM_READY_ATTEMPTS='400')
+    if args.runtime_audit:
+        os.environ['SEOCHO_ENGINE_PROFILER'] = '1'
     scripts = args.repo / 'scripts/benchmarks'
     source = json.loads((args.input / 'strata-grbench-single-schedule.json').read_text())
     cohort = backlog_schedule(source, repeats=1)
@@ -122,7 +144,7 @@ def main() -> int:
     write_new(args.input / 'throughput-gate.json', {**cohort, 'entries': gate_entries})
     write_new(args.input / 'throughput-backlog.json', backlog_schedule(source, repeats=40))
     write_new(args.artifacts / 'session-summary/registered-plan.json', {'passes': registered, 'duration_s': args.duration_s,
-        'continuation': args.continuation, 'replica_audit': args.replica_audit, 'reserve_s': args.reserve_s,
+        'continuation': args.continuation, 'replica_audit': args.replica_audit, 'runtime_audit': args.runtime_audit, 'reserve_s': args.reserve_s,
         'max_session_s': args.max_session_s, 'context': '32768 cap; observed lengths reported separately',
         'db_cache': 'warm intent; no OS cache flush; capacities fixed', 'quality': 'recorded separately; replay has no answer-quality evaluation',
         'high_load_k': 64, 'high_load_is_saturation': 'only if measured K curve establishes plateau'})
@@ -143,9 +165,10 @@ def main() -> int:
             return 4
         root = args.artifacts / ('run-' + spec['id'])
         root.mkdir()
-        next_shape = (spec['serving'], spec['cpu'], spec['replicas'], spec['router_policy'])
+        next_shape = (spec['serving'], spec['cpu'], spec['replicas'], spec['router_policy'], spec['observer'])
         if next_shape != shape:
             os.environ.update(VLLM_EXTRA_ARGS=spec['serving'], VLLM_REPLICAS=str(spec['replicas']),
+                SEOCHO_ENGINE_OBSERVER='1' if spec['observer'] else '0',
                 SEOCHO_ROUTER_POLICY=spec['router_policy'],
                 SEOCHO_VLLM_CPU_COUNT=str(spec['cpu']) if spec['cpu'] else '', SEOCHO_VLLM_RECEIPT_DIR=str(root / 'vllm-restart'))
             code = run(['bash', str(args.repo / 'docker/agentic-os-appliance/restart_vllm.sh')], root / 'restart.private.log', timeout=1100)
@@ -182,8 +205,16 @@ def main() -> int:
             '--role-pid', f'dozerdb={min(db_pids)}']
         for index, pid in enumerate(sorted(server_pids)):
             wrapper += ['--role-pid', f'{"vllm" if index == 0 else "vllm_replica" + str(index)}={pid}']
-        code = run_observed(wrapper + ['--workload', *command], root, scripts,
-                            replicas=spec['replicas'] if args.replica_audit else 1)
+        if args.runtime_audit:
+            control('reset_prefix_cache')
+        if spec.get('profile'):
+            control('start_profile')
+        try:
+            code = run_observed(wrapper + ['--workload', *command], root, scripts,
+                                replicas=spec['replicas'] if args.replica_audit else 1)
+        finally:
+            if spec.get('profile'):
+                control('stop_profile')
         export_code = run([sys.executable, str(scripts / 'export_agentic_os_otel.py'), str(coordinator),
             '--jsonl', str(root / 'otel/spans.jsonl')], root / 'export.private.log', timeout=120)
         receipt = {'pass_id': spec['id'], 'exit_code': code, 'export_exit_code': export_code, 'config': spec}
@@ -206,7 +237,7 @@ def main() -> int:
             write_new(root / 'otel/factors.json', factors)
             write_new(root / 'otel/throughput.json', factors['throughput'])
             receipt['throughput_status'] = factors['throughput']['status']
-            if args.replica_audit:
+            if strict:
                 rate = factors['throughput']
                 valid_window = rate['status'] == 'observed' and factors.get('observed_physical_gpu_count') == 2
                 if spec['replicas'] > 1 and valid_window:
@@ -216,7 +247,7 @@ def main() -> int:
                 if not valid_window:
                     code = 3
                     receipt['failed_stage'] = 'metric_window'
-        if args.replica_audit and not code:
+        if strict and not code:
             gate = [sys.executable, str(scripts / 'audit_agentic_os_trace_gate.py'),
                     '--client', str(root / 'otel/spans.jsonl'),
                     '--server', str(args.artifacts / 'otel/collector-spans.jsonl'),
@@ -229,11 +260,27 @@ def main() -> int:
             receipt['trace_admission_passed'] = code == 0
             if code:
                 receipt['failed_stage'] = 'trace_admission'
+        if spec['observer'] and not code:
+            gate = [sys.executable, str(scripts / 'summarize_agentic_os_engine_steps.py'),
+                    '--source', str(Path(os.environ['SEOCHO_VLLM_RECEIPT_DIR']) / 'engine-observer'),
+                    '--output', str(root / 'otel/engine-steps.json')]
+            if not spec.get('limit'):
+                gate += ['--factors', str(root / 'otel/factors.json')]
+            code = run(gate, root / 'engine-admission.private.log', timeout=60)
+            receipt['engine_admission_passed'] = code == 0
+        if spec.get('profile') and not code:
+            code = run([sys.executable, str(scripts / 'summarize_agentic_os_kernel_profile.py'),
+                        '--source', str(Path(os.environ['SEOCHO_VLLM_RECEIPT_DIR']) / 'profiles.private'),
+                        '--output', str(root / 'otel/kernel-profile.json')], root / 'kernel-admission.private.log', timeout=120)
+            receipt['kernel_admission_passed'] = code == 0
         receipt['exit_code'] = code
         write_new(root / 'pass-receipt.json', receipt)
         print(json.dumps({'pass_id': spec['id'], 'exit_code': code, 'elapsed_s': round(time.monotonic() - began)}), flush=True)
         if code:
             return code
+    if args.runtime_audit:
+        from run_agentic_os_pressure_session import execute
+        return execute(args, began)
     return 0
 
 

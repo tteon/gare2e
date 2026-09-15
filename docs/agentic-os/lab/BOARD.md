@@ -99,3 +99,12 @@ identity-check gap in basic CI; implementation is not throughput evidence.
   Essential2853files remote/local SHA verified; bulk intentionally skipped.
   Additional cost≈$1.5726, extension total≈$3.4933/$5.40, cumulative≈$118.42.
 - Request025/HANDOFF§15 supersede prepared/live snapshots. No next run scheduled.
+
+
+## 2026-09-15 lab026 authorized preparation
+
+Request026 / seocho-6niy: user authorized engine instrumentation, same-host
+higher-K baseline/MTP and actual long-context/prefix-reuse pressure, sequentially
+without further confirmation. Local implementation passed73 focused tests and
+basic CI. Exact-image preflight pending; no new instance or measured result yet.
+Operator bound$12.60 /12600s at<=3.60/h; prior spending remains separate.

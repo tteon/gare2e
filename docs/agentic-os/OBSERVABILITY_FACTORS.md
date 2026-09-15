@@ -188,3 +188,32 @@ See [lab025 evidence](reports/lab025-replicas/README.md). This closes the W3C
 propagation gap for the new run; historical lab-s23b stages remain unknown.
 It does not add engine-internal decode sequence, grammar CPU, kernel-gap or
 active-versus-cached KV instrumentation. These remain explicit telemetry gaps.
+
+
+## Lab026 engine observer (implemented, live gate pending)
+
+Opt-in `observed_scheduler.ObservedAsyncScheduler` inherits the pinned vLLM
+async scheduler without replacing decisions. `scheduled_sequences` counts the
+actual scheduled request IDs. Prompt/decode categories use scheduled token
+positions before upstream advances computed counters; a mixed sequence counts
+in both and is exposed explicitly. Recomputed output positions remain decode
+positions. Committed output tokens come from processed EngineCoreOutputs, once
+per engine, never per TP rank. Draft scheduled tokens are not accepted tokens.
+
+Scheduler/grammar wrapper wall and thread-CPU times are CPU observations.
+Schedule-to-output latency includes async overlap; it is not exclusive GPU time.
+A separate <=32-iteration torch profile unions overlapping kernel intervals per
+rank/device, and is excluded from headline throughput. Gaps alone cannot prove
+a CPU cause. Grammar worker-thread costs outside a measured wrapper remain
+unknown. Observer OFF/ON is an explicit overhead comparison.
+
+Once per second, block scans count disjoint active(refcount>0), reclaimable
+cached(refcount0 with cached hash), and unused blocks, excluding the reserved
+null block. These are physical engine block counts, not a sum of replica or TP
+utilization percentages. Scan cost is recorded. Missing observations fail the
+new gate rather than being filled with zero.
+
+[Request026](lab/requests/026-runtime-saturation-kv-pressure.md) registers the
+sequential K sweeps and real-corpus context-pressure diagnostics. The latter
+use actual tokenized graph records with fixed output lengths and two calls per
+task. They are serving/reuse evidence, not autonomous-agent or accuracy claims.
