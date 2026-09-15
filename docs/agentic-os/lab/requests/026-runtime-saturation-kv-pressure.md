@@ -1,7 +1,7 @@
 ---
 id: 026
 title: Engine observations, same-host saturation, and actual long-context KV pressure
-state: implementation
+state: live staging
 created: 2026-09-15
 bead: seocho-6niy
 ---
@@ -62,4 +62,8 @@ destroyed/absent. Instrumentation tests alone establish no performance claim.
 
 ## Result
 
-Pending local implementation and preflight. No new instance has been created.
+Local implementation and exact-image preflight passed.73focused tests; basic
+1112passed3skipped and all structural contracts passed. Source50731235, bundle
+43ee747ef962adc160073fab6ebd8f02f544a440d793a349c014571de1503f71.
+Owned51135854 created1789489330.799 on A100NVLink host195410; staging running,
+no comparison result yet. Initial live$3.3562963/h, watchdog12600s. See HANDOFF17.

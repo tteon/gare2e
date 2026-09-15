@@ -82,3 +82,29 @@ def test_saturation_plan_preserves_gate_and_replicates_each_condition() -> None:
         assert all(c['observer'] and c['replicas'] == 1 for c in cells)
     with pytest.raises(ValueError):
         module.plan(runtime_audit=True, replica_audit=True)
+
+
+def test_pressure_corpus_does_not_pad_a_short_dataset(tmp_path: Path) -> None:
+    import gzip
+    module = load_script('run_agentic_os_context_pressure')
+    corpus = tmp_path / 'nodes.csv.gz'
+    with gzip.open(corpus, 'wt') as stream:
+        stream.write('id,feature_title\n1,actual fixture record\n')
+    tokenizer = types.SimpleNamespace(encode=lambda value, **kwargs: list(value.encode()))
+    with pytest.raises(ValueError, match='lacks'):
+        module.corpus_tokens(corpus, tokenizer, minimum=1000)
+    tokens, count = module.corpus_tokens(corpus, tokenizer, minimum=1)
+    assert count == 1 and b'actual fixture record' in bytes(tokens)
+
+
+def test_report_keeps_serving_diagnostic_separate_and_missing_metrics_unknown(tmp_path: Path) -> None:
+    import json
+    module = load_script('summarize_agentic_os_runtime_pressure')
+    for name in ('base-r1-k64', 'context-24576-k64-shared'):
+        directory = tmp_path / ('run-' + name)
+        directory.mkdir()
+        (directory / 'pass-receipt.json').write_text(json.dumps(dict(pass_id=name, exit_code=3)))
+    result = module.collect(tmp_path)
+    assert [r['category'] for r in result['conditions']] == ['saturation', 'context']
+    assert all(r['factors'] == {} for r in result['conditions'])
+    assert len(result['source_sha256']) == 2

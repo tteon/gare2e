@@ -94,3 +94,24 @@ remain private; publish their reviewed counts/hashes, not entire provider payloa
 Missing private inputs limit live reproduction, not access to the published
 measurements. Follow [AGENTS.md](AGENTS.md) and the latest [HANDOFF](HANDOFF.md)
 before modifying or launching another experiment.
+
+
+## Sequential engine and pressure validation (lab026)
+
+`run_agentic_os_throughput_session.py --runtime-audit --print-plan` shows the
+observer OFF/ON, separate kernel profile, grammar probe and two baseline/MTP
+K sweeps. After those gates pass, `run_agentic_os_pressure_session.py` runs
+actual graph-corpus8K/24K prefix diagnostics. The launcher uses a new owned
+run root and explicit12600s/$12.60 operator bound under request026 authorization.
+
+The opt-in pinned-image `observed_scheduler.py` preserves AsyncScheduler and
+records content-free JSONL under each server restart receipt. Engine summaries
+use the existing common throughput windows. `summarize_agentic_os_kernel_profile.py`
+reads private torch trace originals and publishes only interval-union statistics
+and digests. Never publish the raw profiler files; they contain process metadata.
+
+After teardown, `summarize_agentic_os_runtime_pressure.py --run-root ... --output ...`
+exports numerical conditions and standalone saturation/context figures. Keep
+fixed-corpus diagnostics separate from the Agent/Tool/Runtime agent chartbook.
+Use the same preserved originals to regenerate results; no paid calls are needed
+for postprocessing. A partial run produces only the conditions actually observed.

@@ -416,3 +416,28 @@ Full basic CI passes, including identity and structural checks;31 focused tests,
 docs/link checks, the six-entry print-plan and secret-guard30/30 self-test pass.
 No new benchmark or paid resource was launched for publication. Lab025 outcomes
 and original source/artifact hashes in §15 remain unchanged.
+
+
+## 17. Lab026 sequential validation — live checkpoint (2026-09-16 KST)
+
+User explicitly authorized engine instrumentation, higher-K baseline/MTP, then
+actual long-context/prefix-reuse pressure without further confirmation. Source
+50731235 on private gare2e/lab026-runtime-pressure; final landing targetmain.
+Request026 / beadseocho-6niy.73focusedtests and basic1112pass3skip/allcontracts
+passed. Exact pinned-image source/observer/profiler preflight passed; this is
+not GPU performance evidence. The initial probe omitted a required config
+constructor argument; its failed receipt is preserved, corrected check2passed.
+
+New owned instance51135854, labelseocho-agentic-os-lab-s25, A100 SXM80GB pair
+NVLink300, host195410,32effectiveCPUs, driver580.65.06/nativeCUDA. Actual initial
+disk-inclusive rate$3.3562963/h. Create1789489330.799, independent12600swatchdog
+deadline1789501930.799. Operator max$12.60 at<=3.60/h; no prior spend reset.
+At this checkpoint directSSH passed and input staging is running. No new
+comparison results yet. Do not launch a replacement while this instance exists.
+
+Source bundleSHA256
+43ee747ef962adc160073fab6ebd8f02f544a440d793a349c014571de1503f71.
+Raw receipts live under the operator's ignored colocated-appliance/runs/lab-s25.
+Runtime/Tool/Agent charts remain based on the previous completed30conditions
+until the new live gates and measured windows finish. Preserve peers and
+content-free publication; raw profiler traces remain private.
