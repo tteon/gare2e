@@ -22,6 +22,25 @@ starts; the e2e then only verifies counts. Without it the e2e projects
 1800 s), which is too slow for MAPLE/Physics on a paid instance.
 `SEOCHO_GRBENCH_WORKSPACE_ID` (default `grbench-maple-physics`) must match the
 manifest and is forwarded to every Text2Cypher runner.
+NCCL peer-to-peer is resolved from `nvidia-smi topo -m` by `nccl_env.sh`:
+`SEOCHO_NCCL_P2P_MODE=auto` (default) enables P2P only when every GPU pair is
+an NVLink (`NV*`) link and otherwise keeps the V14 fallback
+`NCCL_P2P_DISABLE=1`; `disable`/`enable` force it, and an explicit
+`NCCL_P2P_DISABLE` wins. The decision is written to
+`gpu-topology.private.txt` (and `nccl-env.private.txt` per vLLM restart) so
+TP=2 comparisons record whether allreduce had NVLink.
+The workload wrapper's exit status is the workload's own exit status. Sampler
+failures and telemetry-acceptance blockers (an empty vLLM metrics window after
+an in-pass restart, nvidia-smi gaps) are recorded in
+`colocated-workload-receipt.json` as `telemetry_degraded` /
+`telemetry_degradation`, and `validate_agentic_os_e2e_acceptance.py` still
+fails a gate on them; set `SEOCHO_STRICT_TELEMETRY=1` to make the wrapper
+itself exit 3 on degraded telemetry.
+Every pass ends with an OpenTelemetry export of its receipts to
+`run-<pass>/otel/spans.jsonl` (see `examples/observability/README.md`); set
+`SEOCHO_OTLP_ENDPOINT` to also push the spans over OTLP/gRPC and to start vLLM
+with `--otlp-traces-endpoint` so its request spans nest under the runners'
+`traceparent`.
 Optional `VLLM_CPUSET`, `DOZERDB_CPUSET` and `SEOCHO_SAMPLE_INTERVAL_S` make
 CPU placement and sampler cadence explicit in the run manifest. Copy and
 checksum the artifact directory before destroying the paid instance.

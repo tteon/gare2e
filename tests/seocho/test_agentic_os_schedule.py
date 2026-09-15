@@ -111,6 +111,18 @@ def test_grbench_command_can_request_out_of_band_profile_replay(tmp_path) -> Non
     assert "--profile-query-plans" in command
 
 
+def test_grbench_command_forwards_zero_row_hint_only_when_requested(tmp_path) -> None:
+    module = _coordinator()
+    args = _args("grbench-single")
+    assert "--zero-row-hint" not in module._runner_command(args, _entry("S1"), tmp_path, "run")
+    args.zero_row_hint = True
+    command = module._runner_command(args, _entry("S1"), tmp_path, "run")
+    assert "--zero-row-hint" in command
+    hop = _args("grbench-graphcot")
+    hop.zero_row_hint = True
+    assert "--zero-row-hint" not in module._runner_command(hop, _entry("B0"), tmp_path, "run")
+
+
 def test_attempt_id_changes_with_execution_treatment() -> None:
     module = _coordinator()
     entry = {**_entry("B0"), "paired_unit": "7:0:warm:0"}
@@ -174,3 +186,38 @@ def test_shard_and_run_root_suffix_are_wired() -> None:
     source = (Path(__file__).parents[2] / "scripts/benchmarks/run_agentic_os_schedule.py").read_text(encoding="utf-8")
     assert '"--shard"' in source and "ordinal % shard_count == shard_index" in source
     assert '"--run-root-suffix"' in source and "args.run_root = args.run_root / str(args.run_root_suffix)" in source
+
+
+def test_grbench_row_and_byte_caps_forward_only_when_set(tmp_path):
+    module = _coordinator()
+    args = _args(lane="grbench-single")
+    command = module._runner_command(args, _entry("B0"), tmp_path, "run")
+    assert "--row-cap" not in command and "--byte-cap" not in command
+    args.row_cap, args.byte_cap = 100, 60000
+    command = module._runner_command(args, _entry("B0"), tmp_path, "run")
+    assert command[command.index("--row-cap") + 1] == "100"
+    assert command[command.index("--byte-cap") + 1] == "60000"
+
+
+def test_router_lane_uses_router_script_and_leaves_hint_to_the_plan(tmp_path) -> None:
+    module = _coordinator()
+    args = _args("grbench-router")
+    args.zero_row_hint = True
+    args.profile_query_plans = True
+    command = module._runner_command(args, _entry("V0"), tmp_path, "run")
+    assert command[1].endswith("run_grbench_router.py")
+    assert command[command.index("--arm") + 1] == "V0"
+    assert "--zero-row-hint" not in command and "--profile-query-plans" not in command
+    assert module._LANE_ARMS["grbench-router"] == {"V0", "V0A"}
+
+
+def test_grammar_lane_forwards_constrained_mode_and_hint(tmp_path) -> None:
+    module = _coordinator()
+    args = _args("grbench-grammar")
+    args.zero_row_hint = True
+    command = module._runner_command(args, _entry("S1"), tmp_path, "run")
+    assert command[1].endswith("run_grbench_grammar_cypher.py")
+    assert command[command.index("--constrained") + 1] == "xgrammar" and "--zero-row-hint" in command
+    args.constrained = "none"
+    assert module._runner_command(args, _entry("S1"), tmp_path, "run")[command.index("--constrained") + 1] == "none"
+    assert module._LANE_ARMS["grbench-grammar"] == {"B0", "S1", "O1"}

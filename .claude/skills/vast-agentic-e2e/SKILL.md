@@ -42,14 +42,23 @@ Bash `run_in_background` call only as the notifier.
 ## 0. Ownership gate (always first, read-only)
 
 ```bash
-timeout 60 vastai show instances --raw
+timeout 60 vastai show instances --raw | python3 -c '
+import json,sys; d=json.load(sys.stdin)
+print([(i["id"], i.get("label"), i.get("actual_status"), i.get("host_id")) for i in d])'
 ```
 
-Expected: `[]`. If any instance exists, do **not** create anything. Go to
-`references/recovery.md` (cost-safety row) and resolve it first: bounded
-`show`, explicit `destroy instance <id>`, then re-run the listing until it is
-empty. Also check the most recent `runs/*/vast-colocated-lifecycle.json`
-for `destroy_verified_absent: false` and reconcile it against the listing.
+Print ids/labels only — the raw instance JSON carries the `jupyter_token`
+(never paste it into chat, journals or receipts; bead seocho-ffl4).
+
+Expected: no instance whose label starts with `seocho-agentic-os-`. The Vast
+key is shared with the gare2e handoff, so a teammate's instance (other label,
+e.g. `gare2e-…`) may legitimately be live: it does not block a launch, but it
+does share the account's billing — say so in the ledger. If one of **ours**
+exists, do **not** create anything. Go to `references/recovery.md`
+(cost-safety row) and resolve it first: bounded `show`, explicit
+`destroy instance <id>` (ours only), then re-run the listing. Also check the
+most recent `runs/*/vast-colocated-lifecycle.json` for
+`destroy_verified_absent: false` and reconcile it against the listing.
 
 ## 1. Inputs and bundle freshness (local, no cost)
 
@@ -144,6 +153,10 @@ session, and the cost watchdog survive this Claude Code process. Use a
 **new** run directory (`vN-e2e`), the standalone bootstrap path, and the
 bulk-import inputs instead of `graph.json`:
 
+**NVLink only (user rule, 2026-09-12):** every paid instance must have 2+ GPUs joined by NVLink. Put `bw_nvlink>0` in the offer query, pass `--require-nvlink` (the runner then refuses offers whose `bw_nvlink` is 0 or missing and records the value in the offer receipt), and keep RTX PRO 6000 / A100 PCIe out of `--gpu-name-regex`. Expect fewer admissible offers and a higher price floor (2026-09-12 market: A100 SXM4 pairs ≈ $2.3 on host 458442 only, H100 PCIe+NVLink pairs ≥ $4.3, H100 SXM ≥ $6.5); if the ceiling has to move, that is the user's decision, not the launcher's.
+
+`cuda_max_good>=13.0` keeps hosts whose driver matches the image's CUDA major (lab-s5: a driver-525 host died at vLLM start with error 803). Keep the query selective (`gpu_ram>=79`): `vastai search offers` returns one page (~64 rows) sorted by price, so a loose query fills it with consumer GPUs and the admissible A100/RTX PRO offers never reach the runner (lab-s8: 70 'no admitted offer' misses while eligible hosts were listed).
+
 ```bash
 B=.seocho/benchmarks/agentic-os/colocated-appliance/bootstrap
 G10=examples/agentic-os/frozen/gate-10   # frozen discovery caches + schedules (in the repo)
@@ -151,7 +164,7 @@ IMP=$B/grbench-import-vK
 systemd-run --user --collect --unit seocho-vast-vN --working-directory "$PWD" \
   --property=KillMode=process \
   python3 scripts/benchmarks/vast_colocated_agentic_os_run.py \
-  --offer-query "num_gpus=2 rentable=true" --gpu-name-regex A100 \
+  --offer-query "num_gpus=2 rentable=true cuda_max_good>=13.0 gpu_ram>=79 bw_nvlink>0" --gpu-name-regex "A100|H100|H200" --require-nvlink \
   --min-num-gpus 2 --min-gpu-total-ram 81920 --min-effective-cpu 16 \
   --min-cpu-ram-mb 65536 --min-reliability 0.98 \
   --image vllm/vllm-openai:v0.27.1 --disk-gb 200 \
@@ -347,3 +360,5 @@ attribution and sampling gaps reported.
 Read `references/recovery.md` when a state fails and
 `references/incidents.md` before changing the bootstrap, image, transport,
 or teardown path.
+
+OTel: each pass leaves `run-<pass>/otel/spans.jsonl` (receipt-derived span trees); add `SEOCHO_OTLP_ENDPOINT=http://collector:4317` to the remote env to push spans and enable vLLM OTLP tracing (collector must be reachable from the instance).

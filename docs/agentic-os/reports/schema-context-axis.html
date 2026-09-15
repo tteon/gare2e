@@ -1,0 +1,169 @@
+<title>Schema Context Axis</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --ink:#18212b; --muted:#5c6773; --line:#d9dee4; --line-soft:#eceff2;
+  --accent:#0e8f82; --accent-ink:#0b6f65; --b0:#5c6773; --s1:#0e8f82; --s4:#7bb8b0; --cneg:#c2620a;
+  --good:#2e7d32; --warn:#b26a00; --bad:#b3261e; --bar:#dfe9ec;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1419; --surface:#171d24; --ink:#e6eaee; --muted:#9aa5b1; --line:#2a333d; --line-soft:#202832;
+    --accent:#26a693; --accent-ink:#4fc3b1; --b0:#9aa5b1; --s1:#26a693; --s4:#6aa89f; --cneg:#cf7c22;
+    --good:#6fbf73; --warn:#e0a53a; --bad:#ef7b74; --bar:#22303a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1419; --surface:#171d24; --ink:#e6eaee; --muted:#9aa5b1; --line:#2a333d; --line-soft:#202832;
+  --accent:#26a693; --accent-ink:#4fc3b1; --b0:#9aa5b1; --s1:#26a693; --s4:#6aa89f; --cneg:#cf7c22;
+  --good:#6fbf73; --warn:#e0a53a; --bad:#ef7b74; --bar:#22303a;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.55;margin:0}
+main{max-width:980px;margin:0 auto;padding:40px 24px 72px;display:flex;flex-direction:column;gap:40px}
+header{display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:30px;font-weight:600;letter-spacing:-.01em;margin:0;text-wrap:balance;line-height:1.2}
+h2{font-size:19px;font-weight:600;margin:0 0 12px} h3{font-size:15px;font-weight:600;margin:18px 0 6px}
+p{margin:0 0 10px;max-width:72ch} .lede{font-size:16.5px;max-width:76ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:13px} .meta span b{color:var(--ink);font-weight:500}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);padding:16px 18px;display:flex;flex-direction:column;gap:4px}
+.tile .n{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:26px;font-weight:500;font-variant-numeric:tabular-nums}
+.tile .l{font-size:12.5px;color:var(--muted);letter-spacing:.02em} .tile .d{font-size:13px}
+.verdict{display:inline-flex;font-size:12px;font-weight:500;padding:2px 8px;border-radius:2px;border:1px solid var(--line);width:max-content}
+.verdict.good{color:var(--good);border-color:var(--good)} .verdict.warn{color:var(--warn);border-color:var(--warn)} .verdict.bad{color:var(--bad);border-color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+th{font-weight:500;color:var(--muted);font-size:12px;letter-spacing:.03em;text-transform:uppercase;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child,.t{text-align:left} tbody tr:last-child td{border-bottom:none}
+td.hi{font-weight:600;color:var(--accent-ink)}
+.note{font-size:13px;color:var(--muted);margin-top:8px;max-width:78ch}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--muted);margin:6px 0 10px;flex-wrap:wrap}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.legend .b0::before{background:var(--b0)} .legend .s1::before{background:var(--s1)} .legend .cneg::before{background:var(--cneg)}
+figure{margin:0;background:var(--surface);border:1px solid var(--line);padding:14px 16px 8px} figcaption{font-size:13px;color:var(--muted);margin-top:4px}
+svg text{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;fill:var(--muted)} svg .ax{stroke:var(--line)} svg .grid{stroke:var(--line-soft)} svg .lbl{fill:var(--ink)}
+ul{margin:0 0 10px;padding-left:20px;max-width:76ch} li{margin-bottom:6px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px} .card{background:var(--surface);border:1px solid var(--line);padding:16px 18px} .card h3{margin-top:0}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;background:var(--line-soft);padding:1px 5px;border-radius:2px}
+.prov{font-size:13px;color:var(--muted)} .prov dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 16px;margin:0} .prov dd{margin:0;color:var(--ink);font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;overflow-wrap:anywhere}
+a{color:var(--accent-ink)}
+</style>
+
+<main>
+<header>
+  <div class="eyebrow">SEOCHO agentic-os lab · request 015 · run lab-s13 · 2026-09-12</div>
+  <h1>Schema context: the SEOCHO slice turns GRBench answers from 7 / 16 / 3 into 20 / 29 / 7, and an equal-sized irrelevant context takes them to 0 / 2 / 1</h1>
+  <p class="lede">The same 90 GRBench questions per lane, the same model (Qwen3.6-27B, TP=2, reasoning off), the same serving shape (K=8), four contexts placed in front of the agent: the graph's own schema answer (B0), the SEOCHO schema slice for the case (S1), the slice plus SEOCHO's semantic bundle through its Oxigraph adapter (S4, GTSQA only), and an irrelevant context of exactly S1's size (C-). Everything else — cohort, prompts, budgets, DB fixes — is frozen. Query classes L1 / L2 / L3 = easy / medium / hard.</p>
+  <div class="meta">
+    <span>instance <b>50622600</b>, host 458442, 2× A100 SXM4 NVLink, $2.30/h</span>
+    <span>03:41 → 05:50 KST, <b>129 min</b>, <b>$4.9</b> of $6</span>
+    <span>bundle <b>v42</b> · K=8 · B0 reference = lab-s11 all-k8</span>
+    <span>schema tokens (vLLM tokenizer): GRBench B0 <b>62</b>, S1 = C- <b>160</b>; GTSQA B0 <b>990</b>, S1 = C- <b>1 787</b></span>
+  </div>
+  <p class="note"><b>Terminology.</b> The agents measured here run an <em>iterative Text2Cypher / Text2SPARQL loop in the GraphCoT style</em>: each turn thinks, calls <code>inspect_graph_schema</code> or a whole-query tool (<code>execute_cypher</code> / <code>execute_sparql</code>), observes the result and continues, up to six turns. They are not the original Graph-CoT action set (RetrieveNode / NodeFeature / NeighbourCheck / NodeDegree, hop by hop); that lane is being added as lab 017 for a direct comparison.</p>
+</header>
+
+<section>
+  <div class="tiles">
+    <div class="tile"><span class="l">GRBench single · answered, L1 / L2 / L3</span><span class="n">7·16·3 → 20·29·7</span><span class="d">B0 → S1, N = 30 per cell. Budget exhaustion 20·14·27 → 9·1·22. Medium is solved; hard doubles.</span><span class="verdict good">first treatment that moves answers</span></div>
+    <div class="tile"><span class="l">Negative control C- (same size, irrelevant)</span><span class="n">0·2·1</span><span class="d">validated 15·21·15, repairs 3.6–3.9 per case, <code>missing_grbench_node_label</code> ×206. The gain is the slice's content.</span><span class="verdict good">control behaves</span></div>
+    <div class="tile"><span class="l">GRBench multi · validated, L1 / L2 / L3</span><span class="n">3·6·2 → 22·16·18</span><span class="d">B0 → S1. Non-empty stays 0 / 30 everywhere; the manager–specialist loop still yields no evidence.</span><span class="verdict warn">validation fixed, evidence not</span></div>
+    <div class="tile"><span class="l">GTSQA (SPARQL) · any arm vs B0</span><span class="n">0 answered</span><span class="d">S1 and S4 keep validation within ±3 of B0 (C- −7) and move non-empty by −8 to +4 without pattern; answered stays 0 in every cell.</span><span class="verdict bad">schema is not the lever here</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>1 · GRBench single (Text2Cypher over DozerDB)</h2>
+  <figure>
+    <div class="legend"><span class="b0">B0 · graph's own schema (62 tok)</span><span class="s1">S1 · SEOCHO slice (160 tok)</span><span class="cneg">C- · irrelevant, same size (160 tok)</span></div>
+    <svg viewBox="0 0 900 250" width="100%" role="img" aria-label="Answered cases out of 30 per class for B0, S1 and C-">
+      <g>
+        <line class="grid" x1="120" x2="880" y1="40" y2="40"/><text x="116" y="44" text-anchor="end">30</text>
+        <line class="grid" x1="120" x2="880" y1="106.7" y2="106.7"/><text x="116" y="110.7" text-anchor="end">20</text>
+        <line class="grid" x1="120" x2="880" y1="173.3" y2="173.3"/><text x="116" y="177.3" text-anchor="end">10</text>
+        <line class="ax" x1="120" x2="880" y1="240" y2="240"/>
+      </g>
+      <!-- 6.667 px per case; groups at x=140, 400, 660; bar width 70, gap 4 -->
+      <g><text class="lbl" x="251" y="24" text-anchor="middle">L1 easy</text>
+        <rect x="140" y="193.3" width="70" height="46.7" fill="var(--b0)"/><text x="175" y="188" text-anchor="middle">7</text>
+        <rect x="214" y="106.7" width="70" height="133.3" fill="var(--s1)"/><text x="249" y="101" text-anchor="middle">20</text>
+        <rect x="288" y="240" width="70" height="0" fill="var(--cneg)"/><text x="323" y="234" text-anchor="middle">0</text></g>
+      <g><text class="lbl" x="511" y="24" text-anchor="middle">L2 medium</text>
+        <rect x="400" y="133.3" width="70" height="106.7" fill="var(--b0)"/><text x="435" y="128" text-anchor="middle">16</text>
+        <rect x="474" y="46.7" width="70" height="193.3" fill="var(--s1)"/><text x="509" y="41" text-anchor="middle">29</text>
+        <rect x="548" y="226.7" width="70" height="13.3" fill="var(--cneg)"/><text x="583" y="221" text-anchor="middle">2</text></g>
+      <g><text class="lbl" x="771" y="24" text-anchor="middle">L3 hard</text>
+        <rect x="660" y="220" width="70" height="20" fill="var(--b0)"/><text x="695" y="214" text-anchor="middle">3</text>
+        <rect x="734" y="193.3" width="70" height="46.7" fill="var(--s1)"/><text x="769" y="188" text-anchor="middle">7</text>
+        <rect x="808" y="233.3" width="70" height="6.7" fill="var(--cneg)"/><text x="843" y="228" text-anchor="middle">1</text></g>
+    </svg>
+    <figcaption>Answered cases (grounded final answer) out of 30 per class. B0 from lab-s11 all-k8; S1 and C- from lab-s13. Same questions, model, serving shape and DB fixes.</figcaption>
+  </figure>
+  <div class="tablewrap"><table>
+    <thead><tr><th class="t">class</th><th class="t">arm</th><th>schema tok</th><th>validated</th><th>non-empty</th><th>answered</th><th>budget exhausted</th><th>wall p50 s</th><th>repairs / case</th></tr></thead>
+    <tbody>
+      <tr><td class="t">L1</td><td class="t">B0</td><td>62</td><td>30</td><td>24</td><td>7</td><td>20</td><td>15.8</td><td>1.00</td></tr>
+      <tr><td class="t"></td><td class="t">S1</td><td>160</td><td>29</td><td>28</td><td class="hi">20</td><td class="hi">9</td><td class="hi">8.8</td><td>0.37</td></tr>
+      <tr><td class="t"></td><td class="t">C-</td><td>160</td><td>15</td><td>5</td><td>0</td><td>27</td><td>12.5</td><td>3.60</td></tr>
+      <tr><td class="t">L2</td><td class="t">B0</td><td>62</td><td>30</td><td>30</td><td>16</td><td>14</td><td>10.3</td><td>0.60</td></tr>
+      <tr><td class="t"></td><td class="t">S1</td><td>160</td><td>30</td><td>30</td><td class="hi">29</td><td class="hi">1</td><td class="hi">6.2</td><td>0.13</td></tr>
+      <tr><td class="t"></td><td class="t">C-</td><td>160</td><td>21</td><td>18</td><td>2</td><td>28</td><td>12.4</td><td>3.80</td></tr>
+      <tr><td class="t">L3</td><td class="t">B0</td><td>62</td><td>28</td><td>23</td><td>3</td><td>27</td><td>15.9</td><td>0.87</td></tr>
+      <tr><td class="t"></td><td class="t">S1</td><td>160</td><td>27</td><td>26</td><td class="hi">7</td><td>22</td><td>18.4</td><td>0.87</td></tr>
+      <tr><td class="t"></td><td class="t">C-</td><td>160</td><td>15</td><td>3</td><td>1</td><td>29</td><td>13.5</td><td>3.93</td></tr>
+    </tbody></table></div>
+  <p class="note">The 98 extra schema tokens are invisible in the serving layer (prefill share 0.05–0.09 for every arm). S1's median wall drops because cases finish in fewer turns; L3 is the exception: better-anchored queries reach the expensive relationship patterns more often, 13 of 262 calls hit the 15 s Bolt bound and graph share climbs to 0.10.</p>
+</section>
+
+<section>
+  <h2>2 · Why the control matters</h2>
+  <div class="two">
+    <div class="card"><h3>What C- rules out</h3><p>Two cheap explanations for S1's gain would have been "more tokens make the model careful" and "any structured preamble helps". C- has S1's exact token count and a structured shape, but names labels that do not exist. The agent believed it: <code>missing_grbench_node_label</code> was raised 206 times in 90 cases, repairs climbed to 3.6–3.9 per case and answers fell to 0 / 2 / 1. The slice's <em>content</em> is what the model uses.</p></div>
+    <div class="card"><h3>Where the gain comes from</h3><p>S1 cases validate at the same rate as B0 (29–30 / 30) but reach a non-empty result more often and stop earlier: repairs 0.13–0.37 per case (B0 0.6–1.0), exhaustion 1–9 / 30 in L1–L2 (B0 14–20). The slice removes the guess about which property carries the name or title — the anchor the static guard demands — so the first anchored query is usually right.</p></div>
+    <div class="card"><h3>What S1 does not fix</h3><p>Hard questions (argmax, collaborator-in-year, closest collaborator): 22 / 30 still run out the six-turn budget while holding rows. Finalisation, not retrieval, remains the L3 loss — the same reading as lab-s3 and lab-s13 at N = 30.</p></div>
+    <div class="card"><h3>GRBench multi</h3><p>Validated 3 · 6 · 2 → 22 · 16 · 18 with S1 (<code>missing_workspace_scope</code> 300 → 170), non-empty stays 0 / 30. The specialist now writes scoped Cypher; the manager still never turns rows into an answer. 012 item 4 (productive repair loop, scope template on first rejection) is unchanged in priority.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>3 · GTSQA (Text2SPARQL over Oxigraph): no schema arm moves it</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th class="t">lane</th><th class="t">class</th><th class="t">arm</th><th>schema tok</th><th>validated</th><th>non-empty</th><th>answered</th><th>budget exhausted</th><th>wall p50 s</th></tr></thead>
+    <tbody>
+      <tr><td class="t">single</td><td class="t">L1</td><td class="t">B0 · S1 · S4 · C-</td><td>990 · 1 787 · 1 787+ · 1 787</td><td>25 · 26 · 25 · 20</td><td>10 · 14 · 13 · 12</td><td>0 · 0 · 0 · 0</td><td>21 · 25 · 25 · 17</td><td>18.1 · 14.9 · 12.8 · 11.9</td></tr>
+      <tr><td class="t"></td><td class="t">L2</td><td class="t">B0 · S1 · S4 · C-</td><td></td><td>27 · 25 · 28 · 20</td><td>15 · 7 · 7 · 17</td><td>0 · 0 · 0 · 1</td><td>28 · 28 · 28 · 19</td><td>16.5 · 14.2 · 15.0 · 11.3</td></tr>
+      <tr><td class="t"></td><td class="t">L3</td><td class="t">B0 · S1 · S4 · C-</td><td></td><td>27 · 27 · 27 · 17</td><td>10 · 12 · 12 · 15</td><td>0 · 0 · 0 · 0</td><td>29 · 29 · 29 · 18</td><td>19.5 · 17.0 · 16.2 · 17.1</td></tr>
+      <tr><td class="t">multi</td><td class="t">L1</td><td class="t">B0 · S4</td><td>990 · 1 787+</td><td>12 · 13</td><td>0 · 0</td><td>0 · 0</td><td>0 · 11</td><td>3.3 · 6.0</td></tr>
+      <tr><td class="t"></td><td class="t">L2</td><td class="t">B0 · S4</td><td></td><td>20 · 17</td><td>0 · 0</td><td>0 · 0</td><td>0 · 24</td><td>71.2 · 71.1</td></tr>
+      <tr><td class="t"></td><td class="t">L3</td><td class="t">B0 · S4</td><td></td><td>16 · 6</td><td>0 · 0</td><td>0 · 0</td><td>2 · 29</td><td>79.6 · 85.2</td></tr>
+    </tbody></table></div>
+  <p class="note">S4 = S1 context plus SEOCHO's semantic bundle, queries executed through the SEOCHO Oxigraph adapter with runtime policy. On GTSQA single it is indistinguishable from S1; on GTSQA multi it is worse on hard (6 validated, 29 exhausted where B0 abstained). Even C-, which halves validation, leaves non-empty and answered where they were: the SPARQL agent's problem is what it does after a result comes back, not what it knows about the graph.</p>
+</section>
+
+<section>
+  <h2>4 · What this settles for the schema story</h2>
+  <ul>
+    <li><b>Relevant × structural (S1) beats full × structural (B0) on Cypher</b>, and the control shows it is the slice's content. On this graph the "full" physical schema is the smaller context (62 vs 160 tokens), so the token-cost argument for relevant schemas does not apply here; the argument is correctness of the anchor.</li>
+    <li><b>Ontology enrichment (S4) has no measurable effect where it exists (SPARQL)</b>, and it does not exist yet for Cypher. The two missing 2×2 cells — GRBench relevant × ontology and full × ontology on both graphs — are the next arms to build (request 016); the honest expectation from this data is a small or null effect on top of S1.</li>
+    <li><b>Multi-agent lanes need the repair-loop fix before any schema arm can show evidence.</b> Validation improved fourfold with S1 and evidence stayed at zero.</li>
+    <li><b>Serving is untouched by the arm</b> (163–176 tok/s at K=8, decode share 0.82–0.90, host ≤ 0.02): the schema axis is a correctness axis, and can be studied at the cheapest admissible serving shape.</li>
+  </ul>
+</section>
+
+<section class="prov">
+  <h2>Provenance</h2>
+  <dl>
+    <dt>run</dt><dd>lab-s13-try-034142 (bundle v42, instance 50622600, host 458442 A100 SXM4 NV12 pair); artifacts hashed and copied, destroy verified. Lifecycle reads "failed" because the S1 and C- passes returned 1 when their skipped last lane set the matrix status — every lane completed; fixed in the e2e (if/fi + return 0) and run_lab_pass.sh now exports OTel on failure</dd>
+    <dt>B0 reference</dt><dd>lab-s11-try-075031 run-all-k8 (bundle v40; same cohort, prompts, budgets, DB fixes; K=8)</dd>
+    <dt>cohort</dt><dd>strata-v2, 30 cases per class per lane, one repetition, reasoning off, baseline prompt</dd>
+    <dt>queue</dt><dd>session-G: cache-serving → arms-s1-k8 → arms-s4-k8 → arms-cneg-k8 (SEOCHO_MAIN_ARMS, unsupported lane/arm pairs skipped: GRBench has no S4, GTSQA multi has no S1/C-)</dd>
+    <dt>tables</dt><dd>session-summary/{arm-comparison, stratum-funnel, turn-summary, layer-shares, lane-funnel, lane-bottleneck, pass-serving}.md · run-arms-*/catalog · run-arms-*/otel-stages</dd>
+    <dt>schema tokens</dt><dd>strata-{grbench,gtsqa}-discovery-serving.json (VLLMTokenizer), medians per arm</dd>
+    <dt>shared package</dt><dd>s3://seocho-agentic-os-traces/seocho-agentic-os/traces/lab-s13-try-034142 (842 files, 15 MB, content-free, leak scan 0)</dd>
+    <dt>beads</dt><dd>seocho-wqt1 (lab 015) · seocho-7w0m (repair loop, 012 item 4) · seocho-ezdh (lab 014)</dd>
+  </dl>
+</section>
+</main>

@@ -226,6 +226,17 @@ vllm_command=(
 if [ "${VLLM_LANGUAGE_MODEL_ONLY:-1}" = "1" ]; then
   vllm_command+=(--language-model-only)
 fi
+if [ -n "${SEOCHO_OTLP_ENDPOINT:-}" ]; then
+  # vLLM exports one server span per request, honouring the traceparent header
+  # the runners send, so it nests under the client span in the same trace.
+  vllm_command+=(--otlp-traces-endpoint "$SEOCHO_OTLP_ENDPOINT")
+  export OTEL_SERVICE_NAME="${SEOCHO_VLLM_OTEL_SERVICE_NAME:-vllm}"   # else spans read unknown_service (lab-s8)
+  # Per-request stage timings (queue, prefill, decode, model forward/execute)
+  # for the vLLM engineer's read; costs a little per request, so only with OTLP.
+  if [ "${SEOCHO_VLLM_DETAILED_TRACES:-all}" != "off" ]; then
+    vllm_command+=(--collect-detailed-traces "${SEOCHO_VLLM_DETAILED_TRACES:-all}")
+  fi
+fi
 if [ -n "${VLLM_EXTRA_ARGS:-}" ]; then
   # Operator-provided flags are intentionally split only from this explicit
   # environment value; workload argv itself is always passed without eval.
@@ -233,18 +244,34 @@ if [ -n "${VLLM_EXTRA_ARGS:-}" ]; then
   vllm_command+=("${extra_args[@]}")
 fi
 printf '%s\n' "${vllm_command[@]}" > "$ARTIFACTS/vllm-effective-argv.private.txt"
-# NCCL settings are frozen benchmark configuration, not tuning: V14 hung
-# forever right after "vLLM is using nccl" on a 2x A100 PCIe host whose GPU
-# P2P path was unusable, while the readiness loop waited 40 paid minutes.
-# Disabling P2P forces the SHM/socket fallback that V13 had already taken
-# implicitly, and WARN-level NCCL logging leaves evidence when it still fails.
-export NCCL_DEBUG="${NCCL_DEBUG:-WARN}"
-export NCCL_P2P_DISABLE="${NCCL_P2P_DISABLE:-1}"
+# NCCL settings are benchmark configuration resolved from GPU topology, not
+# tuning: V14 hung forever right after "vLLM is using nccl" on a 2x A100 PCIe
+# host whose GPU P2P path was unusable, while the readiness loop waited 40 paid
+# minutes; lab-s4 showed that freezing NCCL_P2P_DISABLE=1 on an NVLink host
+# makes TP=2 skip NVLink.  nccl_env.sh enables P2P only when every GPU pair is
+# an NV* link (SEOCHO_NCCL_P2P_MODE=auto|disable|enable; explicit
+# NCCL_P2P_DISABLE wins), and WARN-level NCCL logging leaves evidence when it
+# still fails.
+# shellcheck source=docker/agentic-os-appliance/nccl_env.sh
+. "$(dirname "${BASH_SOURCE[0]}")/nccl_env.sh"
+seocho_resolve_nccl_env
 {
-  printf 'NCCL_DEBUG=%s\nNCCL_P2P_DISABLE=%s\n' "$NCCL_DEBUG" "$NCCL_P2P_DISABLE"
+  printf 'NCCL_DEBUG=%s\nNCCL_P2P_DISABLE=%s\nSEOCHO_NCCL_P2P_MODE=%s\nSEOCHO_NCCL_P2P_DECISION=%s\n' \
+    "$NCCL_DEBUG" "$NCCL_P2P_DISABLE" "${SEOCHO_NCCL_P2P_MODE:-auto}" "$SEOCHO_NCCL_P2P_DECISION"
   printf -- '--- /dev/shm\n'; df -h /dev/shm 2>&1 || true
   printf -- '--- nvidia-smi topo -m\n'; nvidia-smi topo -m 2>&1 || true
 } > "$ARTIFACTS/gpu-topology.private.txt" 2>&1 || true
+if [ "${SEOCHO_OTEL_FILE_RECEIVER:-0}" = "1" ] && [ -n "${SEOCHO_OTLP_ENDPOINT:-}" ]; then
+  # In-instance OTLP sink (lab 010): vLLM and the receipt exporter push to
+  # 127.0.0.1:4317 and the spans leave with the artifacts.
+  record_phase "otlp_file_receiver"
+  mkdir -p "$ARTIFACTS/otel"
+  nohup python3 "$SEOCHO_REPO_ROOT/docker/agentic-os-appliance/otlp_file_receiver.py" \
+    --listen "${SEOCHO_OTLP_ENDPOINT#http://}" --output "$ARTIFACTS/otel/collector-spans.jsonl" \
+    > "$ARTIFACTS/otel/receiver.stdout.private.log" 2> "$ARTIFACTS/otel/receiver.stderr.private.log" &
+  service_pids+=($!)
+  sleep 2
+fi
 run_with_optional_cpuset "${VLLM_CPUSET:-}" "${vllm_command[@]}" \
   >"$ARTIFACTS/vllm.stdout.private.log" 2>"$ARTIFACTS/vllm.stderr.private.log" &
 vllm_pid=$!
@@ -347,6 +374,23 @@ done
   printf 'server.memory.pagecache.size\t%s\n' "$DOZERDB_PAGECACHE_SIZE"
 } > "$ARTIFACTS/dozerdb-settings-expected.private.tsv"
 
+if [ -n "${SEOCHO_GRBENCH_IMPORT_DIR:-}" ]; then
+  # Lookup indexes + population wait, once per instance, now that DozerDB is
+  # ready (lab-s9 try 1 ran this before dozer_ready and hit "connection
+  # refused").  The e2e only did this inside its gate phase, so queue passes
+  # (SEOCHO_E2E_PHASE=main) ran the bulk-imported store with the composite
+  # (id, _workspace_id) index alone and Text2Cypher name/title lookups stayed
+  # label scans (lab-s8: 63 s calls).
+  record_phase "dozer_indexes"
+  mkdir -p "$ARTIFACTS/e2e"
+  "${SEOCHO_VENV:-/workspace/seocho-venv}/bin/python" "$SEOCHO_REPO_ROOT/scripts/benchmarks/load_grbench_dozerdb.py" \
+    --verify-only --schema-receipt "$SEOCHO_GRBENCH_IMPORT_DIR/grbench-import-manifest.json" \
+    --workspace-id "${SEOCHO_GRBENCH_WORKSPACE_ID:-grbench-maple-physics}" \
+    --receipt-out "$ARTIFACTS/e2e/grbench-load-receipt.json" \
+    > "$ARTIFACTS/dozerdb-indexes.private.log" 2>&1 \
+    || appliance_fatal 3 "GRBench index creation / verification failed; see dozerdb-indexes.private.log"
+fi
+
 # DozerDB's upstream entrypoint is a shell/tini launcher.  Attribute the JVM,
 # not its tiny init process, while retaining the launcher log in artifacts.
 dozer_java_pid="$(pgrep -o -f 'org\.neo4j|neo4j\.server' || true)"
@@ -363,6 +407,9 @@ wrapper=(
   --interval-s "${SEOCHO_SAMPLE_INTERVAL_S:-1}"
   --max-gap-s "${SEOCHO_SAMPLE_MAX_GAP_S:-2.5}"
 )
+if [ "${SEOCHO_STRICT_TELEMETRY:-0}" = "1" ]; then
+  wrapper+=(--strict-telemetry)   # opt back into "telemetry gap == pass failure"
+fi
 if [ "${SEOCHO_DISABLE_GPU_SAMPLER:-0}" = "1" ]; then
   wrapper+=(--no-gpu)
 fi

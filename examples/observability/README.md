@@ -1,8 +1,8 @@
 # Local observability stack (ADR-0144)
 
-A lightweight, local OpenTelemetry stack for SEOCHO traces — the alternative to
-self-hosted Opik (8 containers) when you just want local visibility. Opik stays
-the **cloud** team backend; this is for local development.
+A lightweight, local OpenTelemetry stack for SEOCHO traces. SEOCHO exports OTLP
+to an operator-selected backend; this stack is the supported local development
+profile.
 
 Four containers:
 
@@ -71,7 +71,7 @@ Open Grafana at <http://localhost:3000> (anonymous admin) → **Explore → Temp
   use.** Image tags are pinned — bump deliberately.
 - Full prompt/Cypher bodies are only captured with `SEOCHO_TRACE_CAPTURE_CONTENT=1`
   (off by default). Attributes (ids, hashes, counts, timings) always flow.
-- Port `9091` (not 9090) avoids clashing with the `opik` profile's MinIO console.
+- Port `9091` avoids common host Prometheus ports.
 
 ## Live acceptance
 
@@ -131,3 +131,39 @@ dynamic TLS-reload endpoint in the live capability probe. SEOCHO therefore
 uses standard `db.client.operation.duration` at the application boundary and
 reports native server/cluster/TLS signals as unsupported. Enable those scrapes
 only after verifying the exact deployed edition and authenticated endpoint.
+
+## AgenticOS experiment traces (receipts → OTLP)
+
+The graph-agent e2e (`scripts/benchmarks/run_agentic_os_colocated_e2e.sh` and the
+Vast appliance) does not trace live: runners write content-free receipts and an
+exporter turns them into OpenTelemetry span trees afterwards, so the hot path
+stays free of tracing overhead and no prompt, query or answer text can leak.
+
+One benchmark case is one trace. The trace id is derived from `(run_id, case_id)`
+(`seocho.eval.agentic_os_trace`); every chat-completion request carries a fresh
+`traceparent`, and its span id is stored in the receipt, so spans that vLLM
+exports for the same request (`--otlp-traces-endpoint`) nest under the client
+span without a shared live tracer.
+
+```
+agentic_os.case                     seocho.run_id / case_id / lane / arm / answer_status / retrieval.*
+├── chat <model>        CLIENT      gen_ai.operation.name=chat, gen_ai.request.model, gen_ai.usage.input_tokens/output_tokens
+├── execute_tool <name> INTERNAL    gen_ai.operation.name=execute_tool, gen_ai.tool.name, seocho.tool.outcome/error_code
+│   └── neo4j|oxigraph query CLIENT db.system.name, db.operation.name=query, seocho.query_digest, seocho.db.rows
+└── invoke_agent <specialist>       gen_ai.operation.name=invoke_agent, gen_ai.agent.name   (multi-agent only)
+```
+
+Export after a run (JSON lines are always safe to keep with the artifacts; the
+OTLP push needs `seocho[otel]` and a collector):
+
+```bash
+python3 scripts/benchmarks/export_agentic_os_otel.py <run-root>/e2e/*-tool-* \
+  --jsonl <run-root>/otel/spans.jsonl \
+  --otlp-endpoint http://127.0.0.1:4317 --service-name seocho-agentic-os
+```
+
+On the appliance, `run_lab_pass.sh` writes `run-<pass>/otel/spans.jsonl` for every
+pass and, when `SEOCHO_OTLP_ENDPOINT` is set, pushes the same spans over OTLP and
+starts vLLM with `--otlp-traces-endpoint` so server-side request spans join the
+trace. Timestamps are anchored on the coordinator's per-case start; single-agent
+GRBench tool spans are placed sequentially (`seocho.timing=reconstructed`).

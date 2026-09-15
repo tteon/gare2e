@@ -1,0 +1,152 @@
+[
+  {
+    "pass": "replicas2",
+    "scope": "all comparison requests including warmup/drain; gate excluded; not a throughput window",
+    "requests": 2065,
+    "unique_tasks": 444,
+    "task_affinity_violations": 0,
+    "backend_request_counts": {
+      "1": 939,
+      "0": 1126
+    },
+    "backend_task_counts": {
+      "1": 212,
+      "0": 232
+    },
+    "window_observations": [
+      {
+        "source": "replica-0-metrics.jsonl",
+        "full_window_coverage": true,
+        "first_unix_s": 1789423549.239226,
+        "last_unix_s": 1789423637.2684,
+        "gauges": {
+          "vllm:kv_cache_usage_perc": {
+            "n": 89,
+            "mean": 0.5684358745940974,
+            "p50": 0.5728900255754475,
+            "p95": 0.6086956521739131,
+            "max": 0.6265984654731458
+          },
+          "vllm:num_requests_running": {
+            "n": 89,
+            "mean": 41.46067415730337,
+            "p50": 42.0,
+            "p95": 45.0,
+            "max": 46.0
+          },
+          "vllm:num_requests_waiting": {
+            "n": 89,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          }
+        }
+      },
+      {
+        "source": "replica-1-metrics.jsonl",
+        "full_window_coverage": true,
+        "first_unix_s": 1789423549.250885,
+        "last_unix_s": 1789423637.287139,
+        "gauges": {
+          "vllm:kv_cache_usage_perc": {
+            "n": 89,
+            "mean": 0.25555332049771545,
+            "p50": 0.2506393861892583,
+            "p95": 0.31969309462915596,
+            "max": 0.34015345268542196
+          },
+          "vllm:num_requests_running": {
+            "n": 89,
+            "mean": 18.719101123595507,
+            "p50": 19.0,
+            "p95": 23.0,
+            "max": 24.0
+          },
+          "vllm:num_requests_waiting": {
+            "n": 89,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          }
+        }
+      }
+    ]
+  },
+  {
+    "pass": "task-rr",
+    "scope": "all comparison requests including warmup/drain; gate excluded; not a throughput window",
+    "requests": 2016,
+    "unique_tasks": 438,
+    "task_affinity_violations": 0,
+    "backend_request_counts": {
+      "0": 992,
+      "1": 1024
+    },
+    "backend_task_counts": {
+      "0": 219,
+      "1": 219
+    },
+    "window_observations": [
+      {
+        "source": "replica-0-metrics.jsonl",
+        "full_window_coverage": true,
+        "first_unix_s": 1789423959.611502,
+        "last_unix_s": 1789424047.632643,
+        "gauges": {
+          "vllm:kv_cache_usage_perc": {
+            "n": 89,
+            "mean": 0.384226654480942,
+            "p50": 0.3851674641148325,
+            "p95": 0.416267942583732,
+            "max": 0.43779904306220097
+          },
+          "vllm:num_requests_running": {
+            "n": 89,
+            "mean": 30.258426966292134,
+            "p50": 30.0,
+            "p95": 32.0,
+            "max": 33.0
+          },
+          "vllm:num_requests_waiting": {
+            "n": 89,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          }
+        }
+      },
+      {
+        "source": "replica-1-metrics.jsonl",
+        "full_window_coverage": true,
+        "first_unix_s": 1789423959.629867,
+        "last_unix_s": 1789424047.652485,
+        "gauges": {
+          "vllm:kv_cache_usage_perc": {
+            "n": 89,
+            "mean": 0.3647653351970323,
+            "p50": 0.36602870813397126,
+            "p95": 0.4019138755980861,
+            "max": 0.40909090909090906
+          },
+          "vllm:num_requests_running": {
+            "n": 89,
+            "mean": 29.1123595505618,
+            "p50": 29.0,
+            "p95": 32.0,
+            "max": 32.0
+          },
+          "vllm:num_requests_waiting": {
+            "n": 89,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          }
+        }
+      }
+    ]
+  }
+]

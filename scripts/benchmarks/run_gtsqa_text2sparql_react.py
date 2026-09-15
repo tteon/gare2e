@@ -46,6 +46,7 @@ from seocho.eval.discovery_cache import VLLMTokenizer, validate_discovery_cache
 from seocho.eval.gtsqa import load_gtsqa_cases
 from seocho.eval.oxigraph_runtime import GTSQAOxigraphExecutor, SeochoOxigraphExecutor
 from seocho.eval.prompt_profiles import PROMPT_PROFILES, prompt_profile_receipt, system_prompt_addendum
+from seocho.eval.agentic_os_trace import case_trace
 from seocho.eval.raw_agentic_baseline import RAW_CONDITIONS, raw_condition_spec
 
 
@@ -113,7 +114,7 @@ def _load_discovery(
             token_counter=VLLMTokenizer(base_url, model),
             qids=qids,
         )
-    source_arm = "S1" if arm in {"S1", "S4"} else ("C-" if arm == "C-" else "B0")
+    source_arm = "S1" if arm in {"S1", "S4"} else ("C-" if arm == "C-" else ("O1" if arm == "O1" else "B0"))
     responses = {
         str(case["qid"]): dict(case["responses"][source_arm])
         for case in payload.get("cases", ())
@@ -128,7 +129,7 @@ def main() -> int:
     parser.add_argument("--model", required=True)
     parser.add_argument("--run-root", required=True, type=Path)
     parser.add_argument("--run-id", required=True)
-    parser.add_argument("--arm", choices=("B0", "C-", "S1", "S2a", "S2b", "S3", "S4"), default="B0")
+    parser.add_argument("--arm", choices=("B0", "C-", "S1", "S2a", "S2b", "S3", "S4", "O1"), default="B0")
     parser.add_argument("--discovery-cache", type=Path)
     parser.add_argument("--condition", choices=RAW_CONDITIONS, default="tool_auto")
     parser.add_argument("--prompt-profile", choices=PROMPT_PROFILES, default="baseline")
@@ -219,140 +220,141 @@ def main() -> int:
     )
     try:
         for case in cases:
-            if args.discovery_cache is not None and spec.tools_enabled and str(case.case_id) not in discovery:
-                raise RuntimeError(f"frozen discovery cache lacks case {case.case_id}")
-            tracker = TokenBudgetTracker(
-                budget=args.token_budget,
-                scope=f"{args.run_id}:{case.case_id}",
-            )
-            model: NativeToolModel = _BudgetedModel(direct_model, tracker)
+          with case_trace(args.run_id, str(case.case_id)) as case_trace_ctx:
+              if args.discovery_cache is not None and spec.tools_enabled and str(case.case_id) not in discovery:
+                  raise RuntimeError(f"frozen discovery cache lacks case {case.case_id}")
+              tracker = TokenBudgetTracker(
+                  budget=args.token_budget,
+                  scope=f"{args.run_id}:{case.case_id}",
+              )
+              model: NativeToolModel = _BudgetedModel(direct_model, tracker)
 
-            schema_discovery = None
-            if str(case.case_id) in discovery:
-                def schema_discovery(_case, *, value=discovery[str(case.case_id)]):
-                    return value
+              schema_discovery = None
+              if str(case.case_id) in discovery:
+                  def schema_discovery(_case, *, value=discovery[str(case.case_id)]):
+                      return value
 
-            def before_tool(name, active_case):
-                # S4 query policy is enforced inside the SEOCHO Oxigraph
-                # adapter; the discovery tool still crosses this gate here.
-                if args.arm == "S2b" or (args.arm == "S4" and name == "inspect_graph_schema"):
-                    require_runtime_permission(
-                        action="run_agent",
-                        workspace_id=active_case.workspace_id,
-                    )
+              def before_tool(name, active_case):
+                  # S4 query policy is enforced inside the SEOCHO Oxigraph
+                  # adapter; the discovery tool still crosses this gate here.
+                  if args.arm == "S2b" or (args.arm == "S4" and name == "inspect_graph_schema"):
+                      require_runtime_permission(
+                          action="run_agent",
+                          workspace_id=active_case.workspace_id,
+                      )
 
-            if args.arm == "S3":
-                executor_factory = lambda active_case: SeochoOxigraphExecutor(active_case)
-            elif args.arm == "S4":
-                executor_factory = lambda active_case: SeochoOxigraphExecutor(
-                    active_case,
-                    policy_check=require_runtime_permission,
-                )
-            else:
-                executor_factory = GTSQAOxigraphExecutor
-            window = VllmMetricsWindow(metrics) if metrics else None
-            process_window = ProcessMetricsWindow({"agent_oxigraph": os.getpid()})
-            observed_wall_started = time.perf_counter()
-            process_window.__enter__()
-            if window:
-                window.__enter__()
-            try:
-                if condition == "closed_book":
-                    result = run_gtsqa_closed_book(
-                        case,
-                        model=model,
-                        evidence_class=evidence_class,
-                    )
-                else:
-                    result = run_gtsqa_text2sparql_react(
-                        case,
-                        model=model,
-                        max_turns=args.max_turns,
-                        executor_factory=executor_factory,
-                        schema_discovery=schema_discovery,
-                        before_tool=before_tool if args.arm in {"S2b", "S4"} else None,
-                        require_retrieval=spec.forced,
-                        evidence_class=evidence_class,
-                        system_addendum=system_prompt_addendum(args.prompt_profile, "sparql"),
-                    )
-            finally:
-                if window:
-                    window.__exit__(None, None, None)
-                process_window.__exit__(None, None, None)
-            observed_wall_ms = (time.perf_counter() - observed_wall_started) * 1000
-            correlation = Correlation(
-                args.run_id,
-                str(case.case_id),
-                args.arm,
-                args.repetition,
-                args.cache_phase,
-                "single_agent",
-                args.seed,
-            ).receipt_fields()
-            receipt = {**correlation, **result.receipt}
-            receipt["condition"] = condition
-            receipt["evidence_class"] = evidence_class
-            receipt["budget"] = {
-                **tracker.snapshot(),
-                "limit": args.token_budget,
-                "exceeded": tracker.total > args.token_budget,
-                "enforcement": "per_response_fail_closed",
-                "comparison_control": True,
-            }
-            if window:
-                receipt["vllm_metrics_window"] = window.receipt()
-            observability_overhead_ms = float(
-                receipt.get("vllm_metrics_window", {}).get("observer_overhead_ms") or 0
-            )
-            receipt.setdefault("time", {})["wall_ms"] = round(observed_wall_ms, 3)
-            receipt.setdefault("time", {})["observability_overhead_ms"] = round(
-                observability_overhead_ms, 3
-            )
-            receipt["time"]["adjusted_wall_ms"] = round(
-                max(0.0, float(receipt["time"].get("wall_ms") or 0) - observability_overhead_ms),
-                3,
-            )
-            query_events = [
-                event
-                for event in receipt.get("tools", {}).get("events", [])
-                if event.get("name") == "execute_sparql" and event.get("outcome") == "ok"
-            ]
-            database_wall_ms = round(
-                sum(
-                    float(event.get("details", {}).get("store_submit_ms") or 0)
-                    + float(event.get("details", {}).get("iterate_ms") or 0)
-                    for event in query_events
-                ),
-                3,
-            )
-            database_cpu_ms = round(
-                sum(
-                    float(event.get("details", {}).get("store_submit_cpu_ms") or 0)
-                    + float(event.get("details", {}).get("iterate_cpu_ms") or 0)
-                    for event in query_events
-                ),
-                3,
-            )
-            receipt["resource_attribution"] = build_three_layer_attribution(
-                wall_ms=float(receipt.get("time", {}).get("wall_ms") or 0),
-                llm_ms=float(receipt.get("time", {}).get("llm_ms") or 0),
-                tool_ms=float(receipt.get("time", {}).get("tool_ms") or 0),
-                process_window=process_window.receipt(),
-                process_role_layers={"agent_oxigraph": "shared_middleware_database_process"},
-                database_observation={
-                    "source": "embedded_oxigraph_stage_timers",
-                    "observed_wall_ms": database_wall_ms,
-                    "observed_thread_cpu_ms": database_cpu_ms,
-                    "query_calls": len(query_events),
-                },
-                vllm_window_scope="serialized_case" if metrics else "absent",
-                observability_overhead_ms=observability_overhead_ms,
-            )
-            append_jsonl(receipts_path, receipt)
-            with predictions_path.open("a", encoding="utf-8") as handle:
-                handle.write(json.dumps({"case_id": case.case_id, "answer": result.answer}, ensure_ascii=False) + "\n")
-            with evidence_path.open("a", encoding="utf-8") as handle:
-                handle.write(json.dumps({"case_id": case.case_id, "triples": result.retrieved_edges}, sort_keys=True) + "\n")
+              if args.arm == "S3":
+                  executor_factory = lambda active_case: SeochoOxigraphExecutor(active_case)
+              elif args.arm == "S4":
+                  executor_factory = lambda active_case: SeochoOxigraphExecutor(
+                      active_case,
+                      policy_check=require_runtime_permission,
+                  )
+              else:
+                  executor_factory = GTSQAOxigraphExecutor
+              window = VllmMetricsWindow(metrics) if metrics else None
+              process_window = ProcessMetricsWindow({"agent_oxigraph": os.getpid()})
+              observed_wall_started = time.perf_counter()
+              process_window.__enter__()
+              if window:
+                  window.__enter__()
+              try:
+                  if condition == "closed_book":
+                      result = run_gtsqa_closed_book(
+                          case,
+                          model=model,
+                          evidence_class=evidence_class,
+                      )
+                  else:
+                      result = run_gtsqa_text2sparql_react(
+                          case,
+                          model=model,
+                          max_turns=args.max_turns,
+                          executor_factory=executor_factory,
+                          schema_discovery=schema_discovery,
+                          before_tool=before_tool if args.arm in {"S2b", "S4"} else None,
+                          require_retrieval=spec.forced,
+                          evidence_class=evidence_class,
+                          system_addendum=system_prompt_addendum(args.prompt_profile, "sparql"),
+                      )
+              finally:
+                  if window:
+                      window.__exit__(None, None, None)
+                  process_window.__exit__(None, None, None)
+              observed_wall_ms = (time.perf_counter() - observed_wall_started) * 1000
+              correlation = Correlation(
+                  args.run_id,
+                  str(case.case_id),
+                  args.arm,
+                  args.repetition,
+                  args.cache_phase,
+                  "single_agent",
+                  args.seed,
+              ).receipt_fields()
+              receipt = {**correlation, **result.receipt, "trace": case_trace_ctx.receipt()}
+              receipt["condition"] = condition
+              receipt["evidence_class"] = evidence_class
+              receipt["budget"] = {
+                  **tracker.snapshot(),
+                  "limit": args.token_budget,
+                  "exceeded": tracker.total > args.token_budget,
+                  "enforcement": "per_response_fail_closed",
+                  "comparison_control": True,
+              }
+              if window:
+                  receipt["vllm_metrics_window"] = window.receipt()
+              observability_overhead_ms = float(
+                  receipt.get("vllm_metrics_window", {}).get("observer_overhead_ms") or 0
+              )
+              receipt.setdefault("time", {})["wall_ms"] = round(observed_wall_ms, 3)
+              receipt.setdefault("time", {})["observability_overhead_ms"] = round(
+                  observability_overhead_ms, 3
+              )
+              receipt["time"]["adjusted_wall_ms"] = round(
+                  max(0.0, float(receipt["time"].get("wall_ms") or 0) - observability_overhead_ms),
+                  3,
+              )
+              query_events = [
+                  event
+                  for event in receipt.get("tools", {}).get("events", [])
+                  if event.get("name") == "execute_sparql" and event.get("outcome") == "ok"
+              ]
+              database_wall_ms = round(
+                  sum(
+                      float(event.get("details", {}).get("store_submit_ms") or 0)
+                      + float(event.get("details", {}).get("iterate_ms") or 0)
+                      for event in query_events
+                  ),
+                  3,
+              )
+              database_cpu_ms = round(
+                  sum(
+                      float(event.get("details", {}).get("store_submit_cpu_ms") or 0)
+                      + float(event.get("details", {}).get("iterate_cpu_ms") or 0)
+                      for event in query_events
+                  ),
+                  3,
+              )
+              receipt["resource_attribution"] = build_three_layer_attribution(
+                  wall_ms=float(receipt.get("time", {}).get("wall_ms") or 0),
+                  llm_ms=float(receipt.get("time", {}).get("llm_ms") or 0),
+                  tool_ms=float(receipt.get("time", {}).get("tool_ms") or 0),
+                  process_window=process_window.receipt(),
+                  process_role_layers={"agent_oxigraph": "shared_middleware_database_process"},
+                  database_observation={
+                      "source": "embedded_oxigraph_stage_timers",
+                      "observed_wall_ms": database_wall_ms,
+                      "observed_thread_cpu_ms": database_cpu_ms,
+                      "query_calls": len(query_events),
+                  },
+                  vllm_window_scope="serialized_case" if metrics else "absent",
+                  observability_overhead_ms=observability_overhead_ms,
+              )
+              append_jsonl(receipts_path, receipt)
+              with predictions_path.open("a", encoding="utf-8") as handle:
+                  handle.write(json.dumps({"case_id": case.case_id, "answer": result.answer}, ensure_ascii=False) + "\n")
+              with evidence_path.open("a", encoding="utf-8") as handle:
+                  handle.write(json.dumps({"case_id": case.case_id, "triples": result.retrieved_edges}, sort_keys=True) + "\n")
     finally:
         sampler.stop()
         if gpu_sampler:

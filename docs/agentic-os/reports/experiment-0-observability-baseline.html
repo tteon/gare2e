@@ -1,0 +1,228 @@
+<title>Experiment 0 Baseline</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --ink:#18212b; --muted:#5c6773; --line:#d9dee4; --line-soft:#eceff2;
+  --accent:#0e8f82; --accent-ink:#0b6f65; --k4:#0e8f82; --k8:#c2620a; --gpu:#0e8f82; --pre:#7bb8b0; --host:#c2620a; --graph:#5c6773; --agent:#b3261e;
+  --good:#2e7d32; --warn:#b26a00; --bad:#b3261e; --bar:#dfe9ec;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1419; --surface:#171d24; --ink:#e6eaee; --muted:#9aa5b1; --line:#2a333d; --line-soft:#202832;
+    --accent:#26a693; --accent-ink:#4fc3b1; --k4:#26a693; --k8:#cf7c22; --gpu:#26a693; --pre:#6aa89f; --host:#cf7c22; --graph:#9aa5b1; --agent:#ef7b74;
+    --good:#6fbf73; --warn:#e0a53a; --bad:#ef7b74; --bar:#22303a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1419; --surface:#171d24; --ink:#e6eaee; --muted:#9aa5b1; --line:#2a333d; --line-soft:#202832;
+  --accent:#26a693; --accent-ink:#4fc3b1; --k4:#26a693; --k8:#cf7c22; --gpu:#26a693; --pre:#6aa89f; --host:#cf7c22; --graph:#9aa5b1; --agent:#ef7b74;
+  --good:#6fbf73; --warn:#e0a53a; --bad:#ef7b74; --bar:#22303a;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.55;margin:0}
+main{max-width:980px;margin:0 auto;padding:40px 24px 72px;display:flex;flex-direction:column;gap:40px}
+header{display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:30px;font-weight:600;letter-spacing:-.01em;margin:0;text-wrap:balance;line-height:1.2}
+h2{font-size:19px;font-weight:600;margin:0 0 12px}
+h3{font-size:15px;font-weight:600;margin:18px 0 6px}
+p{margin:0 0 10px;max-width:72ch}
+.lede{font-size:16.5px;max-width:76ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:13px}
+.meta span b{color:var(--ink);font-weight:500}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);padding:16px 18px;display:flex;flex-direction:column;gap:4px}
+.tile .n{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:26px;font-weight:500;font-variant-numeric:tabular-nums}
+.tile .l{font-size:12.5px;color:var(--muted);letter-spacing:.02em}
+.tile .d{font-size:13px}
+.verdict{display:inline-flex;align-items:center;font-size:12px;font-weight:500;padding:2px 8px;border-radius:2px;border:1px solid var(--line);width:max-content}
+.verdict.good{color:var(--good);border-color:var(--good)} .verdict.warn{color:var(--warn);border-color:var(--warn)} .verdict.bad{color:var(--bad);border-color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+th{font-weight:500;color:var(--muted);font-size:12px;letter-spacing:.03em;text-transform:uppercase;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child,.t{text-align:left}
+tbody tr:last-child td{border-bottom:none}
+.note{font-size:13px;color:var(--muted);margin-top:8px;max-width:78ch}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--muted);margin:6px 0 10px;flex-wrap:wrap}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.legend .gpu::before{background:var(--gpu)} .legend .pre::before{background:var(--pre)} .legend .host::before{background:var(--host)} .legend .graph::before{background:var(--graph)} .legend .agent::before{background:var(--agent)}
+figure{margin:0;background:var(--surface);border:1px solid var(--line);padding:14px 16px 8px}
+figcaption{font-size:13px;color:var(--muted);margin-top:4px}
+svg text{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;fill:var(--muted)}
+svg .ax{stroke:var(--line);stroke-width:1} svg .grid{stroke:var(--line-soft);stroke-width:1} svg .lbl{fill:var(--ink)}
+ul{margin:0 0 10px;padding-left:20px;max-width:76ch} li{margin-bottom:6px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);padding:16px 18px} .card h3{margin-top:0}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;background:var(--line-soft);padding:1px 5px;border-radius:2px}
+.prov{font-size:13px;color:var(--muted)} .prov dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 16px;margin:0} .prov dt{color:var(--muted)} .prov dd{margin:0;color:var(--ink);font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;overflow-wrap:anywhere}
+.formula{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:13px;background:var(--surface);border:1px solid var(--line);padding:10px 14px;overflow-x:auto;white-space:pre}
+a{color:var(--accent-ink)}
+</style>
+
+<main>
+<header>
+  <div class="eyebrow">SEOCHO agentic-os lab · request 014 · Experiment 0 · lab-s11 + lab-s12 · 2026-09-11/12</div>
+  <h1>Where a GraphCoT second goes: decode owns 82–98 % of the wall at every query class and every concurrency we can buy</h1>
+  <p class="lede">Before optimising anything, the talk needs an honest baseline: for one request, which layer — graph database, agent orchestration, vLLM host side, GPU prefill, GPU decode — holds the wall, per reasoning turn and per query class. This page reads that off two paid sessions over the same 360 B0 cases (strata-v2, 30 per class per lane): lab-s11 at K=4 and K=8, lab-s12 at K=16 and K=32, plus an async-scheduling off pass and a result-size pass. Reasoning off, Qwen3.6-27B, TP=2.</p>
+  <div class="meta">
+    <span>lab-s11: <b>2× RTX PRO 6000</b> PCIe pair, $2.66/h, 140 min</span>
+    <span>lab-s12: <b>2× A100 SXM4 NVLink NV12</b>, $2.30/h, 170 min</span>
+    <span>spend <b>$6.2 + $6.5</b> (+ $2.05 on two aborted starts)</span>
+    <span>query classes L1 / L2 / L3 = easy / medium / hard (structural rubric)</span>
+  </div>
+  <p class="note"><b>Terminology.</b> The agents measured here run an <em>iterative Text2Cypher / Text2SPARQL loop in the GraphCoT style</em>: each turn thinks, calls <code>inspect_graph_schema</code> or a whole-query tool (<code>execute_cypher</code> / <code>execute_sparql</code>), observes the result and continues, up to six turns. They are not the original Graph-CoT action set (RetrieveNode / NodeFeature / NeighbourCheck / NodeDegree, hop by hop); that lane is being added as lab 017 for a direct comparison.</p>
+</header>
+
+<section>
+  <div class="tiles">
+    <div class="tile"><span class="l">GPU decode share of case wall</span><span class="n">0.82 – 0.98</span><span class="d">every lane, every L-class, K = 4 … 32. Prefill 0.01–0.11 on top.</span><span class="verdict good">decode-bound, confirmed</span></div>
+    <div class="tile"><span class="l">Host side (vLLM queue + unaccounted + client−server)</span><span class="n">≤ 0.09</span><span class="d">peaks at K=32, GRBench single L1. Agent residual ≤ 0.011. vLLM host CPU flat at ≈ 3 cores from K=4 to K=32.</span><span class="verdict good">CPU contention: not found</span></div>
+    <div class="tile"><span class="l">Throughput K=4 → K=32</span><span class="n">127 → 377 tok/s</span><span class="d">3.0×; per-case wall 12 → 23 s (single), 66 → 214 s (multi). KV cache never above 14 %.</span><span class="verdict warn">latency is the price</span></div>
+    <div class="tile"><span class="l">GRBench calls hitting the 15 s Bolt bound</span><span class="n">3 → 9 → 8</span><span class="d">K=4 → 16 → 32, of ≈ 360 per pass. DB p90 35 → 99 ms. The DB tail comes back under contention.</span><span class="verdict warn">next DB lever</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>1 · The concurrency sweep</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>K</th><th>host</th><th>pass wall s</th><th>gen tok/s</th><th>ITL ms</th><th>queue s/req</th><th>KV max %</th><th>GPU util %</th><th>energy kJ</th><th>grbench-single wall p50 s</th><th>grbench-multi wall p50 s</th><th>vLLM host CPU cores</th></tr></thead>
+    <tbody>
+      <tr><td>4</td><td class="t">RTX PRO 6000 ×2 PCIe</td><td>4283</td><td>126.8</td><td>25.2</td><td>0.002</td><td>1.7</td><td>93.0</td><td>2470</td><td>12.2</td><td>66.2</td><td>3.0</td></tr>
+      <tr><td>8</td><td class="t">RTX PRO 6000 ×2 PCIe</td><td>2559</td><td>212.8</td><td>29.0</td><td>0.003</td><td>2.8</td><td>90.8</td><td>1477</td><td>13.9</td><td>73.4</td><td>3.0</td></tr>
+      <tr><td>16</td><td class="t">A100 SXM4 ×2 NVLink</td><td>2179</td><td>284.1</td><td>40.0</td><td>0.021</td><td>5.8</td><td>72.5</td><td>1038</td><td>16.8</td><td>120.6</td><td>3.0</td></tr>
+      <tr><td>32</td><td class="t">A100 SXM4 ×2 NVLink</td><td>1681</td><td>376.6</td><td>58.5</td><td>0.067</td><td>13.9</td><td>66.1</td><td>739</td><td>23.5</td><td>213.7</td><td>2.9</td></tr>
+      <tr><td>16 · async off</td><td class="t">A100 SXM4 ×2 NVLink</td><td>2201</td><td>271.4</td><td>42.8</td><td>0.025</td><td>5.8</td><td>68.2</td><td>1004</td><td>18.4</td><td>124.7</td><td>3.0</td></tr>
+    </tbody></table></div>
+  <p class="note">K=4/8 and K=16/32 ran on different hosts, so absolute tok/s across the two pairs carries a hardware caveat; the shape — throughput up, GPU utilisation down, per-case wall up — is the finding. vLLM 0.27.1 turns async scheduling on by default for this engine shape; forcing it off costs 4.5 % tok/s and 7–10 % per-case wall.</p>
+</section>
+
+<section>
+  <h2>2 · Four layers, per query class, per K</h2>
+  <p>Share of the median case wall in the two single-agent lanes. Graph = tool latency from the receipts; Agent = wall − Σ LLM requests − graph; Host = vLLM queue + server-unaccounted + client-minus-server; GPU = prefill and decode from the vLLM spans joined by traceparent (99.3–99.6 % of requests matched).</p>
+  <figure>
+    <div class="legend"><span class="gpu">GPU decode</span><span class="pre">GPU prefill</span><span class="host">Host (vLLM + client)</span><span class="graph">Graph DB</span><span class="agent">Agent residual</span></div>
+    <svg viewBox="0 0 900 330" width="100%" role="img" aria-label="Stacked share of case wall by layer for GRBench single and GTSQA single at K=4, 16, 32 and classes L1 to L3">
+      <!-- 18 bars: two lanes x three K x three classes; bar width 36, x from 90; height scale 240 px = 1.0, baseline y=290 -->
+      <g>
+        <line class="grid" x1="80" x2="890" y1="50" y2="50"/><text x="76" y="54" text-anchor="end">1.0</text>
+        <line class="grid" x1="80" x2="890" y1="110" y2="110"/><text x="76" y="114" text-anchor="end">0.75</text>
+        <line class="grid" x1="80" x2="890" y1="170" y2="170"/><text x="76" y="174" text-anchor="end">0.5</text>
+        <line class="grid" x1="80" x2="890" y1="230" y2="230"/><text x="76" y="234" text-anchor="end">0.25</text>
+        <line class="ax" x1="80" x2="890" y1="290" y2="290"/>
+      </g>
+      <!-- GRBench single: K4 L1/L2/L3, K16 L1/L2/L3, K32 L1/L2/L3  (decode, prefill, host, graph, agent) -->
+      <!-- K4 L1: .796 .091 .086 .027 0 -->
+      <g><rect x="90" y="99" width="36" height="191" fill="var(--gpu)"/><rect x="90" y="77.2" width="36" height="21.8" fill="var(--pre)"/><rect x="90" y="56.6" width="36" height="20.6" fill="var(--host)"/><rect x="90" y="50.1" width="36" height="6.5" fill="var(--graph)"/></g>
+      <!-- K4 L2: .902 .081 .012 .005 -->
+      <g><rect x="128" y="73.5" width="36" height="216.5" fill="var(--gpu)"/><rect x="128" y="54.1" width="36" height="19.4" fill="var(--pre)"/><rect x="128" y="51.2" width="36" height="2.9" fill="var(--host)"/><rect x="128" y="50" width="36" height="1.2" fill="var(--graph)"/></g>
+      <!-- K4 L3: .911 .059 .009 .021 -->
+      <g><rect x="166" y="71.4" width="36" height="218.6" fill="var(--gpu)"/><rect x="166" y="57.2" width="36" height="14.2" fill="var(--pre)"/><rect x="166" y="55" width="36" height="2.2" fill="var(--host)"/><rect x="166" y="50" width="36" height="5" fill="var(--graph)"/></g>
+      <!-- K16 L1: .847 .079 .045 .028 -->
+      <g><rect x="216" y="86.7" width="36" height="203.3" fill="var(--gpu)"/><rect x="216" y="67.7" width="36" height="19" fill="var(--pre)"/><rect x="216" y="56.9" width="36" height="10.8" fill="var(--host)"/><rect x="216" y="50.2" width="36" height="6.7" fill="var(--graph)"/></g>
+      <!-- K16 L2: .894 .076 .019 .011 -->
+      <g><rect x="254" y="75.4" width="36" height="214.6" fill="var(--gpu)"/><rect x="254" y="57.2" width="36" height="18.2" fill="var(--pre)"/><rect x="254" y="52.6" width="36" height="4.6" fill="var(--host)"/><rect x="254" y="50" width="36" height="2.6" fill="var(--graph)"/></g>
+      <!-- K16 L3: .863 .045 .013 .080 -->
+      <g><rect x="292" y="82.9" width="36" height="207.1" fill="var(--gpu)"/><rect x="292" y="72.1" width="36" height="10.8" fill="var(--pre)"/><rect x="292" y="69" width="36" height="3.1" fill="var(--host)"/><rect x="292" y="49.8" width="36" height="19.2" fill="var(--graph)"/></g>
+      <!-- K32 L1: .821 .072 .090 .017 -->
+      <g><rect x="342" y="93" width="36" height="197" fill="var(--gpu)"/><rect x="342" y="75.7" width="36" height="17.3" fill="var(--pre)"/><rect x="342" y="54.1" width="36" height="21.6" fill="var(--host)"/><rect x="342" y="50" width="36" height="4.1" fill="var(--graph)"/></g>
+      <!-- K32 L2: .903 .074 .018 .005 -->
+      <g><rect x="380" y="73.3" width="36" height="216.7" fill="var(--gpu)"/><rect x="380" y="55.5" width="36" height="17.8" fill="var(--pre)"/><rect x="380" y="51.2" width="36" height="4.3" fill="var(--host)"/><rect x="380" y="50" width="36" height="1.2" fill="var(--graph)"/></g>
+      <!-- K32 L3: .873 .046 .015 .066 -->
+      <g><rect x="418" y="80.5" width="36" height="209.5" fill="var(--gpu)"/><rect x="418" y="69.5" width="36" height="11" fill="var(--pre)"/><rect x="418" y="65.9" width="36" height="3.6" fill="var(--host)"/><rect x="418" y="50" width="36" height="15.9" fill="var(--graph)"/></g>
+      <!-- GTSQA single: K4 (.880 .077 .013 0 .009) (.868 .074 .008 0 .003) (.862 .078 .012 0 .003); K16 (.908 .056 .012 0 .011) (.885 .057 .012 .001 .007) (.904 .057 .013 .001 .006); K32 (.932 .045 .014 0 .004) (.880 .056 .011 0 .005) (.901 .045 .012 0 .004) -->
+      <g><rect x="500" y="78.8" width="36" height="211.2" fill="var(--gpu)"/><rect x="500" y="60.3" width="36" height="18.5" fill="var(--pre)"/><rect x="500" y="57.2" width="36" height="3.1" fill="var(--host)"/><rect x="500" y="55" width="36" height="2.2" fill="var(--agent)"/></g>
+      <g><rect x="538" y="81.7" width="36" height="208.3" fill="var(--gpu)"/><rect x="538" y="63.9" width="36" height="17.8" fill="var(--pre)"/><rect x="538" y="62" width="36" height="1.9" fill="var(--host)"/><rect x="538" y="61.3" width="36" height="0.7" fill="var(--agent)"/></g>
+      <g><rect x="576" y="83.1" width="36" height="206.9" fill="var(--gpu)"/><rect x="576" y="64.4" width="36" height="18.7" fill="var(--pre)"/><rect x="576" y="61.5" width="36" height="2.9" fill="var(--host)"/><rect x="576" y="60.8" width="36" height="0.7" fill="var(--agent)"/></g>
+      <g><rect x="626" y="72.1" width="36" height="217.9" fill="var(--gpu)"/><rect x="626" y="58.7" width="36" height="13.4" fill="var(--pre)"/><rect x="626" y="55.8" width="36" height="2.9" fill="var(--host)"/><rect x="626" y="53.2" width="36" height="2.6" fill="var(--agent)"/></g>
+      <g><rect x="664" y="77.6" width="36" height="212.4" fill="var(--gpu)"/><rect x="664" y="63.9" width="36" height="13.7" fill="var(--pre)"/><rect x="664" y="61" width="36" height="2.9" fill="var(--host)"/><rect x="664" y="59.3" width="36" height="1.7" fill="var(--agent)"/></g>
+      <g><rect x="702" y="73" width="36" height="217" fill="var(--gpu)"/><rect x="702" y="59.3" width="36" height="13.7" fill="var(--pre)"/><rect x="702" y="56.2" width="36" height="3.1" fill="var(--host)"/><rect x="702" y="54.8" width="36" height="1.4" fill="var(--agent)"/></g>
+      <g><rect x="752" y="66.3" width="36" height="223.7" fill="var(--gpu)"/><rect x="752" y="55.5" width="36" height="10.8" fill="var(--pre)"/><rect x="752" y="52.1" width="36" height="3.4" fill="var(--host)"/><rect x="752" y="51.1" width="36" height="1" fill="var(--agent)"/></g>
+      <g><rect x="790" y="78.8" width="36" height="211.2" fill="var(--gpu)"/><rect x="790" y="65.4" width="36" height="13.4" fill="var(--pre)"/><rect x="790" y="62.8" width="36" height="2.6" fill="var(--host)"/><rect x="790" y="61.6" width="36" height="1.2" fill="var(--agent)"/></g>
+      <g><rect x="828" y="73.8" width="36" height="216.2" fill="var(--gpu)"/><rect x="828" y="63" width="36" height="10.8" fill="var(--pre)"/><rect x="828" y="60.1" width="36" height="2.9" fill="var(--host)"/><rect x="828" y="59.1" width="36" height="1" fill="var(--agent)"/></g>
+      <!-- x labels -->
+      <g>
+        <text x="108" y="306" text-anchor="middle">L1</text><text x="146" y="306" text-anchor="middle">L2</text><text x="184" y="306" text-anchor="middle">L3</text>
+        <text x="234" y="306" text-anchor="middle">L1</text><text x="272" y="306" text-anchor="middle">L2</text><text x="310" y="306" text-anchor="middle">L3</text>
+        <text x="360" y="306" text-anchor="middle">L1</text><text x="398" y="306" text-anchor="middle">L2</text><text x="436" y="306" text-anchor="middle">L3</text>
+        <text x="518" y="306" text-anchor="middle">L1</text><text x="556" y="306" text-anchor="middle">L2</text><text x="594" y="306" text-anchor="middle">L3</text>
+        <text x="644" y="306" text-anchor="middle">L1</text><text x="682" y="306" text-anchor="middle">L2</text><text x="720" y="306" text-anchor="middle">L3</text>
+        <text x="770" y="306" text-anchor="middle">L1</text><text x="808" y="306" text-anchor="middle">L2</text><text x="846" y="306" text-anchor="middle">L3</text>
+        <text class="lbl" x="146" y="322" text-anchor="middle">K=4</text><text class="lbl" x="272" y="322" text-anchor="middle">K=16</text><text class="lbl" x="398" y="322" text-anchor="middle">K=32</text>
+        <text class="lbl" x="556" y="322" text-anchor="middle">K=4</text><text class="lbl" x="682" y="322" text-anchor="middle">K=16</text><text class="lbl" x="808" y="322" text-anchor="middle">K=32</text>
+        <text class="lbl" x="272" y="36" text-anchor="middle">GRBench single (Text2Cypher, DozerDB)</text>
+        <text class="lbl" x="682" y="36" text-anchor="middle">GTSQA single (Text2SPARQL, Oxigraph)</text>
+      </g>
+    </svg>
+    <figcaption>Share of the median case wall by layer. Bars are drawn from the layer-shares table; shares below 0.005 are omitted from the drawing but kept in the table.</figcaption>
+  </figure>
+  <p class="note">Multi-agent lanes (not drawn) are flatter still: decode 0.97–0.98, host ≤ 0.01, agent ≤ 0.007, graph 0 — their 66–214 s per case is 2 600 output tokens of manager–specialist dialogue, not boundary crossings.</p>
+</section>
+
+<section>
+  <h2>3 · The CPU hypothesis, tested</h2>
+  <div class="two">
+    <div class="card"><h3>What we expected to see</h3><p>If host-side work (tokenisation, scheduling, detokenisation, tool-call parsing, prompt reconstruction) were the bottleneck, GPU utilisation would fall while the host CPUs saturate, the tool-use gap between turns would grow with K, and queue time per request would climb.</p></div>
+    <div class="card"><h3>What the samples show</h3><p>GPU utilisation does fall (93 → 66 %), but vLLM's host processes use a flat ≈ 3.0 cores at every K on 32- and 128-core hosts, the agents 0.3 → 1.6 cores, DozerDB ≤ 0.1. Queue is 0.002 → 0.067 s per request. The tool-use gap residual (gap − graph call) is 0 ms at p90 in every stratum and every K.</p></div>
+    <div class="card"><h3>Reading</h3><p>The GPU idles at high K because decode is memory-bound at small batches (KV ≤ 14 %) and because agents leave the batch during tool calls, not because the CPU cannot feed it. One open point: three flat cores can be three saturated single threads or three polling loops; a per-process breakdown (API server / engine core / worker) is the next observability item.</p></div>
+    <div class="card"><h3>Where contention did appear</h3><p>DozerDB. GRBench single graph calls: p50/p90 16/35 ms at K=4, 38/99 ms at K=16, 7/48 ms at K=32; calls reaching the 15 s bound 3 → 9 → 8 per pass. The timeout holds, but under 16–32 concurrent agents the database, not the host, is the first shared resource to show a tail.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>4 · Turn level</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th class="t">GRBench single, L3</th><th>turn 1</th><th>turn 2</th><th>turn 3</th><th>turn 4</th><th>turn 5</th><th>turn 6</th></tr></thead>
+    <tbody>
+      <tr><td class="t">input tokens (mean)</td><td>753</td><td>855</td><td>1 095</td><td>1 263</td><td>1 511</td><td>1 724</td></tr>
+      <tr><td class="t">cached tokens (mean)</td><td>0</td><td>157</td><td>810</td><td>838</td><td>924</td><td>1 161</td></tr>
+      <tr><td class="t">output tokens (mean)</td><td>23</td><td>118</td><td>114</td><td>119</td><td>124</td><td>139</td></tr>
+      <tr><td class="t">turn latency p50, K=4</td><td>0.53 s</td><td>2.38 s</td><td>2.80 s</td><td>2.78 s</td><td>2.66 s</td><td>2.63 s</td></tr>
+      <tr><td class="t">turn latency p50, K=16</td><td>0.75 s</td><td>3.19 s</td><td>4.10 s</td><td>4.04 s</td><td>3.43 s</td><td>3.34 s</td></tr>
+      <tr><td class="t">turn latency p50, K=32</td><td>1.32 s</td><td>5.11 s</td><td>5.40 s</td><td>5.61 s</td><td>5.35 s</td><td>4.33 s</td></tr>
+      <tr><td class="t">tool-use gap p50 (graph call), K=4</td><td>—</td><td>17 ms</td><td>20 ms</td><td>19 ms</td><td>18 ms</td><td>—</td></tr>
+      <tr><td class="t">gap residual p90 (parse+serialise+prompt build)</td><td>—</td><td>0</td><td>0</td><td>0</td><td>0</td><td>—</td></tr>
+    </tbody></table></div>
+  <p class="note">Latency follows output tokens at the pass's ITL (25 → 40 → 58 ms per token), not context length: prefix caching keeps prefill flat while the context doubles. The 15 s p90 gaps at turns 3–4 (K ≥ 16) are Bolt timeouts, not orchestration.</p>
+</section>
+
+<section>
+  <h2>5 · Decode ratio, defined and measured</h2>
+  <div class="formula">Decode ratio (per request)  = T_decode / T_inference          → p50 0.90 – 0.96, every lane, class and K
+Decode E2E ratio (per case)  = Σ T_decode / GraphCoT E2E wall  → p50 0.84 – 0.95 single lanes, 0.98 multi lanes</div>
+  <p class="note">Both ratios are computed from the vLLM server spans (queue, prefill, decode per request) joined to the case receipts; no prompts or answers are read. The stat the talk wanted — "in L3 decode dominates" — is true, but so is "in L1 decode dominates": the class shifts turns and tokens, not the layer mix.</p>
+</section>
+
+<section>
+  <h2>6 · Two smaller axes</h2>
+  <ul>
+    <li><b>Async scheduling (vLLM 0.27.1, on by default).</b> Forcing <code>--no-async-scheduling</code> at K=16: −4.5 % tok/s, +7 % ITL, +7–10 % per-case wall, funnel unchanged. Keep the default; no reason to make it an experiment axis.</li>
+    <li><b>Result size (row cap 20 → 100, byte cap 12 k → 60 k; medium stratum, K=4).</b> GRBench single validated 30/30, non-empty 30/30 in both; answered 17 vs 16; wall 9.9 vs 8.9 s; output tokens 371 vs 428; no timeouts. The cap is never binding at this cohort's result sizes — result size is not a lever here.</li>
+    <li><b>Funnel invariance.</b> Across K = 4/8/16/32 and async on/off every funnel column moves ≤ 3 cases per 30-case cell. Serving shape changes time and energy; it does not change what the agent does.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>7 · What Experiment 0 settles for the talk</h2>
+  <ul>
+    <li>The three-layer trace (task / pipeline / system) joined by trace id and turn exists and is validated at 99 % request coverage; every table on this page comes from it without reading prompts or answers.</li>
+    <li>"GraphCoT is decode-heavy" is measured, not assumed: 0.82–0.98 of the wall in every cell. Speculative decoding is the right lever in principle — but the lane's own parity test (lab-s4/s7: greedy Cypher changed, validated 100 → 50 %) means any speculative result must be reported with query-correctness alongside speed.</li>
+    <li>The heterogeneous-pipeline story (CPU / host orchestration as a hidden 30 %) does not hold on this stack at K ≤ 32. Host + agent together stay under 10 %. The second shared resource that shows contention is the graph database, and only from K=16.</li>
+    <li>Concurrency is a throughput knob with a linear latency price and no effect on behaviour. For the serving story: one TP=2 engine, K=4 for interactive latency, K=8–16 for batch; K=32 only if latency does not matter.</li>
+    <li>Open observability items (lab 011): per-process CPU split for vLLM (API server / engine / worker), DB server-side stage attributes, and the runner service.name fix validated live (it is: lab-s12 client spans read <code>seocho-agentic-os</code>).</li>
+  </ul>
+</section>
+
+<section class="prov">
+  <h2>Provenance</h2>
+  <dl>
+    <dt>runs</dt><dd>lab-s11-try-075031 (bundle v40, instance 50532353, RTX PRO 6000 WS pair, Taiwan) · lab-s12-try-004752 (bundle v41, instance 50607956, A100 SXM4 NV12 pair, host 458442, Japan); both state complete, artifacts hashed, destroy verified</dd>
+    <dt>cohort</dt><dd>strata-v2 (gare2e examples/agentic-os/frozen/strata-v2), 30 cases per class per lane, arm B0, reasoning off, baseline prompt</dd>
+    <dt>queues</dt><dd>session-E: cache-serving, all-k4, all-k8 · session-F: cache-serving, all-k16 (max-num-seqs 32), all-k32 (64), medium-k4-rowcap100, all-k16-noasync</dd>
+    <dt>tables</dt><dd>session-summary/{pass-serving, lane-client, lane-bottleneck, lane-funnel, stratum-funnel, turn-summary, layer-shares}.md · run-*/otel-stages · run-*/workload/host-process.csv</dd>
+    <dt>scripts</dt><dd>summarize_agentic_os_queue_session.py · summarize_agentic_os_otel_stages.py · summarize_agentic_os_turns.py · summarize_agentic_os_stratum_funnel.py (gare2e agentic-os-e2e ≤ d9bf854d)</dd>
+    <dt>shared packages</dt><dd>s3://seocho-agentic-os-traces/seocho-agentic-os/traces/{lab-s11-try-075031, lab-s12-try-004752} · manifests in gare2e traces/</dd>
+    <dt>beads</dt><dd>seocho-ezdh (lab 014) · seocho-sudv (lab 013) · seocho-98kt (011 observability) · seocho-dp9x / seocho-75qy (DB fixes)</dd>
+  </dl>
+</section>
+</main>

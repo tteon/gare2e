@@ -1,0 +1,196 @@
+<title>Hops vs Queries</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --ink:#18212b; --muted:#5c6773; --line:#d9dee4; --line-soft:#eceff2;
+  --accent:#0e8f82; --accent-ink:#0b6f65; --b0:#9aa5b1; --s1:#0e8f82; --o1:#7bb8b0; --hop:#c2620a; --hopo1:#e0a86a;
+  --good:#2e7d32; --warn:#b26a00; --bad:#b3261e;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1419; --surface:#171d24; --ink:#e6eaee; --muted:#9aa5b1; --line:#2a333d; --line-soft:#202832;
+    --accent:#26a693; --accent-ink:#4fc3b1; --b0:#7f8a96; --s1:#26a693; --o1:#6aa89f; --hop:#cf7c22; --hopo1:#e0a86a;
+    --good:#6fbf73; --warn:#e0a53a; --bad:#ef7b74;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1419; --surface:#171d24; --ink:#e6eaee; --muted:#9aa5b1; --line:#2a333d; --line-soft:#202832;
+  --accent:#26a693; --accent-ink:#4fc3b1; --b0:#7f8a96; --s1:#26a693; --o1:#6aa89f; --hop:#cf7c22; --hopo1:#e0a86a;
+  --good:#6fbf73; --warn:#e0a53a; --bad:#ef7b74;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.55;margin:0}
+main{max-width:980px;margin:0 auto;padding:40px 24px 72px;display:flex;flex-direction:column;gap:40px}
+header{display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:30px;font-weight:600;letter-spacing:-.01em;margin:0;text-wrap:balance;line-height:1.2}
+h2{font-size:19px;font-weight:600;margin:0 0 12px} h3{font-size:15px;font-weight:600;margin:18px 0 6px}
+p{margin:0 0 10px;max-width:72ch} .lede{font-size:16.5px;max-width:76ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:13px} .meta b{color:var(--ink);font-weight:500}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);padding:16px 18px;display:flex;flex-direction:column;gap:4px}
+.tile .n{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:26px;font-weight:500;font-variant-numeric:tabular-nums}
+.tile .l{font-size:12.5px;color:var(--muted)} .tile .d{font-size:13px}
+.verdict{display:inline-flex;font-size:12px;font-weight:500;padding:2px 8px;border-radius:2px;border:1px solid var(--line);width:max-content}
+.verdict.good{color:var(--good);border-color:var(--good)} .verdict.warn{color:var(--warn);border-color:var(--warn)} .verdict.bad{color:var(--bad);border-color:var(--bad)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+th{font-weight:500;color:var(--muted);font-size:12px;letter-spacing:.03em;text-transform:uppercase;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child,.t{text-align:left} tbody tr:last-child td{border-bottom:none} td.hi{font-weight:600;color:var(--accent-ink)}
+.note{font-size:13px;color:var(--muted);margin-top:8px;max-width:78ch}
+.legend{display:flex;gap:14px;font-size:13px;color:var(--muted);margin:6px 0 10px;flex-wrap:wrap}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.legend .b0::before{background:var(--b0)} .legend .s1::before{background:var(--s1)} .legend .o1::before{background:var(--o1)} .legend .hop::before{background:var(--hop)} .legend .hopo1::before{background:var(--hopo1)}
+figure{margin:0;background:var(--surface);border:1px solid var(--line);padding:14px 16px 8px} figcaption{font-size:13px;color:var(--muted);margin-top:4px}
+svg text{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;fill:var(--muted)} svg .ax{stroke:var(--line)} svg .grid{stroke:var(--line-soft)} svg .lbl{fill:var(--ink)}
+ul{margin:0 0 10px;padding-left:20px;max-width:76ch} li{margin-bottom:6px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px} .card{background:var(--surface);border:1px solid var(--line);padding:16px 18px} .card h3{margin-top:0}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;background:var(--line-soft);padding:1px 5px;border-radius:2px}
+.prov{font-size:13px;color:var(--muted)} .prov dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 16px;margin:0} .prov dd{margin:0;color:var(--ink);font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;overflow-wrap:anywhere}
+a{color:var(--accent-ink)}
+</style>
+
+<main>
+<header>
+  <div class="eyebrow">SEOCHO agentic-os lab · requests 016 · 017 · 018 · runs lab-s15 (salvage) + lab-s16 · 2026-09-12</div>
+  <h1>Two ways to reason over a graph: whole queries with the right vocabulary answer 56 / 90, hop actions answer 47 / 90 in half the time and never touch a scan — and both lose the same hard questions</h1>
+  <p class="lede">Three questions were open after lab 015: does adding <em>meaning</em> to the schema vocabulary (O1) help beyond the vocabulary itself (S1); does the original Graph-CoT action set — RetrieveNode / NodeFeature / NeighbourCheck / NodeDegree, one hop per call — behave differently from iterative Text2Cypher on the same questions; and what do the questions' own entities tell us about routing. Same 90 GRBench questions (30 per class), same model (Qwen3.6-27B, TP=2, reasoning off), same serving shape (K=8).</p>
+  <div class="meta">
+    <span>lab-s15: H100 PCIe+NVLink pair (UAE), $4.27/h, 75 min, <b>artifacts partly lost</b>, O1 pass salvaged</span>
+    <span>lab-s16: same host, $5.07/h, 78 min, both hop passes complete</span>
+    <span>bundles <b>v43 / v44</b> · references: B0 lab-s11 k8, S1 lab-s13</span>
+  </div>
+  <p class="note"><b>Terminology.</b> "Text2Cypher" lanes are the iterative whole-query loop measured in labs 013–015 (GraphCoT-style ReAct, ≤ 6 turns). "Graph-CoT hops" is the new lane with the paper's four actions as fixed Cypher templates behind the same execution boundary (≤ 12 turns, ≤ 4 hops per turn), so the model never writes a query.</p>
+</header>
+
+<section>
+  <div class="tiles">
+    <div class="tile"><span class="l">Answered of 90 · Text2Cypher B0 → S1 → O1</span><span class="n">26 → 56 → 50</span><span class="d">Vocabulary (S1) was the missing information; meanings (O1) add nothing on top: hard 7 → 9, easy/medium −3 to −5.</span><span class="verdict warn">schema axis saturated</span></div>
+    <div class="tile"><span class="l">Answered of 90 · Graph-CoT hops B0 / O1</span><span class="n">47 / 47</span><span class="d">No Cypher written, 0 repairs, 0 policy rejections, DB p50 4–6 ms, wall p50 3.9–8.9 s (queries: 5–18 s).</span><span class="verdict good">a second viable path</span></div>
+    <div class="tile"><span class="l">Hop-lane cases stopped by the cumulative token budget</span><span class="n">21 / 24</span><span class="d">of 90 (B0 / O1), after ~10 turns; 21 / 22 of them already held rows. The budget counts every re-sent prompt — it penalises turns, not work.</span><span class="verdict warn">our accounting, partly</span></div>
+    <div class="tile"><span class="l">RetrieveNode calls that needed the substring fallback</span><span class="n">79–82 %</span><span class="d">406 RetrieveNode vs 60 NeighbourCheck calls; 37 cases never hopped. The model paraphrases names; exact-match anchoring rarely happens.</span><span class="verdict warn">search, not anchoring</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>1 · The five variants, per class</h2>
+  <figure>
+    <div class="legend"><span class="b0">Text2Cypher B0</span><span class="s1">Text2Cypher S1</span><span class="o1">Text2Cypher O1</span><span class="hop">Graph-CoT hops B0</span><span class="hopo1">Graph-CoT hops O1</span></div>
+    <svg viewBox="0 0 900 250" width="100%" role="img" aria-label="Answered cases out of 30 per class for the five variants">
+      <g>
+        <line class="grid" x1="120" x2="880" y1="40" y2="40"/><text x="116" y="44" text-anchor="end">30</text>
+        <line class="grid" x1="120" x2="880" y1="106.7" y2="106.7"/><text x="116" y="110.7" text-anchor="end">20</text>
+        <line class="grid" x1="120" x2="880" y1="173.3" y2="173.3"/><text x="116" y="177.3" text-anchor="end">10</text>
+        <line class="ax" x1="120" x2="880" y1="240" y2="240"/>
+      </g>
+      <!-- 6.667 px/case; groups at x=130, 390, 650; bar 44 wide, gap 4 -->
+      <g><text class="lbl" x="248" y="24" text-anchor="middle">L1 easy</text>
+        <rect x="130" y="193.3" width="44" height="46.7" fill="var(--b0)"/><text x="152" y="188" text-anchor="middle">7</text>
+        <rect x="178" y="106.7" width="44" height="133.3" fill="var(--s1)"/><text x="200" y="101" text-anchor="middle">20</text>
+        <rect x="226" y="126.7" width="44" height="113.3" fill="var(--o1)"/><text x="248" y="121" text-anchor="middle">17</text>
+        <rect x="274" y="113.3" width="44" height="126.7" fill="var(--hop)"/><text x="296" y="108" text-anchor="middle">19</text>
+        <rect x="322" y="113.3" width="44" height="126.7" fill="var(--hopo1)"/><text x="344" y="108" text-anchor="middle">19</text></g>
+      <g><text class="lbl" x="508" y="24" text-anchor="middle">L2 medium</text>
+        <rect x="390" y="133.3" width="44" height="106.7" fill="var(--b0)"/><text x="412" y="128" text-anchor="middle">16</text>
+        <rect x="438" y="46.7" width="44" height="193.3" fill="var(--s1)"/><text x="460" y="41" text-anchor="middle">29</text>
+        <rect x="486" y="80" width="44" height="160" fill="var(--o1)"/><text x="508" y="75" text-anchor="middle">24</text>
+        <rect x="534" y="86.7" width="44" height="153.3" fill="var(--hop)"/><text x="556" y="81" text-anchor="middle">23</text>
+        <rect x="582" y="93.3" width="44" height="146.7" fill="var(--hopo1)"/><text x="604" y="88" text-anchor="middle">22</text></g>
+      <g><text class="lbl" x="768" y="24" text-anchor="middle">L3 hard</text>
+        <rect x="650" y="220" width="44" height="20" fill="var(--b0)"/><text x="672" y="214" text-anchor="middle">3</text>
+        <rect x="698" y="193.3" width="44" height="46.7" fill="var(--s1)"/><text x="720" y="188" text-anchor="middle">7</text>
+        <rect x="746" y="180" width="44" height="60" fill="var(--o1)"/><text x="768" y="174" text-anchor="middle">9</text>
+        <rect x="794" y="206.7" width="44" height="33.3" fill="var(--hop)"/><text x="816" y="201" text-anchor="middle">5</text>
+        <rect x="842" y="200" width="44" height="40" fill="var(--hopo1)"/><text x="864" y="194" text-anchor="middle">6</text></g>
+    </svg>
+    <figcaption>Answered (grounded final answer) out of 30 per class. B0 from lab-s11 K=8, S1 from lab-s13, O1 from lab-s15 (salvaged pass), hops from lab-s16. Same questions, model, serving shape, DB fixes.</figcaption>
+  </figure>
+  <div class="tablewrap"><table>
+    <thead><tr><th class="t">class</th><th class="t">variant</th><th>validated</th><th>non-empty</th><th>answered</th><th>budget-exhausted</th><th>wall p50 s</th><th>repairs / case</th></tr></thead>
+    <tbody>
+      <tr><td class="t">L1</td><td class="t">Text2Cypher B0</td><td>30</td><td>24</td><td>7</td><td>20</td><td>15.8</td><td>1.00</td></tr>
+      <tr><td class="t"></td><td class="t">Text2Cypher S1</td><td>29</td><td>28</td><td class="hi">20</td><td>9</td><td>8.8</td><td>0.37</td></tr>
+      <tr><td class="t"></td><td class="t">Text2Cypher O1</td><td>30</td><td>27</td><td>17</td><td>12</td><td>9.7</td><td>0.13</td></tr>
+      <tr><td class="t"></td><td class="t">Graph-CoT hops B0</td><td>30</td><td>27</td><td>19</td><td>8</td><td>7.0</td><td>0</td></tr>
+      <tr><td class="t"></td><td class="t">Graph-CoT hops O1</td><td>30</td><td>24</td><td>19</td><td>6</td><td class="hi">4.9</td><td>0</td></tr>
+      <tr><td class="t">L2</td><td class="t">Text2Cypher B0</td><td>30</td><td>30</td><td>16</td><td>14</td><td>10.3</td><td>0.60</td></tr>
+      <tr><td class="t"></td><td class="t">Text2Cypher S1</td><td>30</td><td>30</td><td class="hi">29</td><td>1</td><td>6.2</td><td>0.13</td></tr>
+      <tr><td class="t"></td><td class="t">Text2Cypher O1</td><td>30</td><td>30</td><td>24</td><td>6</td><td>5.0</td><td>0.70</td></tr>
+      <tr><td class="t"></td><td class="t">Graph-CoT hops B0</td><td>30</td><td>26</td><td>23</td><td>3</td><td class="hi">3.9</td><td>0</td></tr>
+      <tr><td class="t"></td><td class="t">Graph-CoT hops O1</td><td>30</td><td>25</td><td>22</td><td>3</td><td class="hi">3.9</td><td>0</td></tr>
+      <tr><td class="t">L3</td><td class="t">Text2Cypher B0</td><td>28</td><td>23</td><td>3</td><td>27</td><td>15.9</td><td>0.87</td></tr>
+      <tr><td class="t"></td><td class="t">Text2Cypher S1</td><td>27</td><td>26</td><td>7</td><td>22</td><td>18.4</td><td>0.87</td></tr>
+      <tr><td class="t"></td><td class="t">Text2Cypher O1</td><td>30</td><td>23</td><td class="hi">9</td><td>13</td><td>11.9</td><td>0.27</td></tr>
+      <tr><td class="t"></td><td class="t">Graph-CoT hops B0</td><td>30</td><td>16</td><td>5</td><td>12</td><td class="hi">7.7</td><td>0</td></tr>
+      <tr><td class="t"></td><td class="t">Graph-CoT hops O1</td><td>30</td><td>20</td><td>6</td><td>15</td><td>8.9</td><td>0</td></tr>
+    </tbody></table></div>
+  <p class="note">For the hop lane "validated" means at least one action returned; templates cannot be rejected. "Budget-exhausted" for the hop lane is almost entirely the cumulative token budget (see §3), for Text2Cypher the six-turn budget.</p>
+</section>
+
+<section>
+  <h2>2 · What the schema-semantics arm settled</h2>
+  <div class="two">
+    <div class="card"><h3>O1 on Cypher ≈ S1 <span class="verdict warn">saturated</span></h3><p>Relation meanings and directions on top of the S1 vocabulary: hard 7 → 9 answered and exhaustion 22 → 13 (the model stops earlier), but easy 20 → 17 and medium 29 → 24. 50 vs 56 in total, inside what N = 30 cells resolve. The information the model lacked was the vocabulary — which property holds a name, which relation names exist — not what the relations mean.</p></div>
+    <div class="card"><h3>O1 on SPARQL hurts <span class="verdict bad">4 / 5 / 2 non-empty</span></h3><p>With per-relation domain / range classes in the context (≈ 2 500 tokens), GTSQA single still validates 23–26 / 30 but returns rows in only 4 / 5 / 2 cases (B0 10 / 15 / 10). Five context arms later (B0, C-, S1, S4, O1) the SPARQL lane has 0 grounded answers in every cell: its loop, not its context, is the problem.</p></div>
+    <div class="card"><h3>Cost of the arm</h3><p>GRBench O1 context 2.8 kB vs S1 0.6 kB; prefill share unchanged at 0.05–0.09; 0 Bolt timeouts in 229 calls; 4 <code>unanchored_scan</code> rejections, all repaired with rows.</p></div>
+    <div class="card"><h3>Reading for the talk</h3><p>"Ontology-enriched context" is not a lever on this benchmark once the vocabulary is right. The honest 2×2 is: structure alone (B0) loses, vocabulary (S1) wins, meaning (O1) is neutral-to-negative. The remaining cells (full × ontology) are not worth a session.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>3 · How the hop lane behaves</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th class="t">per case (90), K=8</th><th>Graph-CoT hops B0</th><th>Graph-CoT hops O1</th><th>Text2Cypher S1 (ref.)</th></tr></thead>
+    <tbody>
+      <tr><td class="t">LLM requests</td><td>498 (5.5 / case)</td><td>512 (5.7)</td><td>≈ 4.6 / case</td></tr>
+      <tr><td class="t">tool calls: RetrieveNode / NeighbourCheck / NodeDegree / NodeFeature</td><td>406 / 60 / 10 / 2</td><td>387 / 63 / 11 / 8</td><td>execute_cypher 262, inspect 90</td></tr>
+      <tr><td class="t">RetrieveNode exact miss → CONTAINS fallback</td><td>322 / 406 (79 %)</td><td>316 / 387 (82 %)</td><td>—</td></tr>
+      <tr><td class="t">cases that never left RetrieveNode</td><td>37</td><td>38</td><td>—</td></tr>
+      <tr><td class="t">terminal: answered / unsupported / budget / turns</td><td>47 / 20 / 21 / 2</td><td>47 / 19 / 24 / 0</td><td>56 answered</td></tr>
+      <tr><td class="t">budget stops that already held rows</td><td>21 / 21</td><td>22 / 24</td><td>—</td></tr>
+      <tr><td class="t">output tokens per case (p50)</td><td>168</td><td>174</td><td>≈ 330</td></tr>
+      <tr><td class="t">input tokens per turn (p50, L3)</td><td>1 021 → 2 156 over 9 turns</td><td>similar</td><td>750 → 1 900 over 6</td></tr>
+      <tr><td class="t">decode / prefill / host / graph share of wall</td><td>0.80–0.87 / 0.09–0.17 / 0.03 / 0.004</td><td>0.77–0.86 / 0.10–0.19 / 0.03 / 0.006</td><td>0.82–0.90 / 0.05–0.09 / 0.02 / 0.01–0.10</td></tr>
+      <tr><td class="t">graph call p50 / p90 / max ms</td><td>4 / 7 / 79</td><td>6 / 11 / 208</td><td>49 / 169 / 16 483 (13 at the bound)</td></tr>
+    </tbody></table></div>
+  <ul>
+    <li><b>Search, not anchoring.</b> The paper's design assumes RetrieveNode returns <em>the</em> anchor and the walk starts. This model paraphrases titles and names (lower-casing, dropping words), so four of five RetrieveNode calls only succeed through the substring fallback, and 37–38 cases finish without ever calling NeighbourCheck. In those cases the question was answered from the retrieval hits themselves — a text search over the graph, not a walk.</li>
+    <li><b>The budget stop is ours.</b> The 16 384-token budget sums every turn's prompt. A hop turn carries 1–2 k tokens of context and the lane takes ~10 turns, so 21–24 cases stop at ≈ 17 k cumulative tokens with rows already in hand — Text2Cypher spends the same budget on 6 turns of repair. A per-case budget on <em>fresh</em> tokens (output + uncached input) would compare the two fairly; this is the first follow-up.</li>
+    <li><b>No DB risk.</b> Fixed templates cannot scan: 0 timeouts, p90 7–11 ms. Under the K ≥ 16 contention of lab-s12 (Text2Cypher timeouts 3 → 9 per pass) this matters.</li>
+    <li><b>Where each loses.</b> Medium (counts, "author of both", citation counts): one Cypher does what three hops do — S1 29 vs hops 23. Hard (argmax over a neighbourhood): everyone 5–9; hops hit the budget (11–15 hard cases) or answer without rows (9–13). Easy: tied at 19–20, hops in half the wall.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>4 · The questions' own entities (lab 018)</h2>
+  <div class="two">
+    <div class="card"><h3>No reuse to exploit</h3><p>GRBench: 140 questions name 174 entities (60 titles, 76 author names), all distinct, all resolvable to exactly one node by exact title / name; no node is anchored by two questions (cohort: 110 anchor nodes, all distinct). GTSQA: 1 622 cases share 15 % of seed mentions overall (French, German, Berlin, English, World War II…), but the 90-case cohort's 148 seeds are all distinct. Neither cohort has anything to cache by identity.</p></div>
+    <div class="card"><h3>Hubness sits in the middle class</h3><p>Anchor out-degree p50: easy 12 (max 132), medium 71 (max 1 823 — one hub author), hard 2 (max 23). Class mix: easy 18 low / 11 mid; medium 8 low / 20 mid / 1 hub; hard 21 low / 1 mid / 8 unresolved. The 43–63 s scans (lab-s7) and the 15 s timeouts (lab-s11/12) came from the medium hubs; hard questions anchor on quiet authors and ask for an argmax over their neighbourhood.</p></div>
+    <div class="card"><h3>The unresolvable tail is the hard tail</h3><p>10 cohort questions have no anchor an exact name / title match can find: 6 <code>paper_recommendation</code> (the paper is described, not named) and 4 lower-case names. Both lanes fail these at step 0; they need a retrieval-first path (the CONTAINS fallback is a first approximation).</p></div>
+    <div class="card"><h3>Routing features available before the LLM runs</h3><p>Template family (12, regex, 0 unmatched) → anchor type and degree class: authors_of_paper 19, venue_of_paper 9, citation_count 42, author_of_both_papers 75, closest_collaborator 2, most_cited_paper_of_author 1. A router could send lookup families to the hop lane (safe for hubs, half the wall), aggregation families to Text2Cypher S1 (29 / 30), argmax families to Text2Cypher with a finalisation rule, and unresolved anchors to retrieval first; degree class sets row cap / timeout / hop cap. Measured against the best single lane (S1: 56 / 90) that is the next experiment.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>5 · Operational notes</h2>
+  <ul>
+    <li><b>lab-s15 lost its bulk artifacts:</b> the UAE host uploaded 27 MB in 30 min, the single <code>scp -r</code> hit its 1 800 s cap, and the fail-closed teardown destroyed the instance. The partial download held the complete O1 pass and 84 / 90 hop-B0 cases; graphcot-O1 was rerun in lab-s16.</li>
+    <li><b>Collection is now essentials-first:</b> content-free receipts (run-receipt.json, receipts.jsonl, coordinator files, OTel spans, pass and queue receipts, workload samples) are tarred on the appliance, copied as one file, sha256-verified and extracted before the bulk copy; the bulk copy has a 3 600 s cap and a retry, and its failure no longer discards the session. lab-s16 exercised this path: 2 020 essential files verified in minutes, bulk copy still failed on the same uplink and cost ≈ 50 paid minutes — <code>--collect-bulk essential-only</code> now exists for slow hosts.</li>
+    <li>NVLink-only rule kept; H100/H200 pairs allowed when no A100 pair ≤ $2.9 is on the market (user, 2026-09-12). Spend this page: $5.3 + $6.6; lab ledger ≈ $90.</li>
+  </ul>
+</section>
+
+<section class="prov">
+  <h2>Provenance</h2>
+  <dl>
+    <dt>runs</dt><dd>lab-s15-try-082017 (bundle v43, instance 50661840, artifacts_partial — salvaged from .remote-incoming) · lab-s16-try-094447 (bundle v44, instance 50672533, essential copy verified, bulk copy incomplete); both destroyed + verified</dd>
+    <dt>references</dt><dd>Text2Cypher B0 = lab-s11 all-k8 · S1 = lab-s13 arms-s1-k8 (same cohort, prompts, budgets, DB fixes)</dd>
+    <dt>cohort</dt><dd>strata-v2, 30 cases per class, arm schedules *-single-schedule-o1.json (B0/C-/S1/O1), Graph-CoT lane arms B0/O1</dd>
+    <dt>code</dt><dd>gare2e agentic-os-e2e: 15b4475a (O1 arm), 9f8d1a1d (Graph-CoT lane), b354fc5e (essentials-first collection); grbench_graphcot.py, run_grbench_graphcot_react.py</dd>
+    <dt>tables</dt><dd>lab-s16 session-summary/{arm-lane-comparison, stratum-funnel, turn-summary, layer-shares, lane-client, pass-serving}.md · run-graphcot-*/otel-stages (100 % request join) · lab-s15 session-summary for O1 · scratchpad entity/grbench_entity_profile.json</dd>
+    <dt>packages</dt><dd>s3://seocho-agentic-os-traces/seocho-agentic-os/traces/{lab-s15-try-082017, lab-s16-try-094447}</dd>
+    <dt>beads</dt><dd>seocho-ijkj (016) · seocho-1i7q (017) · seocho-f592 (018)</dd>
+  </dl>
+</section>
+</main>

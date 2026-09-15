@@ -116,6 +116,14 @@ sharepoint/
 **/.ipynb_checkpoints/
 examples/.notebook_runs/
 traces/
+# … except the repo-root shared-run pointers (S3 manifest/index copies, no data): docs/agentic-os/TRACE_SHARING.md
+!/traces/
+/traces/*
+!/traces/README.md
+!/traces/index.json
+!/traces/*/
+/traces/*/*
+!/traces/*/manifest.json
 
 # Generated extraction scratch artifacts
 extraction/output/

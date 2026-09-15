@@ -23,6 +23,7 @@ from urllib.request import Request, urlopen
 
 from pydantic import BaseModel, Field
 
+from .agentic_os_trace import TRACEPARENT_HEADER, inject_traceparent
 from .agent_execution import AgentExecutionRecorder, build_retrieval_funnel, observe_tool
 from .gold_graph import GoldGraphScore
 from .gtsqa import GTSQACase, score_gtsqa_retrieval
@@ -103,6 +104,7 @@ class NativeModelReply:
     usage: Mapping[str, Any] = field(default_factory=dict)
     latency_s: float = 0.0
     protocol_error: str | None = None
+    span_id: str | None = None  # W3C span id sent as traceparent (agentic_os_trace)
 
 
 _TEXTUAL_TOOL_MARKUP = re.compile(r"<tool_call>|<function\s*=", re.I)
@@ -165,10 +167,12 @@ class OpenAICompatibleNativeToolModel:
             payload.update({"tools": list(tools), "tool_choice": tool_choice})
         elif tool_choice != "auto":
             raise ValueError("a forced tool choice requires a non-empty tool surface")
+        headers: dict[str, str] = {"Content-Type": "application/json"}
+        span_id = inject_traceparent(headers)  # no-op outside a bound case trace
         request = Request(
             f"{self.base_url.rstrip('/')}/v1/chat/completions",
             data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
+            headers=headers,
         )
         started = time.perf_counter()
         try:
@@ -205,6 +209,7 @@ class OpenAICompatibleNativeToolModel:
             usage=body.get("usage") or {},
             latency_s=time.perf_counter() - started,
             protocol_error=protocol_error,
+            span_id=span_id,
         )
 
 
@@ -384,6 +389,8 @@ def grbench_react_tools() -> tuple[dict[str, Any], ...]:
                 "description": (
                     "Call only after inspect_graph_schema with bounded read-only Cypher derived only from the "
                     "returned schema. Every GRBenchNode pattern must carry {_workspace_id: $workspace_id}; "
+                    "anchor a pattern on an indexed property (id, source_node_id, feature_name, feature_title "
+                    "with =, IN, CONTAINS or STARTS WITH) or the query is rejected as unanchored_scan; "
                     "include RETURN and LIMIT. After rejection, change the query using its repair code and "
                     "never repeat an identical failed query. Empty results mean insufficient evidence, not "
                     "permission to answer from memory."
@@ -478,6 +485,7 @@ def run_gtsqa_text2sparql_react(
             latency_s=reply.latency_s,
             outcome=protocol_outcome or "ok",
             output_kind="tool_call" if reply.tool_calls else "message",
+            span_id=reply.span_id,
         )
         if reply.protocol_error:
             failures += 1
@@ -689,6 +697,7 @@ class EvidenceHandoff(BaseModel):
         default=None,
         pattern="^(query_policy_rejected|query_syntax_or_execution_error|query_runtime_error|agent_tool_error)$",
     )
+    policy_code: str | None = Field(default=None, max_length=64)  # validator repair code (e.g. unanchored_scan)
 
     @classmethod
     def from_rows(
@@ -698,6 +707,7 @@ class EvidenceHandoff(BaseModel):
         query: str,
         status: str = "ok",
         error_code: str | None = None,
+        policy_code: str | None = None,
     ) -> "EvidenceHandoff":
         evidence = [
             EvidenceTriple(s=str(row["s"]), p=str(row["p"]), o=str(row["o"]))
@@ -711,6 +721,7 @@ class EvidenceHandoff(BaseModel):
             query_digest=_digest(query),
             evidence_digest=_digest(json.dumps(serialized, sort_keys=True)),
             error_code=error_code,
+            policy_code=policy_code,
         )
 
     @classmethod
@@ -726,6 +737,7 @@ class EvidenceHandoff(BaseModel):
             "query_digest": self.query_digest,
             "evidence_digest": self.evidence_digest,
             "error_code": self.error_code,
+            "policy_code": self.policy_code,
         }
 
 
@@ -1140,6 +1152,11 @@ class LLMRequestTimer:
 
     async def on_request(self, request: Any) -> None:
         request.extensions["seocho_started_perf_s"] = time.perf_counter()
+        headers: dict[str, str] = {}
+        span_id = inject_traceparent(headers)
+        if span_id is not None:
+            request.headers[TRACEPARENT_HEADER] = headers[TRACEPARENT_HEADER]
+            request.extensions["seocho_span_id"] = span_id
 
     async def on_response(self, response: Any) -> None:
         started = response.request.extensions.get("seocho_started_perf_s")
@@ -1152,6 +1169,7 @@ class LLMRequestTimer:
                 "status_code": int(response.status_code),
                 "started_elapsed_ms": round((started - self._epoch) * 1000, 3),
                 "latency_ms": round((finished - started) * 1000, 3),
+                "span_id": response.request.extensions.get("seocho_span_id"),
             }
         )
 
@@ -1275,8 +1293,10 @@ def build_agents_sdk_agent_tool_workflow(
         name_override="execute_graph_query",
         description_override=(
             f"Call only after inspect_graph_schema to execute bounded read-only {query_language} using "
-            "only discovered identifiers. Return evidence columns s, p, and o. After rejection, change "
-            "the query using its semantic repair code; never repeat an identical failed query. Empty "
+            "only discovered identifiers. Return evidence columns s, p, and o, and anchor a pattern on an "
+            "indexed property (id, source_node_id, feature_name, feature_title) or the query is rejected "
+            "as unanchored_scan. After rejection, change the query using its policy_code / repair code; "
+            "never repeat an identical failed query. Empty "
             "evidence requires an empty handoff, not an answer from memory."
         ),
     )
@@ -1291,6 +1311,7 @@ def build_agents_sdk_agent_tool_workflow(
                 query=query,
                 status="error",
                 error_code=_query_error_code(error),
+                policy_code=getattr(error, "code", None) if isinstance(error, ValueError) else None,
             )
             audit.record(
                 "tool",

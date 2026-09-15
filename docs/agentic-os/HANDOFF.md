@@ -67,3 +67,352 @@ Analysis after any run: `join_agentic_os_gpu_samples.py` → `analyze_agentic_os
 - [ ] Vast API key + SSH key set; `vastai show instances --raw` returns `[]`
 - [ ] local preflight passed on the built bundle
 - [ ] first gate-only run completed and torn down; `one-case-gate.json` read
+
+
+## 9. State of the lab as of 2026-09-13 13:40 KST (labs 013–022) — read this to continue
+
+**Nothing is running.** Paid spend to date ≈ $102.8 (`docs/agentic-os/lab/LEDGER.md`). Every session's
+content-free package is in `s3://seocho-agentic-os-traces/seocho-agentic-os/traces/<run>/` (index: 11 runs;
+copies of `index.json` and each `manifest.json` under `traces/`; session tables under `traces/<run>/session-summary/`).
+
+### Where things live
+| what | where |
+|---|---|
+| lab board, ledger, decisions, request files with `## Result` sections | `docs/agentic-os/lab/` (copy of the private `.agents/lab/` zone; the request numbers 001–022 are the units of work) |
+| report pages | `docs/agentic-os/reports/` (+ artifact URLs in its README) |
+| queue files per session | `.seocho/benchmarks/agentic-os/strata-v2/session-{E..O}/lab-queue.tsv` (force-added; `.seocho` is otherwise ignored) |
+| launchers / watchers / scrape / rehearsal | `scripts/benchmarks/lab/` |
+| appliance bundles | built locally with `prepare_agentic_os_appliance_bundle.py` (v46 … v50 used today; sha in each launcher's run receipt) |
+| lane code (this branch) | `src/seocho/eval/{request_analysis,request_router,cypher_grammar,grbench_graphcot,grbench_runtime,discovery_cache}.py`, `scripts/benchmarks/run_{direct_react_text2cypher,grbench_graphcot_react,grbench_router,grbench_grammar_cypher}.py`, `run_agentic_os_schedule.py`, `run_agentic_os_colocated_e2e.sh`, `summarize_agentic_os_{stratum_funnel,turns,query_plans,queue_session,zero_row_ab,serving_arms,scheduler_occupancy,router,grammar}.py`, `pack_agentic_os_traces.py` |
+
+### Rules in force (from `docs/agentic-os/lab/DECISIONS.md`)
+Paid instances: ≥ 2 GPUs joined by NVLink (`--require-nvlink`, `bw_nvlink>0`), A100/H100/H200 pairs, ≤ $5.5/h, host 458442 admitted. Single-agent lanes only. GTSQA parked; Text2Cypher first. Receipts and reports are content-free (no prompts, answers, keys); `*.private.*` never leaves the run dir. The teammate instance `gare2e-full-ondemand-a100-20260910-161803` on the shared Vast key is never touched.
+
+### Findings in one screen (details in the request files' `## Result`)
+- 013/014: decode owns 0.82–0.98 of case wall at every K and difficulty; host ≤ 0.09; DB ≤ 0.1; K raises tok/s 3× but per-request wall too; funnel invariant to serving shape.
+- 015/016: SEOCHO schema slice S1 lifts GRBench answered 7/16/3 → 20/29/7; size-matched noise collapses to 0/2/1; relation semantics (O1) add nothing for Cypher, hurt SPARQL.
+- 017/018: Graph-CoT hop actions answer 47/90 with zero repairs but exhaust cumulative budgets; anchors are 100 % resolvable, no reuse across questions; hard = low-degree anchors + argmax.
+- 021: every query is index-anchored (0 scans, 0 page-cache misses, 11–19 ms server); 52/58 zero-row S1 queries are pattern errors after a matched anchor → zero-row diagnostic hint (≈ 10 ms) moves hard 5 → 9, aggregate flat.
+- 020: MTP (`qwen3_5_mtp`, k=2) decode-only TPOT 25.3 → 15.7 ms at funnel parity; ngram corrupts Cypher (18/90); prefix caching off +14 % decode TPOT; chunked prefill / block size no per-token effect; grammar-constrained Cypher (xgrammar) removes scope/label rejections but costs ×1.9–3.7 per token on this stack; the ontology-closed grammar (C) beats the plain one (B).
+- 022: 27B 56 vs 9B 20 vs 35B-A3B 20 answered under tool calling; the small models fail the protocol (171 dropped scope maps), and the query-first protocol alone lifts the 9B to 45/90 at 3.6 s/case; draft_model speculation is infeasible on vLLM 0.27 for Qwen3.6 (drafts are rewritten to MTP).
+- 019: request-analysis router V0 (5 rules) = 56/90 in-sample with −80 % rejections, −22 % tokens, −21 % wall; held-out 31/50 vs S1 34/50 (argmax → O1 + row cap 50 is right; count turn cap and hop lookups are the misroutes).
+- Throughput re-read (13:30): server queue time is 0 in every arm; the harness itself starves the batch — 1.93 s dead time per case (coordinator gap 1.27 s + runner start 0.66 s) and a static 8-shard tail leaves < 8 runners active for 32–56 % of a pass. Aggregate tok/s across arms is therefore not comparable yet.
+
+### Next steps (proposed, awaiting the owner's go on the paid part)
+Free: dynamic work queue + persistent runner in `run_agentic_os_schedule.py`, steady-state measurement window with backlog, per-request stage timings (queue/TTFT/prefill/decode from vLLM spans) and `vllm:iteration_tokens_total` in receipts, task/s vs output-tok/s split, synthetic replay dataset (prompt/completion length pairs from receipts) for `vllm bench serve`, tool-stub executor. Paid (≈ $13): K sweep 8/16/32/64 × {baseline, MTP} under backlog; serving-only replay vs tool-stub vs real DB; block/chunk at saturation; grammar constrained-ratio / CPU-core sweep; TP=2 vs 2×TP=1 at saturation. Also open: router policy V1 held-out re-run (≈ $1), landing this lane to seocho `main` (bead seocho-56wk), suffix decoding and `VLLM_BATCH_INVARIANT` start-up failures (parked).
+
+### How to resume with Claude Code
+Say "이어서" / `/lab-resume`: the skill restores the handoff memo, board and beads, checks our Vast instances by label prefix only, and continues the recorded order. Commit lane work only through a temporary worktree of `agentic-os-e2e` (the seocho working tree is shared live with another agent); push to `gare2e`, never to public `origin` without the owner's say.
+
+## 10. Free harness continuation — 2026-09-13 (lab 023)
+
+The four core harness items from §9 are implemented with local contract tests:
+dynamic FIFO, persistent GRBench single-agent runner processes, a warmup/backlog
+window, and request-stage / aligned task-versus-token measurement. See
+[lab 023](lab/requests/023-throughput-harness.md) for flags, exact measurement
+semantics, validation and limitations. Opt in with `SEOCHO_SCHEDULE_MODE=dynamic`
+in a main pass; the default launcher remains static. No paid calls or Vast
+operations occurred in this continuation; the previously reported spend remains
+≈ $102.8. GPU performance and live parity are still unmeasured for this code.
+
+Basic CI's tests passed (1112, 3 skipped); its final identity check failed on five
+pre-existing Vast SSH fixture addresses. Focused worker/measurement/appliance tests: 91 passed.
+Synthetic replay and tool-stub preparation remain free follow-up work. The ~$13
+paid plan still awaits an explicit go. Continue committing only from a temporary
+worktree and pushing only to private `gare2e/agentic-os-e2e`.
+
+## 11. Approved continuation and observability (2026-09-13)
+
+Owner said “네 모두 진행하시죠”: the five ~\$13 comparisons in §9–10 and free
+replay preparation are now approved. Lab [024](lab/requests/024-approved-throughput-and-observability.md)
+tracks this work (bead seocho-7yaz). The later memory/cache discussion adds the
+[observability factor contract](OBSERVABILITY_FACTORS.md), without adding paid
+DB/KV allocation or offloading sweeps. Primary sequence remains supply/K then MTP.
+
+Preparation includes duration-bounded FIFO windows, private fixed-request capture,
+three replay substrates, grammar query ratio/CPU affinity, and a full appliance
+pass queue (`run_agentic_os_throughput_session.py --print-plan`). Existing plus
+new focused tests: 100 passed. Basic CI1112 passed3 skipped; final existing SSH
+fixture identity check remains failing. Exact-image incremental preflight passed;
+unchanged Dozer/image combined live evidence is reused by hash. No paid instance
+created yet at this checkpoint. Keep temporary-worktree commits/private gare2e
+branch and protected colleague-instance rules from §9. §9's separate router V1
+and public SEOCHO landing are not included in this authorization.
+
+## 12. Lab024 live results and reconciliation — 2026-09-13 evening KST
+
+**Current state: no owned instance running.** Latest result supersedes the
+pre-launch snapshots in §10–11. Owner approval was used for lab-s22b; 24 passes
+exited0 (22 comparisons + gate/capture). Budget reserve stopped before TP2-control
+and replicas2. The additional grammar K8 amendment and explicit new task/tool
+instrumentation were committed locally but never uploaded after the interrupted
+amendment; do not claim them measured.
+
+[Three-view interactive report](reports/lab024-characterization/index.html) and
+[findings/provenance](reports/lab024-characterization/README.md) link actual tasks,
+LLM stages and graph tool events. 7,834 comparison tasks, 33,633 requests (33,616
+unique server matches; all7,156 contained-cohort requests matched), 26,014 tools.
+Missing telemetry remains unknown. Primary output tok/s/GPU is 130.3→441.5 for
+baseline K8→64, versus163.3→289.2 for MTP. No baseline saturation established.
+KV max44.3%, zero preemptions; no long-context/offload evidence. Three block/chunk
+passes lack window GPU samples, so their primary per-GPU rate stays null.
+
+Owned50866184 / lab-s22b ran 17:56→21:32 KST, disk-inclusive $3.3562963/h;
+watchdog destroyed and verified absence at unix1789302775.0586078. Estimated
+hourly cost **$12.1227**, cumulative ≈**$114.92**. Protected colleague unchanged.
+The controller's collection timed out after a missing-glob archive bug included
+the whole artifact tree. The complete77.65MB archive was recovered and all51,590
+unique regular files matched local extraction (zero missing/mismatch). Independent
+remote digest checkpoint absent: lifecycle `artifacts_partial_reconciled`,
+`artifact_copy_verified=false`. Preserve original archive and reconciliation
+receipt. Collector now selects exact regular-file matches and checkpoints the
+verified digest before extraction; this fix is local-tested, not remotely rerun.
+
+Source deployed: bdfb4877 / source-v53 SHA256
+09c3a7a7c126d1724c45c060894d6f9aec8358d72e800080b0e8fb10c718b9cf.
+Local run: `.seocho/benchmarks/agentic-os/colocated-appliance/runs/lab-s22b`;
+derived directory `characterization-v1`; private copies stay local. Repository
+report and compressed content-free tables are under reports/lab024-characterization;
+compact CSV and manifest under `traces/lab-s22b/session-summary/`.
+
+Continuation remains bead seocho-7yaz. Remaining live gates: TP2-control versus
+2×TP1 K64 and grammar K8 ratio0/.5/1. Proposed separate continuation ceiling:
+90min ×$3.60/h = $5.40 including startup/collection; no new paid launch has been
+made. This exceeds the nearly consumed original ~$13 allocation, so obtain the
+owner's budget extension before creating another instance. No DB/KV allocation
+or offloading matrix is included. Commit through the temporary worktree; push
+private gare2e/agentic-os-e2e only. Do not touch colleague instances.
+
+### §12 update: continuation budget approved
+
+Owner approved the proposed additional max$5.40/90min (“네 모두 하시죠”). Lab-s23
+will run only gate105, TP2/2×TP1 at K64, grammar K8 CPU16 ratios0/.5/1; same A100
+SXM80GB class with NVLink, same model/data/image. `launch_lab_s22.py --continuation`
+enforces5400s lifetime and <=$3.60/h. Earlier budget-pending text is superseded;
+no further approval within this extension. Results and lifecycle pending launch.
+
+### §12 update: 2026-09-14 admission blocked, no additional spend
+
+Continuation source **2f99840c**, v54 SHA256
+`61e0a357c4691bea0047eae0a00c9180a6260d58c2f24519830596af912fa447`.
+Exact-image/source/unchanged-runtime/entrypoint preflight all passed.49 focused
+checks and Ruff passed. Basic CI1112 passed3skipped; same five pre-existing identity
+fixture errors remain. Source and budget extension are pushed to private branch.
+
+Detached lab-s23 controller attempted admission and exited before create:
+`selected offer is absent or ambiguous`. No instance ID, no new billed usage.
+A fresh provider query returned no A100 SXM80GB pair satisfying CUDA>=13.0,
+NVLink, <=$3.60/h and the registered capacities. A separate read-only query found
+A100 SXM4 offer36994173 / host109790, $2.0543/h, NVLink300,38 CPUs, but driver
+570.172.08 / cuda_max_good12.8; it fails the pinned-image admission requirement.
+No image/driver substitution was attempted. This is inventory/admission blockage,
+not a model/runtime experiment failure. Other provider instances were not modified.
+
+**Current state: no owned live instance; approved extension$5.40 remains unspent.**
+Artifacts: local `.../runs/lab-s23/vast-colocated-lifecycle.json` records failed
+admission without creation. No watcher is polling or scheduling a later launch.
+Resume by querying fresh compatible A100 inventory; once admitted, use a NEW run
+root (lab-s23b) and fresh detached unit with the existing continuation flags.
+Approval persists; do not ask again for the same $5.40/90min scope. Existing lab-s23
+failure receipt must remain intact. The five remaining comparisons are still unrun.
+
+### §12 update: CUDA compatibility path validated locally (2026-09-14)
+
+The previous CUDA>=13 provider filter was overly restrictive for this pinned
+image. Official NVIDIA forward-compatibility documentation supports CUDA13
+compatibility libraries on data-center R570 GPUs; the exact vLLM0.27.1 image
+already contains `/usr/local/cuda-13.0/compat/libcuda.so.580.95.05`, admits R570 in
+NVIDIA_REQUIRE_CUDA, and implements VLLM_ENABLE_CUDA_COMPATIBILITY. No image,
+model or host driver replacement is needed. This corrects the earlier admission
+interpretation; live compatibility is still a required gate, not assumed.
+
+`--continuation --cuda-forward-compat` selects only A100 SXM / CUDA12.8 offers,
+enables built-in compatibility with explicit library path, and requires the new
+exact-image library preflight. After source extraction and before model/DB
+startup, a live probe checks exactly two R570 A100s, CUDA13 BF16 matmul on both,
+bidirectional peer access, actual compat libcuda mapping and driver API>=13000.
+Failures stop bootstrap, preserve the receipt and trigger normal teardown.
+The subsequent service readiness, live graph/trace gate and six-pass queue remain.
+
+Source-v55 SHA25648d05226e7a8533a2fa562f6aecd811f5568a532349b1330f73932cc28871504.
+Additional budget remains max$5.40/90min and currently unspent. Use new lab-s23b
+root/unit; preserve original zero-cost admission failure. This is a recorded
+runtime-environment difference from lab-s22b; compare TP controls within the new
+host/session and label cross-session grammar comparisons accordingly.
+
+Sources: https://docs.nvidia.com/deploy/cuda-compatibility/forward-compatibility.html
+and https://docs.vllm.ai/en/stable/getting_started/installation/gpu/ plus exact
+local image inspection.71 focused tests passed; no local GPU was exercised.
+
+### §12 live checkpoint: lab-s23b created
+
+Owned instance51011956 created at unix1789387181.891499 on offer36994173 /
+host109790, A100 SXM4x2 NVLink300,38 logical CPUs and515966MB host RAM. Source
+42ed5bd1/v55, official CUDA forward compatibility enabled. Independent watchdog
+deadline1789392581.891499 (5400s) is armed. Unitgare2e-lab-s23b-20260914 owns the
+controller; local run `.../colocated-appliance/runs/lab-s23b`. Do not create a
+replacement while this instance may exist. Original lab-s23 admission remains$0.
+
+Provider currently loading the container; SSH and live CUDA probe are not yet
+complete. Do not claim a successful runtime/throughput gate. Remaining queue is
+fully pre-staged and does not need agent interaction once readiness/gate pass.
+The same max$5.40 budget is active. This supersedes earlier no-instance/unspent
+snapshots. Keep checking lifecycle/watchdog; collect+verify+destroy at completion.
+
+### §13 final: lab024 continuation measured and owned instance destroyed (2026-09-14)
+
+This is the latest state; the earlier pending/admission/live checkpoints are
+historical. The approved matrix has now executed27 comparison conditions across
+lab-s22b (22) and lab-s23b (5), plus their gates/capture. No owned instance or
+active watchdog remains. No additional paid launch is scheduled.
+
+[Continuation three-view report](reports/lab024-continuation/index.html),
+[findings/conditions/gaps](reports/lab024-continuation/README.md), and
+[compact CSV](../../traces/lab-s23b/session-summary/characterization.csv).
+TP2 / sticky2xTP1 K64:439.59 /273.73 output tok/s/GPU and1.873 /1.240 task/s.
+Grammar K8 CPU16 ratios0/.5/1:139.43 /91.73 /70.64 output tok/s/GPU.
+Same-window primary rates observe both physical GPUs. Single ordered passes;
+no confidence interval, balanced-topology ranking, saturation or accuracy claim.
+
+1,156 comparison tasks,5,077 client requests,4,285 tools. All task clocks/IDs,
+request step IDs/context bytes and tool/parent IDs are explicitly recorded.
+Single-engine contained-cohort859 requests all match server stages. Replica1,918
+client requests lack exact server parent links because the deployed router drops
+W3C headers; report timings remain null. Header forwarding is fixed and locally
+tested after teardown, not live revalidated. Future essential collection includes
+router receipts. Replica metrics cover both full windows: mean running47.60 vs
+13.33 and KV fractions0.648 vs0.169, exposing sticky routing imbalance. Fraction
+sums are labeled as sums, not overall utilization. Do not infer pure TP effects.
+
+Source42ed5bd1/v55, same model/image/data/Dozer; R570 A100 built-in CUDA13 compat
+probe/readiness/gate105 passed. Five comparisons + gate all exit0. Added observer
+source SHA256db21bba777c78249ea2eeaad438d71b3c1e2abc404bafcf2411a9151478aca3a
+was staged read-only during replicas2; complete window coverage verified.
+
+Essential transfer3,974,580bytes/2,409files verified remote=local SHA256
+`dd5aa025f879acddd79f78074c6f11f37fc2fd39e6facb195e9692d35219bac7`, extraction
+complete. The successful collector deletes the transfer archive and retains
+extracted originals/checkpoint. Bulk was intentionally skipped by essential-only;
+raw lifecycle stays failed/_PartialArtifacts and artifact_copy_verified=false.
+This is a verified essential subset, not a fully archived bulk run. Do not rewrite
+this receipt or copy private payloads into Git. Manifest records the distinction.
+
+Instance51011956 created1789387181.891499, destroyed/absence verified by parent;
+watchdog terminalparent_teardown_verified_absent, finished1789390489.8383522.
+$2.09037037/h ×3307.95s ≈$1.9208 additional, within$5.40/90min. Lab024 total
+≈$14.0435 across original+extension; cumulative prior estimate≈$116.84. Not an
+invoice. Provider list independently confirmed no owned run; peers untouched.
+
+Raw root `.seocho/benchmarks/agentic-os/colocated-appliance/runs/lab-s23b`, derived
+`characterization-v1`; private originals stay local. Report+CSV.gz under
+reports/lab024-continuation; compact table+manifest in traces/lab-s23b/session-summary.
+
+Validation:36 focused appliance/report tests, Ruff, JS node check, TP2 and replica
+headless rendering (11 tables/1 SVG each) passed. Basic CI1112 passed3skipped;
+final identity check still rejects the same five pre-existing SSH fixture entries.
+No full-green CI claim. Primary rates remain missing for the three older block/
+chunk windows without GPU samples. Engine decode-sequence/grammar CPU/kernel-gap
+instrumentation and long-context/offload/DB-KV allocation interventions remain
+outside measured evidence. Any next run must specify the incremental hypothesis,
+fix deployment and live gates; do not rerun automatically or reuse consumed budget.
+
+Keep subsequent commits in a temporary worktree and push only private
+`gare2e/agentic-os-e2e`. Update these state/evidence copies at each session end.
+
+
+### §14 lab025 follow-up prepared (2026-09-15)
+
+User requested continuation after lab024. Follow-up beadseocho-odhn and request025
+implement exact W3C/router/stage admission, automatic full-window per-backend
+sampling and bounded task-rr affinity. Default sticky unchanged. Same-host plan:
+TP2 gate/control, sticky2TP1 gate/control, task-rr2TP1 gate/control. Gates require
+a real graph call and complete request-stage joins; timed replica arms additionally
+require both backends and complete metric windows. Missing evidence stops queue.
+
+54 focused tests (including local HTTP) and Ruff pass. Historical original TP2
+2278/2278 joins pass; old replica0/1918 fails. This is an audit of old evidence,
+not a new performance result. Basic CI1112pass3skip; same five identity-fixture
+violations remain. Exact-image/source/unchanged-Dozer/entrypoint/compat preflight
+all pass; no local GPU exercised. Bundle lab025-20260915-v1 SHA256
+8a4c7aad21acc988cac8311df1b730585072ec7d45091eafda079bb69d073884.
+
+Prior approved extension$5.40 used$1.9208, remaining~$3.4792. User continuation is
+bounded to <=$3.40/h and NEW3600s instance watchdog (stricter than former5400s),
+maximum$3.40, combined extension~$5.3208. Do not reset spent money or widen scope.
+New labelseocho-agentic-os-lab-s24/rootlab-s24/unitgare2e-lab-s24-20260915; no
+instance created at this preparation checkpoint. Once created, lifecycle and
+watchdog are authoritative; never create a replacement while one may exist.
+
+### §15 lab025 complete + paper-inspired charts (2026-09-15)
+
+Latest state: no owned live instance. Lab-s24 admission-only$0, then lab-s24b
+instance51057078 on native driver595.71.05 A100 SXM4 80GBx2/NVLink300/host458442,
+32 effective CPUs. Source1e0608de / bundle SHA8a4c7aad21acc988cac8311df1b730585072ec7d45091eafda079bb69d073884.
+Same vLLM0.27.1/model revision/Dozer/data; no CUDA forward-compat override.
+Three graph gates and three K64 comparisons all exit0; remote command exit0.
+
+| condition | output tok/s/GPU | task/s | exact server/stage requests |
+| --- | ---: | ---: | ---: |
+| TP2 | 426.09 | 1.887 | 2251/2251 |
+| sticky2TP1 | 322.63 | 1.385 | 2065/2065 |
+| task-rr2TP1 | 378.24 | 1.720 | 2016/2016 |
+
+Replica router joins are also complete. Per-backend89 samples cover each whole
+window. Mean running41.46/18.72 (sticky) vs30.26/29.11 (task-rr); mean KV fractions
+0.568/0.256 vs0.384/0.365. Task assignments232/212 vs219/219, no affinity violations.
+Task-rr improved tok/s/GPU17.24% and task/s24.19% relative to sticky, still below
+TP2 in this single same-host sequential run. Token demand/cache reuse/cohort mix
+also differ; no pure kernel/accuracy-equivalence or universal layout conclusion.
+Observed preemptions0; max contained input3062. Engine decode-sequence/kernel-gap,
+grammar CPU, long-context/offload and DB/KV allocation effects remain unmeasured.
+
+Raw root `.seocho/benchmarks/agentic-os/colocated-appliance/runs/lab-s24b`, derived
+`characterization-v1`:1371 tasks/6332 requests/5491 tools. Included cohort260 tasks,
+1056 requests. [Report](reports/lab025-replicas/README.md), compact CSV/manifest,
+trace-admission and router-balance receipts under `traces/lab-s24b/session-summary`.
+Old missing replica stages are not backfilled.
+
+User's paper-inspired chart request is delivered at
+[characterization-charts](reports/characterization-charts/index.html):30 selectable
+conditions,90 Runtime/Tool/Agent SVGs plus concurrency overview, input hashes and
+numerical data. Interval unions distinguish overlap/unattributed wall time;
+prefill/decode uses exact request joins; cache denominators and per-backend KV are
+explicit. Tool activity is a rule-based call-progress proxy; final is not judged
+success. No new experimental factor or paid call was needed for chart generation.
+
+Essential2,853files/5,324,095bytes verified remote=local SHA256
+e4ea6040b582b495964566a2cd099b50904138ddb6a7a2a06cf88a2c64b601f9; extraction complete.
+Bulk intentionally skipped; preserve lifecycle failed/_PartialArtifacts and
+artifact_copy_verified=false. Parent destroyed+verified; watchdog stopped with
+parent_teardown_verified_absent; independent provider query shows no owned runs.
+Create1789421771.2381241→finish1789424143.9911594 (2372.75s) at$2.38592593/h≈$1.5726.
+Approved extension cumulative≈$3.4933/$5.40; overall cumulative≈$118.42 from prior
+approximate$102.8 base, not an invoice. No automatic new run or budget reset.
+
+Chart numeric contracts10 tests and existing router4 tests pass; Ruff, all30
+condition conservation checks and Chrome rendering/condition selection checked.
+Basic CI1112pass3skip and structural contracts pass; same5 existing SSH fixture
+identity violations remain. Private raw inputs/credentials are not published.
+Continue using temporary worktrees and private gare2e/agentic-os-e2e only.
+
+
+### §16 main publication and portable harness (2026-09-15)
+
+User explicitly requested merging the experiment branch into private
+`tteon/gare2e:main`, including agent instructions and the harness. This changes
+the landing target for this publication from the historical development branch.
+The separate public SEOCHO origin and repository visibility are not changed.
+
+Start at [the experiment index](README.md), which renders representative SVGs
+on GitHub and links all30 conditions. [AGENTS.md](AGENTS.md) and
+[HARNESS.md](HARNESS.md) document metric invariants, source/receipt locations,
+cloud-free chart reproduction and private prerequisites for live reruns. Root
+AGENTS/README link them. The packaged lab-resume skill now reads tracked state
+first, without requiring the original operator's home directory or local tracker.
+
+The previous basic-CI address violations were synthetic SSH fixture hostnames;
+all five now use the reserved .example domain, preserving parser/copy contracts.
+Full basic CI passes, including identity and structural checks;31 focused tests,
+docs/link checks, the six-entry print-plan and secret-guard30/30 self-test pass.
+No new benchmark or paid resource was launched for publication. Lab025 outcomes
+and original source/artifact hashes in §15 remain unchanged.

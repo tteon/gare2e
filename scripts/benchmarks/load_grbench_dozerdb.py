@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from seocho.eval.grbench import batched, graph_schema_receipt, iter_grbench_nodes, iter_grbench_relationships
+from seocho.eval.grbench_runtime import GRBENCH_INDEX_STATEMENTS
+
 
 
 def _write_batches(
@@ -126,10 +128,11 @@ def main() -> int:
         # SEOCHO feature; it prevents each MERGE/MATCH batch from degenerating
         # into a label scan on the multi-gigabyte official graph.
         with driver.session(database=args.database) as session:
-            session.run(
-                "CREATE INDEX grbench_node_lookup IF NOT EXISTS "
-                "FOR (n:GRBenchNode) ON (n.id, n._workspace_id)"
-            ).consume()
+            # Index contract: the exporter manifest carries the statements it was
+            # built against; fall back to the runtime's list for older manifests.
+            index_statements = tuple((manifest.get("indexes") if args.verify_only and manifest.get("indexes") else None) or GRBENCH_INDEX_STATEMENTS)
+            for statement in index_statements:
+                session.run(statement).consume()
         if not args.verify_only:
             node_summary = _write_batches(
                 driver, batched(iter_grbench_nodes(graph), args.batch_size), kind="nodes",
@@ -143,8 +146,13 @@ def main() -> int:
             # A bulk-imported store populates the lookup index after start-up;
             # the fixed gate queries below must not race that population.
             with driver.session(database=args.database) as session:
-                session.run("CALL db.awaitIndexes(600)").consume()
+                session.run("CALL db.awaitIndexes(1800)").consume()
         with driver.session(database=args.database) as session:
+            session.run("CALL db.awaitIndexes(1800)").consume()
+            index_states = [
+                {"name": record["name"], "type": record["type"], "state": record["state"]}
+                for record in session.run("SHOW INDEXES YIELD name, type, state RETURN name, type, state ORDER BY name")
+            ]
             check = [record.data() for record in session.run(
                 "MATCH (n:GRBenchNode {_workspace_id: $workspace_id}) "
                 "RETURN count(n) AS node_count",
@@ -166,6 +174,7 @@ def main() -> int:
         "database": args.database,
         "schema": schema,
         "write": {"nodes": node_summary, "relationships": relationship_summary},
+        "indexes": index_states,
         "verification": {
             "node_count": int(check[0]["node_count"]) if check else 0,
             "edge_count": int(edge_check[0]["edge_count"]) if edge_check else 0,

@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
 from .agentic_os_artifacts import canonical_digest, scan_for_content_leak
+from .grbench_runtime import GRBENCH_INDEX_NAMES
 from .agentic_os_observability import (
     HostProcessSampler,
     VllmMetricsSnapshot,
@@ -95,6 +96,13 @@ def _load_json(path: Path) -> Mapping[str, Any]:
     return value
 
 
+def _indexes_online(indexes: Any) -> bool:
+    if not isinstance(indexes, list):
+        return False
+    online = {str(i.get("name")) for i in indexes if isinstance(i, Mapping) and str(i.get("state", "")).upper() == "ONLINE"}
+    return all(name in online for name in GRBENCH_INDEX_NAMES)
+
+
 def validate_grbench_import_receipt(path: str | Path) -> GateResult:
     """Require source/projection equality and a clean, known-surface import."""
     target = Path(path)
@@ -121,6 +129,10 @@ def validate_grbench_import_receipt(path: str | Path) -> GateResult:
             "workspace_present": bool(str(receipt.get("workspace_id", "")).strip()),
             "workspace_runtime_valid": False,
             "schema_digest_present": bool(str(schema.get("schema_digest", "")).strip()),
+            # lab-s8: queue passes ran without lookup indexes (creation lived in the
+            # gate phase only) -> 40-60 s label scans.  The projection contract now
+            # requires every GRBENCH_INDEX_NAMES entry to be ONLINE before admission.
+            "indexes_online": _indexes_online(receipt.get("indexes")),
         }
         checks["workspace_runtime_valid"] = bool(
             _RUNTIME_WORKSPACE_RE.fullmatch(str(receipt.get("workspace_id", "")))

@@ -1,0 +1,9 @@
+{
+  "description": "Call exactly once before SPARQL construction when a factual question depends on entities, attributes, relations, paths, counts, or provenance in the active RDF benchmark graph. Do not call for greetings, formatting, or facts already supplied in the conversation. Returns the authoritative bounded relation vocabulary and graph IRI, never the answer.",
+  "name": "inspect_graph_schema",
+  "parameters": {
+    "additionalProperties": false,
+    "properties": {},
+    "type": "object"
+  }
+}

@@ -1,0 +1,233 @@
+<title>Lab 013 Wider Cohort</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --ink:#18212b; --muted:#5c6773; --line:#d9dee4; --line-soft:#eceff2;
+  --accent:#0e8f82; --accent-ink:#0b6f65; --k4:#0e8f82; --k8:#c2620a;
+  --good:#2e7d32; --warn:#b26a00; --bad:#b3261e; --bar:#dfe9ec;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1419; --surface:#171d24; --ink:#e6eaee; --muted:#9aa5b1; --line:#2a333d; --line-soft:#202832;
+    --accent:#26a693; --accent-ink:#4fc3b1; --k4:#26a693; --k8:#cf7c22;
+    --good:#6fbf73; --warn:#e0a53a; --bad:#ef7b74; --bar:#22303a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1419; --surface:#171d24; --ink:#e6eaee; --muted:#9aa5b1; --line:#2a333d; --line-soft:#202832;
+  --accent:#26a693; --accent-ink:#4fc3b1; --k4:#26a693; --k8:#cf7c22;
+  --good:#6fbf73; --warn:#e0a53a; --bad:#ef7b74; --bar:#22303a;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px;line-height:1.55;margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+main{max-width:980px;margin:0 auto;padding:40px 24px 72px;display:flex;flex-direction:column;gap:40px}
+header{display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:30px;font-weight:600;letter-spacing:-.01em;margin:0;text-wrap:balance;line-height:1.2}
+h2{font-size:19px;font-weight:600;margin:0 0 12px;letter-spacing:-.005em}
+h3{font-size:15px;font-weight:600;margin:18px 0 6px}
+p{margin:0 0 10px;max-width:72ch}
+.lede{font-size:16.5px;color:var(--ink);max-width:76ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:13px}
+.meta span b{color:var(--ink);font-weight:500}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);padding:16px 18px;display:flex;flex-direction:column;gap:4px}
+.tile .n{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:26px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.tile .l{font-size:12.5px;color:var(--muted);letter-spacing:.02em}
+.tile .d{font-size:13px;color:var(--ink)}
+.verdict{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:2px 8px;border-radius:2px;border:1px solid var(--line)}
+.verdict.good{color:var(--good);border-color:var(--good)}
+.verdict.warn{color:var(--warn);border-color:var(--warn)}
+.verdict.bad{color:var(--bad);border-color:var(--bad)}
+section{display:flex;flex-direction:column}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+th{font-weight:500;color:var(--muted);font-size:12px;letter-spacing:.03em;text-transform:uppercase;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child,th.t,td.t{text-align:left}
+tbody tr:last-child td{border-bottom:none}
+td.stratum{color:var(--muted)}
+.cell{display:inline-grid;grid-template-columns:34px 1fr;align-items:center;gap:8px;min-width:120px}
+.cell .bar{height:8px;background:var(--bar);position:relative}
+.cell .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--accent)}
+.cell.zero .bar i{display:none}
+.note{font-size:13px;color:var(--muted);margin-top:8px;max-width:78ch}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--muted);margin:6px 0 10px;flex-wrap:wrap}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:-1px}
+.legend .k4::before{background:var(--k4)} .legend .k8::before{background:var(--k8)}
+figure{margin:0;background:var(--surface);border:1px solid var(--line);padding:14px 16px 8px}
+figcaption{font-size:13px;color:var(--muted);margin-top:4px}
+svg text{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;fill:var(--muted)}
+svg .ax{stroke:var(--line);stroke-width:1}
+svg .grid{stroke:var(--line-soft);stroke-width:1}
+svg .lbl{fill:var(--ink)}
+ul{margin:0 0 10px;padding-left:20px;max-width:76ch} li{margin-bottom:6px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);padding:16px 18px}
+.card h3{margin-top:0}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;background:var(--line-soft);padding:1px 5px;border-radius:2px}
+.prov{font-size:13px;color:var(--muted)}
+.prov dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 16px;margin:0}
+.prov dt{color:var(--muted)} .prov dd{margin:0;color:var(--ink);font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;overflow-wrap:anywhere}
+a{color:var(--accent-ink)}
+</style>
+
+<main>
+<header>
+  <div class="eyebrow">SEOCHO agentic-os lab · request 013 · run lab-s11 · 2026-09-11</div>
+  <h1>Widening the cohort to 30 cases per stratum: the DB fixes hold, the funnel readings hold, and K=8 buys throughput not latency</h1>
+  <p class="lede">One paid session ran the difficulty-stratified benchmark at three times the earlier sample (90 cases per lane, 360 per pass) on bundle v40, the first bundle with the Bolt timeout, lookup indexes and static anchor guard live. Two passes over the same cases, differing only in client concurrency (K=4 and K=8), on a TP=2 Qwen3.6-27B monolith with reasoning off.</p>
+  <div class="meta">
+    <span>instance <b>50532353</b> (2× RTX PRO 6000 96 GB, Taiwan)</span>
+    <span>07:50 → 10:10 KST, <b>140 min</b>, <b>$6.2</b> of $11</span>
+    <span>bundle <b>v40</b> · cohort <b>strata-v2</b> · arm <b>B0</b></span>
+    <span>lifecycle <b>complete</b>, destroyed and verified</span>
+  </div>
+  <p class="note"><b>Terminology.</b> The agents measured here run an <em>iterative Text2Cypher / Text2SPARQL loop in the GraphCoT style</em>: each turn thinks, calls <code>inspect_graph_schema</code> or a whole-query tool (<code>execute_cypher</code> / <code>execute_sparql</code>), observes the result and continues, up to six turns. They are not the original Graph-CoT action set (RetrieveNode / NodeFeature / NeighbourCheck / NodeDegree, hop by hop); that lane is being added as lab 017 for a direct comparison.</p>
+</header>
+
+<section>
+  <div class="tiles">
+    <div class="tile"><span class="l">GRBench single · graph-DB share of wall</span><span class="n">0.74 → 0.05</span><span class="d">lab-s7 vs lab-s11 (k4, easy). Call p50 16 ms, p90 35 ms.</span><span class="verdict good">DB tail removed</span></div>
+    <div class="tile"><span class="l">15 s Bolt timeout</span><span class="n">3 / 723</span><span class="d">execute_cypher calls that hit the bound (max 16.5 s), all returned <em>rejected</em>. Previous sessions: 43–63 s scans.</span><span class="verdict good">works</span></div>
+    <div class="tile"><span class="l">K=8 vs K=4 · generation tokens / s</span><span class="n">+68 %</span><span class="d">126.8 → 212.8 tok/s; energy −40 % (2470 → 1477 kJ); per-case wall +11–15 %.</span><span class="verdict warn">throughput, not latency</span></div>
+    <div class="tile"><span class="l">Anchor-guard repairs that yielded rows</span><span class="n">1 / 9 · 3 / 12</span><span class="d">k4 · k8. Every rejected case repaired to a validated query; almost none reached non-empty results.</span><span class="verdict warn">guard ≠ recovery</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>1 · Serving: the two passes</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th class="t">pass</th><th>wall s</th><th>requests</th><th>gen tok/s</th><th>prefix hit</th><th>TTFT s</th><th>ITL ms</th><th>prefill s/req</th><th>decode s/req</th><th>GPU util %</th><th>energy kJ</th></tr></thead>
+    <tbody>
+      <tr><td class="t">all-k4</td><td>4283</td><td>2099</td><td>126.8</td><td>0.504</td><td>0.228</td><td>25.2</td><td>0.178</td><td>6.34</td><td>93.0</td><td>2470</td></tr>
+      <tr><td class="t">all-k8</td><td>2559</td><td>2122</td><td>212.8</td><td>0.512</td><td>0.218</td><td>29.0</td><td>0.183</td><td>7.26</td><td>90.8</td><td>1477</td></tr>
+    </tbody></table></div>
+  <p class="note">Pass-level vLLM counter deltas. The same 360 cases, so request and token counts match to within 1 %. Decode per request grows 15 % at K=8 while ITL grows 15 % — the batch is deeper, each token waits longer, and total throughput rises because eight sequences share every weight read.</p>
+
+  <figure>
+    <div class="legend"><span class="k4">K=4</span><span class="k8">K=8</span></div>
+    <svg viewBox="0 0 900 250" width="100%" role="img" aria-label="Median wall seconds per case by lane, K=4 vs K=8">
+      <g>
+        <line class="grid" x1="150" x2="880" y1="40" y2="40"/><text x="146" y="44" text-anchor="end">80 s</text>
+        <line class="grid" x1="150" x2="880" y1="90" y2="90"/><text x="146" y="94" text-anchor="end">60 s</text>
+        <line class="grid" x1="150" x2="880" y1="140" y2="140"/><text x="146" y="144" text-anchor="end">40 s</text>
+        <line class="grid" x1="150" x2="880" y1="190" y2="190"/><text x="146" y="194" text-anchor="end">20 s</text>
+        <line class="ax" x1="150" x2="880" y1="240" y2="240"/>
+      </g>
+      <!-- scale: 2.5 px per second, baseline y=240; lanes at x=160,340,520,700; bar width 70, gap 2 -->
+      <g>
+        <text class="lbl" x="235" y="24" text-anchor="middle">grbench-single</text>
+        <rect x="165" y="209.5" width="70" height="30.5" fill="var(--k4)"/><text x="200" y="204" text-anchor="middle">12.2</text>
+        <rect x="237" y="205.3" width="70" height="34.7" fill="var(--k8)"/><text x="272" y="200" text-anchor="middle">13.9</text>
+      </g>
+      <g>
+        <text class="lbl" x="415" y="24" text-anchor="middle">gtsqa-single</text>
+        <rect x="345" y="203.3" width="70" height="36.7" fill="var(--k4)"/><text x="380" y="198" text-anchor="middle">14.7</text>
+        <rect x="417" y="197" width="70" height="43" fill="var(--k8)"/><text x="452" y="192" text-anchor="middle">17.2</text>
+      </g>
+      <g>
+        <text class="lbl" x="595" y="24" text-anchor="middle">grbench-multi</text>
+        <rect x="525" y="74.5" width="70" height="165.5" fill="var(--k4)"/><text x="560" y="69" text-anchor="middle">66.2</text>
+        <rect x="597" y="56.5" width="70" height="183.5" fill="var(--k8)"/><text x="632" y="51" text-anchor="middle">73.4</text>
+      </g>
+      <g>
+        <text class="lbl" x="775" y="24" text-anchor="middle">gtsqa-multi</text>
+        <rect x="705" y="79" width="70" height="161" fill="var(--k4)"/><text x="740" y="74" text-anchor="middle">64.4</text>
+        <rect x="777" y="62.75" width="70" height="177.25" fill="var(--k8)"/><text x="812" y="57" text-anchor="middle">70.9</text>
+      </g>
+    </svg>
+    <figcaption>Median wall seconds per case (client-observed), 90 cases per lane. Multi-agent lanes take 5× longer than single-agent lanes in every stratum; concurrency adds 11–15 % everywhere.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>2 · The three DB fixes (lab 012, items 1–3), measured live</h2>
+  <div class="two">
+    <div class="card"><h3>Lookup indexes at start <span class="verdict good">ONLINE</span></h3><p>All ten GRBench indexes (id, name, title, TEXT on name/title, source id, type+workspace, relation name, two composite) reported <code>ONLINE</code> in the <code>dozer_indexes</code> phase, which now runs after DozerDB readiness. lab-s9 died here a day earlier because the step ran before the database accepted Bolt.</p></div>
+    <div class="card"><h3>Transaction timeout 15 s <span class="verdict good">fires</span></h3><p>723 <code>execute_cypher</code> calls in the two GRBench single passes: p50 16 ms, p90 35 ms, three at the bound (15.6–16.5 s), each returned as <em>rejected</em> and the agent moved on. In lab-s3/s5/s8 single label scans ran 43–63 s and dominated the lane.</p></div>
+    <div class="card"><h3>Static anchor guard <span class="verdict warn">repairs validate, rarely retrieve</span></h3><p><code>unanchored_scan</code> rejected 16 (k4) and 20 (k8) first attempts across 9 and 12 cases. In every case the agent produced a validated query afterwards; 1 of 9 and 3 of 12 of those cases reached non-empty rows. The guard converts a 60-second scan into an instant rejection, but the repair mostly lands on another dead end.</p></div>
+    <div class="card"><h3>Where the wall goes now</h3><p>GRBench single, k4: LLM share 0.95–0.995 per stratum, graph-DB share 0.005–0.05, framework residual 0. The database is no longer measurable in this lane's wall; what remains is the six-turn reasoning loop.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>3 · Per-stratum funnel at N = 30 (K=4, B0)</h2>
+  <p>Each cell is 30 unique cases of one difficulty stratum in one lane. Bars are out of 30. The K=8 pass moves every column by at most three cases, so only K=4 is shown.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th class="t">lane</th><th class="t">stratum</th><th class="t">triggered</th><th class="t">validated</th><th class="t">non-empty</th><th class="t">answered</th><th class="t">budget exhausted</th><th>wall p50 s</th><th>repairs / case</th></tr></thead>
+    <tbody>
+      <tr><td class="t">grbench-single</td><td class="t stratum">easy</td><td class="t"><span class="cell"><span>30</span><span class="bar"><i style="width:100%"></i></span></span></td><td class="t"><span class="cell"><span>30</span><span class="bar"><i style="width:100%"></i></span></span></td><td class="t"><span class="cell"><span>25</span><span class="bar"><i style="width:83%"></i></span></span></td><td class="t"><span class="cell"><span>9</span><span class="bar"><i style="width:30%"></i></span></span></td><td class="t"><span class="cell"><span>17</span><span class="bar"><i style="width:57%"></i></span></span></td><td>11.8</td><td>0.83</td></tr>
+      <tr><td class="t"></td><td class="t stratum">medium</td><td class="t"><span class="cell"><span>30</span><span class="bar"><i style="width:100%"></i></span></span></td><td class="t"><span class="cell"><span>30</span><span class="bar"><i style="width:100%"></i></span></span></td><td class="t"><span class="cell"><span>30</span><span class="bar"><i style="width:100%"></i></span></span></td><td class="t"><span class="cell"><span>16</span><span class="bar"><i style="width:53%"></i></span></span></td><td class="t"><span class="cell"><span>14</span><span class="bar"><i style="width:47%"></i></span></span></td><td>8.9</td><td>0.43</td></tr>
+      <tr><td class="t"></td><td class="t stratum">hard</td><td class="t"><span class="cell"><span>30</span><span class="bar"><i style="width:100%"></i></span></span></td><td class="t"><span class="cell"><span>29</span><span class="bar"><i style="width:97%"></i></span></span></td><td class="t"><span class="cell"><span>24</span><span class="bar"><i style="width:80%"></i></span></span></td><td class="t"><span class="cell"><span>2</span><span class="bar"><i style="width:7%"></i></span></span></td><td class="t"><span class="cell"><span>28</span><span class="bar"><i style="width:93%"></i></span></span></td><td>14.2</td><td>0.87</td></tr>
+      <tr><td class="t">grbench-multi</td><td class="t stratum">easy</td><td class="t"><span class="cell"><span>30</span><span class="bar"><i style="width:100%"></i></span></span></td><td class="t"><span class="cell"><span>3</span><span class="bar"><i style="width:10%"></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td>66.2</td><td>2.70</td></tr>
+      <tr><td class="t"></td><td class="t stratum">medium</td><td class="t"><span class="cell"><span>30</span><span class="bar"><i style="width:100%"></i></span></span></td><td class="t"><span class="cell"><span>4</span><span class="bar"><i style="width:13%"></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td>67.3</td><td>2.67</td></tr>
+      <tr><td class="t"></td><td class="t stratum">hard</td><td class="t"><span class="cell"><span>29</span><span class="bar"><i style="width:97%"></i></span></span></td><td class="t"><span class="cell"><span>4</span><span class="bar"><i style="width:13%"></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td>66.2</td><td>2.80</td></tr>
+      <tr><td class="t">gtsqa-single</td><td class="t stratum">easy</td><td class="t"><span class="cell"><span>24</span><span class="bar"><i style="width:80%"></i></span></span></td><td class="t"><span class="cell"><span>23</span><span class="bar"><i style="width:77%"></i></span></span></td><td class="t"><span class="cell"><span>11</span><span class="bar"><i style="width:37%"></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td class="t"><span class="cell"><span>22</span><span class="bar"><i style="width:73%"></i></span></span></td><td>14.0</td><td>1.27</td></tr>
+      <tr><td class="t"></td><td class="t stratum">medium</td><td class="t"><span class="cell"><span>28</span><span class="bar"><i style="width:93%"></i></span></span></td><td class="t"><span class="cell"><span>28</span><span class="bar"><i style="width:93%"></i></span></span></td><td class="t"><span class="cell"><span>16</span><span class="bar"><i style="width:53%"></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td class="t"><span class="cell"><span>28</span><span class="bar"><i style="width:93%"></i></span></span></td><td>14.2</td><td>0.93</td></tr>
+      <tr><td class="t"></td><td class="t stratum">hard</td><td class="t"><span class="cell"><span>29</span><span class="bar"><i style="width:97%"></i></span></span></td><td class="t"><span class="cell"><span>28</span><span class="bar"><i style="width:93%"></i></span></span></td><td class="t"><span class="cell"><span>14</span><span class="bar"><i style="width:47%"></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td class="t"><span class="cell"><span>29</span><span class="bar"><i style="width:97%"></i></span></span></td><td>16.2</td><td>1.17</td></tr>
+      <tr><td class="t">gtsqa-multi</td><td class="t stratum">easy</td><td class="t"><span class="cell"><span>12</span><span class="bar"><i style="width:40%"></i></span></span></td><td class="t"><span class="cell"><span>12</span><span class="bar"><i style="width:40%"></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td>3.5</td><td>0.50</td></tr>
+      <tr><td class="t"></td><td class="t stratum">medium</td><td class="t"><span class="cell"><span>29</span><span class="bar"><i style="width:97%"></i></span></span></td><td class="t"><span class="cell"><span>14</span><span class="bar"><i style="width:47%"></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td>66.7</td><td>1.87</td></tr>
+      <tr><td class="t"></td><td class="t stratum">hard</td><td class="t"><span class="cell"><span>30</span><span class="bar"><i style="width:100%"></i></span></span></td><td class="t"><span class="cell"><span>17</span><span class="bar"><i style="width:57%"></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td class="t"><span class="cell zero"><span>0</span><span class="bar"><i></i></span></span></td><td class="t"><span class="cell"><span>2</span><span class="bar"><i style="width:7%"></i></span></span></td><td>71.7</td><td>2.17</td></tr>
+    </tbody></table></div>
+  <p class="note">"Answered" is the runner's <code>answered</code> status (a grounded final answer); "budget exhausted" counts turn, token or budget stops. Multi-agent lanes end in abstention rather than exhaustion. Multi-agent "executed" counts include rejected executions and are omitted.</p>
+
+  <h3>What N = 30 confirms from the N = 10 readings</h3>
+  <ul>
+    <li><b>Difficulty acts on finalisation, not retrieval (GRBench single).</b> Retrieval triggers 30/30 and validates 29–30 in every stratum; non-empty rows 24–30. Answers: 9 easy, 16 medium, 2 hard. Hard exhausts the six-turn budget in 28 of 30 cases while holding rows.</li>
+    <li><b>Topology dominates (GRBench multi).</b> 3–4 of 30 validated per stratum, 0 non-empty. <code>missing_workspace_scope</code> was raised 306 times in 90 cases (3.4 per case): the specialist never learns the scope template from the rejection. This is the target of 012 item 4.</li>
+    <li><b>The easy-stratum retrieval skip is real (GTSQA multi).</b> 12 of 30 easy cases trigger retrieval, against 29 and 30 for medium and hard; wall 3.5 s vs 67–72 s. The manager answers easy questions from memory. 012 item 5.</li>
+    <li><b>GTSQA single is a reasoning loop.</b> Triggers 24–29, validates 23–28, non-empty 11–16, answered 0 in every stratum, exhausted 22–29. LLM share 0.997, 18–20 k reasoning tokens per case. No DB lever applies here.</li>
+    <li><b>Serving shape leaves behaviour alone.</b> K=8 changes every funnel column by at most three cases per cell; it changes wall time and energy only.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>4 · Bottleneck decomposition per stratum (K=4)</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th class="t">lane</th><th class="t">stratum</th><th>wall p50 s</th><th>LLM share</th><th>graph-DB share</th><th>DB call p50 ms</th><th>DB call p90 ms</th><th>turns p50</th><th>reasoning out-tokens</th><th>tool-call out-tokens</th></tr></thead>
+    <tbody>
+      <tr><td class="t">grbench-single</td><td class="t stratum">easy</td><td>11.7</td><td>0.949</td><td>0.051</td><td>19</td><td>119</td><td>6</td><td>673</td><td>10 099</td></tr>
+      <tr><td class="t"></td><td class="t stratum">medium</td><td>8.3</td><td>0.995</td><td>0.005</td><td>13</td><td>20</td><td>5</td><td>421</td><td>10 071</td></tr>
+      <tr><td class="t"></td><td class="t stratum">hard</td><td>14.2</td><td>0.961</td><td>0.039</td><td>18</td><td>30</td><td>6</td><td>175</td><td>17 576</td></tr>
+      <tr><td class="t">gtsqa-single</td><td class="t stratum">easy</td><td>13.3</td><td>0.998</td><td>0.000</td><td>0.2</td><td>3.2</td><td>6</td><td>19 693</td><td>0</td></tr>
+      <tr><td class="t"></td><td class="t stratum">medium</td><td>14.1</td><td>0.997</td><td>0.000</td><td>0.2</td><td>3.1</td><td>6</td><td>18 997</td><td>0</td></tr>
+      <tr><td class="t"></td><td class="t stratum">hard</td><td>16.0</td><td>0.997</td><td>0.000</td><td>0.2</td><td>5.2</td><td>6</td><td>17 904</td><td>0</td></tr>
+      <tr><td class="t">grbench-multi</td><td class="t stratum">easy · medium · hard</td><td>65.8 · 67.0 · 66.2</td><td>0.996–0.997</td><td>0.000</td><td>0.1</td><td>0.3</td><td>7</td><td colspan="2">manager + specialist, 2 634 output tokens per case</td></tr>
+      <tr><td class="t">gtsqa-multi</td><td class="t stratum">easy · medium · hard</td><td>3.1 · 66.2 · 71.7</td><td>0.992–0.997</td><td>0.000</td><td>0.1</td><td>0.3</td><td>1 · 7 · 7</td><td colspan="2">manager + specialist, 2 618 output tokens per case</td></tr>
+    </tbody></table></div>
+  <p class="note">The recorder reports 18–20 k "reasoning" output tokens and zero tool-call tokens per GTSQA single case, and the mirror image for GRBench single (10–18 k tool-call tokens, a few hundred reasoning tokens). The GTSQA split is an attribution artefact to check — the lane does call the SPARQL tool 4–5 times per case — not evidence that it reasons in prose; read the two columns together as "output tokens per case".</p>
+</section>
+
+<section>
+  <h2>5 · Observability</h2>
+  <p>The in-instance OTLP receiver captured 14 996 server-side spans. vLLM emitted a <code>chat</code> and an <code>llm_request</code> span for every request; 2 085 of 2 099 client requests in the K=4 pass (99.3 %) matched a server span through the W3C traceparent the runner sends, so the per-request stage table (queue, TTFT, prefill, decode, client-minus-server) exists for both passes.</p>
+  <p>Defect found and fixed: every runner span carried <code>service.name=vllm</code>. The appliance entrypoint exports <code>OTEL_SERVICE_NAME=vllm</code> for the engine, and the pass script's exporter inherited it. The exporter now reads its own variable (<code>SEOCHO_OTEL_SERVICE_NAME</code>, default <code>seocho-agentic-os</code>) and a shell test asserts it; the fix is unvalidated live until the next pass.</p>
+</section>
+
+<section>
+  <h2>6 · What this changes in the plan</h2>
+  <ul>
+    <li><b>Serving default stands:</b> one TP=2 engine per two-GPU box; K=4 when latency per case matters, K=8 when a batch of cases should finish sooner and cheaper (−40 % energy).</li>
+    <li><b>012 items 1–3 are validated; close them when the lane lands on main.</b> The DB is out of the wall; nothing further on the DozerDB side is justified by this data.</li>
+    <li><b>012 item 4 (productive repair loop) is the next lever with evidence:</b> 306 <code>missing_workspace_scope</code> rejections in 90 GRBench-multi cases, and anchor-guard repairs that validate without retrieving. A scope template injected on the first rejection and a stop on repeated identical queries are the two concrete changes.</li>
+    <li><b>012 item 5 (retrieval trigger on easy questions)</b> has its N=30 number: 12 of 30. A manager-side classification that forces the tool for schema-answerable questions can be measured against this cell.</li>
+    <li><b>GRBench single finalisation</b> (hard: 2 answered, 28 exhausted while holding rows) is a prompt/turn-budget question, not a retrieval one; it belongs with the finalisation rule proposed after lab-s3.</li>
+  </ul>
+</section>
+
+<section class="prov">
+  <h2>Provenance</h2>
+  <dl>
+    <dt>run</dt><dd>.seocho/benchmarks/agentic-os/colocated-appliance/runs/lab-s11-try-075031 (state complete, artifacts hashed and verified, destroy verified absent)</dd>
+    <dt>bundle</dt><dd>seocho-source-v40.tar.gz sha256 561e26f1afa834cb9004d01afbdc93d1e2f0139a18d180136705424a308387f4</dd>
+    <dt>cohort</dt><dd>strata-v2 — gare2e examples/agentic-os/frozen/strata-v2 (grbench cohort 877a26d1…, gtsqa cohort 9f0fc540…); v1 ⊂ v2 under labels v1.1</dd>
+    <dt>queue</dt><dd>cache-serving → all-k4 → all-k8 (SEOCHO_MAIN_SKIP_CLOSED=1, reasoning off, baseline prompt, --max-num-seqs 8, OTel on)</dd>
+    <dt>tables</dt><dd>session-summary/{pass-serving, lane-client, lane-bottleneck, lane-funnel, stratum-funnel}.md · run-all-k{4,8}/catalog · run-all-k{4,8}/otel-stages</dd>
+    <dt>shared package</dt><dd>s3://seocho-agentic-os-traces/seocho-agentic-os/traces/lab-s11-try-075031 (812 files, 17.3 MB, content-free, leak scan 0) · manifest in gare2e traces/</dd>
+    <dt>lane commits</dt><dd>gare2e agentic-os-e2e 73f76ac2 (entrypoint fix, packer, skills) · 28fdfe35 (strata-v2) · bfe3f8f0 (service-name fix, stratum funnel, package)</dd>
+    <dt>beads</dt><dd>seocho-sudv (lab 013) · seocho-dp9x, seocho-75qy (DB fixes, validated) · seocho-98kt (service name) · seocho-xvrr (trace package)</dd>
+  </dl>
+</section>
+</main>

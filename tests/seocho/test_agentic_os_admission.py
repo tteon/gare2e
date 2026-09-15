@@ -14,6 +14,7 @@ from seocho.eval.agentic_os_admission import (
     validate_required_runners,
 )
 from seocho.eval.agentic_os_artifacts import canonical_digest
+from seocho.eval.grbench_runtime import GRBENCH_INDEX_NAMES
 
 
 def _write_json(path: Path, value: object) -> None:
@@ -29,9 +30,15 @@ def test_import_receipt_requires_exact_source_database_equivalence(tmp_path) -> 
         "schema": {"schema_digest": "graph-digest", "topology": {"node_count": 2, "edge_count": 1}},
         "verification": {"node_count": 2, "edge_count": 1, "source_counts_match": True},
         "write": {"nodes": {"errors": 0}, "relationships": {"errors": 0}},
+        "indexes": [{"name": n, "type": "RANGE", "state": "ONLINE"} for n in GRBENCH_INDEX_NAMES],
     }
     _write_json(path, receipt)
     assert validate_grbench_import_receipt(path).status == "pass"
+    # lab-s8: a store without its lookup indexes is not admissible (label scans of 40-60 s)
+    receipt["indexes"] = receipt["indexes"][:-1]
+    _write_json(path, receipt)
+    assert validate_grbench_import_receipt(path).detail["checks"]["indexes_online"] is False
+    receipt["indexes"] = [{"name": n, "type": "RANGE", "state": "ONLINE"} for n in GRBENCH_INDEX_NAMES]
     receipt["verification"]["edge_count"] = 0
     _write_json(path, receipt)
     failed = validate_grbench_import_receipt(path)

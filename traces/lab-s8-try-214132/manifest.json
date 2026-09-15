@@ -1,0 +1,560 @@
+{
+  "bytes": 1418644,
+  "content_policy": "content-free: timings, counts, digests, outcome codes; no prompts, queries, answers, secrets",
+  "file_count": 87,
+  "files": [
+    {
+      "bytes": 112,
+      "path": "queue-receipt.jsonl",
+      "sha256": "cba21959cc20d4251e3a4d3ce061ee94e1b8fa4d00271175e9224e29e7cc3680",
+      "source": "queue-receipt.jsonl"
+    },
+    {
+      "bytes": 826,
+      "path": "session-summary/lane-bottleneck.csv",
+      "sha256": "3b73ea8442f49d6e8be1800a608974829d75f07e0c886eadda06f253a5f71473",
+      "source": "session-summary/lane-bottleneck.csv"
+    },
+    {
+      "bytes": 476,
+      "path": "session-summary/lane-client.csv",
+      "sha256": "611ce86aaa5c94c0c6f93895ce29392fdf075621f5de8ea8a0c760db8a6746f7",
+      "source": "session-summary/lane-client.csv"
+    },
+    {
+      "bytes": 519,
+      "path": "session-summary/lane-funnel.csv",
+      "sha256": "ddcccec6b5ebb4a678de640cbb0860fae48b7ca09376e7f1bd013abec96c01ba",
+      "source": "session-summary/lane-funnel.csv"
+    },
+    {
+      "bytes": 343,
+      "path": "session-summary/pass-serving.csv",
+      "sha256": "1fbbbf94bbb11be86cf9fcbb6d757654a23538594e88de91051617d2308b138d",
+      "source": "session-summary/pass-serving.csv"
+    },
+    {
+      "bytes": 1113,
+      "path": "session-summary/lane-bottleneck.md",
+      "sha256": "fafecaad563ab359dafe5ebd2aa8bab49c6890b2b3d6b21be388bf700c8a12e2",
+      "source": "session-summary/lane-bottleneck.md"
+    },
+    {
+      "bytes": 637,
+      "path": "session-summary/lane-client.md",
+      "sha256": "9956b27b82276f5585344f0aea535f9884bc9ecb2f3f6874f40819f8423cca9d",
+      "source": "session-summary/lane-client.md"
+    },
+    {
+      "bytes": 694,
+      "path": "session-summary/lane-funnel.md",
+      "sha256": "8da7d25b02dacfba46d79e317441e93efbd5ed133f84c222ae86d6f2189de2e8",
+      "source": "session-summary/lane-funnel.md"
+    },
+    {
+      "bytes": 475,
+      "path": "session-summary/pass-serving.md",
+      "sha256": "e512b4d85002dbd88c2cdf6965d3f0a206d85c7c8bc93cf2ca6b1df76d513a1c",
+      "source": "session-summary/pass-serving.md"
+    },
+    {
+      "bytes": 69399,
+      "columns": 12,
+      "jsonl_bytes": 870026,
+      "parquet_bytes": 69399,
+      "path": "otel/collector-spans.parquet",
+      "rows": 1220,
+      "sha256": "871800dcc80ca2e04a7ab913a1b08537bc9d0170110ef1c003b003ccfad71f0a",
+      "source": "otel/collector-spans.jsonl"
+    },
+    {
+      "bytes": 215,
+      "path": "run-medium-k4-otel/pass-receipt.json",
+      "sha256": "cb06280cd7dd3de1e4a98218e792da3acc3af54a1545bede27591df2fd3e80fa",
+      "source": "run-medium-k4-otel/pass-receipt.json"
+    },
+    {
+      "bytes": 165,
+      "path": "run-medium-k4-otel/otel-export-receipt.json",
+      "sha256": "ce1296d27b7dcff26c21b09608d332a4a99031aeb9f5ebd5c312f086fe1e4f3d",
+      "source": "run-medium-k4-otel/otel-export-receipt.json"
+    },
+    {
+      "bytes": 31143,
+      "columns": 11,
+      "jsonl_bytes": 398612,
+      "parquet_bytes": 31143,
+      "path": "run-medium-k4-otel/otel/spans.parquet",
+      "rows": 633,
+      "sha256": "84e7f9c682df06b1bc37532f4114ecb204d0cea287c21d01aadca8684ab2b832",
+      "source": "run-medium-k4-otel/otel/spans.jsonl"
+    },
+    {
+      "bytes": 1483,
+      "path": "run-medium-k4-otel/otel/lane-stages.csv",
+      "sha256": "c255f09a3aa05ceca04cbbdebc93d04b4d3333b3688237ad2ac3fbd899dd5571",
+      "source": "run-medium-k4-otel/otel/lane-stages.csv"
+    },
+    {
+      "bytes": 44126,
+      "path": "run-medium-k4-otel/otel/request-stages.csv",
+      "sha256": "cd60db7a8719dc07333782238a126507d98d21186cde470ed75824940194c1ee",
+      "source": "run-medium-k4-otel/otel/request-stages.csv"
+    },
+    {
+      "bytes": 2036,
+      "path": "run-medium-k4-otel/otel/lane-stages.md",
+      "sha256": "e176c54c6a5ca020b7858ffc4d66f0c19a6e025abc6289caf776c6581d9edbbc",
+      "source": "run-medium-k4-otel/otel/lane-stages.md"
+    },
+    {
+      "bytes": 59053,
+      "path": "run-medium-k4-otel/otel/request-stages.md",
+      "sha256": "58b5b9c7fd7b95fcee6cae6ec9aab3aa319779d286d331e9f2817df4824ba153",
+      "source": "run-medium-k4-otel/otel/request-stages.md"
+    },
+    {
+      "bytes": 25129,
+      "path": "run-medium-k4-otel/catalog/attempts.csv",
+      "sha256": "58fe7cbbb2afd44d684a131868ad239db577975e2dda6a18956d22f72b32f9c7",
+      "source": "run-medium-k4-otel/catalog/attempts.csv"
+    },
+    {
+      "bytes": 10761,
+      "path": "run-medium-k4-otel/catalog/failures.csv",
+      "sha256": "9af1c65353c91069d202532b434841c135424bc805bf8fb0b98e18d005fe7dab",
+      "source": "run-medium-k4-otel/catalog/failures.csv"
+    },
+    {
+      "bytes": 14344,
+      "path": "run-medium-k4-otel/catalog/groups.csv",
+      "sha256": "97125902c329f33668ff15f5072e423da6b450bd5ec3dae103425cec0a01f29f",
+      "source": "run-medium-k4-otel/catalog/groups.csv"
+    },
+    {
+      "bytes": 325,
+      "path": "run-medium-k4-otel/catalog/paired_comparisons.csv",
+      "sha256": "78ad42c9a6d8e0b00df1293fd30c99bf4639c86dae289cda70c918e23f6e2a11",
+      "source": "run-medium-k4-otel/catalog/paired_comparisons.csv"
+    },
+    {
+      "bytes": 331,
+      "path": "run-medium-k4-otel/catalog/paired_condition_comparisons.csv",
+      "sha256": "97afb9e30cf3f4c93ed6e66517629f21cc37804818d5ac3ec8879f7eaa9f9efc",
+      "source": "run-medium-k4-otel/catalog/paired_condition_comparisons.csv"
+    },
+    {
+      "bytes": 66165,
+      "path": "run-medium-k4-otel/catalog/catalog.json",
+      "sha256": "025953879eb6a6c0f58904d4cfd45b4e7f4b518a37bc1ecd222fe7dfcde695d1",
+      "source": "run-medium-k4-otel/catalog/catalog.json"
+    },
+    {
+      "bytes": 1830,
+      "path": "run-medium-k4-otel/catalog/ANALYSIS.md",
+      "sha256": "f089625523ed3da2f02437c7bfe4af1f44c825a6a47099d1b9cfaef7461c3b18",
+      "source": "run-medium-k4-otel/catalog/ANALYSIS.md"
+    },
+    {
+      "bytes": 170033,
+      "path": "run-medium-k4-otel/workload/gpu.csv",
+      "sha256": "d4b3d2f09f6e05bda15855bfaa79afe85f244073f7d7e4906b8c8e280d9f0ead",
+      "source": "run-medium-k4-otel/workload/gpu.csv"
+    },
+    {
+      "bytes": 324025,
+      "path": "run-medium-k4-otel/workload/host-process.csv",
+      "sha256": "f76f0ae30232bd4a55c2ff2d6b1bfa2d51d02ca1afd8cb99a346f0c77b005230",
+      "source": "run-medium-k4-otel/workload/host-process.csv"
+    },
+    {
+      "bytes": 160294,
+      "columns": 8,
+      "jsonl_bytes": 3313912,
+      "parquet_bytes": 160294,
+      "path": "run-medium-k4-otel/workload/vllm-metrics.parquet",
+      "rows": 610,
+      "sha256": "f336cad9be1463d9f1ea72bed2d49850538961bb5276b18083a62beadae9fb6a",
+      "source": "run-medium-k4-otel/workload/vllm-metrics.jsonl"
+    },
+    {
+      "bytes": 417,
+      "path": "run-medium-k4-otel/workload/hardware.json",
+      "sha256": "0645a450ac68d1a1bb1a8423b8a32279068b2f3ff2b48ce87dd8db9856925552",
+      "source": "run-medium-k4-otel/workload/hardware.json"
+    },
+    {
+      "bytes": 6579,
+      "path": "run-medium-k4-otel/workload/colocated-workload-receipt.json",
+      "sha256": "914220c0bfa2c93af90cf64fd9cf89b28a5c6177c19863507894d09330d6d02e",
+      "source": "run-medium-k4-otel/workload/colocated-workload-receipt.json"
+    },
+    {
+      "bytes": 321,
+      "path": "run-medium-k4-otel/vllm-restart/vllm-restart-receipt.json",
+      "sha256": "0bc691d2b883c8643275b564ca480aa5e5562b1db27a17908f3a44b6db78cbda",
+      "source": "run-medium-k4-otel/vllm-restart/vllm-restart-receipt.json"
+    },
+    {
+      "bytes": 2124,
+      "path": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-0/coordinator-receipts.jsonl",
+      "sha256": "0f1700860bd3f75f4f6b66167ca70240e7583b7aff1fea10efd0165bb0149101",
+      "source": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-0/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 2121,
+      "path": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-1/coordinator-receipts.jsonl",
+      "sha256": "475ec9717b16ce4ccfc6ca3bb36f1fac1499c7b2b822becdc1c1b949b8ac3531",
+      "source": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-1/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 1413,
+      "path": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-2/coordinator-receipts.jsonl",
+      "sha256": "bf937936341b9ea538842553ff33e6651af39cc9294b405a467c74d9fbabac1f",
+      "source": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-2/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 1416,
+      "path": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-3/coordinator-receipts.jsonl",
+      "sha256": "fcbf757a64781baf742b92b708a83544fa075e4004c1109470e5ad839e965db2",
+      "source": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-3/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 2128,
+      "path": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-0/coordinator-receipts.jsonl",
+      "sha256": "3dae3995c188c69350fb10f57c9d40ac8f4d4bd85c38872cf585760ef473ec4c",
+      "source": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-0/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 2126,
+      "path": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-1/coordinator-receipts.jsonl",
+      "sha256": "d8a49190aead4c81af726c5488906f5ec52230949066294a1856f345bab2c565",
+      "source": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-1/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 1416,
+      "path": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-2/coordinator-receipts.jsonl",
+      "sha256": "4c323a5abb24d0fd70a1a671e5f3e7eb3d910d23482dc2fa19c7780a06a22e27",
+      "source": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-2/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 1415,
+      "path": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-3/coordinator-receipts.jsonl",
+      "sha256": "aeb9bae90033e9c5563ff0c24b2c8480e5bcdd064fa9d92d8faec916dc69590e",
+      "source": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-3/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 2133,
+      "path": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-0/coordinator-receipts.jsonl",
+      "sha256": "4af26ecce486179a56cc55de7a05c2d2805b6a15b8a7d6392298713104018ca5",
+      "source": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-0/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 2131,
+      "path": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-1/coordinator-receipts.jsonl",
+      "sha256": "d597eb57bfe12870e9db8f73669797d95ef0705bd75330ffe662ae40b90039cb",
+      "source": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-1/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 1424,
+      "path": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-2/coordinator-receipts.jsonl",
+      "sha256": "34393a4728db3fbf0a466103cff6b6582f13baa91369c4a5bed8d69a493682e4",
+      "source": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-2/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 1420,
+      "path": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-3/coordinator-receipts.jsonl",
+      "sha256": "538f1de20bb466523b8a2639e70854cbb0bc964659f005c57ef70cdf9b758f00",
+      "source": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-3/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 2136,
+      "path": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-0/coordinator-receipts.jsonl",
+      "sha256": "56a5a10224bbbaffecdb1b0f4432541040a9e538667cef779cc3171d08bac73f",
+      "source": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-0/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 2134,
+      "path": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-1/coordinator-receipts.jsonl",
+      "sha256": "25cc68055993cce4811b23bd38996ff13c64de559434d864e7c99f5f1bda7fe7",
+      "source": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-1/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 1425,
+      "path": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-2/coordinator-receipts.jsonl",
+      "sha256": "af5dbbb6846bce09a67cac518d7a4b1afed2b9ef6076d8284f30ae45aed4bd46",
+      "source": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-2/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 1421,
+      "path": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-3/coordinator-receipts.jsonl",
+      "sha256": "51c35931f9ec7343d6c49f921a09deea737dbfae44fa8ddc0c7426110c73cbea",
+      "source": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-3/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 9434,
+      "path": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-0/attempts/000000-a14bd6df3deac84d67af/run-receipt.json",
+      "sha256": "b319be6cd35c9548ec9b56580bed2b2a1d99fbaf8c567d6e6f0286f76380f93e",
+      "source": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-0/attempts/000000-a14bd6df3deac84d67af/run-receipt.json"
+    },
+    {
+      "bytes": 11928,
+      "path": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-0/attempts/000001-3192ddbd3ade74752feb/run-receipt.json",
+      "sha256": "d58c0b2b4349a4d4e7b70e9f2876013516400d98e962755ba421551c5f6a5adb",
+      "source": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-0/attempts/000001-3192ddbd3ade74752feb/run-receipt.json"
+    },
+    {
+      "bytes": 11907,
+      "path": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-0/attempts/000002-069fb53391ef46e1a258/run-receipt.json",
+      "sha256": "db4ea247ad1b86eba6a2a0a517827ff7bc33cf6a37e57e60765ef13a6f9a8948",
+      "source": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-0/attempts/000002-069fb53391ef46e1a258/run-receipt.json"
+    },
+    {
+      "bytes": 9423,
+      "path": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-1/attempts/000000-39c603442f39fbd8cbed/run-receipt.json",
+      "sha256": "dcc268ebb3d015e12433e56b5d4433a062abc1b71ccd2f2233437b154ca07aa3",
+      "source": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-1/attempts/000000-39c603442f39fbd8cbed/run-receipt.json"
+    },
+    {
+      "bytes": 11962,
+      "path": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-1/attempts/000001-a4d9feb60fc3601b44f8/run-receipt.json",
+      "sha256": "933cb2d64abc6345b9722b369f431e9ae5ed6255ed130c56da08550a5e4fa157",
+      "source": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-1/attempts/000001-a4d9feb60fc3601b44f8/run-receipt.json"
+    },
+    {
+      "bytes": 11939,
+      "path": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-1/attempts/000002-c68268f02266aaddd54b/run-receipt.json",
+      "sha256": "b041143d625fd5e7ca1a08ddf01b3107b5137dc3d2e89d935aec293307f2b7bf",
+      "source": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-1/attempts/000002-c68268f02266aaddd54b/run-receipt.json"
+    },
+    {
+      "bytes": 11128,
+      "path": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-2/attempts/000000-3cace24ad1c544271f4b/run-receipt.json",
+      "sha256": "b2d493de9cd3265a19022526522e4ecddc6fd3fbbd951ca32d92d31f3b4b13fd",
+      "source": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-2/attempts/000000-3cace24ad1c544271f4b/run-receipt.json"
+    },
+    {
+      "bytes": 9951,
+      "path": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-2/attempts/000001-4e6777ca2f22801a5e09/run-receipt.json",
+      "sha256": "daaf1af7b383a002fa0d69b3c8851e976e657eb424fa22be7ceaf2e0f5a6393e",
+      "source": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-2/attempts/000001-4e6777ca2f22801a5e09/run-receipt.json"
+    },
+    {
+      "bytes": 11956,
+      "path": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-3/attempts/000000-44bafdabe9325adbe6e6/run-receipt.json",
+      "sha256": "8e04cc04a99ff69b2558746fab26fc73c90909ccd06227da515a7020ef9ac8a7",
+      "source": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-3/attempts/000000-44bafdabe9325adbe6e6/run-receipt.json"
+    },
+    {
+      "bytes": 11950,
+      "path": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-3/attempts/000001-c87037b9ce305b23b543/run-receipt.json",
+      "sha256": "acffcd1107d14eae05674c483850bc6e571639fc65083bf9bbf5aa45683ec3b3",
+      "source": "run-medium-k4-otel/e2e/grbench-single-tool-false/shard-3/attempts/000001-c87037b9ce305b23b543/run-receipt.json"
+    },
+    {
+      "bytes": 8825,
+      "path": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-0/attempts/000000-4bbf88468b616b2fb850/receipts.jsonl",
+      "sha256": "1ebd1106b3da239adf9e73ba1477c5aeff36635f1753b4ed24466f31ffc4ed18",
+      "source": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-0/attempts/000000-4bbf88468b616b2fb850/receipts.jsonl"
+    },
+    {
+      "bytes": 8822,
+      "path": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-0/attempts/000001-4ca894707a2739dcba88/receipts.jsonl",
+      "sha256": "7a2bde5fa824e542c5acf463d3a985f8ccee319fc31a0c99fc874c45f82d5aeb",
+      "source": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-0/attempts/000001-4ca894707a2739dcba88/receipts.jsonl"
+    },
+    {
+      "bytes": 8817,
+      "path": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-0/attempts/000002-8061593a026dd5dac1ea/receipts.jsonl",
+      "sha256": "20bb0c83b90968ae9b50ad8e698ac788fa9d0332559355b12eee235e7325297d",
+      "source": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-0/attempts/000002-8061593a026dd5dac1ea/receipts.jsonl"
+    },
+    {
+      "bytes": 10372,
+      "path": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-1/attempts/000000-e3b756a895fae38dd935/receipts.jsonl",
+      "sha256": "bf1198edbf54e8f7a98df0011b356ccab9f11cba8ab2d5d127e294f87481a2fc",
+      "source": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-1/attempts/000000-e3b756a895fae38dd935/receipts.jsonl"
+    },
+    {
+      "bytes": 8815,
+      "path": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-1/attempts/000001-2ced763cf58f70e823bf/receipts.jsonl",
+      "sha256": "e4af670ad17add9abf65f97cce78d06f1ac69c7c4ebb089087f93a719ba334b9",
+      "source": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-1/attempts/000001-2ced763cf58f70e823bf/receipts.jsonl"
+    },
+    {
+      "bytes": 8819,
+      "path": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-1/attempts/000002-3ad61a44d1edc3acc555/receipts.jsonl",
+      "sha256": "5aa5a529fb27c68941f34d70a6e6fc7497073e4e6213e3c32dc2f7dd9473659e",
+      "source": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-1/attempts/000002-3ad61a44d1edc3acc555/receipts.jsonl"
+    },
+    {
+      "bytes": 8834,
+      "path": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-2/attempts/000000-d11ef6430342b3dab681/receipts.jsonl",
+      "sha256": "f5e8dcdd0b4c9c1dd92e511a0d1e21285b022badb2900a5804632a985a1e3c85",
+      "source": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-2/attempts/000000-d11ef6430342b3dab681/receipts.jsonl"
+    },
+    {
+      "bytes": 8338,
+      "path": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-2/attempts/000001-1e7656adbae8ae08c806/receipts.jsonl",
+      "sha256": "d9b307832c07dc608087e270a1b7535b3fc472d6867781c59d9b0050f310b36a",
+      "source": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-2/attempts/000001-1e7656adbae8ae08c806/receipts.jsonl"
+    },
+    {
+      "bytes": 8836,
+      "path": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-3/attempts/000000-04d88651de1f28fc588f/receipts.jsonl",
+      "sha256": "ea9a78c4d8a28baebef4f7cfe9c0a650aa1092518930974f90993e61e0840036",
+      "source": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-3/attempts/000000-04d88651de1f28fc588f/receipts.jsonl"
+    },
+    {
+      "bytes": 8824,
+      "path": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-3/attempts/000001-ae8df2b0dea23225fb13/receipts.jsonl",
+      "sha256": "57af8a8846e414bb4724737a78f5ec76a765c02e0b7312177b10aa755d33b852",
+      "source": "run-medium-k4-otel/e2e/grbench-multi-tool-false/shard-3/attempts/000001-ae8df2b0dea23225fb13/receipts.jsonl"
+    },
+    {
+      "bytes": 11148,
+      "path": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-0/attempts/000000-6faa9c0f456571b0ecf7/receipts.jsonl",
+      "sha256": "1d5f96fb79a5a7adea49acfa18efb13969a38ac92e2e33da4b230d4a9247ba06",
+      "source": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-0/attempts/000000-6faa9c0f456571b0ecf7/receipts.jsonl"
+    },
+    {
+      "bytes": 10604,
+      "path": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-0/attempts/000001-4bbb2827f8b26325013d/receipts.jsonl",
+      "sha256": "9887868a22818043a03e2fb26b95a9c775ec8d9f78b9059618f87cd03209ac2a",
+      "source": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-0/attempts/000001-4bbb2827f8b26325013d/receipts.jsonl"
+    },
+    {
+      "bytes": 9904,
+      "path": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-0/attempts/000002-a29d124466ce72734482/receipts.jsonl",
+      "sha256": "07e5fb9f9f2170b73554c83a2bf3b3ff6e31a5b309f964157e7e7239e46f050d",
+      "source": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-0/attempts/000002-a29d124466ce72734482/receipts.jsonl"
+    },
+    {
+      "bytes": 11215,
+      "path": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-1/attempts/000000-8b9c31513971d8bfa51d/receipts.jsonl",
+      "sha256": "f5e2e96f69a1d132d031083a185bf20c18a26ba7e46398ab3715988532fba365",
+      "source": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-1/attempts/000000-8b9c31513971d8bfa51d/receipts.jsonl"
+    },
+    {
+      "bytes": 10595,
+      "path": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-1/attempts/000001-ae668c8ea7b4682614f2/receipts.jsonl",
+      "sha256": "d7fac7f53da061b710ab3b634d6129d0c77ac8ebb0915e0279aad1927c134af3",
+      "source": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-1/attempts/000001-ae668c8ea7b4682614f2/receipts.jsonl"
+    },
+    {
+      "bytes": 8701,
+      "path": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-1/attempts/000002-619ed4acfa7712fe66d6/receipts.jsonl",
+      "sha256": "0da670ead7216d51243b2155b728391a954ad17c12f0b0bdccead0d713b3aeef",
+      "source": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-1/attempts/000002-619ed4acfa7712fe66d6/receipts.jsonl"
+    },
+    {
+      "bytes": 11228,
+      "path": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-2/attempts/000000-dde8e2c399648d3d6993/receipts.jsonl",
+      "sha256": "1d412966830137e66ac23767408af2f1d785bd6b4ae6de041a57856e6cb01d91",
+      "source": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-2/attempts/000000-dde8e2c399648d3d6993/receipts.jsonl"
+    },
+    {
+      "bytes": 10594,
+      "path": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-2/attempts/000001-cf69dc36a192aa2ed597/receipts.jsonl",
+      "sha256": "e20d2302edf162851e6d877e42effff9f2f2d8d0f7781cffe308c04bfaef4ae7",
+      "source": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-2/attempts/000001-cf69dc36a192aa2ed597/receipts.jsonl"
+    },
+    {
+      "bytes": 11219,
+      "path": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-3/attempts/000000-f3d0d017a4586c986f30/receipts.jsonl",
+      "sha256": "84ba9eb398615a2f0628350bfdbdd5d3d04b860846f44dd62259e1d303cc30f2",
+      "source": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-3/attempts/000000-f3d0d017a4586c986f30/receipts.jsonl"
+    },
+    {
+      "bytes": 9351,
+      "path": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-3/attempts/000001-a94593759c000b523c22/receipts.jsonl",
+      "sha256": "c1efde6721533855c67eb0b9e6dfd066b1837b4dbcca8352e7df224491938fdf",
+      "source": "run-medium-k4-otel/e2e/gtsqa-multi-tool-false/shard-3/attempts/000001-a94593759c000b523c22/receipts.jsonl"
+    },
+    {
+      "bytes": 10006,
+      "path": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-0/attempts/000000-0ac173a9d1783cf20a33/receipts.jsonl",
+      "sha256": "494ba606537f3aee39e4c6d4de4524386cfd65e7bb57398f8f688d65d3d4bfcd",
+      "source": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-0/attempts/000000-0ac173a9d1783cf20a33/receipts.jsonl"
+    },
+    {
+      "bytes": 8805,
+      "path": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-0/attempts/000001-ed7d98ff41555020e998/receipts.jsonl",
+      "sha256": "048e924ffd191d92236ec135c32f35e5fae8505f68e713e2cf322834e3d31dd6",
+      "source": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-0/attempts/000001-ed7d98ff41555020e998/receipts.jsonl"
+    },
+    {
+      "bytes": 10008,
+      "path": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-0/attempts/000002-faadb277b8989ee5a491/receipts.jsonl",
+      "sha256": "ce3bc2de8b2f4735b1147a3c8c2a540f25b40be24352532b381e6d1046a2e8bd",
+      "source": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-0/attempts/000002-faadb277b8989ee5a491/receipts.jsonl"
+    },
+    {
+      "bytes": 9209,
+      "path": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-1/attempts/000000-ee56c8b1f79b54b0cb33/receipts.jsonl",
+      "sha256": "dd3268f9e1104dcad79140cef39b5047376d41fa97e47c26308b7b81de1164bb",
+      "source": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-1/attempts/000000-ee56c8b1f79b54b0cb33/receipts.jsonl"
+    },
+    {
+      "bytes": 9980,
+      "path": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-1/attempts/000001-da931d9afd545fc7c205/receipts.jsonl",
+      "sha256": "6db046e38e4429516f6940d38b93c93d35676255d27e48e237f322497e04e0a2",
+      "source": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-1/attempts/000001-da931d9afd545fc7c205/receipts.jsonl"
+    },
+    {
+      "bytes": 4528,
+      "path": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-1/attempts/000002-b3653134bc38d345e7b1/receipts.jsonl",
+      "sha256": "16290b66e268209169554f81561821c8b739853a554142f37107de66bef11dfd",
+      "source": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-1/attempts/000002-b3653134bc38d345e7b1/receipts.jsonl"
+    },
+    {
+      "bytes": 10009,
+      "path": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-2/attempts/000000-ffc091d26381cedd8d79/receipts.jsonl",
+      "sha256": "ddc7e78e627b7933b32270b97efb21fa1ad8977440a56f11c01e9718657bf939",
+      "source": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-2/attempts/000000-ffc091d26381cedd8d79/receipts.jsonl"
+    },
+    {
+      "bytes": 8806,
+      "path": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-2/attempts/000001-43dcb35c5edd759f3de4/receipts.jsonl",
+      "sha256": "d1dc51a2c66f618593f98dd569785444e0a75db7e2213489b396cc8788f7bc68",
+      "source": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-2/attempts/000001-43dcb35c5edd759f3de4/receipts.jsonl"
+    },
+    {
+      "bytes": 10000,
+      "path": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-3/attempts/000000-f635ac99fbf25945881c/receipts.jsonl",
+      "sha256": "d7dc96507b4cbf829e50a05a8e1dd52753669f6ed5375f6f141befb236fbcc75",
+      "source": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-3/attempts/000000-f635ac99fbf25945881c/receipts.jsonl"
+    },
+    {
+      "bytes": 9380,
+      "path": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-3/attempts/000001-193ddac0a44f63cb077f/receipts.jsonl",
+      "sha256": "641b8b5e2dd858b02f6eadadff399825d736871e773e513593ee390ae73797db",
+      "source": "run-medium-k4-otel/e2e/gtsqa-single-tool-false/shard-3/attempts/000001-193ddac0a44f63cb077f/receipts.jsonl"
+    },
+    {
+      "bytes": 722,
+      "path": "appliance-phases.tsv",
+      "sha256": "25f3a3201eb18a5842a51e169fc0b93a4d312764cdf73968ceea5db46d59205b",
+      "source": "appliance-phases.private.tsv"
+    }
+  ],
+  "leak_scan": {
+    "hits": [],
+    "patterns": [
+      "instance_token_field",
+      "provider_api_key",
+      "public_ipv4",
+      "ssh_public_key"
+    ]
+  },
+  "provenance": {
+    "instance_id": 50491173,
+    "lab_request": "010",
+    "max_runtime_s": 12600,
+    "queue_sha256": "f1c48b440d6e48630d48cdfa254565bf3e4a7cb248f993e8bffb3ba3ced4772b",
+    "source_bundle_sha256": "7853fa3e7e4168d76a16e4b6eaf201688cc35453351cf2e7375b6e114fa723df",
+    "state": "complete"
+  },
+  "run_root": "lab-s8-try-214132",
+  "schema_version": "seocho.agentic_os_trace_package.v1"
+}

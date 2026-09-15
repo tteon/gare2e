@@ -1,0 +1,96 @@
+# Experiment harness: read, reproduce, resume
+
+## View existing evidence
+
+Clone `tteon/gare2e` with your repository access and open
+`docs/agentic-os/reports/characterization-charts/index.html` locally. The
+[entry document](README.md) also embeds SVGs that render directly on GitHub.
+The chartbook contains30 conditions and3 categories per condition, numerical
+data in `chart-data.json`, and hashes of all12 source export files.
+
+## Reproduce charts without inference
+
+Run from the repository root with Python3.10+ and Matplotlib/NumPy installed in
+your chosen virtual environment. Existing CSV.gz exports are sufficient; this
+command does not call an LLM, DB, AWS, or Vast. Use a fresh output directory.
+
+```bash
+python3 scripts/benchmarks/render_agentic_os_characterization_figures.py \
+  --source docs/agentic-os/reports/lab024-characterization \
+  --source docs/agentic-os/reports/lab024-continuation \
+  --source docs/agentic-os/reports/lab025-replicas \
+  --output /tmp/gare2e-charts-reproduced
+```
+
+The numerical aggregation tests require pytest but do not import Matplotlib:
+
+```bash
+python3 -m pytest tests/seocho/test_agentic_os_characterization_figures.py -q
+```
+
+For the full repository test environment, use the existing `pyproject.toml`/lock
+and CI setup. Router contract tests additionally require aiohttp and permission
+to open local loopback sockets; their mocked backends are not performance evidence.
+
+## Harness components
+
+Paths below are relative to `scripts/benchmarks/` unless stated otherwise.
+
+| Component | Entry point | Responsibility |
+| --- | --- | --- |
+| Throughput schedule and persistent runner | `prepare_agentic_os_throughput.py`, `run_agentic_os_throughput_session.py` | Warmup, dynamic task supply, bounded dispatch/drain, per-setting gates |
+| Appliance bootstrap | `bootstrap_agentic_os_appliance.sh`, `docker/agentic-os-appliance/` at repo root | Pinned serving/DB setup, readiness, OTLP file receiver, replica router |
+| Paid lifecycle | `vast_colocated_agentic_os_run.py` | Admission, staging checksums, independent watchdog, collection, teardown verification |
+| Registered launcher | `lab/launch_lab_s22.py` | Original matrix, `--continuation`, or `--replica-audit` mode |
+| Exact trace admission | `audit_agentic_os_trace_gate.py` | Unique W3C parent joins, queue/TTFT/prefill/decode, router coverage |
+| Backend sampling | `sample_agentic_os_replica_metrics.py` | Individual running/waiting/KV samples and window coverage |
+| Stage and throughput summaries | `summarize_agentic_os_otel_stages.py`, `summarize_agentic_os_factors.py` | Request stages, common-window counters, metric provenance |
+| Linked Agent/Runtime/Tool exports | `summarize_agentic_os_characterization.py` | tasks/requests/tools CSV, summary JSON, per-task timeline |
+| Chart renderer | `render_agentic_os_characterization_figures.py` | Three-category SVG/HTML and input hashes |
+| Shared resume guide | `.claude/skills/lab-resume/SKILL.md` at repo root | Portable recovery order for an agent |
+
+With the repository's benchmark dependencies installed, inspect the lab025 plan
+without starting any service or provider request:
+
+```bash
+PYTHONPATH=src python3 scripts/benchmarks/run_agentic_os_throughput_session.py \
+  --replica-audit --print-plan
+```
+
+The six entries are TP2 gate/control, sticky replica gate/control, task-rr replica
+gate/control. The launcher also offers `--help`/`--dry-run`; its dry-run still
+validates local input files and the preflight receipt. Legacy `launch_lab_sNN.sh`
+files preserve historical run parameters, not portable defaults for a new run.
+
+## Live rerun inputs and limits
+
+Live reruns need provisioned GPU/DB services and private inputs that are
+intentionally absent from Git. See [appliance contract](../../docker/agentic-os-appliance/README.md)
+and [request025](lab/requests/025-replica-trace-and-affinity.md).
+
+| Required input | Preparation / validation |
+| --- | --- |
+| Source archive and standalone bootstrap | Build from the chosen reviewed commit; verify bundle/remote hashes and exact-image preflight |
+| Dozer runtime bundle | Match the version/hash recorded in the report or register a changed version |
+| GRBench graph import | `export_grbench_import_csv.py`; nodes/rels CSV.gz and import manifest |
+| Questions and schedule/schema/discovery inputs | Obtain the authorized dataset/artifacts; keep paths configurable with `--workspace` and compare hashes/cohort |
+| Provider/model/DB access | Operator-managed credentials; never copy another operator's secrets into the repository |
+| Fresh run root, budget, ownership | `--run-root`, rate/time bounds, owned-instance receipt; preserve peers and prior spend |
+
+For raw artifacts you already have, derive a new report directory:
+
+```bash
+PYTHONPATH=src python3 scripts/benchmarks/summarize_agentic_os_characterization.py \
+  --run-root "$RUN_ROOT" --output-dir "$NEW_REPORT_DIR"
+```
+
+The raw run includes `run-*/pass-receipt.json`, `otel/spans.jsonl`,
+`otel/trace-admission.json`, metric samples and root `otel/collector-spans.jsonl`.
+In lab025 a setting's router receipt is under its **gate** directory's
+`vllm-restart/`, shared by that gate and its timed comparison. Do not assume one
+router process per pass. Essential transfer verification and lifecycle receipts
+remain private; publish their reviewed counts/hashes, not entire provider payloads.
+
+Missing private inputs limit live reproduction, not access to the published
+measurements. Follow [AGENTS.md](AGENTS.md) and the latest [HANDOFF](HANDOFF.md)
+before modifying or launching another experiment.

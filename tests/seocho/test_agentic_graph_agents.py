@@ -404,7 +404,9 @@ def test_llm_request_timer_records_completion_latency_without_bodies() -> None:
     assert receipt["llm_ms"] >= 40.0
     assert receipt["source"] == "client_http_request_timer"
     assert all(item["path"] == "/v1/chat/completions" for item in receipt["requests"])
-    assert all(set(item) == {"path", "status_code", "started_elapsed_ms", "latency_ms"} for item in receipt["requests"])
+    # span_id is the W3C traceparent span id (None here: no case trace is bound in this test)
+    assert all(set(item) == {"path", "status_code", "started_elapsed_ms", "latency_ms", "span_id"} for item in receipt["requests"])
+    assert all(item["span_id"] is None for item in receipt["requests"])
     timer.reset()
     assert timer.receipt()["request_count"] == 0 and timer.total_ms() == 0.0
 

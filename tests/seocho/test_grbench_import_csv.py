@@ -56,6 +56,7 @@ def test_export_matches_direct_driver_projection_and_manifest(tmp_path) -> None:
     assert manifest["files"]["nodes"]["rows"] == manifest["schema"]["topology"]["node_count"] == 2
     assert manifest["files"]["relationships"]["rows"] == manifest["schema"]["topology"]["edge_count"] == 2
     assert manifest["typing"]["non_string_scalar_values_in_source"] == 0
+    assert manifest["indexes"] and all(stmt.startswith("CREATE") for stmt in manifest["indexes"])  # index contract travels with the CSVs
     written = json.loads((tmp_path / "grbench-import-manifest.json").read_text(encoding="utf-8"))
     assert written["files"]["nodes"]["sha256"] == manifest["files"]["nodes"]["sha256"]
 

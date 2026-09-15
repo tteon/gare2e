@@ -1,0 +1,40 @@
+{
+  "tp2-control": {
+    "schema_version": "agentic_os.trace_admission.v1",
+    "passed": true,
+    "client_requests": 2278,
+    "unique_client_requests": 2278,
+    "exact_server_matches": 2278,
+    "complete_stage_requests": 2278,
+    "exact_router_matches": 0,
+    "observed_backend_indices": [],
+    "expected_replicas": 1,
+    "require_all_backends": false,
+    "required_stages": [
+      "queue_s",
+      "ttft_s",
+      "prefill_s",
+      "decode_s"
+    ],
+    "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+  },
+  "replicas2": {
+    "schema_version": "agentic_os.trace_admission.v1",
+    "passed": false,
+    "client_requests": 1918,
+    "unique_client_requests": 1918,
+    "exact_server_matches": 0,
+    "complete_stage_requests": 0,
+    "exact_router_matches": 0,
+    "observed_backend_indices": [],
+    "expected_replicas": 2,
+    "require_all_backends": true,
+    "required_stages": [
+      "queue_s",
+      "ttft_s",
+      "prefill_s",
+      "decode_s"
+    ],
+    "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+  }
+}

@@ -1,0 +1,1492 @@
+{
+  "bytes": 3449256,
+  "content_policy": "content-free: timings, counts, digests, outcome codes; no prompts, queries, answers, secrets",
+  "file_count": 241,
+  "files": [
+    {
+      "bytes": 334,
+      "path": "queue-receipt.jsonl",
+      "sha256": "e708091d236ee149f0d8dc6f9411141ef5d6069841b1d307928713349b40619e",
+      "source": "queue-receipt.jsonl"
+    },
+    {
+      "bytes": 350,
+      "path": "session-summary/lane-funnel.csv",
+      "sha256": "bb99b0c6d6e20ffd8a5618073eda5b9aa72ac8bd760d9b0c51bc52adb7ec9b73",
+      "source": "session-summary/lane-funnel.csv"
+    },
+    {
+      "bytes": 553,
+      "path": "session-summary/layer-shares.csv",
+      "sha256": "0064393fb13cece1e1cb03dcb7e18a970e3609240b1e041bfae2995a37b3ea85",
+      "source": "session-summary/layer-shares.csv"
+    },
+    {
+      "bytes": 435,
+      "path": "session-summary/pass-serving.csv",
+      "sha256": "a83929a980f475a1168da639c2d7c22f0c2f7fb7214ea81aa53210831bf16e7b",
+      "source": "session-summary/pass-serving.csv"
+    },
+    {
+      "bytes": 4908,
+      "path": "session-summary/turn-summary.csv",
+      "sha256": "911a8befd0446749f98cfbd50af71e862682b4b59567a5b876305a9cd430de4a",
+      "source": "session-summary/turn-summary.csv"
+    },
+    {
+      "bytes": 1276,
+      "path": "session-summary/arm-lane-comparison.md",
+      "sha256": "ff5502c75cdc186680e13874f0fd5228bbf386cb00b41273237dd7e0e2a7398e",
+      "source": "session-summary/arm-lane-comparison.md"
+    },
+    {
+      "bytes": 475,
+      "path": "session-summary/lane-funnel.md",
+      "sha256": "d7796ff775b69ec1388ce7a091767e42ad6b782d5ef725bd1fe07d880ab7812a",
+      "source": "session-summary/lane-funnel.md"
+    },
+    {
+      "bytes": 814,
+      "path": "session-summary/layer-shares.md",
+      "sha256": "ebd77ca940c21717e0864c9511a0f93e2df444ac6f633000103cc82fd244c780",
+      "source": "session-summary/layer-shares.md"
+    },
+    {
+      "bytes": 600,
+      "path": "session-summary/pass-serving.md",
+      "sha256": "997c99e26fa6e0899927385de6d0895c445a882c0c54d06fbba698341686fb55",
+      "source": "session-summary/pass-serving.md"
+    },
+    {
+      "bytes": 1056,
+      "path": "session-summary/stratum-funnel.md",
+      "sha256": "0bd5555376eb3ba3ab163ff844ec200fef3c5e53d6f6fd7a5bece861eaf12463",
+      "source": "session-summary/stratum-funnel.md"
+    },
+    {
+      "bytes": 6996,
+      "path": "session-summary/turn-summary.md",
+      "sha256": "412ef18be2e8d17a17e04c411ccae2c86f72216b6a957be83f4b5fff47ceb6d1",
+      "source": "session-summary/turn-summary.md"
+    },
+    {
+      "bytes": 229322,
+      "columns": 12,
+      "jsonl_bytes": 2904897,
+      "parquet_bytes": 229322,
+      "path": "otel/collector-spans.parquet",
+      "rows": 3780,
+      "sha256": "3c5ef21a597c169e4230fc0116c0761f89e679fc0e17ac981569f136a840b36b",
+      "source": "otel/collector-spans.jsonl"
+    },
+    {
+      "bytes": 215,
+      "path": "run-graphcot-b0-k8/pass-receipt.json",
+      "sha256": "b62eb141920d035e5aff800822270317cb6afba9c1294b981c1d3cbfa10e7722",
+      "source": "run-graphcot-b0-k8/pass-receipt.json"
+    },
+    {
+      "bytes": 215,
+      "path": "run-graphcot-o1-k8/pass-receipt.json",
+      "sha256": "ed2e00bdc95f599d6864bcf408dae51ec40f7b484bab63de9e7265176411ec65",
+      "source": "run-graphcot-o1-k8/pass-receipt.json"
+    },
+    {
+      "bytes": 166,
+      "path": "run-graphcot-b0-k8/otel-export-receipt.json",
+      "sha256": "9bf512f5919f3e15f8c13b772013462e0e5e2798dfccf6329c199e2536a02c9a",
+      "source": "run-graphcot-b0-k8/otel-export-receipt.json"
+    },
+    {
+      "bytes": 166,
+      "path": "run-graphcot-o1-k8/otel-export-receipt.json",
+      "sha256": "65dbe02b93948279d5e5f0191bb1601c05e93d9b3aceebb3e9716fb3d31141a4",
+      "source": "run-graphcot-o1-k8/otel-export-receipt.json"
+    },
+    {
+      "bytes": 46405,
+      "columns": 11,
+      "jsonl_bytes": 736355,
+      "parquet_bytes": 46405,
+      "path": "run-graphcot-b0-k8/otel/spans.parquet",
+      "rows": 1066,
+      "sha256": "02909367c6d2624fc49e1c799cc6f2e8c1b848fff9d0eb4e61918e770e8cdefa",
+      "source": "run-graphcot-b0-k8/otel/spans.jsonl"
+    },
+    {
+      "bytes": 46457,
+      "columns": 11,
+      "jsonl_bytes": 739703,
+      "parquet_bytes": 46457,
+      "path": "run-graphcot-o1-k8/otel/spans.parquet",
+      "rows": 1071,
+      "sha256": "8e2c87e0f06fe5c78ec44e051207129b3e76ae6ddfab08e0ecc2a5f910a0dd0b",
+      "source": "run-graphcot-o1-k8/otel/spans.jsonl"
+    },
+    {
+      "bytes": 47336,
+      "path": "run-graphcot-b0-k8/catalog/attempts.csv",
+      "sha256": "8000eedd20d498ee16b4ead9a0084bef58666dadd6ee689e4ca6300d2231c119",
+      "source": "run-graphcot-b0-k8/catalog/attempts.csv"
+    },
+    {
+      "bytes": 19247,
+      "path": "run-graphcot-b0-k8/catalog/failures.csv",
+      "sha256": "c023be326546e0ebda1fc598becd775393bad5d0bfb6a8be87211abda9933269",
+      "source": "run-graphcot-b0-k8/catalog/failures.csv"
+    },
+    {
+      "bytes": 10131,
+      "path": "run-graphcot-b0-k8/catalog/groups.csv",
+      "sha256": "c9c620d9f48f5f21abdf9837ce7db35f30706a783432f030a06a0ce2cd11ab8b",
+      "source": "run-graphcot-b0-k8/catalog/groups.csv"
+    },
+    {
+      "bytes": 325,
+      "path": "run-graphcot-b0-k8/catalog/paired_comparisons.csv",
+      "sha256": "78ad42c9a6d8e0b00df1293fd30c99bf4639c86dae289cda70c918e23f6e2a11",
+      "source": "run-graphcot-b0-k8/catalog/paired_comparisons.csv"
+    },
+    {
+      "bytes": 331,
+      "path": "run-graphcot-b0-k8/catalog/paired_condition_comparisons.csv",
+      "sha256": "97afb9e30cf3f4c93ed6e66517629f21cc37804818d5ac3ec8879f7eaa9f9efc",
+      "source": "run-graphcot-b0-k8/catalog/paired_condition_comparisons.csv"
+    },
+    {
+      "bytes": 47399,
+      "path": "run-graphcot-o1-k8/catalog/attempts.csv",
+      "sha256": "0719d75043cafcff832e6e3d202feacea5fdafba4f7d894b6f213d38426297b5",
+      "source": "run-graphcot-o1-k8/catalog/attempts.csv"
+    },
+    {
+      "bytes": 19220,
+      "path": "run-graphcot-o1-k8/catalog/failures.csv",
+      "sha256": "90213814ea14faf02d3cf5b393d4f61b0086e135c17e2e1caacc4e2ccb559742",
+      "source": "run-graphcot-o1-k8/catalog/failures.csv"
+    },
+    {
+      "bytes": 10119,
+      "path": "run-graphcot-o1-k8/catalog/groups.csv",
+      "sha256": "345dd24277fd5c179199ce5a94531dde69c13a970867ff1362467c6d8f27ef8f",
+      "source": "run-graphcot-o1-k8/catalog/groups.csv"
+    },
+    {
+      "bytes": 325,
+      "path": "run-graphcot-o1-k8/catalog/paired_comparisons.csv",
+      "sha256": "78ad42c9a6d8e0b00df1293fd30c99bf4639c86dae289cda70c918e23f6e2a11",
+      "source": "run-graphcot-o1-k8/catalog/paired_comparisons.csv"
+    },
+    {
+      "bytes": 331,
+      "path": "run-graphcot-o1-k8/catalog/paired_condition_comparisons.csv",
+      "sha256": "97afb9e30cf3f4c93ed6e66517629f21cc37804818d5ac3ec8879f7eaa9f9efc",
+      "source": "run-graphcot-o1-k8/catalog/paired_condition_comparisons.csv"
+    },
+    {
+      "bytes": 46911,
+      "path": "run-graphcot-b0-k8/catalog/catalog.json",
+      "sha256": "01a14628bb65979525bb9653371c4bb1fe70f5a28158e6154ccefb6f3621d240",
+      "source": "run-graphcot-b0-k8/catalog/catalog.json"
+    },
+    {
+      "bytes": 46865,
+      "path": "run-graphcot-o1-k8/catalog/catalog.json",
+      "sha256": "1cd25329a23d69e7b40c788f503aaf0ece7059d968e1be3c436a4a0ac7f6ddf2",
+      "source": "run-graphcot-o1-k8/catalog/catalog.json"
+    },
+    {
+      "bytes": 1434,
+      "path": "run-graphcot-b0-k8/catalog/ANALYSIS.md",
+      "sha256": "d79da3a0e3457a33c8b0f4e3b6b588a2d1c6f973f1bc611cca808a4e9db97192",
+      "source": "run-graphcot-b0-k8/catalog/ANALYSIS.md"
+    },
+    {
+      "bytes": 1434,
+      "path": "run-graphcot-o1-k8/catalog/ANALYSIS.md",
+      "sha256": "08bf0fb1fc4ee157b5a63eaf46c65f056f098b054d3642bbcd2ba0074f5ee3ca",
+      "source": "run-graphcot-o1-k8/catalog/ANALYSIS.md"
+    },
+    {
+      "bytes": 34296,
+      "path": "run-graphcot-b0-k8/workload/gpu.csv",
+      "sha256": "c5b4994fe5e03ff0d22fb469ec7c4fa2ece3e482932dcb8db5f39fbcc590d674",
+      "source": "run-graphcot-b0-k8/workload/gpu.csv"
+    },
+    {
+      "bytes": 31709,
+      "path": "run-graphcot-o1-k8/workload/gpu.csv",
+      "sha256": "f29480f81254f41d4a139d65e42b1befe5a437ac96f62bd2c63056b782ba3947",
+      "source": "run-graphcot-o1-k8/workload/gpu.csv"
+    },
+    {
+      "bytes": 67673,
+      "path": "run-graphcot-b0-k8/workload/host-process.csv",
+      "sha256": "c3b9c77c7d1a186dac5b9369180b78738864d84b3010b180a1b0b9b64e57e51c",
+      "source": "run-graphcot-b0-k8/workload/host-process.csv"
+    },
+    {
+      "bytes": 66113,
+      "path": "run-graphcot-o1-k8/workload/host-process.csv",
+      "sha256": "3e80c6ee717d5143e0b5a0cade6624f78980cf4d838bc88fb8f980ac6e2d2b41",
+      "source": "run-graphcot-o1-k8/workload/host-process.csv"
+    },
+    {
+      "bytes": 83205,
+      "columns": 8,
+      "jsonl_bytes": 700035,
+      "parquet_bytes": 83205,
+      "path": "run-graphcot-b0-k8/workload/vllm-metrics.parquet",
+      "rows": 128,
+      "sha256": "44e3bad878150c007e1272f8b97a7ccf8ffe5365b2beb274746e50ea7ebf52d2",
+      "source": "run-graphcot-b0-k8/workload/vllm-metrics.jsonl"
+    },
+    {
+      "bytes": 83160,
+      "columns": 8,
+      "jsonl_bytes": 672819,
+      "parquet_bytes": 83160,
+      "path": "run-graphcot-o1-k8/workload/vllm-metrics.parquet",
+      "rows": 123,
+      "sha256": "1413c3286899d54e5afbcc242e2ffcdd220c7808d441868204241c4d68254386",
+      "source": "run-graphcot-o1-k8/workload/vllm-metrics.jsonl"
+    },
+    {
+      "bytes": 424,
+      "path": "run-graphcot-b0-k8/workload/hardware.json",
+      "sha256": "5312abc9a31b2bbb14d8eb62bc8d45745218d2c5b3cb5d51a445f408f392956a",
+      "source": "run-graphcot-b0-k8/workload/hardware.json"
+    },
+    {
+      "bytes": 424,
+      "path": "run-graphcot-o1-k8/workload/hardware.json",
+      "sha256": "ce9f783d36db86f10ce5e57511f89397794a2bf862963e6e2526399bb0672602",
+      "source": "run-graphcot-o1-k8/workload/hardware.json"
+    },
+    {
+      "bytes": 6576,
+      "path": "run-graphcot-b0-k8/workload/colocated-workload-receipt.json",
+      "sha256": "49dd1e8fac3314dbf058e5652857ab827cf784f5ec76ac69d71fa5ed7d230e21",
+      "source": "run-graphcot-b0-k8/workload/colocated-workload-receipt.json"
+    },
+    {
+      "bytes": 6576,
+      "path": "run-graphcot-o1-k8/workload/colocated-workload-receipt.json",
+      "sha256": "3ccfdfb7b73f11748d088e68d6d294ee4361efbc7d4595e224ddb2107104e8e7",
+      "source": "run-graphcot-o1-k8/workload/colocated-workload-receipt.json"
+    },
+    {
+      "bytes": 321,
+      "path": "run-graphcot-b0-k8/vllm-restart/vllm-restart-receipt.json",
+      "sha256": "e25123d9a7ec18faaae25c2ca9e7825b33c43ac183627d7149958d3ea9207ed4",
+      "source": "run-graphcot-b0-k8/vllm-restart/vllm-restart-receipt.json"
+    },
+    {
+      "bytes": 321,
+      "path": "run-graphcot-o1-k8/vllm-restart/vllm-restart-receipt.json",
+      "sha256": "513637f373ca78c0d0206b5383537e5dcf3d7f75d04fc3f470e06130c28b4d92",
+      "source": "run-graphcot-o1-k8/vllm-restart/vllm-restart-receipt.json"
+    },
+    {
+      "bytes": 8518,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/coordinator-receipts.jsonl",
+      "sha256": "60230dea0ebf4e31e92d697a60cd3ac8ea1160972e26598ef85d1ff84a39f3ba",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 8519,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/coordinator-receipts.jsonl",
+      "sha256": "b15c1546a29decfba956509fc06f1cf902833848197aee1a8cbeddf319ba0012",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 7810,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/coordinator-receipts.jsonl",
+      "sha256": "8e10b140766eb311d9d9dad2a67cfeea8a014496ac527f93790095c7cd9b63a7",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 7812,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/coordinator-receipts.jsonl",
+      "sha256": "068146b529ef15563d7fe35ba662a89366786f6dbc263ddfe278d8887b49c2c2",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 7812,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/coordinator-receipts.jsonl",
+      "sha256": "d03137844b2f0081a35b6f9feb2808f69d23fe8aad5f08cc0090fe95cd879b6a",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 7812,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/coordinator-receipts.jsonl",
+      "sha256": "e81eb8505b6d4c566a1b5ebce97a4d8835c6ed2973ce95c896e6b03b4abcb3ee",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 7823,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/coordinator-receipts.jsonl",
+      "sha256": "4b42bea9e158fd68e8195f22e5d2f1beeed5d1783bf518b61f5a00af0976969e",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 7811,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/coordinator-receipts.jsonl",
+      "sha256": "5c284bb72e2eed07fdec15cf36994e459b9d83f16f0770c7b0736418c74afff4",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 8517,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/coordinator-receipts.jsonl",
+      "sha256": "325c942929b3f09a7e7e73257a20d713d1dc3383a6a855e10b3ec6a5cee255a9",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 8523,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/coordinator-receipts.jsonl",
+      "sha256": "b4820df0aa1a1f07786463f0223878316c298662a55a063a9c64c8378a377011",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 7814,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/coordinator-receipts.jsonl",
+      "sha256": "ab5bd6a1af1a85ac964da0cbe32d4a345ba8a25a38b2e5ef8f199641da9e8a16",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 7808,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/coordinator-receipts.jsonl",
+      "sha256": "50fd9c40bd47f0992a1e8b625e677247c896ff6667ec191ec94e2d6b689528c2",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 7814,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/coordinator-receipts.jsonl",
+      "sha256": "346d59f6a28909d0822f0345a1ee3130c7799e33bd74a3dbcaa10092123a3f51",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 7808,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/coordinator-receipts.jsonl",
+      "sha256": "dddec4996a4639dbee8cc7b14868c04343d0224aa70fa0cfaf9ac80df665cd09",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 7823,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/coordinator-receipts.jsonl",
+      "sha256": "4064565683d3d39c90b4db4429965c23506bba6bfd568e99bb9e5937007c75e7",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 7811,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/coordinator-receipts.jsonl",
+      "sha256": "f8c7efb524802f9691c548177d4b1c9752e007fe1174c63b374401a2480c0c0b",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/coordinator-receipts.jsonl"
+    },
+    {
+      "bytes": 9414,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000000-7cc21b6564a95627c204/run-receipt.json",
+      "sha256": "36a2e158b2e432330967f050f89226dbd11438dffbeb1e7c3919d5a82fc851b9",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000000-7cc21b6564a95627c204/run-receipt.json"
+    },
+    {
+      "bytes": 11089,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000001-79acaf0efb34fa70a4d7/run-receipt.json",
+      "sha256": "12f5de905e2f654fc8e5d8f9c9a364aeb73f0c9a1acf804d7426dd3c64116e4b",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000001-79acaf0efb34fa70a4d7/run-receipt.json"
+    },
+    {
+      "bytes": 9401,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000002-dd24dd3f1812761c4f15/run-receipt.json",
+      "sha256": "d757ef1fb126267f3597e99b2d7bb44a131e0d6b9af4f80c045fdfee8664170c",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000002-dd24dd3f1812761c4f15/run-receipt.json"
+    },
+    {
+      "bytes": 9401,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000003-f8241a396c703848b0f1/run-receipt.json",
+      "sha256": "26c92aa77bde11895bcd3f66fb1231eba87ff37bb93ba1c1048fda376c9c7e27",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000003-f8241a396c703848b0f1/run-receipt.json"
+    },
+    {
+      "bytes": 14177,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000004-04d2b52d2a3e9c5904c7/run-receipt.json",
+      "sha256": "dffbf9a7de7b562cbe38349d799a1950f62175659fda812bbafe2cb9d9df844c",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000004-04d2b52d2a3e9c5904c7/run-receipt.json"
+    },
+    {
+      "bytes": 17608,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000005-3c6a12c67467b6650830/run-receipt.json",
+      "sha256": "34d119374cac4afca4376a72c735feb596dd833f39e069e3450e40520ab03589",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000005-3c6a12c67467b6650830/run-receipt.json"
+    },
+    {
+      "bytes": 16526,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000006-3b31db866ff7384ff341/run-receipt.json",
+      "sha256": "4709838e44211f6037fdb05ac228a926c7d7a9a346515756b0780242f8372464",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000006-3b31db866ff7384ff341/run-receipt.json"
+    },
+    {
+      "bytes": 10639,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000007-d5de4ef1136c398d4dbb/run-receipt.json",
+      "sha256": "9c287e5f2e90eda4c5977b2f70d41b5bd27133fc04e6ad17178fa0e38ce5e068",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000007-d5de4ef1136c398d4dbb/run-receipt.json"
+    },
+    {
+      "bytes": 10596,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000008-02b993324a06834a9405/run-receipt.json",
+      "sha256": "33acb2fd923e01bb0c64ef824a451eab3cccce00899319f8904b3a3412b71df1",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000008-02b993324a06834a9405/run-receipt.json"
+    },
+    {
+      "bytes": 11744,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000009-12b98a8bb29528f8aa15/run-receipt.json",
+      "sha256": "241b739499736b029288ee39647f7773c6d04a80e7e2934bbe510d3ee3d38668",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000009-12b98a8bb29528f8aa15/run-receipt.json"
+    },
+    {
+      "bytes": 9404,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000010-6dede0433c0aa60331cf/run-receipt.json",
+      "sha256": "1b30cc8c7a5c7d2f9d24695d85c207c0fb5ef99c6fb87877d1d56600fdadf4b8",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000010-6dede0433c0aa60331cf/run-receipt.json"
+    },
+    {
+      "bytes": 9385,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000011-7eb2d3111f4540f45d91/run-receipt.json",
+      "sha256": "0910d0a2de4b3e06e519dadcbd33dc2d96a657c55924815996b0de0b6b5c311a",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-0/attempts/000011-7eb2d3111f4540f45d91/run-receipt.json"
+    },
+    {
+      "bytes": 9417,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000000-aaec414e0d90ee5f149d/run-receipt.json",
+      "sha256": "5db496051bc95af48ee7177276dad20de122340ab67891880c93cd3903965242",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000000-aaec414e0d90ee5f149d/run-receipt.json"
+    },
+    {
+      "bytes": 19007,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000001-4c5f03ec21d03ff044ab/run-receipt.json",
+      "sha256": "3dda32c53e6fe9e3ce275ec7652fbaa7031a51fe354de2c9a5f3e563b3c7b720",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000001-4c5f03ec21d03ff044ab/run-receipt.json"
+    },
+    {
+      "bytes": 9402,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000002-fac15474c3d3910dab88/run-receipt.json",
+      "sha256": "e5dda3832053d5a19c54ccba62ff7ac3576997ac77df189a5a167399eb111de6",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000002-fac15474c3d3910dab88/run-receipt.json"
+    },
+    {
+      "bytes": 9418,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000003-fdb517530bcb034364f9/run-receipt.json",
+      "sha256": "0b50a1e248350f9b804af3703db1a7d4b49ca49467a31f7f6e9e25f1d16855f5",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000003-fdb517530bcb034364f9/run-receipt.json"
+    },
+    {
+      "bytes": 19855,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000004-9f2f2ddd98d155272464/run-receipt.json",
+      "sha256": "289b935b9c1d6bf4852fd11f0c33a7f3565ab2619e801951bcd32e1737bdaedd",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000004-9f2f2ddd98d155272464/run-receipt.json"
+    },
+    {
+      "bytes": 9458,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000005-83d0ec0887df807c0b14/run-receipt.json",
+      "sha256": "93c09379231a13cdfba4904d5d004fe77b152872b4eed43c4af19adefcf27387",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000005-83d0ec0887df807c0b14/run-receipt.json"
+    },
+    {
+      "bytes": 17723,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000006-33f89510be8f15902abe/run-receipt.json",
+      "sha256": "e7812620d1a3d5497291e0ba2a824c8a0737e9e53f86b30b9d02f07aac708d35",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000006-33f89510be8f15902abe/run-receipt.json"
+    },
+    {
+      "bytes": 9458,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000007-7c1bda0a0eb8446c744b/run-receipt.json",
+      "sha256": "d7c3a4281febf0364abfa2fc053b756d3f3ae43bb662bd412560b548a257306a",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000007-7c1bda0a0eb8446c744b/run-receipt.json"
+    },
+    {
+      "bytes": 10589,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000008-59a5670e500e5a9ce61f/run-receipt.json",
+      "sha256": "ae15b0bc8193baeed7d872bc6e1efb4c0e84c57458468d566772323f1d560e32",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000008-59a5670e500e5a9ce61f/run-receipt.json"
+    },
+    {
+      "bytes": 11772,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000009-a9d7c0484bbd2149ca60/run-receipt.json",
+      "sha256": "71a7079b03dde03c344c40d6feaa26490d50a17ca4313c990497334b3edbaf42",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000009-a9d7c0484bbd2149ca60/run-receipt.json"
+    },
+    {
+      "bytes": 9393,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000010-8608f7110ea443dab1a1/run-receipt.json",
+      "sha256": "c878fbf74b29c8c3daea67778aa0c4943404941ddb50dfeaf06fd87c9a18fc8e",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000010-8608f7110ea443dab1a1/run-receipt.json"
+    },
+    {
+      "bytes": 9388,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000011-c5b090d6adb1ca1174db/run-receipt.json",
+      "sha256": "d6ac73328b2a3836b85e2b52eed757661ac3c90cb3fcd0f95e9729baf14b6511",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-1/attempts/000011-c5b090d6adb1ca1174db/run-receipt.json"
+    },
+    {
+      "bytes": 10649,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000000-a7eab53d7e78f231e9d6/run-receipt.json",
+      "sha256": "5bbf06bd54862df0b64622c2c113384c86a64071753b023d564b099d1fd5afed",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000000-a7eab53d7e78f231e9d6/run-receipt.json"
+    },
+    {
+      "bytes": 16621,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000001-eca63f231884c5cd8bba/run-receipt.json",
+      "sha256": "b0500e67c77e05e1d14d5b95e53d939eaa3735106baf51a53dfeb6bc9f472fb0",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000001-eca63f231884c5cd8bba/run-receipt.json"
+    },
+    {
+      "bytes": 9408,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000002-b8152422ce92fa924c2b/run-receipt.json",
+      "sha256": "f6a6993797fe513347647a7ad5e45b661388ff4c230ad4efc852e531334ecb79",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000002-b8152422ce92fa924c2b/run-receipt.json"
+    },
+    {
+      "bytes": 9409,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000003-23ea29579003eb181268/run-receipt.json",
+      "sha256": "85c5fb76503dcca1afa1db36af2c5a10cb4fb8db74eb38ffb1d2feaa92dde2c8",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000003-23ea29579003eb181268/run-receipt.json"
+    },
+    {
+      "bytes": 16518,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000004-f5b647e1fab7ba580abb/run-receipt.json",
+      "sha256": "b5e33d212d983ce98e369ddaa41059fa921293b436790d777a951c76599297d6",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000004-f5b647e1fab7ba580abb/run-receipt.json"
+    },
+    {
+      "bytes": 11820,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000005-fa6c48765794b5669e10/run-receipt.json",
+      "sha256": "84982e2bd71232e7ce00dc0e0ed4a8ac99c886fce4214bd44921d2f726b7a6d2",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000005-fa6c48765794b5669e10/run-receipt.json"
+    },
+    {
+      "bytes": 20060,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000006-300da56e8feebad0f6b9/run-receipt.json",
+      "sha256": "2dacab7b1ba44d97c949335f61587f0a79d208c4f46d2e8fab5c3cc4c1ab3935",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000006-300da56e8feebad0f6b9/run-receipt.json"
+    },
+    {
+      "bytes": 20066,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000007-c59d1cbaa54f6cf1775a/run-receipt.json",
+      "sha256": "00142c81ad51367fa43ba6e956260e163750a50ccc5126c3beaa84e7fe0a8faa",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000007-c59d1cbaa54f6cf1775a/run-receipt.json"
+    },
+    {
+      "bytes": 9401,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000008-5d468eca445aeb894949/run-receipt.json",
+      "sha256": "f001bc9bb53ee0e0d98d3bf51b8905feaa1a103868e0773170a374fa7787ce5a",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000008-5d468eca445aeb894949/run-receipt.json"
+    },
+    {
+      "bytes": 11743,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000009-c80e8adc104f33dbb061/run-receipt.json",
+      "sha256": "3e06b53570f870c15e1b906d64173f98c5d1085b74200261f948c1e8a0dd88f8",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000009-c80e8adc104f33dbb061/run-receipt.json"
+    },
+    {
+      "bytes": 9401,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000010-3d3493b4e93a87d40102/run-receipt.json",
+      "sha256": "7fb656ec8c49b6f985c3a9ca4cf796e0e03decaa084e34e73e8f91b2d30b66fa",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-2/attempts/000010-3d3493b4e93a87d40102/run-receipt.json"
+    },
+    {
+      "bytes": 9412,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000000-071c7810d7554213e52f/run-receipt.json",
+      "sha256": "403f040e3a33c97730320de85c673179626bfaec55890ad0b0130f81fd0723fb",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000000-071c7810d7554213e52f/run-receipt.json"
+    },
+    {
+      "bytes": 16528,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000001-3a8e92220bc17b0aab5d/run-receipt.json",
+      "sha256": "ed4b3ee297ed0717e563cc0655afed0bf0679729b90f0d61262ef63ca526cd16",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000001-3a8e92220bc17b0aab5d/run-receipt.json"
+    },
+    {
+      "bytes": 9404,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000002-25d05d8eb5002317c310/run-receipt.json",
+      "sha256": "1e03a6cb487add7d5b6d6321c97539434f63ac598fd145c717edfee35b1cc472",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000002-25d05d8eb5002317c310/run-receipt.json"
+    },
+    {
+      "bytes": 9408,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000003-441087b58244dc3fb843/run-receipt.json",
+      "sha256": "0f9b8ac852ce8e824b9c6a0520510ff0856ca3f511fdf24c3fd404c6aae58708",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000003-441087b58244dc3fb843/run-receipt.json"
+    },
+    {
+      "bytes": 11749,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000004-1411de7879408d3099e2/run-receipt.json",
+      "sha256": "dfa050ceb23333b3356e42eee08a4577e62b14fba25abb38c94aa4ae6f1521ac",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000004-1411de7879408d3099e2/run-receipt.json"
+    },
+    {
+      "bytes": 10632,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000005-08b38daecdfa2d09d368/run-receipt.json",
+      "sha256": "8c462ceccc78ad0f33f8909cd87d15c2da0316abc8c5fc47e8a81e45eebb3b23",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000005-08b38daecdfa2d09d368/run-receipt.json"
+    },
+    {
+      "bytes": 10635,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000006-1f7777b85c2da603a0ca/run-receipt.json",
+      "sha256": "d549dcf65e04104cccb6b8469efdabd556ec7a9c6ab81177e0a843ec6e7a56cf",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000006-1f7777b85c2da603a0ca/run-receipt.json"
+    },
+    {
+      "bytes": 10634,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000007-41168b9c03b232c520ca/run-receipt.json",
+      "sha256": "3629896a46932cc3f999f53705d0041c50a2058d4e207e848da90a9abfc52f6e",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000007-41168b9c03b232c520ca/run-receipt.json"
+    },
+    {
+      "bytes": 9409,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000008-6e40d7e9037036ea3d45/run-receipt.json",
+      "sha256": "4ae1b164986b125a36f465ed119f8f6ebc971abebd046d5396ea746a3998aae3",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000008-6e40d7e9037036ea3d45/run-receipt.json"
+    },
+    {
+      "bytes": 20903,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000009-29fec44471991821ff0f/run-receipt.json",
+      "sha256": "cf9750c7fe491f48bbb85fe514f946223f23bb1ef3cab4828b18fd804f91874f",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000009-29fec44471991821ff0f/run-receipt.json"
+    },
+    {
+      "bytes": 9409,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000010-c624c0c9a7dd0d90e5a3/run-receipt.json",
+      "sha256": "6baecd24e7139c3dd33c6ce3f34ed701a501360e56a5c78fe557beb85a529aa8",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-3/attempts/000010-c624c0c9a7dd0d90e5a3/run-receipt.json"
+    },
+    {
+      "bytes": 24599,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000000-9aacf85722ebfcd6dd43/run-receipt.json",
+      "sha256": "e998cb08d27fcb952424c407af7e1c0a68a894e1198889308317ae226e54aac7",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000000-9aacf85722ebfcd6dd43/run-receipt.json"
+    },
+    {
+      "bytes": 23075,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000001-f91e811a6b2bdee8ae1d/run-receipt.json",
+      "sha256": "bba1657d9a98d71a406b3bb9d7945691014e00bf6f1f8b16c0d5ca51187a4fb1",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000001-f91e811a6b2bdee8ae1d/run-receipt.json"
+    },
+    {
+      "bytes": 9412,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000002-4b234bf2f40bee6ea59c/run-receipt.json",
+      "sha256": "877998bb0c263857cc7c83ec0522f4f96fa1f26a336f41df67b56362b094811e",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000002-4b234bf2f40bee6ea59c/run-receipt.json"
+    },
+    {
+      "bytes": 9400,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000003-56889cbe9138c37af3dd/run-receipt.json",
+      "sha256": "ebc92198e968e4362b26186325c61f70e6bfff2a04ae284679174a785d327897",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000003-56889cbe9138c37af3dd/run-receipt.json"
+    },
+    {
+      "bytes": 18926,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000004-8498814af894903fc18e/run-receipt.json",
+      "sha256": "84fd362d9aa7f4100a8b3ff06acba5441687fd9d03f114cc2f4fbf8251572c11",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000004-8498814af894903fc18e/run-receipt.json"
+    },
+    {
+      "bytes": 17644,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000005-17efadfbb35a584a57c8/run-receipt.json",
+      "sha256": "ba11b8c0256407530bda3648475307c5c952ccd80725f8d52c09e9afac968abe",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000005-17efadfbb35a584a57c8/run-receipt.json"
+    },
+    {
+      "bytes": 11819,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000006-64e92c68cc7fab2a9f38/run-receipt.json",
+      "sha256": "80f174121ff1fd64e71064ff1da0863d88d9b94eb823d883901acde5d3743e91",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000006-64e92c68cc7fab2a9f38/run-receipt.json"
+    },
+    {
+      "bytes": 9458,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000007-9321df7a9d4937e0ddd2/run-receipt.json",
+      "sha256": "73b44722a869c0670bcf630566508d2433c3bc640698cdb8ab5aabc80af04fb2",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000007-9321df7a9d4937e0ddd2/run-receipt.json"
+    },
+    {
+      "bytes": 10587,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000008-a7def77cc4dfeec3ad44/run-receipt.json",
+      "sha256": "59ca1e735c7cbeac2b0bf9797e2a34e398712328bb043aad07d3eb8aac45242f",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000008-a7def77cc4dfeec3ad44/run-receipt.json"
+    },
+    {
+      "bytes": 11819,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000009-35baa1cae80b052b68e1/run-receipt.json",
+      "sha256": "83ad5ca7529a07d422c18c174016a1ee1904a95062f9f0a119b2a41b60374019",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000009-35baa1cae80b052b68e1/run-receipt.json"
+    },
+    {
+      "bytes": 9396,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000010-6f6d359745c8537f48d6/run-receipt.json",
+      "sha256": "1c06bb314dc24ebab79f572da549e2437047ed81e5c2045d333edf9a0b80d96e",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-4/attempts/000010-6f6d359745c8537f48d6/run-receipt.json"
+    },
+    {
+      "bytes": 19460,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000000-2fe4e1b6f5a92b5d97e7/run-receipt.json",
+      "sha256": "0858a2e3a08acefe2ad54eb78c2934acdb5a4d6f50f2a121810f74525dc58fbb",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000000-2fe4e1b6f5a92b5d97e7/run-receipt.json"
+    },
+    {
+      "bytes": 9459,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000001-b58acdf33c0bce85be48/run-receipt.json",
+      "sha256": "7c2bfff239563115b1df7160f777f842fcb529bbd629b01955d58edf9ce2ceb4",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000001-b58acdf33c0bce85be48/run-receipt.json"
+    },
+    {
+      "bytes": 9397,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000002-0ac48834182e2d8b569d/run-receipt.json",
+      "sha256": "9ef06d8ed6ce58e86c9e8a448b11f2eaf9538b4147c9f391efced3ceb7fcd7f7",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000002-0ac48834182e2d8b569d/run-receipt.json"
+    },
+    {
+      "bytes": 9405,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000003-391f6fd986b3ebea8263/run-receipt.json",
+      "sha256": "d1f7cb07dede5ad2176eb69d641bb046d58ea3997c5d83faf4ad8fd9606cd8b2",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000003-391f6fd986b3ebea8263/run-receipt.json"
+    },
+    {
+      "bytes": 10597,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000004-d604050b93392553108d/run-receipt.json",
+      "sha256": "7e5b0877af138e213ee8f5437031f1598713722cf924b9ee4c325ef77631f39b",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000004-d604050b93392553108d/run-receipt.json"
+    },
+    {
+      "bytes": 10639,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000005-501acc0874f4c7ae5aeb/run-receipt.json",
+      "sha256": "157c1963e092fba2229bb97df4a24bbcecc75a92c361fbfbca2e19584fbc9b7d",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000005-501acc0874f4c7ae5aeb/run-receipt.json"
+    },
+    {
+      "bytes": 8274,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000006-8e19f39ebb7566f3d460/run-receipt.json",
+      "sha256": "fb39ad55721456c510fac0b86925be37e39e9ea8df03009210a7dcbbd212fc5b",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000006-8e19f39ebb7566f3d460/run-receipt.json"
+    },
+    {
+      "bytes": 10643,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000007-e27ddf159fd15492f763/run-receipt.json",
+      "sha256": "e86fe461ec05596a6d001cb25300321627959c739797b54f21e485522a0eb2af",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000007-e27ddf159fd15492f763/run-receipt.json"
+    },
+    {
+      "bytes": 11753,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000008-2ec70dea86db3b762ef5/run-receipt.json",
+      "sha256": "6b8dbdc542db7dc9ce3e11d2feeccde466e64ee1902789a71e28e949726f3337",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000008-2ec70dea86db3b762ef5/run-receipt.json"
+    },
+    {
+      "bytes": 17724,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000009-2687734eaa630069c174/run-receipt.json",
+      "sha256": "dcfe666b250ac29ee971aec41b9aa3f2901aaeb7a4b63d8c528e399585855211",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000009-2687734eaa630069c174/run-receipt.json"
+    },
+    {
+      "bytes": 9411,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000010-464e1c0098594a8e0f0e/run-receipt.json",
+      "sha256": "342f9dfb929480caf9a13785ee526a538176fbdb20a280071d6a1518a36cc4c5",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-5/attempts/000010-464e1c0098594a8e0f0e/run-receipt.json"
+    },
+    {
+      "bytes": 19826,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000000-6f48e7fd6394252c32e6/run-receipt.json",
+      "sha256": "75671bcc171fb489d02957ed3b47cdd5887f8bd3c3a9df12fbdd204be796fc24",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000000-6f48e7fd6394252c32e6/run-receipt.json"
+    },
+    {
+      "bytes": 20528,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000001-a292d440b3757ac63bfc/run-receipt.json",
+      "sha256": "89d6e3b81aa9c25704e8e4f6ed3fae3858a23e9b739932843e9694d1e77f3fe8",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000001-a292d440b3757ac63bfc/run-receipt.json"
+    },
+    {
+      "bytes": 9405,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000002-ec6f0123093cf2726d29/run-receipt.json",
+      "sha256": "1959a58b1c185182bbad9844c1924d4af0b19e8daff80ec309d632548d1ff6cb",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000002-ec6f0123093cf2726d29/run-receipt.json"
+    },
+    {
+      "bytes": 18648,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000003-85b3f0cbc4f004e7278b/run-receipt.json",
+      "sha256": "7e53308c00d60de4c9401d6802339c64c99a0f66a214c6c3fae290dee7516e7b",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000003-85b3f0cbc4f004e7278b/run-receipt.json"
+    },
+    {
+      "bytes": 17876,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000004-ff57b13b9051512c9680/run-receipt.json",
+      "sha256": "09aa1ac9c7be60dda853130cb41832c351ad09e2892add61da06decfdaa48132",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000004-ff57b13b9051512c9680/run-receipt.json"
+    },
+    {
+      "bytes": 17670,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000005-27774c4024a354800a94/run-receipt.json",
+      "sha256": "6275aa79d15b901089912755dda2740375dbc9698f09d238cd1e2912df9bb418",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000005-27774c4024a354800a94/run-receipt.json"
+    },
+    {
+      "bytes": 11819,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000006-d032bf2c39a24b5da22e/run-receipt.json",
+      "sha256": "2f7a54e19f022fe2ebeca89287a66128a8fb21f9ad6bf35680aa4d514cb1e26d",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000006-d032bf2c39a24b5da22e/run-receipt.json"
+    },
+    {
+      "bytes": 9459,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000007-3122490034ede2ab8aca/run-receipt.json",
+      "sha256": "178a049e6dfb84a0ba598dda537ba32064768d238391b64de1356cce5c9f975e",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000007-3122490034ede2ab8aca/run-receipt.json"
+    },
+    {
+      "bytes": 11014,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000008-1a5a8bfa4306dcd6a853/run-receipt.json",
+      "sha256": "daec47fd8d8ab85ea31fc9b929862c175d4b18cfc7c53e2c7b3fcc70e7799fba",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000008-1a5a8bfa4306dcd6a853/run-receipt.json"
+    },
+    {
+      "bytes": 18907,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000009-d94a5c7542a7b2d5d958/run-receipt.json",
+      "sha256": "b57a1719fa2473c7ed4d7c0fc5bc6f58e4c8ae85b559c7779229273119c72f49",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000009-d94a5c7542a7b2d5d958/run-receipt.json"
+    },
+    {
+      "bytes": 9395,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000010-26654c8c79140b246109/run-receipt.json",
+      "sha256": "6cc2e428ac4b96c286d12c209ba85796035338d7e7a06ee055030e6120c6a5a2",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-6/attempts/000010-26654c8c79140b246109/run-receipt.json"
+    },
+    {
+      "bytes": 21841,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000000-7effa383950a9fd352e2/run-receipt.json",
+      "sha256": "f46493db58d5f62628148f7a45ab8a368c864762793dadd543c2780eda407525",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000000-7effa383950a9fd352e2/run-receipt.json"
+    },
+    {
+      "bytes": 23064,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000001-feae0b28cdcc61e546f1/run-receipt.json",
+      "sha256": "224d77052c81583bb8c11eac1a84814865d611e9a4590ccdec673344754fb585",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000001-feae0b28cdcc61e546f1/run-receipt.json"
+    },
+    {
+      "bytes": 9401,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000002-5eb3c067c57e5db06849/run-receipt.json",
+      "sha256": "34416401f7ffd718e7f9a5c75fc6d7120ba859cbfe06abec2c28f9f9f497d737",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000002-5eb3c067c57e5db06849/run-receipt.json"
+    },
+    {
+      "bytes": 18182,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000003-09d2d83dbcc45a1d95d1/run-receipt.json",
+      "sha256": "df5dbf1878e6777e95aa57b2fdc210b19ea9bb7ba838fa48d3d0e60813b2e1c7",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000003-09d2d83dbcc45a1d95d1/run-receipt.json"
+    },
+    {
+      "bytes": 18899,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000004-a73a89de3e5942b9b587/run-receipt.json",
+      "sha256": "930a66344abeba861ccd4ecf6d4ae674b7d9fa7f4cf98bba3ea94b00abaf30e8",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000004-a73a89de3e5942b9b587/run-receipt.json"
+    },
+    {
+      "bytes": 20903,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000005-1ef7b48176a1bf1781dc/run-receipt.json",
+      "sha256": "e42e3498fad0218a35d09b9f3743e9a55637a6cbbe2a9b1533b19a8c4b5dd5c7",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000005-1ef7b48176a1bf1781dc/run-receipt.json"
+    },
+    {
+      "bytes": 10639,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000006-40c9bc991cba5eb67232/run-receipt.json",
+      "sha256": "349e51cd731b460cbe5719146d87a368ec34b65f7b9b34a21dd75845eaab8205",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000006-40c9bc991cba5eb67232/run-receipt.json"
+    },
+    {
+      "bytes": 10592,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000007-fd662b240082318fb5a2/run-receipt.json",
+      "sha256": "abd66da16524578b252a15e02e55aad993f21a714933c1841cdcd474fc2fa424",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000007-fd662b240082318fb5a2/run-receipt.json"
+    },
+    {
+      "bytes": 11743,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000008-baacbe37e8b863e70b2c/run-receipt.json",
+      "sha256": "8bd49d375ba1334db0510b01b00a4cd3088a3ccb62e168de8e1d5864fb068351",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000008-baacbe37e8b863e70b2c/run-receipt.json"
+    },
+    {
+      "bytes": 15346,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000009-622effbbd768c74f7715/run-receipt.json",
+      "sha256": "cc94040ff5d5adec3d9e6cebdfeffa772e496445c6209a2abed511b65962bb7a",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000009-622effbbd768c74f7715/run-receipt.json"
+    },
+    {
+      "bytes": 9396,
+      "path": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000010-1cf866cf06c0f44fa4f4/run-receipt.json",
+      "sha256": "c118807d9d5d4edf6fc6b87f5d08bf943b66ba9e2daddfa3fb2c8291e26e0f85",
+      "source": "run-graphcot-b0-k8/e2e/grbench-graphcot-tool-false/shard-7/attempts/000010-1cf866cf06c0f44fa4f4/run-receipt.json"
+    },
+    {
+      "bytes": 9420,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000000-02cb50b5b2805ed2ea35/run-receipt.json",
+      "sha256": "8f3bc3e70ab770080ef72b46eb863d6dd82653d81edeb52b9ffa3da0fd071f97",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000000-02cb50b5b2805ed2ea35/run-receipt.json"
+    },
+    {
+      "bytes": 11831,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000001-91b2276d8c86717a4bc3/run-receipt.json",
+      "sha256": "14e391d5a30f1b81d62dd7402c822e6e5989dfce4f5154b64a3e083b51ffff5b",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000001-91b2276d8c86717a4bc3/run-receipt.json"
+    },
+    {
+      "bytes": 9403,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000002-13c9eebe01814a3c0ea0/run-receipt.json",
+      "sha256": "6343693ae92ffff8effc40a769303e9a4010ce213689138fda13dd14c114f277",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000002-13c9eebe01814a3c0ea0/run-receipt.json"
+    },
+    {
+      "bytes": 9412,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000003-4d6a08d9e6f887522894/run-receipt.json",
+      "sha256": "1a124a6266e3e96db17b4821a7a4ef4c46efce72a8cab9b0e3c175e0654d4871",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000003-4d6a08d9e6f887522894/run-receipt.json"
+    },
+    {
+      "bytes": 11824,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000004-d99818c58659f0a04849/run-receipt.json",
+      "sha256": "0a9f8886e4f78bd2f9dc11375f0d170834155f3de0601d5da15cd11b7248ce1a",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000004-d99818c58659f0a04849/run-receipt.json"
+    },
+    {
+      "bytes": 17614,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000005-75b8f4f0fd4508358ea2/run-receipt.json",
+      "sha256": "2ad6fdcaaba2f527b8b4248e052ce06ba02c2824201b97e2d71ddd19d3d97086",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000005-75b8f4f0fd4508358ea2/run-receipt.json"
+    },
+    {
+      "bytes": 16535,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000006-f585b797df65ddaf6615/run-receipt.json",
+      "sha256": "4eaccc3c71e859c1d8fbee7a1a5946ef9286fc93aa5570837bd60eb1c30559ff",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000006-f585b797df65ddaf6615/run-receipt.json"
+    },
+    {
+      "bytes": 13004,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000007-73339e1e72c433e1b293/run-receipt.json",
+      "sha256": "90d9cfdc6ac7cdf997da99894edb040cb81c925b8adb6a8d8eb1bf212665757b",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000007-73339e1e72c433e1b293/run-receipt.json"
+    },
+    {
+      "bytes": 10598,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000008-e805aa6761d3f14e4732/run-receipt.json",
+      "sha256": "375e4ddccd5ea1f0b8e019726c1ab0c06fedbcb93bd370ff0f6b52e5a99cfdf2",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000008-e805aa6761d3f14e4732/run-receipt.json"
+    },
+    {
+      "bytes": 11752,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000009-a567e8ea67d70a9d2da3/run-receipt.json",
+      "sha256": "72eb96d9996885993cac4b903ff427d6261931e95e865aaee13730b22dc5529d",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000009-a567e8ea67d70a9d2da3/run-receipt.json"
+    },
+    {
+      "bytes": 9410,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000010-3209e51cfe203179a89f/run-receipt.json",
+      "sha256": "19992a1f65b54be950fd03cc9c3a9e4165e5be2800475a29e107b44efd3b0a42",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000010-3209e51cfe203179a89f/run-receipt.json"
+    },
+    {
+      "bytes": 9389,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000011-3542ff9b848997020b59/run-receipt.json",
+      "sha256": "fe1df6fe33859addc3ad6a01ec622d785236294dafb9d6814c75c4fa88a1a990",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-0/attempts/000011-3542ff9b848997020b59/run-receipt.json"
+    },
+    {
+      "bytes": 9433,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000000-c653ee5bf79738ea3676/run-receipt.json",
+      "sha256": "52ab0729871f08d782bbf0771432d937f8df17f51185f1d533fd32f2a81bac87",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000000-c653ee5bf79738ea3676/run-receipt.json"
+    },
+    {
+      "bytes": 16558,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000001-625d42ebe04008d027ba/run-receipt.json",
+      "sha256": "b0506534f9e6a54af9905dc3959b3337b977ebbda7c53b0d6d9d00a704cea72a",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000001-625d42ebe04008d027ba/run-receipt.json"
+    },
+    {
+      "bytes": 9395,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000002-0d395fc3e8a2c9ff07a3/run-receipt.json",
+      "sha256": "e705021eeadb478c6752397fc221cb056f22b357ab002fc47b393e9ece2870b6",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000002-0d395fc3e8a2c9ff07a3/run-receipt.json"
+    },
+    {
+      "bytes": 9413,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000003-e81fdaad3cac4416d769/run-receipt.json",
+      "sha256": "fe97739c0093dd7f0bcbeea1acb04d1f4b6d4afc95229ee30d5d055a025db51f",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000003-e81fdaad3cac4416d769/run-receipt.json"
+    },
+    {
+      "bytes": 15271,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000004-c4c3f2bb1d3fea5f061f/run-receipt.json",
+      "sha256": "f4f00fbe319c565eb8943197000e920be6cbab4e1c84b54620eb899fd76ec81d",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000004-c4c3f2bb1d3fea5f061f/run-receipt.json"
+    },
+    {
+      "bytes": 14183,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000005-ea6381156defe3ae54c0/run-receipt.json",
+      "sha256": "f6bf0a19bceb8dcb262eb7361deaeb8521004a15c1775b0344ecdb5f197c210f",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000005-ea6381156defe3ae54c0/run-receipt.json"
+    },
+    {
+      "bytes": 11823,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000006-4ab383d46d688fc345a5/run-receipt.json",
+      "sha256": "644b396bb16f5ff4135bc388b48eeb1d895f9cfbe7ab0f8b461a315e44d6a3aa",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000006-4ab383d46d688fc345a5/run-receipt.json"
+    },
+    {
+      "bytes": 10634,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000007-3ab51846fa526351f3e3/run-receipt.json",
+      "sha256": "f496a3fcadd0e16a7fd1a30c995b8959197bb49d51554f61c525ccc1931b062d",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000007-3ab51846fa526351f3e3/run-receipt.json"
+    },
+    {
+      "bytes": 10593,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000008-5e2b7d507d1e1faa7447/run-receipt.json",
+      "sha256": "3d5bebe346699cefd5394e3cfb2300e940ec240a8b490120fc3bb8bc98da26e5",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000008-5e2b7d507d1e1faa7447/run-receipt.json"
+    },
+    {
+      "bytes": 14105,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000009-3ca50fe8337ab28df066/run-receipt.json",
+      "sha256": "c0b47b83135e46e1d1c44861bc49fc28e3e5895a8f0d95a29ee0a8ec9bff1831",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000009-3ca50fe8337ab28df066/run-receipt.json"
+    },
+    {
+      "bytes": 9399,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000010-66d2a6f7a9d966965040/run-receipt.json",
+      "sha256": "f122e243440b15088e9f16c902bff113c0ce4cfa8e0b1cea4405d850aff36274",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000010-66d2a6f7a9d966965040/run-receipt.json"
+    },
+    {
+      "bytes": 9403,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000011-1ffe766f9ebbc841d07d/run-receipt.json",
+      "sha256": "6c4108558198f7ba4435f0eb507df604422a5130a1342ab7df36e38e679c8ad5",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-1/attempts/000011-1ffe766f9ebbc841d07d/run-receipt.json"
+    },
+    {
+      "bytes": 10664,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000000-4735f468ceb918a7207d/run-receipt.json",
+      "sha256": "7f3c208cc9bdef13fac840c6ee9abedd183c29a5bb80ac7c73532d5e6df75959",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000000-4735f468ceb918a7207d/run-receipt.json"
+    },
+    {
+      "bytes": 19764,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000001-ed2a35332ca2ae73fe31/run-receipt.json",
+      "sha256": "4a2b0cf01936a84e6ee0bf601d8eac5f733a88f95fe56281b392e06b24be1be0",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000001-ed2a35332ca2ae73fe31/run-receipt.json"
+    },
+    {
+      "bytes": 9399,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000002-e4104d7799f968f452ba/run-receipt.json",
+      "sha256": "5411c90fa9dc1fcb8ad57500e7c860acf64263e7d852ab36355286a24f110d9b",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000002-e4104d7799f968f452ba/run-receipt.json"
+    },
+    {
+      "bytes": 9409,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000003-58628cdbf52609a944ba/run-receipt.json",
+      "sha256": "adffca20ebf3acabd30db6f745894814e38d2715886f07c35e9a25b2d5dfb03d",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000003-58628cdbf52609a944ba/run-receipt.json"
+    },
+    {
+      "bytes": 15333,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000004-2969deb050be6955c084/run-receipt.json",
+      "sha256": "23326751f8349cab42c2c1ebeb83510a3fdcbf8a636ee8069ef6c06f9cf1552b",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000004-2969deb050be6955c084/run-receipt.json"
+    },
+    {
+      "bytes": 20091,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000005-93752f9c11317a36fa43/run-receipt.json",
+      "sha256": "c066e2f995f324091123be78408eb1a8c9b342310fa349338f42d32eebcdcfb3",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000005-93752f9c11317a36fa43/run-receipt.json"
+    },
+    {
+      "bytes": 20077,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000006-7d03d6242bc0e17422d1/run-receipt.json",
+      "sha256": "7ddb606917ff12d68391541806dfff25e79afd853b0d2dfc503db00e7397c5ae",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000006-7d03d6242bc0e17422d1/run-receipt.json"
+    },
+    {
+      "bytes": 14160,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000007-b9df720aa975d561074a/run-receipt.json",
+      "sha256": "04b94ac8fed8f75b093e8380b21360a33093e4ccbe3618ea3f36225f70a12f7d",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000007-b9df720aa975d561074a/run-receipt.json"
+    },
+    {
+      "bytes": 11762,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000008-3c64ba51454048e50311/run-receipt.json",
+      "sha256": "22732f8c4e38d69821e774c9421e6499a42d4ec862dcd86857265668bb15abf8",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000008-3c64ba51454048e50311/run-receipt.json"
+    },
+    {
+      "bytes": 11750,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000009-27bb32e36d211ef6e012/run-receipt.json",
+      "sha256": "e31c7920dbbc17b117fd77875df675985e876e05fa3b154d7f4726e548c718fc",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000009-27bb32e36d211ef6e012/run-receipt.json"
+    },
+    {
+      "bytes": 9392,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000010-4af5dd25672a827b7361/run-receipt.json",
+      "sha256": "02b7b47698b538a4e1dfd71f45861be87cb8424510cfa2c63595dce66dbafce8",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-2/attempts/000010-4af5dd25672a827b7361/run-receipt.json"
+    },
+    {
+      "bytes": 9425,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000000-0d11100075280028181f/run-receipt.json",
+      "sha256": "c0c599048d989d5f253f39d7683c0c62cbc3e64ce57098dce45734afff3c79e4",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000000-0d11100075280028181f/run-receipt.json"
+    },
+    {
+      "bytes": 11825,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000001-e4d2ceb2f30130215ae9/run-receipt.json",
+      "sha256": "e2781d595513b014c06f091e61d022482645476a47cd85af6ef21a8a759c437a",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000001-e4d2ceb2f30130215ae9/run-receipt.json"
+    },
+    {
+      "bytes": 9409,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000002-1d5b6c40e83a2ea12ea8/run-receipt.json",
+      "sha256": "856af517d7eecdac9a220b809c872b9ab16483ef60f7599c42dbc591eebfa2db",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000002-1d5b6c40e83a2ea12ea8/run-receipt.json"
+    },
+    {
+      "bytes": 9399,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000003-1d8365334f1ff53e6959/run-receipt.json",
+      "sha256": "1e7719109aada748964f8e1007519d28bfb077163bb794d77378639d3ce650e7",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000003-1d8365334f1ff53e6959/run-receipt.json"
+    },
+    {
+      "bytes": 11756,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000004-aead0da19d0c589b6ad6/run-receipt.json",
+      "sha256": "63ea7e075a0c4126e27ae66f4077c6c8e0325117c44478a05eb6c088fe51c9d1",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000004-aead0da19d0c589b6ad6/run-receipt.json"
+    },
+    {
+      "bytes": 10642,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000005-d3b149030333b1eb5dc3/run-receipt.json",
+      "sha256": "df6b4acc13cee96d1841723c62b099e627e8688e80e7504b18776902168bf898",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000005-d3b149030333b1eb5dc3/run-receipt.json"
+    },
+    {
+      "bytes": 10644,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000006-9dc962cc2ba38d190864/run-receipt.json",
+      "sha256": "5c64ca1268d7850cc22f8a9bd643d3edd28c3c4b126a661ddc29d7fe79c1af5b",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000006-9dc962cc2ba38d190864/run-receipt.json"
+    },
+    {
+      "bytes": 18876,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000007-1e9408727ed39ab73076/run-receipt.json",
+      "sha256": "0ba48601e011fa0f0b970959633b4471ad0216ec42cd77cfcbd757326b440416",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000007-1e9408727ed39ab73076/run-receipt.json"
+    },
+    {
+      "bytes": 10564,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000008-0d13797ac1677ea2622e/run-receipt.json",
+      "sha256": "7b0e13e44494b7ea80f23124a790b6ec28b84cc4daa779c6cb18c9b9a0d39d24",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000008-0d13797ac1677ea2622e/run-receipt.json"
+    },
+    {
+      "bytes": 18987,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000009-7b05189d5f0d0aa1526a/run-receipt.json",
+      "sha256": "d479dc90b2243c7a535ffe2dfbfe353bcc7c64ebcaa4262fa147615a0976ca23",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000009-7b05189d5f0d0aa1526a/run-receipt.json"
+    },
+    {
+      "bytes": 9412,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000010-f2bd1e94fb1eac7db94c/run-receipt.json",
+      "sha256": "9c9099410c7cb0846a6fc59950b3c4ba355d2752aabe6f1c1f4237650f448158",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-3/attempts/000010-f2bd1e94fb1eac7db94c/run-receipt.json"
+    },
+    {
+      "bytes": 22200,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000000-19a3c795170603156f4d/run-receipt.json",
+      "sha256": "862bba252c330d72813cf8723b0d93bbde3546cb6a9b5f206852b9697ec572ca",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000000-19a3c795170603156f4d/run-receipt.json"
+    },
+    {
+      "bytes": 11824,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000001-1315afd914de0e0ee4d7/run-receipt.json",
+      "sha256": "6f1831d33d3839ca267ec8711a9a94db85c778b42a656fb37b757dad4a4bc9ae",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000001-1315afd914de0e0ee4d7/run-receipt.json"
+    },
+    {
+      "bytes": 9406,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000002-39e79d0e1b94a6fe8c26/run-receipt.json",
+      "sha256": "3a06eba559b6612c579865e1a1a2ed0005feb1a023161def9251527de9e6c1b0",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000002-39e79d0e1b94a6fe8c26/run-receipt.json"
+    },
+    {
+      "bytes": 9409,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000003-9bb3de22e61b5a102385/run-receipt.json",
+      "sha256": "c4dd55b3d3b8f670bc5f7969b01e1a707210f7e66a68685b66492a724c9223f1",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000003-9bb3de22e61b5a102385/run-receipt.json"
+    },
+    {
+      "bytes": 17746,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000004-851309950078066e7801/run-receipt.json",
+      "sha256": "a5ab8a35525e0d89f9b3b0ed7779d97711a2611ce5f19bcec0e7f8dfcb09e2d1",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000004-851309950078066e7801/run-receipt.json"
+    },
+    {
+      "bytes": 18843,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000005-b2a1f0cff79d98a00583/run-receipt.json",
+      "sha256": "989892a98f84600596253edbaa419d36ad52565ede634b05e0df158912da1d19",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000005-b2a1f0cff79d98a00583/run-receipt.json"
+    },
+    {
+      "bytes": 20111,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000006-0d3782d9e847e4702bfc/run-receipt.json",
+      "sha256": "2ab17993116ebcd0917a7a7d5de2a8329f1d409645a7d66119cf1988b5e759c6",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000006-0d3782d9e847e4702bfc/run-receipt.json"
+    },
+    {
+      "bytes": 10639,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000007-be073005ee3ac22d38c5/run-receipt.json",
+      "sha256": "6f521767cdd1f24418f5c982bdec702049ecc3ec54db424f40a1bd3016508682",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000007-be073005ee3ac22d38c5/run-receipt.json"
+    },
+    {
+      "bytes": 10590,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000008-e37f0a2c62672335a719/run-receipt.json",
+      "sha256": "ec256d47a5383862167b9034c17412012a799f103d766502187de685af4e5c1e",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000008-e37f0a2c62672335a719/run-receipt.json"
+    },
+    {
+      "bytes": 11823,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000009-c0746a7e8b9253fb56f8/run-receipt.json",
+      "sha256": "baab4660ec12ca8d37076bb34010ef28f1451fa4f865bc06ed0807a0e6d9175f",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000009-c0746a7e8b9253fb56f8/run-receipt.json"
+    },
+    {
+      "bytes": 9399,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000010-55e9b17e2b3bc41c6cff/run-receipt.json",
+      "sha256": "2d7d064c7859e2cff80dc4a064f042282c16a6765a6078725fd3a68ad5fc79dc",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-4/attempts/000010-55e9b17e2b3bc41c6cff/run-receipt.json"
+    },
+    {
+      "bytes": 19854,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000000-40a22763dc8987e4263f/run-receipt.json",
+      "sha256": "b652d0029f2e5d9ed0976b65cbda252fad9534260340a094920a664c811dc5f1",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000000-40a22763dc8987e4263f/run-receipt.json"
+    },
+    {
+      "bytes": 11825,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000001-0d5261790fc289fdedc1/run-receipt.json",
+      "sha256": "905af4e445836075562abb6b58c528d311f7b5ec5c88ba24ffa49b1c541c0741",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000001-0d5261790fc289fdedc1/run-receipt.json"
+    },
+    {
+      "bytes": 9405,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000002-d884c9d9e92b6eb08ed9/run-receipt.json",
+      "sha256": "99372fe0e391c8bfb9ff7309add0f7298e78f5a2ab73df3ab8dd2cd487f7db9e",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000002-d884c9d9e92b6eb08ed9/run-receipt.json"
+    },
+    {
+      "bytes": 9410,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000003-2b34665457fe3c82e5fb/run-receipt.json",
+      "sha256": "e22b2e9ca90f2471fad0397708bee647aa19d23beebc77ee4720f7eec1fbef0e",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000003-2b34665457fe3c82e5fb/run-receipt.json"
+    },
+    {
+      "bytes": 10596,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000004-bc7f76c15ade6ee4d9bd/run-receipt.json",
+      "sha256": "c74d3bc3aa221d351660e6afef602ba4166b1cea79b41f1e99682724ff362bd4",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000004-bc7f76c15ade6ee4d9bd/run-receipt.json"
+    },
+    {
+      "bytes": 10647,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000005-5bc804564d89b7046174/run-receipt.json",
+      "sha256": "c9defa88db0ba0dfa2a325869054de73cfbdc9a3f60c200f494309ac2cac901f",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000005-5bc804564d89b7046174/run-receipt.json"
+    },
+    {
+      "bytes": 9446,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000006-b26822a29bed35fe7f2f/run-receipt.json",
+      "sha256": "41eb72393f808d59429a6e1f47bc403ba4893e72658681cae00a5869887d1ca7",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000006-b26822a29bed35fe7f2f/run-receipt.json"
+    },
+    {
+      "bytes": 10636,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000007-1220a59bda263bd21df1/run-receipt.json",
+      "sha256": "c23f25e80f9eee62b291d1222f581cab666c09c6717b15db2d0717379acecf59",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000007-1220a59bda263bd21df1/run-receipt.json"
+    },
+    {
+      "bytes": 11754,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000008-f9842c6e59c5516fa6f5/run-receipt.json",
+      "sha256": "2f6e23aa870a7c2da310544ff5644664e962ef205cff247ea603752f06c1d450",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000008-f9842c6e59c5516fa6f5/run-receipt.json"
+    },
+    {
+      "bytes": 17726,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000009-a8817f9f2bda8a69d6fd/run-receipt.json",
+      "sha256": "89a3037915fe3f0f621cb0325727aa41988dbcee8a18c53da7dcd86d79b28441",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000009-a8817f9f2bda8a69d6fd/run-receipt.json"
+    },
+    {
+      "bytes": 9407,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000010-a71c97db0174902f952c/run-receipt.json",
+      "sha256": "4673fed61eb171ae9a22d96e1d41d1bce9cbfea443f3b77eaa5f2e295cc14778",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-5/attempts/000010-a71c97db0174902f952c/run-receipt.json"
+    },
+    {
+      "bytes": 17855,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000000-1531b020a49d5d3310ac/run-receipt.json",
+      "sha256": "2edda236092a6d2bac023aabfae7110c375d90de64098fa1f1a82c1894e6aaaa",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000000-1531b020a49d5d3310ac/run-receipt.json"
+    },
+    {
+      "bytes": 22549,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000001-e454798130fa40723cd4/run-receipt.json",
+      "sha256": "d0ae04a85c5bce6054755ce8307c768069fc59ebe382ae3a80542a94ed6bb51d",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000001-e454798130fa40723cd4/run-receipt.json"
+    },
+    {
+      "bytes": 9409,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000002-dd08df39c8e163689f4e/run-receipt.json",
+      "sha256": "67a5072f707b4accb662088c928f0840906e42fd3fe82b54398c09db979f5c09",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000002-dd08df39c8e163689f4e/run-receipt.json"
+    },
+    {
+      "bytes": 19459,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000003-850465a55ee79c92abec/run-receipt.json",
+      "sha256": "3293cbcabca37e964f0ed4cba224b235aaf0e9e4c04cd51d25df563e434395ea",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000003-850465a55ee79c92abec/run-receipt.json"
+    },
+    {
+      "bytes": 21343,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000004-4130e5abf0f959430b9d/run-receipt.json",
+      "sha256": "06fa50a63d58e5e54f5a8151b2a731028f38b39861b5fb26ae1edbeb5af57760",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000004-4130e5abf0f959430b9d/run-receipt.json"
+    },
+    {
+      "bytes": 16518,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000005-cd0ea174c3150aaa628a/run-receipt.json",
+      "sha256": "f3f2353ae9f903bcabb7d223589be79b1b6a838fba3d64d0234b2c15982f7914",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000005-cd0ea174c3150aaa628a/run-receipt.json"
+    },
+    {
+      "bytes": 17720,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000006-dd05c6298ed738c8314d/run-receipt.json",
+      "sha256": "c9210feaa4e4a2fab7a1cccbbd374da8b666e9b26d6e5b66fddfff9c27a6cf8e",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000006-dd05c6298ed738c8314d/run-receipt.json"
+    },
+    {
+      "bytes": 10630,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000007-62507661ecfb712335a2/run-receipt.json",
+      "sha256": "3236b5bcb1fb95c68d03009b8fcf923f85f591e3411b4cbfe81ad8aa0bde73f7",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000007-62507661ecfb712335a2/run-receipt.json"
+    },
+    {
+      "bytes": 11004,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000008-d64dd2d6912ddcaf383d/run-receipt.json",
+      "sha256": "9ff81b6cba44ec146cffd12089b6c296a09f4c7fcffaf1c3a436c21c7f65b784",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000008-d64dd2d6912ddcaf383d/run-receipt.json"
+    },
+    {
+      "bytes": 11817,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000009-99212a91f261911ffe6f/run-receipt.json",
+      "sha256": "24e21c21daec25c03122aae65c04f198f5306ec423b295d3b7ff7d82945a7aa9",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000009-99212a91f261911ffe6f/run-receipt.json"
+    },
+    {
+      "bytes": 9401,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000010-aa5bf1174708ed0a153f/run-receipt.json",
+      "sha256": "37d5b600a78ff26aebb37a776055538fb6825db05eeea170ce3a52c18f4c3806",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-6/attempts/000010-aa5bf1174708ed0a153f/run-receipt.json"
+    },
+    {
+      "bytes": 19844,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000000-39ce173845e7c286f38c/run-receipt.json",
+      "sha256": "d149115d5016d5193cc75fb69c3bf4248d78d04bf9417ac8746971ef58a00894",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000000-39ce173845e7c286f38c/run-receipt.json"
+    },
+    {
+      "bytes": 17433,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000001-9bed76725c3248c7f883/run-receipt.json",
+      "sha256": "4c74c18b87419301aca8cb04ad3fb52c2ab399873f3d2ffb46a82cac4166c785",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000001-9bed76725c3248c7f883/run-receipt.json"
+    },
+    {
+      "bytes": 9410,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000002-ae490d36255df1762bbe/run-receipt.json",
+      "sha256": "e234b0df29008ab16f4bbd178627e3dbf76a257c9cd80959691993a1d2aa69c4",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000002-ae490d36255df1762bbe/run-receipt.json"
+    },
+    {
+      "bytes": 16970,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000003-896978bd194cc400f559/run-receipt.json",
+      "sha256": "af49cadd3f8b052b265f28acda7763ff1f48a8e9831990d321cc64496d00b77c",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000003-896978bd194cc400f559/run-receipt.json"
+    },
+    {
+      "bytes": 17730,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000004-da7777c59e18628a2db6/run-receipt.json",
+      "sha256": "d4fe39904ab46c8345a21f3071cfe564895d7d9286cfcd63db1b87764f025d84",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000004-da7777c59e18628a2db6/run-receipt.json"
+    },
+    {
+      "bytes": 17734,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000005-b95d9c2e743b9686b0e3/run-receipt.json",
+      "sha256": "7ff8d36e4654bf382b03ab05b1de61866ca18198a987a1711553259e89134add",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000005-b95d9c2e743b9686b0e3/run-receipt.json"
+    },
+    {
+      "bytes": 10646,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000006-cdb41ada6cad7a60a0af/run-receipt.json",
+      "sha256": "1b639251fa53c034e167db8dad81602a8b392eebccc61246602c6734a6bf89c0",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000006-cdb41ada6cad7a60a0af/run-receipt.json"
+    },
+    {
+      "bytes": 10593,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000007-d68d1b0d2391a1a719d1/run-receipt.json",
+      "sha256": "6078a9065c33a0a3d8d89466919bcd9dea903307719574d0d30bd9370112c2b3",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000007-d68d1b0d2391a1a719d1/run-receipt.json"
+    },
+    {
+      "bytes": 11741,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000008-40e65fe5edf2de4a1179/run-receipt.json",
+      "sha256": "d774ab55bc39b14b6206ed9f9be2bac7ad602093224bcb955d19ecb64f07b4b0",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000008-40e65fe5edf2de4a1179/run-receipt.json"
+    },
+    {
+      "bytes": 17731,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000009-a03f4710108e5a5b1a3c/run-receipt.json",
+      "sha256": "9ee8f79cfd2a8d33c1a6247c36497d6d15e3c39ec7296945d887bd34ed9d912f",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000009-a03f4710108e5a5b1a3c/run-receipt.json"
+    },
+    {
+      "bytes": 9394,
+      "path": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000010-f12147ceef263ba80ad0/run-receipt.json",
+      "sha256": "a35b296f37fa6833bc83d13d40ebdb0cb97b80fdf60f8cac0655286f682e4403",
+      "source": "run-graphcot-o1-k8/e2e/grbench-graphcot-tool-false-O1/shard-7/attempts/000010-f12147ceef263ba80ad0/run-receipt.json"
+    },
+    {
+      "bytes": 770,
+      "path": "appliance-phases.tsv",
+      "sha256": "4622f2b459331332bad5ab2737901f6e8a0b13e139cafafcb1bc7632d73fd769",
+      "source": "appliance-phases.private.tsv"
+    }
+  ],
+  "leak_scan": {
+    "hits": [],
+    "patterns": [
+      "instance_token_field",
+      "provider_api_key",
+      "public_ipv4",
+      "ssh_public_key"
+    ]
+  },
+  "provenance": {
+    "instance_id": 50672533,
+    "lab_request": "017",
+    "max_runtime_s": 5400,
+    "queue_sha256": "8d258ccaacff3fa5a75b25c3eb2cfd899101e9b1d7b9d50b1eb9742ec8b134be",
+    "source_bundle_sha256": "659a6030db2037461da0df243a5a255381540ccd4b7aab8720b4ba2874ee7398",
+    "state": "failed"
+  },
+  "run_root": "lab-s16-try-094447",
+  "schema_version": "seocho.agentic_os_trace_package.v1"
+}

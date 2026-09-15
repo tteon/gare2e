@@ -16,10 +16,15 @@ import re
 import shlex
 import shutil
 import subprocess
+import tarfile
 import sys
 import time
 from typing import Any
 from urllib.parse import urlparse
+
+
+class _PartialArtifacts(RuntimeError):
+    """Bulk copy failed after the essential receipts were verified; teardown proceeds."""
 
 
 def _run(*args: str, check: bool = True, timeout_s: int | None = None) -> subprocess.CompletedProcess[str]:
@@ -76,9 +81,16 @@ def _offer_is_admitted(
     min_reliability: float,
     disk_gb: int,
     gpu_name_pattern: re.Pattern[str] | None,
+    require_nvlink: bool = False,
 ) -> bool:
-    """Fail closed when a live offer omits a required numeric resource."""
+    """Fail closed when a live offer omits a required numeric resource.
+
+    ``require_nvlink`` admits only offers whose GPUs report an NVLink fabric
+    (``bw_nvlink`` > 0); PCIe-only pairs (RTX PRO 6000, A100 PCIe) are refused.
+    """
     return (
+        (not require_nvlink or _offer_number(row, "bw_nvlink", default=0) > 0)
+        and
         _offer_number(row, "dph_total", default=float("inf")) <= max_dph
         and _offer_number(row, "num_gpus", default=0) >= min_num_gpus
         and _offer_number(row, "gpu_total_ram", default=0) >= min_gpu_total_ram
@@ -383,7 +395,69 @@ def _copy_to_remote(ssh_prefix: list[str], local: Path, remote: str) -> None:
     )
 
 
-def _copy_from_remote(ssh_prefix: list[str], remote_artifacts: str, local_root: Path) -> None:
+
+# Content-free essentials that must survive a slow or broken bulk copy (lab-s15:
+# a UAE host pushed 27 MB in 30 min, the 1800 s scp timed out and the fail-closed
+# destroy threw away the whole session's receipts).  Everything needed for the
+# funnel / bottleneck / stage tables is small; the private logs are the bulk.
+ESSENTIAL_GLOBS = (
+    "cuda-compat-probe.json",
+    "queue-receipt.jsonl", "appliance-phases.private.tsv", "bootstrap-phases.private.tsv",
+    "e2e/*.json", "otel/collector-spans.jsonl", "*discovery-serving.json",
+    "run-*/pass-receipt.json", "run-*/otel-export-receipt.json", "run-*/otel/spans.jsonl",
+    "run-*/otel/trace-admission.json", "run-*/otel/throughput.json", "run-*/otel/factors.json", "run-*/otel/*.csv",
+    "session-summary/*.json", "session-summary/*.csv", "session-summary/*.md",
+    "run-*/e2e/*/shard-*/attempts/*/replay.private.jsonl",
+    "run-*/vllm-restart/*.json", "run-*/vllm-restart/router-receipts.jsonl", "run-*/workload/*.csv", "run-*/workload/*.json", "run-*/workload/*.jsonl",
+    "run-*/e2e/progress.tsv", "run-*/e2e/*/coordinator-*.json*", "run-*/e2e/*/shard-*/coordinator-*.json*",
+    "run-*/e2e/*/shard-*/attempts/*/run-receipt.json", "run-*/e2e/*/shard-*/attempts/*/receipts.jsonl",
+    "run-*/e2e/*/shard-*/attempts/*/manifest.json", "run-*/e2e/*/attempts/*/run-receipt.json",
+    "run-*/e2e/*/attempts/*/receipts.jsonl", "run-*/e2e/*/attempts/*/manifest.json",
+)
+
+
+def _essentials_tar_command(remote_artifacts: str, archive: str) -> str:
+    """Shell command that archives only the essential globs (missing globs are fine)."""
+    # With nullglob, an unmatched `$g` made `ls -1d` list '.', recursively
+    # archiving the whole run and duplicating later matches (lab-s22).
+    script = "\n".join((
+        "import pathlib,sys,tarfile,json",
+        "root=pathlib.Path('.')",
+        "paths=sorted({p for pattern in json.loads(sys.argv[2]) for p in root.glob(pattern) if p.is_file() and not p.is_symlink()})",
+        "with tarfile.open(sys.argv[1], 'w:gz') as tar:",
+        " for path in paths: tar.add(path, arcname=str(path), recursive=False)",
+    ))
+    return (f"cd {shlex.quote(remote_artifacts)} && python3 -c {shlex.quote(script)} "
+            f"{shlex.quote(archive)} {shlex.quote(json.dumps(ESSENTIAL_GLOBS))} && sha256sum -- {shlex.quote(archive)}")
+
+
+def _collect_essentials(ssh_prefix: list[str], remote_artifacts: str, local_root: Path, *, timeout_s: int) -> dict[str, Any]:
+    """Archive + copy + verify + extract the essential receipts before the bulk copy."""
+    archive = "/tmp/seocho-essentials.tgz"
+    hashed = _ssh(ssh_prefix, _essentials_tar_command(remote_artifacts, archive), timeout_s=timeout_s)
+    remote_digest = hashed.stdout.strip().split()[0] if hashed.stdout.strip() else ""
+    local_archive = local_root / "essentials.tgz"
+    _run(*_scp_prefix(ssh_prefix), f"{ssh_prefix[-1]}:{archive}", str(local_archive), timeout_s=timeout_s)
+    local_digest = _sha256(local_archive)
+    if not remote_digest or local_digest != remote_digest:
+        raise RuntimeError("essential archive digest mismatch after copy")
+    # Checkpoint before extraction so interrupted extraction remains auditable.
+    checkpoint = local_root / "essential-copy-receipt.json"
+    receipt = {
+        "schema_version": "agentic_os.essential_copy_checkpoint.v1", "verified": True,
+        "remote_sha256": remote_digest, "local_sha256": local_digest,
+        "bytes": local_archive.stat().st_size, "extraction_complete": False,
+    }
+    checkpoint.write_text(json.dumps(receipt, indent=2) + "\n")
+    with tarfile.open(local_archive) as tar:
+        members = [m for m in tar.getmembers() if not (m.name.startswith("/") or ".." in PurePosixPath(m.name).parts)]
+        tar.extractall(local_root, members=members)  # noqa: S202 - members filtered above
+    receipt.update(extraction_complete=True, files=len(members))
+    checkpoint.write_text(json.dumps(receipt, indent=2) + "\n")
+    local_archive.unlink()
+    return {"verified": True, "sha256": remote_digest, "files": len(members), "bytes": receipt["bytes"]}
+
+def _copy_from_remote(ssh_prefix: list[str], remote_artifacts: str, local_root: Path, *, timeout_s: int = 1800) -> None:
     """Copy the remote artifact tree into ``local_root`` without a ``/.`` suffix.
 
     OpenSSH 8.9+ scp (SFTP mode) rejects ``host:/dir/.`` with
@@ -396,7 +470,7 @@ def _copy_from_remote(ssh_prefix: list[str], remote_artifacts: str, local_root: 
     staging.mkdir(parents=True)
     _run(
         *_scp_prefix(ssh_prefix), "-r", f"{ssh_prefix[-1]}:{remote_artifacts}", str(staging),
-        timeout_s=1800,
+        timeout_s=timeout_s,
     )
     fetched = staging / PurePosixPath(remote_artifacts).name
     if not fetched.is_dir():
@@ -505,6 +579,7 @@ def main() -> int:
     )
     parser.add_argument("--min-reliability", type=float, default=0)
     parser.add_argument("--gpu-name-regex", help="Optional case-insensitive GPU-name admission filter.")
+    parser.add_argument("--require-nvlink", action="store_true", help="Admit only offers with an NVLink fabric between the GPUs (bw_nvlink > 0); lab rule since 2026-09-12.")
     parser.add_argument(
         "--exclude-host-id",
         action="append",
@@ -516,6 +591,9 @@ def main() -> int:
     parser.add_argument("--max-runtime-s", type=int, required=True)
     parser.add_argument("--remote-command", required=True)
     parser.add_argument("--remote-artifacts", default="/artifacts")
+    parser.add_argument("--collect-timeout-s", type=int, default=3600, help="per-attempt timeout for the essential archive copy and each bulk scp (lab-s15: 1800 s was too short from a slow host)")
+    parser.add_argument("--collect-retries", type=int, default=1, help="extra bulk scp attempts after the first failure")
+    parser.add_argument("--collect-bulk", choices=("full", "essential-only"), default="full", help="essential-only skips the bulk private-log copy (slow uplinks: lab-s15/s16 UAE host); the lifecycle records artifacts_partial")
     parser.add_argument("--local-artifacts", required=True, type=Path)
     parser.add_argument("--upload", action="append", type=_parse_upload, default=[])
     args = parser.parse_args()
@@ -569,6 +647,7 @@ def main() -> int:
                 min_effective_cpu=args.min_effective_cpu,
                 min_cpu_ram_mb=args.min_cpu_ram_mb,
                 min_reliability=args.min_reliability,
+                require_nvlink=args.require_nvlink,
                 disk_gb=args.disk_gb,
                 gpu_name_pattern=gpu_name_pattern,
             )
@@ -592,6 +671,7 @@ def main() -> int:
                 "num_gpus",
                 "gpu_total_ram",
                 "cpu_cores_effective",
+                "bw_nvlink",
                 "cpu_ram",
                 "disk_space",
                 "dph_total",
@@ -672,7 +752,36 @@ def main() -> int:
         remote_checksums = _remote_checksum_map(ssh_prefix, remote_artifacts)
         lifecycle["remote_checksum_count"] = len(remote_checksums)
         _write_lifecycle_checkpoint(receipt_path, lifecycle, "remote_artifacts_hashed")
-        _copy_from_remote(ssh_prefix, remote_artifacts, args.local_artifacts)
+        try:
+            lifecycle["essential_copy"] = _collect_essentials(ssh_prefix, remote_artifacts, args.local_artifacts, timeout_s=args.collect_timeout_s)
+        except Exception as exc:  # class only
+            lifecycle["essential_copy"] = {"verified": False, "error_class": type(exc).__name__}
+        _write_lifecycle_checkpoint(receipt_path, lifecycle, "essential_artifacts_collected")
+        bulk_error: str | None = None
+        if args.collect_bulk == "essential-only":
+            bulk_error = "SkippedByFlag"
+            lifecycle["bulk_copy_attempts"] = 0
+        for attempt in range(1, (args.collect_retries + 2) if bulk_error is None else 1):
+            try:
+                _copy_from_remote(ssh_prefix, remote_artifacts, args.local_artifacts, timeout_s=args.collect_timeout_s)
+                bulk_error = None
+                break
+            except Exception as exc:  # class only
+                bulk_error = type(exc).__name__
+                lifecycle["bulk_copy_attempts"] = attempt
+        if bulk_error is not None:
+            lifecycle["bulk_copy_error_class"] = bulk_error
+            if not (lifecycle.get("essential_copy") or {}).get("verified"):
+                raise RuntimeError(f"artifact copy failed ({bulk_error}) and no essential copy was verified")
+            lifecycle["artifact_copy_verified"] = False
+            lifecycle["artifact_checksum_mismatches"] = []
+            lifecycle["volatile_artifacts"] = []
+            lifecycle["failure_class"] = lifecycle.get("failure_class") or "BulkArtifactCopyIncomplete"
+            lifecycle["failure_message"] = lifecycle.get("failure_message") or (
+                f"bulk artifact copy failed ({bulk_error}); essential receipts were copied and verified"
+            )
+            _write_lifecycle_checkpoint(receipt_path, lifecycle, "artifacts_partial")
+            raise _PartialArtifacts(lifecycle["failure_message"])
         mismatches: list[str] = []
         for relative, remote_digest in remote_checksums.items():
             local_path = _match_local_artifact(args.local_artifacts, relative)
