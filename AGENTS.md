@@ -17,6 +17,12 @@ Read these first for non-trivial work:
 5. `docs/ISSUE_TASK_SYSTEM.md`
 6. `docs/decisions/DECISION_LOG.md`
 
+For Graph Agentic RAG experiments, observability, or benchmark handoff, also read
+[the experiment agent guide](docs/agentic-os/AGENTS.md) and
+[the harness entrypoint](docs/agentic-os/HARNESS.md). The tracked
+[experiment index](docs/agentic-os/README.md) provides results, metric definitions,
+and state without requiring the original operator's local memory.
+
 Also read `docs/GRAPH_RAG_AGENT_HANDOFF_SPEC.md` when touching semantic
 retrieval, public memory answering, Graph-RAG behavior, routing policy, or
 multi-agent query flow.
@@ -89,7 +95,8 @@ surface in the same commit or PR.
 - OpenAI Agents SDK is the agent runtime baseline.
 - DozerDB is the graph database backend baseline.
 - `workspace_id` must be propagated in runtime-facing models, APIs, and traces.
-- Tracing stays vendor-neutral; Opik is the preferred team backend.
+- Tracing stays vendor-neutral (`none|console|jsonl|otlp`); use JSONL artifacts
+  and an operator-selected OTLP backend.
 - Owlready2 is allowed only in offline ontology governance paths, not hot
   request paths.
 

@@ -1,4 +1,25 @@
-# Lab session launchers and helpers (labs 013–022)
+# Lab session launchers and helpers
+
+Start with [the portable harness guide](../../../docs/agentic-os/HARNESS.md) and
+[experiment AGENTS.md](../../../docs/agentic-os/AGENTS.md). Read results or
+regenerate charts without cloud access.
+
+## Current throughput harness (labs024–025)
+
+`launch_lab_s22.py` supports the original queue, `--continuation`, and
+`--replica-audit`. It accepts `--workspace`, `--bundle`, `--preflight` and a fresh
+`--run-root`; it validates private local inputs before provider operations.
+Inspect `--help` or the session runner `--print-plan` first. Prior lab budgets
+and source hashes are historical evidence, not defaults for a new paid run.
+
+The canonical queue is `../run_agentic_os_throughput_session.py`. The
+[component map](../../../docs/agentic-os/HARNESS.md#harness-components) links
+trace gates, metric sampling, report exports and the chart renderer.
+
+## Historical launchers (labs013–022)
+
+These preserve the parameters used for past runs. Audit their paths, input
+hashes and resource bounds before adapting one; they are not turnkey launch commands.
 
 - `launch_lab_sNN.sh` — the exact fail-closed launcher used for session lab-sNN (offer query, NVLink rule,
   uploads, bundle version, queue file, remote command). Run as

@@ -317,6 +317,8 @@ Same order as the [docs onboarding path](docs/README.md), top to bottom:
 | Runtime internals | [docs/RUNTIME_ARCHITECTURE.md](docs/RUNTIME_ARCHITECTURE.md) |
 | Query internals | [docs/QUERY_ARCHITECTURE.md](docs/QUERY_ARCHITECTURE.md) |
 | Runtime deployment | [docs/RUNTIME_DEPLOYMENT.md](docs/RUNTIME_DEPLOYMENT.md) |
+| Graph Agentic RAG experiments, observability, and reproducible charts | [Experiment results and harness](docs/agentic-os/README.md) |
+| Resume the graph-agent experiments with another coding agent | [Experiment AGENTS.md](docs/agentic-os/AGENTS.md) |
 | Contributing | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Maintainer workflow | [docs/WORKFLOW.md](docs/WORKFLOW.md) |
 | Issue and task system | [docs/ISSUE_TASK_SYSTEM.md](docs/ISSUE_TASK_SYSTEM.md) |

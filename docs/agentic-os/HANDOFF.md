@@ -394,3 +394,25 @@ condition conservation checks and Chrome rendering/condition selection checked.
 Basic CI1112pass3skip and structural contracts pass; same5 existing SSH fixture
 identity violations remain. Private raw inputs/credentials are not published.
 Continue using temporary worktrees and private gare2e/agentic-os-e2e only.
+
+
+### §16 main publication and portable harness (2026-09-15)
+
+User explicitly requested merging the experiment branch into private
+`tteon/gare2e:main`, including agent instructions and the harness. This changes
+the landing target for this publication from the historical development branch.
+The separate public SEOCHO origin and repository visibility are not changed.
+
+Start at [the experiment index](README.md), which renders representative SVGs
+on GitHub and links all30 conditions. [AGENTS.md](AGENTS.md) and
+[HARNESS.md](HARNESS.md) document metric invariants, source/receipt locations,
+cloud-free chart reproduction and private prerequisites for live reruns. Root
+AGENTS/README link them. The packaged lab-resume skill now reads tracked state
+first, without requiring the original operator's home directory or local tracker.
+
+The previous basic-CI address violations were synthetic SSH fixture hostnames;
+all five now use the reserved .example domain, preserving parser/copy contracts.
+Full basic CI passes, including identity and structural checks;31 focused tests,
+docs/link checks, the six-entry print-plan and secret-guard30/30 self-test pass.
+No new benchmark or paid resource was launched for publication. Lab025 outcomes
+and original source/artifact hashes in §15 remain unchanged.
