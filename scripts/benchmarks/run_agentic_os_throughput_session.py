@@ -17,7 +17,9 @@ from summarize_agentic_os_factors import summarize
 from summarize_agentic_os_characterization import replica_observations
 
 
-def plan(*, continuation: bool = False, replica_audit: bool = False, runtime_audit: bool = False, runtime_recovery: bool = False) -> list[dict[str, Any]]:
+def plan(*, continuation: bool = False, replica_audit: bool = False, runtime_audit: bool = False, runtime_recovery: bool = False, saturation_repetitions: int = 2) -> list[dict[str, Any]]:
+    if saturation_repetitions not in (1, 2):
+        raise ValueError("saturation repetitions must be 1 or 2")
     runtime_audit = runtime_audit or runtime_recovery
     if sum((continuation, replica_audit, runtime_audit)) > 1:
         raise ValueError('choose one continuation scope')
@@ -52,7 +54,7 @@ def plan(*, continuation: bool = False, replica_audit: bool = False, runtime_aud
                   dict(id='observed-k64', k=64, observer=True),
                   dict(id='kernel-profile', k=1, limit=1, observer=True, profile=True),
                   dict(id='grammar-observer', k=8, observer=True, lane='grbench-grammar', ratio=1.0)]
-        for repetition in (1, 2):
+        for repetition in range(1, saturation_repetitions + 1):
             for name, serving in (('base', baseline), ('mtp', mtp)):
                 passes.append(dict(id=f'{name}-r{repetition}-gate', k=1, limit=1, serving=serving, observer=True))
                 passes.extend(dict(id=f'{name}-r{repetition}-k{k}', k=k, serving=serving, observer=True)
@@ -116,6 +118,7 @@ def main() -> int:
     parser.add_argument('--repo', type=Path, default=Path('/workspace/seocho'))
     parser.add_argument('--input', type=Path, default=Path('/workspace/input'))
     parser.add_argument('--artifacts', type=Path, default=Path('/artifacts'))
+    parser.add_argument('--saturation-repetitions', type=int, choices=(1, 2), default=2)
     parser.add_argument('--duration-s', type=float, default=90)
     parser.add_argument('--max-session-s', type=int, default=10500)
     parser.add_argument('--reserve-s', type=int, default=1500)
@@ -128,7 +131,7 @@ def main() -> int:
     args.runtime_audit = args.runtime_audit or args.runtime_recovery
     if args.reserve_s < 0 or args.max_session_s <= args.reserve_s:
         parser.error('max session must exceed nonnegative reserve')
-    registered = plan(continuation=args.continuation, replica_audit=args.replica_audit, runtime_audit=args.runtime_audit, runtime_recovery=args.runtime_recovery)
+    registered = plan(continuation=args.continuation, replica_audit=args.replica_audit, runtime_audit=args.runtime_audit, runtime_recovery=args.runtime_recovery, saturation_repetitions=args.saturation_repetitions)
     strict = args.replica_audit or args.runtime_audit
     if args.print_plan:
         print(json.dumps(registered, indent=2))
@@ -150,7 +153,7 @@ def main() -> int:
     write_new(args.input / 'throughput-backlog.json', backlog_schedule(source, repeats=40))
     write_new(args.artifacts / 'session-summary/registered-plan.json', {'passes': registered, 'duration_s': args.duration_s,
         'continuation': args.continuation, 'replica_audit': args.replica_audit, 'runtime_audit': args.runtime_audit, 'runtime_recovery': args.runtime_recovery,
-        'worker_native_threads': 1 if args.runtime_recovery else None, 'reserve_s': args.reserve_s,
+        'saturation_repetitions': args.saturation_repetitions, 'worker_native_threads': 1 if args.runtime_recovery else None, 'reserve_s': args.reserve_s,
         'max_session_s': args.max_session_s, 'context': '32768 cap; observed lengths reported separately',
         'db_cache': 'warm intent; no OS cache flush; capacities fixed', 'quality': 'recorded separately; replay has no answer-quality evaluation',
         'high_load_k': 64, 'high_load_is_saturation': 'only if measured K curve establishes plateau'})

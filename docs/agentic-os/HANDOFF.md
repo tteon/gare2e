@@ -468,3 +468,36 @@ remain separate; new controls are necessary after the harness change. New
 lab-s25b:9800s watchdog at<=3.60/h,max9.80 plus2.706424 alreadyspent totals
 12.506424<12.60. Exact-image preflight and localCI precede create. At this
 checkpoint no owned liveinstance. Stage2/3 are still pending.
+
+
+## 2026-09-17 recovery checkpoint: s25b and bounded completion
+
+s25b source b5ce2327: gate and baseline K8/K64/K128 passed exact trace and
+engine admission. Rates121.459/436.707/485.151 output tok/s/GPU,
+task/s0.54936/1.88381/2.09153. Native-thread=1 reduced K128 agent threads to513;
+cgroup pids peak1434, limit7680, pids.max events0. K256 failed40/256 worker
+starts with OSError before a valid window;216 tasks completed during draining.
+Original coordinator catch omitted errno, so exact live errno is unknown.
+K256 pids peak1838 and no pids/max/OOM events: this is not GPU saturation evidence.
+
+Bounded local startup reproduction (96children, RLIMIT_NOFILE256): concurrent
+creation yielded61EMFILE failures; serialized creation started96/96. Fix scopes
+serialization to Popen startup; actual tasks remain concurrent. Coordinator
+errors now record numeric errno and RLIMIT_NOFILE without private error text.
+This is a verified possible mechanism, not proof of the missing live errno.
+
+Instance51161376 destroyed/absent; watchdog parent_teardown_verified_absent.
+Essential5219files/7280675bytes SHA256
+6d07cc9904aefd0c46dc3e866e25697fe3cf3f686e026351bda931f78093f078.
+Bulk remains intentionally partial. Runtime2547.817764s at3.229907407/h cost
+2.285893186; s25+s25b total4.992317572. Historical cumulative approx123.4123.
+
+Registered next delta: `--runtime-completion`, lab-s25c, same pinned stack and
+worker thread policy plus serialized startup. One same-host paired sweep of
+baseline/MTP at K8/64/128/256 (8cells +2gates), then all10actual context cells.
+The second sweep is removed to prioritize completing the three authorized
+stages within the original12.60 bound; no repeat variance or confidence interval
+claim. Prior lowK controls repeat because a new host/startup policy needs a
+matched control. No previously completed stage1 repeat. Hard lifetime7500s,
+rate<=3.60/h =>max7.50; cumulative upper estimate12.492318. Remote6900s,
+session6100s/reserve300s. No replacement while existing ownership is unresolved.

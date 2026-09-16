@@ -17,7 +17,7 @@ warmup plus10s,90s dispatch window, drain excluded. Quality unscored.
 The OFF/ON pair shows no regression in this run, not a precise overhead estimate:
 agent trajectories and token demand can differ. The5conditions contain1616tasks,
 7479requests and6496tools; detailed coverage/token distributions and linked
-Runtime/Tool/Agent views are in [the report](index.html). CSV.gz files support
+Runtime/Tool/Agent views are in [the interactive report](index.html) and [Runtime / Tool / Agent charts](figures-v2/index.html). CSV.gz files support
 chart regeneration. [conditions.json](conditions.json) contains exact engine,
 CPU/grammar/KV, profiler, admission and input-hash evidence.
 

@@ -374,9 +374,14 @@ def render(sources: list[Path], output: Path) -> None:
     # Same-session K curves; no cross-host pooling, missing rates stay missing.
     fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
     for source in sources:
-        for prefix, label in [('base-k', 'Baseline'), ('mtp-k', 'MTP')]:
-            selected = sorted((r for r in records if r['session'] == source.name
-                               and re.fullmatch(prefix + r'\d+', r['pass'])), key=lambda r: r['summary']['application_k'])
+        groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for record in records:
+            match = re.fullmatch(r'(base|mtp)(-r\d+)?-k\d+', record['pass'])
+            if record['session'] == source.name and match:
+                label = ('Baseline' if match[1] == 'base' else 'MTP') + (match[2] or '')
+                groups[label].append(record)
+        for label, group in sorted(groups.items()):
+            selected = sorted(group, key=lambda r: r['summary']['application_k'])
             for ax, metric, title in zip(axes, ['output_tok_s_gpu', 'task_completions_per_s'], ['Output tok/s/GPU', 'Task/s']):
                 pairs = [(r['summary']['application_k'], number(r['summary'].get(metric) if metric == 'output_tok_s_gpu'
                           else r['summary'].get('throughput', {}).get(metric))) for r in selected]
@@ -389,6 +394,9 @@ def render(sources: list[Path], output: Path) -> None:
     for ax in axes:
         if ax.lines:
             ax.legend(fontsize=8)
+        else:
+            ax.text(.5, .5, 'No comparable K sweep in this source',
+                    ha='center', va='center', transform=ax.transAxes)
     fig.suptitle('Measured concurrency response — single runs, no confidence intervals')
     fig.tight_layout()
     save_svg(fig, output / 'throughput-overview.svg')

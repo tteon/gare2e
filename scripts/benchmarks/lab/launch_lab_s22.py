@@ -24,17 +24,19 @@ def main() -> int:
     parser.add_argument('--replica-audit', action='store_true', help='Lab025 prepared TP2/sticky/task-rr queue; max $3.40 / 60 min')
     parser.add_argument('--cuda-forward-compat', action='store_true', help='Pinned image built-in CUDA13 libraries on R570 A100 only')
     parser.add_argument('--runtime-audit', action='store_true', help='Lab026 sequential engine/saturation/context stages; max $12.60 / 210 min')
+    parser.add_argument('--runtime-completion', action='store_true', help='One paired K sweep then all context cells; max7.50USD after4.992318 spent')
     parser.add_argument('--runtime-recovery', action='store_true', help='Lab026 stage2/3 after worker repair; max9.80USD retaining2.706425 already spent')
     args = parser.parse_args()
+    args.runtime_recovery = args.runtime_recovery or args.runtime_completion
     args.runtime_audit = args.runtime_audit or args.runtime_recovery
     if sum((args.replica_audit, args.continuation, args.runtime_audit)) > 1:
         parser.error('choose one continuation scope')
     if args.cuda_forward_compat and not (args.continuation or args.replica_audit or args.runtime_audit):
         parser.error('forward compatibility is registered only for the A100 continuation')
-    lifetime_s = 9800 if args.runtime_recovery else 12600 if args.runtime_audit else 3600 if args.replica_audit else 5400 if args.continuation else 13000
+    lifetime_s = 7500 if args.runtime_completion else 9800 if args.runtime_recovery else 12600 if args.runtime_audit else 3600 if args.replica_audit else 5400 if args.continuation else 13000
     max_dph = 3.4 if args.replica_audit else 3.6
     a100_only = args.continuation or args.replica_audit or args.runtime_audit
-    label = 'seocho-agentic-os-lab-s25b' if args.runtime_recovery else 'seocho-agentic-os-lab-s25' if args.runtime_audit else 'seocho-agentic-os-lab-s24' if args.replica_audit else 'seocho-agentic-os-lab-s23' if args.continuation else 'seocho-agentic-os-lab-s22'
+    label = 'seocho-agentic-os-lab-s25c' if args.runtime_completion else 'seocho-agentic-os-lab-s25b' if args.runtime_recovery else 'seocho-agentic-os-lab-s25' if args.runtime_audit else 'seocho-agentic-os-lab-s24' if args.replica_audit else 'seocho-agentic-os-lab-s23' if args.continuation else 'seocho-agentic-os-lab-s22'
     repo = Path(__file__).resolve().parents[3]
     bootstrap = args.workspace / '.seocho/benchmarks/agentic-os/colocated-appliance/bootstrap'
     strata = args.workspace / '.seocho/benchmarks/agentic-os/strata-v2'
@@ -66,14 +68,16 @@ def main() -> int:
         env.update(VLLM_ENABLE_CUDA_COMPATIBILITY='1', VLLM_CUDA_COMPATIBILITY_PATH='/usr/local/cuda-13.0/compat',
                    LD_LIBRARY_PATH='/usr/local/cuda-13.0/compat:/usr/local/nvidia/lib64:/usr/local/cuda/lib64:/usr/local/nvidia/lib',
                    SEOCHO_CUDA_COMPAT_PROBE='1')
-    remote = ['timeout', '--signal=TERM', '8600' if args.runtime_recovery else '11400' if args.runtime_audit else '2700' if args.replica_audit else '4200' if args.continuation else '12000', 'env', *[f'{k}={v}' for k, v in env.items()],
+    remote = ['timeout', '--signal=TERM', '6900' if args.runtime_completion else '8600' if args.runtime_recovery else '11400' if args.runtime_audit else '2700' if args.replica_audit else '4200' if args.continuation else '12000', 'env', *[f'{k}={v}' for k, v in env.items()],
         'bash', '/workspace/bootstrap/bootstrap_agentic_os_appliance.sh', 'python3',
         '/workspace/seocho/scripts/benchmarks/run_agentic_os_throughput_session.py']
     if args.continuation:
         remote += ['--continuation', '--max-session-s', '3000', '--reserve-s', '600']
     if args.replica_audit:
         remote += ['--replica-audit', '--max-session-s', '2300', '--reserve-s', '300']
-    if args.runtime_recovery:
+    if args.runtime_completion:
+        remote += ['--runtime-recovery', '--saturation-repetitions', '1', '--max-session-s', '6100', '--reserve-s', '300']
+    elif args.runtime_recovery:
         remote += ['--runtime-recovery', '--max-session-s', '7400', '--reserve-s', '600']
     elif args.runtime_audit:
         remote += ['--runtime-audit', '--max-session-s', '9900', '--reserve-s', '900']

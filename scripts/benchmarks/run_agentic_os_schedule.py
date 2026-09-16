@@ -15,6 +15,7 @@ import threading
 import hashlib
 import json
 import math
+import resource
 import subprocess
 import sys
 import time
@@ -261,8 +262,11 @@ def _run_dynamic(
         try:
             if args.runner_mode == "persistent":
                 if not hasattr(local, "runner"):
-                    local.runner = PersistentRunner(_REPO_ROOT, native_threads=getattr(args, 'worker_native_threads', None))
+                    # Popen temporarily owns more descriptors than its two IPC
+                    # pipes. Serialize startup, not task execution, so high K
+                    # does not multiply those transient descriptors.
                     with runner_lock:
+                        local.runner = PersistentRunner(_REPO_ROOT, native_threads=getattr(args, 'worker_native_threads', None))
                         runners.append(local.runner)
                 result = local.runner.run(command, root)
             else:
@@ -278,6 +282,8 @@ def _run_dynamic(
             # Never put the exception body (possibly a provider response) in receipts.
             result = {
                 "runner_exit_code": 1, "runner_error_class": type(exc).__name__,
+                "runner_error_errno": getattr(exc, 'errno', None) if isinstance(getattr(exc, 'errno', None), int) else None,
+                "coordinator_nofile_limits": list(resource.getrlimit(resource.RLIMIT_NOFILE)),
                 "runner_started_unix_s": start, "runner_finished_unix_s": time.time(),
                 "runner_wall_ms": (time.perf_counter() - clock) * 1000,
                 "runner_setup_ms": None,

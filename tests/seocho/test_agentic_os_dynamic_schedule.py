@@ -227,3 +227,59 @@ with open(os.environ["CALLS_FILE"], "a") as stream:
         assert len(commands) == 2
         assert {command[command.index('--shard') + 1] for command in commands} == {'0/2', '1/2'}
         assert all('--cache-control-script' in command for command in commands)
+
+
+def test_persistent_startup_serialized_but_tasks_remain_concurrent(tmp_path, monkeypatch) -> None:
+    import threading
+    import time
+    module = load_script('run_agentic_os_schedule')
+    startup_lock = threading.Lock()
+    active_lock = threading.Lock()
+    execution_barrier = threading.Barrier(2)
+    active = 0
+
+    class Runner:
+        def __init__(self, *args, **kwargs):
+            assert startup_lock.acquire(blocking=False), 'concurrent Popen descriptor spike'
+            time.sleep(.02)
+            startup_lock.release()
+
+        def run(self, command, root):
+            nonlocal active
+            with active_lock:
+                active += 1
+            execution_barrier.wait(timeout=3)
+            return dict(runner_exit_code=0, runner_started_unix_s=time.time(),
+                        runner_finished_unix_s=time.time(), runner_wall_ms=1)
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(module, 'PersistentRunner', Runner)
+    monkeypatch.setattr(module, '_runner_command', lambda *args: [])
+    args = SimpleNamespace(lane='grbench-single', workers=2, runner_mode='persistent',
+                           run_root=tmp_path, continue_on_error=False, steady_state_warmup_s=0)
+    entries = [dict(qid=str(i), arm='B0', seed=0, repetition=0,
+                    cache_phase='warm', paired_unit=str(i)) for i in range(2)]
+    assert module._run_dynamic(args, entries, 'digest', tmp_path / 'coordinator-receipts.jsonl') == 0
+    assert active == 2
+
+
+def test_startup_oserror_preserves_errno_without_error_body(tmp_path, monkeypatch) -> None:
+    import errno
+    module = load_script('run_agentic_os_schedule')
+
+    def fail(*args, **kwargs):
+        raise OSError(errno.EMFILE, 'private diagnostic body')
+
+    monkeypatch.setattr(module, 'PersistentRunner', fail)
+    monkeypatch.setattr(module, '_runner_command', lambda *args: [])
+    args = SimpleNamespace(lane='grbench-single', workers=1, runner_mode='persistent',
+                           run_root=tmp_path, continue_on_error=False, steady_state_warmup_s=0)
+    entries = [dict(qid='0', arm='B0', seed=0, repetition=0, cache_phase='warm', paired_unit='0')]
+    path = tmp_path / 'coordinator-receipts.jsonl'
+    assert module._run_dynamic(args, entries, 'digest', path) == 2
+    receipt = json.loads(path.read_text())
+    assert receipt['runner_error_errno'] == errno.EMFILE
+    assert len(receipt['coordinator_nofile_limits']) == 2
+    assert 'private diagnostic body' not in path.read_text()
