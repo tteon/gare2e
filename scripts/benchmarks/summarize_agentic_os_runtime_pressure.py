@@ -42,11 +42,16 @@ def render(data: dict[str, Any], output: Path) -> None:
 
     plt.rcParams.update({'font.size': 10, 'figure.facecolor': '#f8fafc', 'axes.facecolor': '#ffffff'})
     rows = data['conditions']
-    cells = [r for r in rows if r['category'] == 'saturation' and r['factors']]
+    admitted = [r for r in rows if r['receipt'].get('exit_code') == 0
+                and r['factors'].get('throughput', {}).get('status') == 'observed'
+                and r['engine'].get('passed') is True]
+    cells = [r for r in admitted if r['category'] == 'saturation']
     fig, axes = plt.subplots(2, 2, figsize=(13, 9))
     for name, color in [('base', '#2563eb'), ('mtp', '#e76f51')]:
         for rep, style in [(1, '-o'), (2, '--s')]:
             group = sorted([r for r in cells if r['id'].startswith(f'{name}-r{rep}-')], key=lambda r: r['receipt']['config']['k'])
+            if not group:
+                continue
             ks = [r['receipt']['config']['k'] for r in group]
             values = [
                 [r['factors'].get('output_tokens_per_s_per_gpu') for r in group],
@@ -60,21 +65,26 @@ def render(data: dict[str, Any], output: Path) -> None:
         ax.set(xlabel='Application K', ylabel=label, xticks=[8, 64, 128, 256])
         ax.grid(alpha=.2)
         ax.legend(fontsize=8)
-    fig.suptitle('Same-host baseline / MTP: application concurrency and actual engine work\nTwo sweeps; engine max_num_seqs=128. Request times overlap.', fontsize=13)
+    fig.suptitle('Same-host baseline / MTP: application concurrency and actual engine work\nObserved sweeps only; engine max_num_seqs=128. Request times overlap.', fontsize=13)
     fig.tight_layout()
     fig.savefig(output / 'saturation.svg')
     plt.close(fig)
 
-    context = [r for r in rows if r['category'] == 'context' and r['factors']]
-    fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+    context = [r for r in admitted if r['category'] == 'context']
+    fig, axes = plt.subplots(2, 3, figsize=(19, 11))
     labels = [r['id'].replace('context-', '').replace('distributed', 'dist') for r in context]
     values = [
         [r['factors'].get('output_tokens_per_s_per_gpu') for r in context],
         [r['factors'].get('throughput', {}).get('task_completions_per_s') for r in context],
         [(r['factors'].get('sampled_gauges', {}).get('vllm:kv_cache_usage_perc') or {}).get('max') for r in context],
         [r['factors'].get('counter_deltas', {}).get('vllm:num_preemptions') for r in context],
+        [cached / queried if (queried := r['factors'].get('counter_deltas', {}).get('vllm:prefix_cache_queries'))
+         and (cached := r['factors'].get('counter_deltas', {}).get('vllm:prefix_cache_hits')) is not None else None
+         for r in context],
+        [(r['engine'].get('schedules', {}).get('waiting_sequences') or {}).get('mean') for r in context],
     ]
-    for ax, ys, label in zip(axes.flat, values, ['Output tok/s/GPU', 'Two-call tasks/s', 'Maximum KV utilization fraction', 'Preemptions in common window']):
+    for ax, ys, label in zip(axes.flat, values, ['Output tok/s/GPU', 'Two-call tasks/s', 'Maximum KV utilization fraction',
+                                              'Preemptions in common window', 'Prefix token hit fraction', 'Mean engine waiting sequences']):
         ax.bar(range(len(context)), [np.nan if v is None else v for v in ys], color=['#2563eb' if r['receipt']['config']['locality'] == 'shared' else '#e76f51' for r in context])
         ax.set_xticks(range(len(labels)), labels, rotation=40, ha='right', fontsize=8)
         ax.set_ylabel(label)
@@ -95,7 +105,7 @@ def render(data: dict[str, Any], output: Path) -> None:
     (output / 'index.html').write_text('''<!doctype html><meta charset="utf-8"><title>Engine, saturation and KV pressure</title>
 <style>body{font:16px system-ui;margin:2rem auto;max-width:1400px;color:#172033}img{width:100%}td,th{padding:.5rem;text-align:left;border-bottom:1px solid #ddd}table{border-collapse:collapse}</style>
 <h1>Engine observations → saturation → context pressure</h1>
-<p>Only preserved live receipts are plotted. Unknown values are not zero. Agent comparisons and fixed-corpus serving diagnostics are separate. Detailed numerical factors, engine CPU/grammar/KV and profiler results are in <a href="conditions.json">conditions.json</a>.</p>
+<p>Only successful live conditions with an observed throughput window and passed engine admission are plotted. All receipts, including failures, remain in the coverage table. Unknown values are not zero. Agent comparisons and fixed-corpus serving diagnostics are separate. Detailed numerical factors, engine CPU/grammar/KV and profiler results are in <a href="conditions.json">conditions.json</a>.</p>
 <h2>Same-host baseline / MTP</h2><img src="saturation.svg" alt="Throughput and observed engine sequences across K">
 <h2>Actual context and prefix locality</h2><img src="context-pressure.svg" alt="Context-pressure throughput and KV measurements">
 <h2>Coverage</h2><table><tr><th>Condition</th><th>Exit</th><th>tok/s/GPU</th><th>Mean decode sequences</th><th>Exact server joins</th></tr>'''
