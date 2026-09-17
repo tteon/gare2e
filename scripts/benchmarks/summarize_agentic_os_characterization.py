@@ -120,7 +120,8 @@ def replica_observations(directory: Path, start: float, end: float) -> list[dict
     return output
 
 
-def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -> dict[str, Any]:
+def summarize(root: Path, output: Path, *, use_private_captures: bool = False,
+              exclude_fixed_corpus: bool = False) -> dict[str, Any]:
     output.mkdir(parents=True, exist_ok=True)
     server = read_rows(root / 'otel/collector-spans.jsonl')
     server_index: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
@@ -129,13 +130,18 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -
             server_index[(span['trace_id'], span.get('parent_span_id'))].append(span)
     labels = query_shapes(root, use_private_captures)
     all_tasks, all_requests, all_tools, summaries = [], [], [], []
+    excluded_fixed_corpus_passes = []
     for directory in sorted(root.glob('run-*')):
         factor_path = directory / 'otel/factors.json'
         if not factor_path.exists():
             continue
         factors = json.loads(factor_path.read_text())
         pass_receipt_path = directory / 'pass-receipt.json'
-        config = json.loads(pass_receipt_path.read_text()).get('config', {}) if pass_receipt_path.exists() else {}
+        pass_receipt = json.loads(pass_receipt_path.read_text()) if pass_receipt_path.exists() else {}
+        if exclude_fixed_corpus and pass_receipt.get('evidence_class') == 'fixed_corpus_serving_diagnostic':
+            excluded_fixed_corpus_passes.append(directory.name.removeprefix('run-'))
+            continue
+        config = pass_receipt.get('config', {})
         rate = factors.get('throughput', {})
         if rate.get('status') != 'observed':
             continue
@@ -252,6 +258,7 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -
         all_requests.extend(requests)
         all_tools.extend(tools)
     result = {'schema_version': 'agentic_os.three_view_characterization.v1', 'run_id': root.name, 'passes': summaries,
+              'excluded_fixed_corpus_passes': excluded_fixed_corpus_passes,
               'counts': {'tasks': len(all_tasks), 'requests': len(all_requests), 'tools': len(all_tools)},
               'limitations': [
                   'Single ordered pass per condition; no independent repeats or confidence intervals.',
@@ -264,7 +271,8 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False) -
                   'Query labels are lexical shapes from exact capture digest matches; missing matches are unknown.',
                   'Session creation is not connection-pool wait; Bolt submit may include lazy acquisition.',
                   'Result bytes are not tokens. Reasoning/Cypher argument and context token components unobserved.',
-                  'Actual decode sequences, grammar CPU step time, kernel gaps, DB page-cache occupancy and offload transfers unobserved.',
+                  'Engine sequence counts, grammar CPU and kernel gaps are outside this export; consult companion engine/profile receipts when available.',
+                  'DB page-cache occupancy and offload transfers require separate telemetry and are not inferred from these traces.',
                   'When GPU samples are absent inside the window, primary per-GPU rate remains null.',
                   'Consult this session lifecycle and copy receipt for artifact verification status.',
               ]}
@@ -281,8 +289,10 @@ def main() -> int:
     parser.add_argument('--run-root', type=Path, required=True)
     parser.add_argument('--output-dir', type=Path, required=True)
     parser.add_argument('--use-private-captures', action='store_true')
+    parser.add_argument('--exclude-fixed-corpus', action='store_true', help='Keep fixed-corpus serving diagnostics out of the agent chartbook')
     args = parser.parse_args()
-    result = summarize(args.run_root, args.output_dir, use_private_captures=args.use_private_captures)
+    result = summarize(args.run_root, args.output_dir, use_private_captures=args.use_private_captures,
+                       exclude_fixed_corpus=args.exclude_fixed_corpus)
     print(json.dumps({'passes': len(result['passes']), **result['counts']}))
     return 0
 

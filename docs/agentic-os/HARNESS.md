@@ -112,7 +112,10 @@ and digests. Never publish the raw profiler files; they contain process metadata
 
 After teardown, `summarize_agentic_os_runtime_pressure.py --run-root ... --output ...`
 exports numerical conditions and standalone saturation/context figures. Keep
-fixed-corpus diagnostics separate from the Agent/Tool/Runtime agent chartbook.
+fixed-corpus diagnostics separate from the Agent/Tool/Runtime agent chartbook: use
+`--exclude-fixed-corpus` with `summarize_agentic_os_characterization.py`. The
+export records excluded pass names; their runtime receipts remain in the
+separate pressure report.
 Use the same preserved originals to regenerate results; no paid calls are needed
 for postprocessing. A partial run produces only the conditions actually observed.
 
