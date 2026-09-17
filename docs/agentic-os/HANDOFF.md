@@ -501,3 +501,7 @@ claim. Prior lowK controls repeat because a new host/startup policy needs a
 matched control. No previously completed stage1 repeat. Hard lifetime7500s,
 rate<=3.60/h =>max7.50; cumulative upper estimate12.492318. Remote6900s,
 session6100s/reserve300s. No replacement while existing ownership is unresolved.
+
+### Active completion run (2026-09-17)
+
+lab-s25c owned instance **51261456**, source **9a2e0ab6**; watchdog7500s, max7.50USD. Lifecycle under local run root. Do not create a replacement until teardown is verified. Preflight v3 passed all8 checks; source bundle SHA43996eb9cd29ae71284773abde0d3a929321bc5d3032a0effcfe49de79324de5. Stage2 eight cells/two gates then stage3 ten context cells. Full basicCI passed; focused dynamic/engine/plan tests40passed. [Prior recovery report](reports/lab026-worker-recovery/README.md).

@@ -1,0 +1,1263 @@
+{
+  "schema_version": "seocho.runtime_pressure_report.v1",
+  "conditions": [
+    {
+      "id": "base-r1-gate",
+      "category": "saturation",
+      "receipt": {
+        "pass_id": "base-r1-gate",
+        "exit_code": 0,
+        "export_exit_code": 0,
+        "config": {
+          "observer": true,
+          "router_policy": "sticky",
+          "lane": "grbench-single",
+          "serving": "--max-num-batched-tokens,8192",
+          "cpu": null,
+          "replicas": 1,
+          "runner": "persistent",
+          "id": "base-r1-gate",
+          "k": 1,
+          "limit": 1
+        },
+        "live_graph_gate_passed": true,
+        "trace_admission_passed": true,
+        "engine_admission_passed": true
+      },
+      "factors": {},
+      "engine": {
+        "schema_version": "seocho.engine_summary.v1",
+        "passed": true,
+        "started_unix_s": 1789514396.5735116,
+        "finished_unix_s": 1789514399.9792118,
+        "scheduled_steps": 135,
+        "output_steps": 134,
+        "schedules": {
+          "scheduled_sequences": {
+            "n": 135,
+            "mean": 1,
+            "p50": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "decode_sequences": {
+            "n": 135,
+            "mean": 0.9703703703703703,
+            "p50": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "prompt_sequences": {
+            "n": 135,
+            "mean": 0.02962962962962963,
+            "p50": 0,
+            "p95": 0,
+            "max": 1
+          },
+          "scheduled_tokens": {
+            "n": 135,
+            "mean": 14.851851851851851,
+            "p50": 1,
+            "p95": 1,
+            "max": 784
+          },
+          "scheduled_prompt_tokens": {
+            "n": 135,
+            "mean": 13.881481481481481,
+            "p50": 0,
+            "p95": 0,
+            "max": 784
+          },
+          "draft_tokens_scheduled": {
+            "n": 135,
+            "mean": 0,
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          },
+          "scheduler_wall_s": {
+            "n": 135,
+            "mean": 7.90040871059453e-05,
+            "p50": 6.922904867678881e-05,
+            "p95": 0.00011818099301308393,
+            "max": 0.00034467398654669523
+          },
+          "scheduler_thread_cpu_s": {
+            "n": 135,
+            "mean": 7.995734074080106e-05,
+            "p50": 7.018099999989147e-05,
+            "p95": 0.00011940300000112813,
+            "max": 0.00034674099999953967
+          },
+          "schedule_interval_s": {
+            "n": 134,
+            "mean": 0.024765699470255857,
+            "p50": 0.02038315898971632,
+            "p95": 0.028190539102070034,
+            "max": 0.22066196892410517
+          },
+          "running_sequences": {
+            "n": 135,
+            "mean": 1,
+            "p50": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "waiting_sequences": {
+            "n": 135,
+            "mean": 0,
+            "p50": 0,
+            "p95": 0,
+            "max": 0
+          }
+        },
+        "committed_output_tokens": 131,
+        "committed_tokens_per_step": {
+          "n": 134,
+          "mean": 0.9776119402985075,
+          "p50": 1.0,
+          "p95": 1,
+          "max": 1
+        },
+        "schedule_to_output_s": {
+          "n": 134,
+          "mean": 0.046893389729623085,
+          "p50": 0.04072563594672829,
+          "p95": 0.07868821499869227,
+          "max": 0.23646673501934856
+        },
+        "kv": {
+          "active_blocks": {
+            "n": 4,
+            "mean": 5.5,
+            "p50": 5.0,
+            "p95": 8,
+            "max": 8
+          },
+          "reclaimable_cached_blocks": {
+            "n": 4,
+            "mean": 1.5,
+            "p50": 1.5,
+            "p95": 3,
+            "max": 3
+          },
+          "free_uncached_blocks": {
+            "n": 4,
+            "mean": 1917,
+            "p50": 1916.0,
+            "p95": 1920,
+            "max": 1920
+          },
+          "usable_blocks": {
+            "n": 4,
+            "mean": 1924,
+            "p50": 1924.0,
+            "p95": 1924,
+            "max": 1924
+          },
+          "scan_wall_s": {
+            "n": 4,
+            "mean": 0.00019183551194146276,
+            "p50": 0.00019263953436166048,
+            "p95": 0.00020096497610211372,
+            "max": 0.00020096497610211372
+          }
+        },
+        "grammar": {
+          "grammar_compile": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          },
+          "grammar_bitmask": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          }
+        },
+        "preempted_sequences": 0,
+        "limitations": [
+          "Schedule-to-output overlaps async batches; not exclusive GPU time.",
+          "Decode positions may include recomputation. Grammar wrapper CPU excludes other worker threads.",
+          "KV block counts are engine-level, not summed across TP ranks."
+        ]
+      },
+      "kernel": {},
+      "trace_admission": {
+        "schema_version": "agentic_os.trace_admission.v1",
+        "passed": true,
+        "client_requests": 3,
+        "unique_client_requests": 3,
+        "exact_server_matches": 3,
+        "complete_stage_requests": 3,
+        "exact_router_matches": 0,
+        "observed_backend_indices": [],
+        "expected_replicas": 1,
+        "require_all_backends": false,
+        "required_stages": [
+          "queue_s",
+          "ttft_s",
+          "prefill_s",
+          "decode_s"
+        ],
+        "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+      }
+    },
+    {
+      "id": "base-r1-k128",
+      "category": "saturation",
+      "receipt": {
+        "pass_id": "base-r1-k128",
+        "exit_code": 0,
+        "export_exit_code": 0,
+        "config": {
+          "observer": true,
+          "router_policy": "sticky",
+          "lane": "grbench-single",
+          "serving": "--max-num-batched-tokens,8192",
+          "cpu": null,
+          "replicas": 1,
+          "runner": "persistent",
+          "id": "base-r1-k128",
+          "k": 128
+        },
+        "throughput_status": "observed",
+        "trace_admission_passed": true,
+        "engine_admission_passed": true
+      },
+      "factors": {
+        "schema_version": "agentic_os.workload_factors.v1",
+        "throughput": {
+          "schema_version": "agentic_os.backlog_throughput.v1",
+          "execution_digest": "05b98fe1981712f43f96c1b2aa3a9b13a1cdff92d92b3ec2d6974559fd302095",
+          "status": "observed",
+          "task_completions_per_s": 2.0915291866209986,
+          "output_tokens_per_s": 970.3017728712915,
+          "iteration_tokens_per_step": 643.7647058823529,
+          "server_saturation": "not_established_by_host_backlog",
+          "started_unix_s": 1789515245.007568,
+          "finished_unix_s": 1789515334.415835,
+          "duration_s": 89.4082670211792,
+          "completed_tasks": 187,
+          "output_tokens": 86753.0,
+          "sample_count": 89
+        },
+        "application_k": 128,
+        "request_scope": "fully_contained_case_cohort",
+        "actual_scheduled_decode_sequences": null,
+        "saturation": "requires_cross_K_comparison",
+        "limitations": [
+          "running requests are not decode sequences",
+          "process RSS is not exclusive physical memory",
+          "host Cached is not DB page cache",
+          "unexported metrics remain unknown",
+          "completed tasks are not correct answers",
+          "finite windows can bias the completed-case length distribution"
+        ],
+        "sampled_gauges": {
+          "vllm:num_requests_running": {
+            "n": 89,
+            "mean": 121.14606741573034,
+            "p50": 121.0,
+            "p95": 125.0,
+            "max": 126.0
+          },
+          "vllm:num_requests_waiting": {
+            "n": 89,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "vllm:kv_cache_usage_perc": {
+            "n": 89,
+            "mean": 0.31305916980074283,
+            "p50": 0.3134095634095634,
+            "p95": 0.3217255717255717,
+            "max": 0.32640332640332637
+          }
+        },
+        "active_task_samples": {
+          "n": 89,
+          "mean": 128.0,
+          "p50": 128.0,
+          "p95": 128.0,
+          "max": 128.0
+        },
+        "counter_deltas": {
+          "vllm:num_preemptions": 0.0,
+          "vllm:prompt_tokens_cached": 679728.0,
+          "vllm:prompt_tokens": 1052623.0,
+          "vllm:request_prefill_kv_computed_tokens_sum": 368462.0,
+          "vllm:request_prefill_kv_computed_tokens_count": 893.0,
+          "vllm:prefix_cache_hits": 682080.0,
+          "vllm:prefix_cache_queries": 1054848.0,
+          "vllm:kv_offload_load_bytes": null,
+          "vllm:kv_offload_load_time": null,
+          "vllm:spec_decode_num_draft_tokens": null,
+          "vllm:spec_decode_num_accepted_tokens": null
+        },
+        "request_distributions": {
+          "input_tokens": {
+            "n": 287,
+            "mean": 1006.9547038327526,
+            "p50": 930.0,
+            "p95": 1396.0,
+            "max": 3027.0
+          },
+          "output_tokens": {
+            "n": 287,
+            "mean": 65.16724738675958,
+            "p50": 65.0,
+            "p95": 147.0,
+            "max": 219.0
+          },
+          "cached_tokens": {
+            "n": 287,
+            "mean": 606.439024390244,
+            "p50": 784.0,
+            "p95": 784.0,
+            "max": 2352.0
+          },
+          "latency_ms": {
+            "n": 287,
+            "mean": 8390.526595818816,
+            "p50": 8061.138,
+            "p95": 18266.732,
+            "max": 27524.06
+          }
+        },
+        "case_distributions": {
+          "wall_ms": {
+            "n": 76,
+            "mean": 31704.061710526315,
+            "p50": 29647.91,
+            "p95": 55237.972,
+            "max": 78479.429
+          },
+          "llm_ms": {
+            "n": 76,
+            "mean": 31685.278065789473,
+            "p50": 29640.844,
+            "p95": 55237.013,
+            "max": 78461.138
+          },
+          "tool_ms": {
+            "n": 76,
+            "mean": 18.31853947368421,
+            "p50": 6.446,
+            "p95": 22.629,
+            "max": 768.18
+          }
+        },
+        "case_terminal_counts": {
+          "unsupported_answer": 3,
+          "turn_budget_exhausted": 5,
+          "final": 68
+        },
+        "case_answer_status_counts": {
+          "answered": 68,
+          "empty": 5,
+          "unsupported_answer": 3
+        },
+        "actual_constrained_query_ratio": null,
+        "observed_physical_gpu_count": 2,
+        "output_tokens_per_s_per_gpu": 485.15088643564576
+      },
+      "engine": {
+        "schema_version": "seocho.engine_summary.v1",
+        "passed": true,
+        "started_unix_s": 1789515245.007568,
+        "finished_unix_s": 1789515334.415835,
+        "scheduled_steps": 714,
+        "output_steps": 714,
+        "schedules": {
+          "scheduled_sequences": {
+            "n": 714,
+            "mean": 122.76190476190476,
+            "p50": 123.0,
+            "p95": 126,
+            "max": 127
+          },
+          "decode_sequences": {
+            "n": 714,
+            "mean": 121.50420168067227,
+            "p50": 122.0,
+            "p95": 125,
+            "max": 126
+          },
+          "prompt_sequences": {
+            "n": 714,
+            "mean": 1.257703081232493,
+            "p50": 1.0,
+            "p95": 3,
+            "max": 7
+          },
+          "scheduled_tokens": {
+            "n": 714,
+            "mean": 643.5882352941177,
+            "p50": 546.0,
+            "p95": 1604,
+            "max": 3029
+          },
+          "scheduled_prompt_tokens": {
+            "n": 714,
+            "mean": 522.0840336134454,
+            "p50": 424.0,
+            "p95": 1479,
+            "max": 2909
+          },
+          "draft_tokens_scheduled": {
+            "n": 714,
+            "mean": 0,
+            "p50": 0.0,
+            "p95": 0,
+            "max": 0
+          },
+          "scheduler_wall_s": {
+            "n": 714,
+            "mean": 0.003314982418163943,
+            "p50": 0.0032139155082404613,
+            "p95": 0.003870566957630217,
+            "max": 0.00689811899792403
+          },
+          "scheduler_thread_cpu_s": {
+            "n": 714,
+            "mean": 0.0033145774747875088,
+            "p50": 0.0032156305000512475,
+            "p95": 0.0038693259999718066,
+            "max": 0.006660371000066334
+          },
+          "schedule_interval_s": {
+            "n": 714,
+            "mean": 0.12517346981087835,
+            "p50": 0.12377926695626229,
+            "p95": 0.24338625301606953,
+            "max": 0.40263338398654014
+          },
+          "running_sequences": {
+            "n": 714,
+            "mean": 122.76190476190476,
+            "p50": 123.0,
+            "p95": 126,
+            "max": 127
+          },
+          "waiting_sequences": {
+            "n": 714,
+            "mean": 0,
+            "p50": 0.0,
+            "p95": 0,
+            "max": 0
+          }
+        },
+        "committed_output_tokens": 86753,
+        "committed_tokens_per_step": {
+          "n": 714,
+          "mean": 121.50280112044818,
+          "p50": 122.0,
+          "p95": 125,
+          "max": 126
+        },
+        "schedule_to_output_s": {
+          "n": 714,
+          "mean": 0.25004354815037283,
+          "p50": 0.24032158096088096,
+          "p95": 0.4179621540242806,
+          "max": 0.5844597320538014
+        },
+        "kv": {
+          "active_blocks": {
+            "n": 83,
+            "mean": 609.9036144578313,
+            "p50": 612,
+            "p95": 622,
+            "max": 626
+          },
+          "reclaimable_cached_blocks": {
+            "n": 83,
+            "mean": 1309.132530120482,
+            "p50": 1308,
+            "p95": 1322,
+            "max": 1329
+          },
+          "free_uncached_blocks": {
+            "n": 83,
+            "mean": 4.963855421686747,
+            "p50": 4,
+            "p95": 12,
+            "max": 16
+          },
+          "usable_blocks": {
+            "n": 83,
+            "mean": 1924,
+            "p50": 1924,
+            "p95": 1924,
+            "max": 1924
+          },
+          "scan_wall_s": {
+            "n": 83,
+            "mean": 0.0002399063150185239,
+            "p50": 0.00022594199981540442,
+            "p95": 0.00035058497451245785,
+            "max": 0.0004650580231100321
+          }
+        },
+        "grammar": {
+          "grammar_compile": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          },
+          "grammar_bitmask": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          }
+        },
+        "preempted_sequences": 0,
+        "limitations": [
+          "Schedule-to-output overlaps async batches; not exclusive GPU time.",
+          "Decode positions may include recomputation. Grammar wrapper CPU excludes other worker threads.",
+          "KV block counts are engine-level, not summed across TP ranks."
+        ]
+      },
+      "kernel": {},
+      "trace_admission": {
+        "schema_version": "agentic_os.trace_admission.v1",
+        "passed": true,
+        "client_requests": 4325,
+        "unique_client_requests": 4325,
+        "exact_server_matches": 4325,
+        "complete_stage_requests": 4325,
+        "exact_router_matches": 0,
+        "observed_backend_indices": [],
+        "expected_replicas": 1,
+        "require_all_backends": false,
+        "required_stages": [
+          "queue_s",
+          "ttft_s",
+          "prefill_s",
+          "decode_s"
+        ],
+        "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+      }
+    },
+    {
+      "id": "base-r1-k256",
+      "category": "saturation",
+      "receipt": {
+        "pass_id": "base-r1-k256",
+        "exit_code": 2,
+        "export_exit_code": 0,
+        "config": {
+          "observer": true,
+          "router_policy": "sticky",
+          "lane": "grbench-single",
+          "serving": "--max-num-batched-tokens,8192",
+          "cpu": null,
+          "replicas": 1,
+          "runner": "persistent",
+          "id": "base-r1-k256",
+          "k": 256
+        }
+      },
+      "factors": {},
+      "engine": {},
+      "kernel": {},
+      "trace_admission": {}
+    },
+    {
+      "id": "base-r1-k64",
+      "category": "saturation",
+      "receipt": {
+        "pass_id": "base-r1-k64",
+        "exit_code": 0,
+        "export_exit_code": 0,
+        "config": {
+          "observer": true,
+          "router_policy": "sticky",
+          "lane": "grbench-single",
+          "serving": "--max-num-batched-tokens,8192",
+          "cpu": null,
+          "replicas": 1,
+          "runner": "persistent",
+          "id": "base-r1-k64",
+          "k": 64
+        },
+        "throughput_status": "observed",
+        "trace_admission_passed": true,
+        "engine_admission_passed": true
+      },
+      "factors": {
+        "schema_version": "agentic_os.workload_factors.v1",
+        "throughput": {
+          "schema_version": "agentic_os.backlog_throughput.v1",
+          "execution_digest": "6b89d4b9ce095f3d5223211c9ffb93585ac7041a60e063702621f5f069763706",
+          "status": "observed",
+          "task_completions_per_s": 1.8838098151822043,
+          "output_tokens_per_s": 873.4149650248348,
+          "iteration_tokens_per_step": 313.7846153846154,
+          "server_saturation": "not_established_by_host_backlog",
+          "started_unix_s": 1789514772.81794,
+          "finished_unix_s": 1789514861.998917,
+          "duration_s": 89.18097710609436,
+          "completed_tasks": 168,
+          "output_tokens": 77892.0,
+          "sample_count": 89
+        },
+        "application_k": 64,
+        "request_scope": "fully_contained_case_cohort",
+        "actual_scheduled_decode_sequences": null,
+        "saturation": "requires_cross_K_comparison",
+        "limitations": [
+          "running requests are not decode sequences",
+          "process RSS is not exclusive physical memory",
+          "host Cached is not DB page cache",
+          "unexported metrics remain unknown",
+          "completed tasks are not correct answers",
+          "finite windows can bias the completed-case length distribution"
+        ],
+        "sampled_gauges": {
+          "vllm:num_requests_running": {
+            "n": 89,
+            "mean": 59.93258426966292,
+            "p50": 60.0,
+            "p95": 63.0,
+            "max": 64.0
+          },
+          "vllm:num_requests_waiting": {
+            "n": 89,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "vllm:kv_cache_usage_perc": {
+            "n": 89,
+            "mean": 0.16380317223013852,
+            "p50": 0.16320166320166318,
+            "p95": 0.17307692307692313,
+            "max": 0.17515592515592515
+          }
+        },
+        "active_task_samples": {
+          "n": 89,
+          "mean": 64.0,
+          "p50": 64.0,
+          "p95": 64.0,
+          "max": 64.0
+        },
+        "counter_deltas": {
+          "vllm:num_preemptions": 0.0,
+          "vllm:prompt_tokens_cached": 589568.0,
+          "vllm:prompt_tokens": 919596.0,
+          "vllm:request_prefill_kv_computed_tokens_sum": 328007.0,
+          "vllm:request_prefill_kv_computed_tokens_count": 787.0,
+          "vllm:prefix_cache_hits": 588784.0,
+          "vllm:prefix_cache_queries": 917815.0,
+          "vllm:kv_offload_load_bytes": null,
+          "vllm:kv_offload_load_time": null,
+          "vllm:spec_decode_num_draft_tokens": null,
+          "vllm:spec_decode_num_accepted_tokens": null
+        },
+        "request_distributions": {
+          "input_tokens": {
+            "n": 444,
+            "mean": 1092.7702702702702,
+            "p50": 1037.0,
+            "p95": 1784.0,
+            "max": 3062.0
+          },
+          "output_tokens": {
+            "n": 444,
+            "mean": 83.5427927927928,
+            "p50": 89.0,
+            "p95": 186.0,
+            "max": 326.0
+          },
+          "cached_tokens": {
+            "n": 444,
+            "mean": 674.5225225225225,
+            "p50": 784.0,
+            "p95": 1568.0,
+            "max": 2352.0
+          },
+          "latency_ms": {
+            "n": 444,
+            "mean": 5833.5763400900905,
+            "p50": 6157.151,
+            "p95": 12614.667,
+            "max": 21712.992
+          }
+        },
+        "case_distributions": {
+          "wall_ms": {
+            "n": 105,
+            "mean": 25013.688000000002,
+            "p50": 18703.613,
+            "p95": 55760.304,
+            "max": 74225.213
+          },
+          "llm_ms": {
+            "n": 105,
+            "mean": 24667.69423809524,
+            "p50": 18695.828,
+            "p95": 53332.135,
+            "max": 74208.008
+          },
+          "tool_ms": {
+            "n": 105,
+            "mean": 345.5483047619048,
+            "p50": 8.536,
+            "p95": 196.642,
+            "max": 15504.894
+          }
+        },
+        "case_terminal_counts": {
+          "abstained": 1,
+          "turn_budget_exhausted": 28,
+          "unsupported_answer": 1,
+          "final": 75
+        },
+        "case_answer_status_counts": {
+          "answered": 75,
+          "empty": 28,
+          "abstained": 1,
+          "unsupported_answer": 1
+        },
+        "actual_constrained_query_ratio": null,
+        "observed_physical_gpu_count": 2,
+        "output_tokens_per_s_per_gpu": 436.7074825124174
+      },
+      "engine": {
+        "schema_version": "seocho.engine_summary.v1",
+        "passed": true,
+        "started_unix_s": 1789514772.81794,
+        "finished_unix_s": 1789514861.998917,
+        "scheduled_steps": 1300,
+        "output_steps": 1300,
+        "schedules": {
+          "scheduled_sequences": {
+            "n": 1300,
+            "mean": 60.534615384615385,
+            "p50": 61.0,
+            "p95": 63,
+            "max": 64
+          },
+          "decode_sequences": {
+            "n": 1300,
+            "mean": 59.92076923076923,
+            "p50": 60.0,
+            "p95": 63,
+            "max": 64
+          },
+          "prompt_sequences": {
+            "n": 1300,
+            "mean": 0.6138461538461538,
+            "p50": 0.0,
+            "p95": 2,
+            "max": 5
+          },
+          "scheduled_tokens": {
+            "n": 1300,
+            "mean": 312.3715384615385,
+            "p50": 63.0,
+            "p95": 1082,
+            "max": 2667
+          },
+          "scheduled_prompt_tokens": {
+            "n": 1300,
+            "mean": 252.45076923076923,
+            "p50": 0.0,
+            "p95": 1023,
+            "max": 2609
+          },
+          "draft_tokens_scheduled": {
+            "n": 1300,
+            "mean": 0,
+            "p50": 0.0,
+            "p95": 0,
+            "max": 0
+          },
+          "scheduler_wall_s": {
+            "n": 1300,
+            "mean": 0.0015887004801502021,
+            "p50": 0.0015572424745187163,
+            "p95": 0.0018593710847198963,
+            "max": 0.0030338350916281343
+          },
+          "scheduler_thread_cpu_s": {
+            "n": 1300,
+            "mean": 0.0015899940615364673,
+            "p50": 0.0015582780000045204,
+            "p95": 0.001860840000006192,
+            "max": 0.0030360339999901953
+          },
+          "schedule_interval_s": {
+            "n": 1300,
+            "mean": 0.06867898715919672,
+            "p50": 0.033741385443136096,
+            "p95": 0.16841088398359716,
+            "max": 0.3414263769518584
+          },
+          "running_sequences": {
+            "n": 1300,
+            "mean": 60.534615384615385,
+            "p50": 61.0,
+            "p95": 63,
+            "max": 64
+          },
+          "waiting_sequences": {
+            "n": 1300,
+            "mean": 0,
+            "p50": 0.0,
+            "p95": 0,
+            "max": 0
+          }
+        },
+        "committed_output_tokens": 77892,
+        "committed_tokens_per_step": {
+          "n": 1300,
+          "mean": 59.91692307692308,
+          "p50": 60.0,
+          "p95": 63,
+          "max": 64
+        },
+        "schedule_to_output_s": {
+          "n": 1300,
+          "mean": 0.13718316827327587,
+          "p50": 0.12831218453356996,
+          "p95": 0.2780843529617414,
+          "max": 0.3991679970640689
+        },
+        "kv": {
+          "active_blocks": {
+            "n": 85,
+            "mean": 317.61176470588236,
+            "p50": 319,
+            "p95": 333,
+            "max": 338
+          },
+          "reclaimable_cached_blocks": {
+            "n": 85,
+            "mean": 975.0941176470589,
+            "p50": 978,
+            "p95": 1102,
+            "max": 1110
+          },
+          "free_uncached_blocks": {
+            "n": 85,
+            "mean": 631.2941176470588,
+            "p50": 636,
+            "p95": 768,
+            "max": 776
+          },
+          "usable_blocks": {
+            "n": 85,
+            "mean": 1924,
+            "p50": 1924,
+            "p95": 1924,
+            "max": 1924
+          },
+          "scan_wall_s": {
+            "n": 85,
+            "mean": 0.00021343570996952408,
+            "p50": 0.00019959209021180868,
+            "p95": 0.0003094879211857915,
+            "max": 0.00038218300323933363
+          }
+        },
+        "grammar": {
+          "grammar_compile": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          },
+          "grammar_bitmask": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          }
+        },
+        "preempted_sequences": 0,
+        "limitations": [
+          "Schedule-to-output overlaps async batches; not exclusive GPU time.",
+          "Decode positions may include recomputation. Grammar wrapper CPU excludes other worker threads.",
+          "KV block counts are engine-level, not summed across TP ranks."
+        ]
+      },
+      "kernel": {},
+      "trace_admission": {
+        "schema_version": "agentic_os.trace_admission.v1",
+        "passed": true,
+        "client_requests": 2265,
+        "unique_client_requests": 2265,
+        "exact_server_matches": 2265,
+        "complete_stage_requests": 2265,
+        "exact_router_matches": 0,
+        "observed_backend_indices": [],
+        "expected_replicas": 1,
+        "require_all_backends": false,
+        "required_stages": [
+          "queue_s",
+          "ttft_s",
+          "prefill_s",
+          "decode_s"
+        ],
+        "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+      }
+    },
+    {
+      "id": "base-r1-k8",
+      "category": "saturation",
+      "receipt": {
+        "pass_id": "base-r1-k8",
+        "exit_code": 0,
+        "export_exit_code": 0,
+        "config": {
+          "observer": true,
+          "router_policy": "sticky",
+          "lane": "grbench-single",
+          "serving": "--max-num-batched-tokens,8192",
+          "cpu": null,
+          "replicas": 1,
+          "runner": "persistent",
+          "id": "base-r1-k8",
+          "k": 8
+        },
+        "throughput_status": "observed",
+        "trace_admission_passed": true,
+        "engine_admission_passed": true
+      },
+      "factors": {
+        "schema_version": "agentic_os.workload_factors.v1",
+        "throughput": {
+          "schema_version": "agentic_os.backlog_throughput.v1",
+          "execution_digest": "800af372cbff49d87f194af14742bdb0a23b0801c390a52005fedc6f2ae26e51",
+          "status": "observed",
+          "task_completions_per_s": 0.5493603171786072,
+          "output_tokens_per_s": 242.91816310834454,
+          "iteration_tokens_per_step": 49.90532178217822,
+          "server_saturation": "not_established_by_host_backlog",
+          "started_unix_s": 1789514483.801556,
+          "finished_unix_s": 1789514572.996204,
+          "duration_s": 89.19464778900146,
+          "completed_tasks": 49,
+          "output_tokens": 21667.0,
+          "sample_count": 89
+        },
+        "application_k": 8,
+        "request_scope": "fully_contained_case_cohort",
+        "actual_scheduled_decode_sequences": null,
+        "saturation": "requires_cross_K_comparison",
+        "limitations": [
+          "running requests are not decode sequences",
+          "process RSS is not exclusive physical memory",
+          "host Cached is not DB page cache",
+          "unexported metrics remain unknown",
+          "completed tasks are not correct answers",
+          "finite windows can bias the completed-case length distribution"
+        ],
+        "sampled_gauges": {
+          "vllm:num_requests_running": {
+            "n": 89,
+            "mean": 6.696629213483146,
+            "p50": 7.0,
+            "p95": 8.0,
+            "max": 8.0
+          },
+          "vllm:num_requests_waiting": {
+            "n": 89,
+            "mean": 0.0,
+            "p50": 0.0,
+            "p95": 0.0,
+            "max": 0.0
+          },
+          "vllm:kv_cache_usage_perc": {
+            "n": 89,
+            "mean": 0.018652619776215275,
+            "p50": 0.018711018711018657,
+            "p95": 0.02338877338877343,
+            "max": 0.025467775467775455
+          }
+        },
+        "active_task_samples": {
+          "n": 89,
+          "mean": 8.0,
+          "p50": 8.0,
+          "p95": 8.0,
+          "max": 8.0
+        },
+        "counter_deltas": {
+          "vllm:num_preemptions": 0.0,
+          "vllm:prompt_tokens_cached": 117600.0,
+          "vllm:prompt_tokens": 257227.0,
+          "vllm:request_prefill_kv_computed_tokens_sum": 143084.0,
+          "vllm:request_prefill_kv_computed_tokens_count": 231.0,
+          "vllm:prefix_cache_hits": 117600.0,
+          "vllm:prefix_cache_queries": 257227.0,
+          "vllm:kv_offload_load_bytes": null,
+          "vllm:kv_offload_load_time": null,
+          "vllm:spec_decode_num_draft_tokens": null,
+          "vllm:spec_decode_num_accepted_tokens": null
+        },
+        "request_distributions": {
+          "input_tokens": {
+            "n": 188,
+            "mean": 1126.6489361702127,
+            "p50": 1063.0,
+            "p95": 1784.0,
+            "max": 3062.0
+          },
+          "output_tokens": {
+            "n": 188,
+            "mean": 93.84574468085107,
+            "p50": 95.0,
+            "p95": 212.0,
+            "max": 493.0
+          },
+          "cached_tokens": {
+            "n": 188,
+            "mean": 504.59574468085106,
+            "p50": 784.0,
+            "p95": 1568.0,
+            "max": 1568.0
+          },
+          "latency_ms": {
+            "n": 188,
+            "mean": 2672.7866968085104,
+            "p50": 2624.78,
+            "p95": 5761.29,
+            "max": 13342.843
+          }
+        },
+        "case_distributions": {
+          "wall_ms": {
+            "n": 41,
+            "mean": 14023.608048780488,
+            "p50": 9346.44,
+            "p95": 29719.588,
+            "max": 68162.335
+          },
+          "llm_ms": {
+            "n": 41,
+            "mean": 12255.704853658537,
+            "p50": 9292.224,
+            "p95": 24646.038,
+            "max": 29612.384
+          },
+          "tool_ms": {
+            "n": 41,
+            "mean": 1767.3950487804877,
+            "p50": 96.709,
+            "p95": 2439.125,
+            "max": 48213.601
+          }
+        },
+        "case_terminal_counts": {
+          "abstained": 1,
+          "turn_budget_exhausted": 15,
+          "final": 25
+        },
+        "case_answer_status_counts": {
+          "answered": 25,
+          "empty": 15,
+          "abstained": 1
+        },
+        "actual_constrained_query_ratio": null,
+        "observed_physical_gpu_count": 2,
+        "output_tokens_per_s_per_gpu": 121.45908155417227
+      },
+      "engine": {
+        "schema_version": "seocho.engine_summary.v1",
+        "passed": true,
+        "started_unix_s": 1789514483.801556,
+        "finished_unix_s": 1789514572.996204,
+        "scheduled_steps": 3232,
+        "output_steps": 3232,
+        "schedules": {
+          "scheduled_sequences": {
+            "n": 3232,
+            "mean": 6.790222772277228,
+            "p50": 7.0,
+            "p95": 8,
+            "max": 8
+          },
+          "decode_sequences": {
+            "n": 3232,
+            "mean": 6.702970297029703,
+            "p50": 7.0,
+            "p95": 8,
+            "max": 8
+          },
+          "prompt_sequences": {
+            "n": 3232,
+            "mean": 0.08725247524752475,
+            "p50": 0.0,
+            "p95": 1,
+            "max": 2
+          },
+          "scheduled_tokens": {
+            "n": 3232,
+            "mean": 49.90439356435643,
+            "p50": 7.0,
+            "p95": 396,
+            "max": 1575
+          },
+          "scheduled_prompt_tokens": {
+            "n": 3232,
+            "mean": 43.20142326732673,
+            "p50": 0.0,
+            "p95": 390,
+            "max": 1568
+          },
+          "draft_tokens_scheduled": {
+            "n": 3232,
+            "mean": 0,
+            "p50": 0.0,
+            "p95": 0,
+            "max": 0
+          },
+          "scheduler_wall_s": {
+            "n": 3232,
+            "mean": 0.00022726436343711414,
+            "p50": 0.00022180401720106602,
+            "p95": 0.0003377000102773309,
+            "max": 0.0006351859774440527
+          },
+          "scheduler_thread_cpu_s": {
+            "n": 3232,
+            "mean": 0.0002283502094675471,
+            "p50": 0.00022284800000704763,
+            "p95": 0.00033968699999320506,
+            "max": 0.0006377159999999549
+          },
+          "schedule_interval_s": {
+            "n": 3232,
+            "mean": 0.027599666095603867,
+            "p50": 0.02176840597530827,
+            "p95": 0.08356995205394924,
+            "max": 0.21355549897998571
+          },
+          "running_sequences": {
+            "n": 3232,
+            "mean": 6.790222772277228,
+            "p50": 7.0,
+            "p95": 8,
+            "max": 8
+          },
+          "waiting_sequences": {
+            "n": 3232,
+            "mean": 0,
+            "p50": 0.0,
+            "p95": 0,
+            "max": 0
+          }
+        },
+        "committed_output_tokens": 21667,
+        "committed_tokens_per_step": {
+          "n": 3232,
+          "mean": 6.703898514851486,
+          "p50": 7.0,
+          "p95": 8,
+          "max": 8
+        },
+        "schedule_to_output_s": {
+          "n": 3232,
+          "mean": 0.05513978074189497,
+          "p50": 0.0435745720169507,
+          "p95": 0.13418269203975797,
+          "max": 0.33362622396089137
+        },
+        "kv": {
+          "active_blocks": {
+            "n": 87,
+            "mean": 36.172413793103445,
+            "p50": 37,
+            "p95": 44,
+            "max": 49
+          },
+          "reclaimable_cached_blocks": {
+            "n": 87,
+            "mean": 405.62068965517244,
+            "p50": 410,
+            "p95": 543,
+            "max": 547
+          },
+          "free_uncached_blocks": {
+            "n": 87,
+            "mean": 1482.2068965517242,
+            "p50": 1483,
+            "p95": 1621,
+            "max": 1629
+          },
+          "usable_blocks": {
+            "n": 87,
+            "mean": 1924,
+            "p50": 1924,
+            "p95": 1924,
+            "max": 1924
+          },
+          "scan_wall_s": {
+            "n": 87,
+            "mean": 0.00024560886708184564,
+            "p50": 0.0002329549752175808,
+            "p95": 0.00033829209860414267,
+            "max": 0.00039413594640791416
+          }
+        },
+        "grammar": {
+          "grammar_compile": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          },
+          "grammar_bitmask": {
+            "wall_s": null,
+            "thread_cpu_s": null
+          }
+        },
+        "preempted_sequences": 0,
+        "limitations": [
+          "Schedule-to-output overlaps async batches; not exclusive GPU time.",
+          "Decode positions may include recomputation. Grammar wrapper CPU excludes other worker threads.",
+          "KV block counts are engine-level, not summed across TP ranks."
+        ]
+      },
+      "kernel": {},
+      "trace_admission": {
+        "schema_version": "agentic_os.trace_admission.v1",
+        "passed": true,
+        "client_requests": 445,
+        "unique_client_requests": 445,
+        "exact_server_matches": 445,
+        "complete_stage_requests": 445,
+        "exact_router_matches": 0,
+        "observed_backend_indices": [],
+        "expected_replicas": 1,
+        "require_all_backends": false,
+        "required_stages": [
+          "queue_s",
+          "ttft_s",
+          "prefill_s",
+          "decode_s"
+        ],
+        "scope": "exact W3C parent IDs only; request times are not exclusive GPU time"
+      }
+    }
+  ],
+  "source_sha256": {
+    "run-base-r1-gate/otel/trace-admission.json": "12fdba1d5460ec25982b910c7a3376b632a339a2f37bc63f1f90db7da58015fe",
+    "run-base-r1-gate/otel/engine-steps.json": "c6d05dda193bab17d1ab14f089de77ecc300d954bcf5f18f1f9dde4dd7057d48",
+    "run-base-r1-gate/pass-receipt.json": "0d399c30b0d38eed79d873af6c565e4fc37fb4fbbb6be8024e7c2f3226af2432",
+    "run-base-r1-k128/otel/factors.json": "835bb8b36355de949be053890b4eb93ddab5d052dea847602999dcb941ef693b",
+    "run-base-r1-k128/otel/throughput.json": "64297d3929ce539cae622ec9064a79ea2d7f4653e77181dfb087a966838f241b",
+    "run-base-r1-k128/otel/trace-admission.json": "362a00129680e1e321637763cef63e0a0ef5a9c248b51df0fcf315a37240a44f",
+    "run-base-r1-k128/otel/engine-steps.json": "42b4c92177ee231e50c8899c7dc4871d715f37bd8920d6fca26eeb458f46bafc",
+    "run-base-r1-k128/pass-receipt.json": "69c549f1814134a468489e160941b8617aae526fbe9b3f8bc76ceeceee84124a",
+    "run-base-r1-k256/pass-receipt.json": "52d4faaf5e2f6be83479f355c089fb56e3ae7c94b3dcd58497891c0d88b1558c",
+    "run-base-r1-k64/otel/factors.json": "d0234bf0e1863b190d9361ad75d376dd2e91086d06f2a08bbd460a1d1c682bc2",
+    "run-base-r1-k64/otel/throughput.json": "9d7f3712f9625ba7365f37c4616c2ded4315e9e8c14fa37f8c7c16ae4f86c656",
+    "run-base-r1-k64/otel/trace-admission.json": "4ab609a11aec4b157bc61bfd9fc6084c82568ffd320cb7e000bf3d72cf31e9f4",
+    "run-base-r1-k64/otel/engine-steps.json": "51e0341833e18bd1287d34aaac0841dd93d27185a129bf0c5dcfa8a6c2523ad1",
+    "run-base-r1-k64/pass-receipt.json": "afc7cd0248f6103dd756bf1c7637edd64e37fabe809d54d7def580ac70955c84",
+    "run-base-r1-k8/otel/factors.json": "1c093a3d70ec974808de5261aa6eebf701e46a72da2beb8e88a331d431d904b0",
+    "run-base-r1-k8/otel/throughput.json": "617203bf92d00ee322394ff5528f77901ae9439487df5ffea1563bd19a6248e8",
+    "run-base-r1-k8/otel/trace-admission.json": "1e349ba6cc628473db2eab2f8050b46ee552e9a2030cdaec9854f7e898c78532",
+    "run-base-r1-k8/otel/engine-steps.json": "a2b7ca40d4063da84b605dbde00f327afdc1439c329985139eedaad1b518cc34",
+    "run-base-r1-k8/pass-receipt.json": "da06df589e69f63849e5bbc733deb38fba8ccb358796c2badeec05ebba42e499"
+  }
+}
