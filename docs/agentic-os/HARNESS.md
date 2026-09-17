@@ -115,3 +115,28 @@ exports numerical conditions and standalone saturation/context figures. Keep
 fixed-corpus diagnostics separate from the Agent/Tool/Runtime agent chartbook.
 Use the same preserved originals to regenerate results; no paid calls are needed
 for postprocessing. A partial run produces only the conditions actually observed.
+
+### Recovering high-concurrency client admission
+
+The lab026 continuation uses `--runtime-recovery` to skip the already measured
+instrumentation stage. `--saturation-repetitions 1` selects one paired baseline/MTP
+sweep; the default remains two sweeps. Inspect the plan without paid work:
+
+```bash
+PYTHONPATH=src python3 scripts/benchmarks/run_agentic_os_throughput_session.py \
+  --runtime-recovery --saturation-repetitions 1 --print-plan
+```
+
+Recovery workers set native-library thread counts to one in their child process
+environment. Persistent process creation is serialized to bound transient pipe
+file descriptors; task execution remains concurrent. A coordinator startup error
+records its numeric errno and file-descriptor limits. Cgroup PID limits/events
+and role thread counts distinguish client resource limits from engine admission.
+A failed startup without a valid common window is not a throughput measurement.
+
+The essential private transfer includes explicitly named worker stderr files.
+They can contain model output and must never be promoted to the shared reports.
+Only reviewed numeric receipts, counts, hashes and aggregate charts are published.
+See request026 for per-run cost bounds; `--runtime-completion` is the registered
+7500-second continuation after the first two attempts, not a reusable allocation
+of their already spent budget.
