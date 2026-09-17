@@ -17,9 +17,11 @@ from summarize_agentic_os_factors import summarize
 from summarize_agentic_os_characterization import replica_observations
 
 
-def plan(*, continuation: bool = False, replica_audit: bool = False, runtime_audit: bool = False, runtime_recovery: bool = False, saturation_repetitions: int = 2) -> list[dict[str, Any]]:
+def plan(*, continuation: bool = False, replica_audit: bool = False, runtime_audit: bool = False, runtime_recovery: bool = False, saturation_repetitions: int = 2, saturation_ks: tuple[int, ...] = (8, 64, 128, 256)) -> list[dict[str, Any]]:
     if saturation_repetitions not in (1, 2):
         raise ValueError("saturation repetitions must be 1 or 2")
+    if not saturation_ks or len(set(saturation_ks)) != len(saturation_ks) or any(k not in (8, 64, 128, 256) for k in saturation_ks):
+        raise ValueError("K values must be unique registered concurrency levels")
     runtime_audit = runtime_audit or runtime_recovery
     if sum((continuation, replica_audit, runtime_audit)) > 1:
         raise ValueError('choose one continuation scope')
@@ -58,7 +60,7 @@ def plan(*, continuation: bool = False, replica_audit: bool = False, runtime_aud
             for name, serving in (('base', baseline), ('mtp', mtp)):
                 passes.append(dict(id=f'{name}-r{repetition}-gate', k=1, limit=1, serving=serving, observer=True))
                 passes.extend(dict(id=f'{name}-r{repetition}-k{k}', k=k, serving=serving, observer=True)
-                              for k in ((8, 64, 128, 256) if repetition == 1 else (256, 128, 64, 8)))
+                              for k in (saturation_ks if repetition == 1 else tuple(reversed(saturation_ks))))
         if runtime_recovery:
             passes = [p for p in passes if p['id'].startswith(('base-r', 'mtp-r'))]
     return [{**{'observer': False, 'router_policy': 'sticky', 'lane': 'grbench-single', 'serving': baseline, 'cpu': None, 'replicas': 1, 'runner': 'persistent'}, **p} for p in passes]
@@ -118,6 +120,7 @@ def main() -> int:
     parser.add_argument('--repo', type=Path, default=Path('/workspace/seocho'))
     parser.add_argument('--input', type=Path, default=Path('/workspace/input'))
     parser.add_argument('--artifacts', type=Path, default=Path('/artifacts'))
+    parser.add_argument('--saturation-k', type=int, action='append', choices=(8, 64, 128, 256))
     parser.add_argument('--saturation-repetitions', type=int, choices=(1, 2), default=2)
     parser.add_argument('--duration-s', type=float, default=90)
     parser.add_argument('--max-session-s', type=int, default=10500)
@@ -131,7 +134,7 @@ def main() -> int:
     args.runtime_audit = args.runtime_audit or args.runtime_recovery
     if args.reserve_s < 0 or args.max_session_s <= args.reserve_s:
         parser.error('max session must exceed nonnegative reserve')
-    registered = plan(continuation=args.continuation, replica_audit=args.replica_audit, runtime_audit=args.runtime_audit, runtime_recovery=args.runtime_recovery, saturation_repetitions=args.saturation_repetitions)
+    registered = plan(continuation=args.continuation, replica_audit=args.replica_audit, runtime_audit=args.runtime_audit, runtime_recovery=args.runtime_recovery, saturation_repetitions=args.saturation_repetitions, saturation_ks=tuple(args.saturation_k or (8, 64, 128, 256)))
     strict = args.replica_audit or args.runtime_audit
     if args.print_plan:
         print(json.dumps(registered, indent=2))
@@ -153,7 +156,7 @@ def main() -> int:
     write_new(args.input / 'throughput-backlog.json', backlog_schedule(source, repeats=40))
     write_new(args.artifacts / 'session-summary/registered-plan.json', {'passes': registered, 'duration_s': args.duration_s,
         'continuation': args.continuation, 'replica_audit': args.replica_audit, 'runtime_audit': args.runtime_audit, 'runtime_recovery': args.runtime_recovery,
-        'saturation_repetitions': args.saturation_repetitions, 'worker_native_threads': 1 if args.runtime_recovery else None, 'reserve_s': args.reserve_s,
+        'saturation_repetitions': args.saturation_repetitions, 'saturation_ks': args.saturation_k or [8, 64, 128, 256], 'http_timeout_s': float(os.getenv('SEOCHO_LLM_HTTP_TIMEOUT_S', '180')), 'worker_native_threads': 1 if args.runtime_recovery else None, 'reserve_s': args.reserve_s,
         'max_session_s': args.max_session_s, 'context': '32768 cap; observed lengths reported separately',
         'db_cache': 'warm intent; no OS cache flush; capacities fixed', 'quality': 'recorded separately; replay has no answer-quality evaluation',
         'high_load_k': 64, 'high_load_is_saturation': 'only if measured K curve establishes plateau'})
@@ -208,6 +211,8 @@ def main() -> int:
             command += ['--measurement-duration-s', str(args.duration_s)]
         if args.runtime_recovery:
             command += ['--worker-native-threads', '1']
+        if os.getenv('SEOCHO_EXPERIMENT_RUN_ID'):
+            command += ['--run-namespace', os.environ['SEOCHO_EXPERIMENT_RUN_ID'] + ':' + spec['id']]
         if replay:
             command += ['--replay-mode', spec['replay']]
         if spec['lane'] == 'grbench-grammar':

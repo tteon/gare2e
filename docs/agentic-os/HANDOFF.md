@@ -505,3 +505,14 @@ session6100s/reserve300s. No replacement while existing ownership is unresolved.
 ### Active completion run (2026-09-17)
 
 lab-s25c owned instance **51261456**, source **9a2e0ab6**; watchdog7500s, max7.50USD. Lifecycle under local run root. Do not create a replacement until teardown is verified. Preflight v3 passed all8 checks; source bundle SHA43996eb9cd29ae71284773abde0d3a929321bc5d3032a0effcfe49de79324de5. Stage2 eight cells/two gates then stage3 ten context cells. Full basicCI passed; focused dynamic/engine/plan tests40passed. [Prior recovery report](reports/lab026-worker-recovery/README.md).
+
+## 19. s25c ended; timeout recovery prepared (2026-09-17)
+
+This supersedes the active51261456 checkpoint above. Instance destroyed and
+artifacts verified. Six timed cells passed; MTP K128 failed exact-trace gate
+with two180s TimeoutError requests whose IDs/timings were not preserved.
+No MTP K256 or context cells ran. Total current-stage spend7.287970750USD.
+Prepared next: `--runtime-timeout-recovery`, max5.00USD, paired high-K controls
+then all context cells. Error IDs/timings preserved,900s transport timeout,
+condition-scoped root traces; strict trace gate unchanged. Details and cost
+receipts in [request026](lab/requests/026-runtime-saturation-kv-pressure.md).

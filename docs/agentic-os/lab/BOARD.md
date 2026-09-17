@@ -146,3 +146,5 @@ claim. Prior lowK controls repeat because a new host/startup policy needs a
 matched control. No previously completed stage1 repeat. Hard lifetime7500s,
 rate<=3.60/h =>max7.50; cumulative upper estimate12.492318. Remote6900s,
 session6100s/reserve300s. No replacement while existing ownership is unresolved.
+
+2026-09-17: s25c stopped at MTP K128 trace gate (two180s timeouts); owned51261456 destroyed. Six timed cells valid. s25d high-K paired timeout recovery + context prepared; see request026.

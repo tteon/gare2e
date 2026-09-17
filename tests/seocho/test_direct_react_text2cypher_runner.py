@@ -272,3 +272,38 @@ def test_direct_runner_uses_a_real_bolt_transaction_timeout() -> None:
     assert "def _tool_result" not in src and "def _safe_read_query" not in src and "session.run(" not in src
     assert "GRBenchDozerExecutor(" in src and "executor.execute_rows(" in src and "executor.profile_select(" in src
     assert "unanchored_scan" in src  # the prompt names the repair code
+
+
+def test_http_timeout_retains_exact_span_and_duration_without_private_body(monkeypatch) -> None:
+    from seocho.eval.agentic_os_trace import case_trace
+    runner = _runner()
+    sent = {}
+
+    def timeout(request, *, timeout):
+        sent['traceparent'] = request.get_header('Traceparent')
+        sent['timeout'] = timeout
+        raise TimeoutError('private provider diagnostic')
+
+    monkeypatch.setenv('SEOCHO_LLM_HTTP_TIMEOUT_S', '900')
+    monkeypatch.setattr(runner, 'urlopen', timeout)
+    clock = runner.time.perf_counter() - 1
+    with case_trace('scope:condition:task', 'case'):
+        with pytest.raises(TimeoutError) as caught:
+            runner._post('http://127.0.0.1:1/v1/chat/completions', {})
+    receipt = runner.error_usage_receipt(caught.value, clock)
+    assert sent['timeout'] == 900
+    assert receipt['span_id'] == sent['traceparent'].split('-')[2]
+    assert receipt['llm_request_id'] == receipt['span_id']
+    assert receipt['latency_ms'] >= 0
+    assert receipt['started_elapsed_ms'] >= 1000
+    assert receipt['http_timeout_s'] == 900
+    assert receipt['outcome'] == 'TimeoutError'
+    assert 'private provider diagnostic' not in json.dumps(receipt)
+
+
+@pytest.mark.parametrize('value', ['0', '-1', '901', 'nan', 'inf'])
+def test_http_timeout_bound_is_checked_before_transport(monkeypatch, value) -> None:
+    runner = _runner()
+    monkeypatch.setenv('SEOCHO_LLM_HTTP_TIMEOUT_S', value)
+    with pytest.raises(ValueError):
+        runner._post('http://127.0.0.1:1', {})

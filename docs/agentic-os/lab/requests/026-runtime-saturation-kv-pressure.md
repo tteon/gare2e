@@ -1,7 +1,7 @@
 ---
 id: 026
 title: Engine observations, same-host saturation, and actual long-context KV pressure
-state: completion prepared; instrumentation and baseline K128 complete
+state: timeout recovery prepared; six saturation conditions validated
 created: 2026-09-15
 bead: seocho-6niy
 ---
@@ -147,3 +147,51 @@ claim. Prior lowK controls repeat because a new host/startup policy needs a
 matched control. No previously completed stage1 repeat. Hard lifetime7500s,
 rate<=3.60/h =>max7.50; cumulative upper estimate12.492318. Remote6900s,
 session6100s/reserve300s. No replacement while existing ownership is unresolved.
+
+
+## 2026-09-17: s25c results and timeout-recovery registration
+
+Six timed conditions passed exact trace and engine admission:
+
+| Mode | K | Output tok/s/GPU | task/s |
+| --- | ---: | ---: | ---: |
+| Baseline | 8 | 123.6213 | 0.53873 |
+| Baseline | 64 | 425.8002 | 1.85109 |
+| Baseline | 128 | 474.4884 | 2.15010 |
+| Baseline | 256 | 472.9278 | 2.17199 |
+| MTP | 8 | 162.7580 | 0.69521 |
+| MTP | 64 | 273.7031 | 1.25562 |
+
+Baseline reaches a plateau under max_num_seqs=128; this is not a hardware
+absolute maximum. MTP changes throughput by +31.7% at K8 and -35.7% at K64.
+Accepted draft fractions are91.7%/92.2%: acceptance alone does not predict rate.
+
+MTP K128 workload completed but trace admission failed:3578/3580 exact stage
+joins. Two cases ended TimeoutError under the historical180-second urllib
+socket timeout. Error turns omitted real span IDs and latency, so the exporter
+created reconstructed zero-duration error spans. These cannot be retroactively
+matched by time or by guessing unused server IDs. The candidate278.4217tok/s/GPU
+is not admitted evidence; preserve the original failed receipt. No MTP K256 or
+context cells were launched. Native thread and process-startup fixes passed
+live K256 (all256workers,1311tasks); their issue is closed.
+
+Owned51261456 destroyed/absence verified. Lifetime4342.928385s,
+rate1.902944444/h, estimate2.295653179. Essential12074files/15163324bytes,
+SHA2563294989e288ac9c0e3f91e000c20587061667c1fb1eaea175051420152dbc5e8;
+copy verified, bulk intentionally partial. s25+s25b+s25c cost7.287970750.
+
+Next delta: retain actual outgoing span ID and duration on transport errors;
+record a bounded900-second HTTP socket timeout explicitly in the coordinator
+manifest/context contract. It is a benchmark transport limit, not a product SLO.
+No gate is weakened, and old180-second failures remain unmodified. Add an
+experiment/condition namespace to execution identity so repeated cases have
+separate root traces; pairing still uses the frozen question/paired-unit keys.
+
+`--runtime-timeout-recovery` / lab-s25d reruns only baseline/MTP K128 and K256
+(two gates/four timed cells) on one fresh host, then all10fixed-corpus context
+cells. Repeat baseline controls because host, transport limit and trace identity
+changed. Already validated low-K comparisons and stage1 are not repeated.
+Max rate2.40/h, watchdog7500s =>max5.00; cumulative upper bound12.287971 remains
+under12.60. Remote6900s/session6100s/reserve300s. Previous instance ownership
+must be resolved before creation. Results across the180s and900s runs remain
+separate; do not connect their K points as one same-host curve.

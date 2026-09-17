@@ -71,17 +71,46 @@ def _load_questions(path: Path, limit: int, qids: set[str] | None = None) -> lis
     return rows
 
 
+def llm_http_timeout_s() -> float:
+    timeout = float(os.getenv('SEOCHO_LLM_HTTP_TIMEOUT_S', '180'))
+    if not 0 < timeout <= 900:
+        raise ValueError('LLM HTTP timeout must be within (0, 900] seconds')
+    return timeout
+
+
+def _annotate_llm_error(error: Exception, span_id: str | None, started: float, timeout: float) -> None:
+    setattr(error, '_seocho_span_id', span_id)
+    setattr(error, '_seocho_latency_ms', (time.perf_counter() - started) * 1000)
+    setattr(error, '_seocho_http_timeout_s', timeout)
+
+
+def error_usage_receipt(error: Exception, case_clock_started: float) -> dict[str, Any]:
+    latency = getattr(error, '_seocho_latency_ms', None)
+    span_id = getattr(error, '_seocho_span_id', None)
+    return dict(latency_ms=latency, outcome=type(error).__name__, output_kind='error',
+                span_id=span_id, llm_request_id=span_id,
+                http_timeout_s=getattr(error, '_seocho_http_timeout_s', None),
+                started_elapsed_ms=None if latency is None else
+                max(0, (time.perf_counter() - case_clock_started) * 1000 - latency))
+
+
 def _post(url: str, payload: dict[str, Any]) -> tuple[dict[str, Any], float]:
+    timeout = llm_http_timeout_s()
     started = time.perf_counter()
     headers: dict[str, str] = {"Content-Type": "application/json"}
     span_id = inject_traceparent(headers)  # W3C trace context for the bound case (no-op otherwise)
     request = Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers)
     try:
-        with urlopen(request, timeout=180) as response:  # noqa: S310 - endpoint is an explicit experiment arg
+        with urlopen(request, timeout=timeout) as response:  # noqa: S310 - endpoint is an explicit experiment arg
             result = json.loads(response.read().decode("utf-8"))
     except HTTPError as error:
         detail = error.read().decode("utf-8", errors="replace")[:1000]
-        raise RuntimeError(f"LLM HTTP {error.code}: {detail}") from error
+        failure = RuntimeError(f"LLM HTTP {error.code}: {detail}")
+        _annotate_llm_error(failure, span_id, started, timeout)
+        raise failure from error
+    except Exception as error:
+        _annotate_llm_error(error, span_id, started, timeout)
+        raise
     if span_id is not None:
         result["_seocho_span_id"] = span_id
     return result, (time.perf_counter() - started) * 1000
@@ -318,7 +347,7 @@ def main() -> int:
                   try:
                       response, llm_ms = _post(f"{args.base_url.rstrip('/')}/v1/chat/completions", payload)
                   except Exception as exc:  # retained only as class, never provider/body text
-                      turns.append({"latency_ms": None, "outcome": type(exc).__name__, "output_kind": "error"})
+                      turns.append(error_usage_receipt(exc, case_clock_started))
                       terminal = "llm_error"
                       break
                   append_private_event(args.replay_out, {"kind": "llm", "payload": payload,

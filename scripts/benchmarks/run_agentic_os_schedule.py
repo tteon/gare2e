@@ -15,6 +15,7 @@ import threading
 import hashlib
 import json
 import math
+import os
 import resource
 import subprocess
 import sys
@@ -481,6 +482,7 @@ def main() -> int:
     parser.add_argument("--dynamic-queue", action="store_true", help="Use the FIFO even with one fresh worker.")
     parser.add_argument("--workers", type=int, default=1,
                         help="Dynamic FIFO concurrency in one coordinator; do not combine with --shard.")
+    parser.add_argument('--run-namespace', help='Experiment and condition identity; prevents traces from distinct passes sharing a root')
     parser.add_argument("--runner-mode", choices=("fresh", "persistent"), default="fresh")
     parser.add_argument('--worker-native-threads', type=int, help='Bound native libraries inside persistent worker processes only')
     parser.add_argument("--steady-state-warmup-s", type=float, default=0.0,
@@ -601,6 +603,8 @@ def main() -> int:
         "dispatch_mode": "dynamic_fifo" if dynamic else "serial",
         "runner_mode": args.runner_mode,
         "worker_native_threads": args.worker_native_threads,
+        "run_namespace": args.run_namespace,
+        "llm_http_timeout_s": float(os.getenv("SEOCHO_LLM_HTTP_TIMEOUT_S", "180")),
         "steady_state_warmup_s": args.steady_state_warmup_s,
         "prompt_profile": args.prompt_profile,
         "grbench_workspace_id": args.grbench_workspace_id,

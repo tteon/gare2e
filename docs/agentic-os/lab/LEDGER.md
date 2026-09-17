@@ -121,3 +121,5 @@ claim. Prior lowK controls repeat because a new host/startup policy needs a
 matched control. No previously completed stage1 repeat. Hard lifetime7500s,
 rate<=3.60/h =>max7.50; cumulative upper estimate12.492318. Remote6900s,
 session6100s/reserve300s. No replacement while existing ownership is unresolved.
+
+2026-09-17: s25c51261456:4342.928385s at1.902944444/h =2.295653179USD; destroyed/absent, essential checksum verified. Stage total7.287970750USD; next max5.00 =>12.287971 cumulative cap. Historical cumulative approx125.708USD. Hourly estimates, not invoices.

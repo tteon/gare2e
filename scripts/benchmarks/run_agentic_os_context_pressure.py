@@ -11,6 +11,7 @@ import csv
 import gzip
 import hashlib
 import json
+import os
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -18,7 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from prepare_agentic_os_throughput import write_new
-from run_direct_react_text2cypher import _post, _usage_receipt
+from run_direct_react_text2cypher import _post, _usage_receipt, error_usage_receipt, llm_http_timeout_s
 from seocho.eval.agentic_os_trace import case_trace
 
 
@@ -59,6 +60,7 @@ def main() -> int:
     write_new(args.root / 'context-contract.json', dict(source_sha256=source_sha, source_rows=row_count,
               available_tokens=len(tokens), input_tokens=args.input_tokens, k=args.k, locality=args.locality,
               reuse_delay_s=args.reuse_delay_s, output_tokens=128, calls_per_task=2,
+              http_timeout_s=llm_http_timeout_s(),
               evidence_class='fixed_corpus_serving_diagnostic', quality='unscored', graph_queries_executed=0))
     lock = threading.Lock()
     counter = 0
@@ -74,7 +76,9 @@ def main() -> int:
             with lock:
                 index = counter
                 counter += 1
-            run_id = f'{args.root.parents[2].name}-task-{index}'
+            scope = os.getenv('SEOCHO_EXPERIMENT_RUN_ID')
+            prefix = f'{scope}:' if scope else ''
+            run_id = f'{prefix}{args.root.parents[2].name}-task-{index}'
             # Shared uses the same actual corpus prefix. Distributed rotates
             # through 64 nonoverlapping 24K regions regardless of K; the next
             # call within a task reuses its prefix after the prescribed gap.
@@ -102,6 +106,8 @@ def main() -> int:
                         if row['input_tokens'] != args.input_tokens or row['output_tokens'] != 128:
                             raise ValueError('server token accounting does not match fixed lengths')
                 except Exception as exc:
+                    if hasattr(exc, '_seocho_latency_ms'):
+                        turns.append(error_usage_receipt(exc, clock))
                     terminal = type(exc).__name__
                     failure.set()
                 finished = time.time()
