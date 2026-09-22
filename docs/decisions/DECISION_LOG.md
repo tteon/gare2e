@@ -1,5 +1,11 @@
 # Decision Log
 
+## 2026-09-22 — Shared experiment results
+
+- [Accepted] [ADR-0227](ADR-0227-shared-experiment-results-and-trace-inspection.md):
+  immutable attributed result registry; Runtime/Tool/Agent comparison, task
+  drilldown, Perfetto-compatible export and evidence-linked observations.
+
 ## 2026-08-21
 
 - Accepted `ADR-0219-rust-dozer-projection-daemon.md`

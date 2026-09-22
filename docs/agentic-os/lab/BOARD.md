@@ -150,6 +150,14 @@ session6100s/reserve300s. No replacement while existing ownership is unresolved.
 2026-09-17: s25c stopped at MTP K128 trace gate (two180s timeouts); owned51261456 destroyed. Six timed cells valid. s25d high-K paired timeout recovery + context prepared; see request026.
 
 
+### 2026-09-22 — shared experiment platform (seocho-rn3p)
+
+Implemented immutable imports, contributor metrics, Runtime/Tool/Agent charts,
+task timelines and evidence insights. Perfetto JSON and registered reviewed
+Nsight SQLite/report downloads are available. Historical import: 30 conditions,
+10,821 tasks; no historical Nsight files or new paid measurement. Team deployment
+is pending hosting/auth configuration. [Guide](../EXPERIMENT_PLATFORM.md).
+
 ### 2026-09-22 — graph-system observation coverage (seocho-tq2c)
 
 Implemented opt-in thread/cgroup/NUMA/device collection, bounded read-only DB

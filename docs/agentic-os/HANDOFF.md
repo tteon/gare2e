@@ -537,3 +537,24 @@ a fresh bundle/preflight and observer overhead comparison precede live use.
 No paid run or additional spend was initiated. The prior lab026 timeout recovery
 and long-context execution remain pending; this extension does not close them.
 Bead: seocho-tq2c.
+
+## 21. Shared experiment platform — 2026-09-22
+
+The [platform guide](EXPERIMENT_PLATFORM.md) documents a read-only FastAPI viewer,
+immutable workspace/owner registry and CLI imports. Runtime / Tool / Agent charts
+lead to condition and task timelines, then evidence-linked observations. Unknown
+comparison contracts suppress improvement percentages. JSON metric extensions
+allow contributor additions without executing artifact-supplied code.
+
+Existing published reports import as 30 conditions and 10,821 tasks. They retain
+unverified admission until reviewed manifests are supplied. Perfetto JSON exports
+contain measured task/request/tool intervals. Reviewed Nsight SQLite and original
+reports can be attached with checksums, profiler version, clock and capture scope;
+there are no actual Nsight captures attached to the historical imports. No GPU
+kernel activity is inferred from OTel spans.
+
+Local HTTP/browser and focused tests validate navigation and download contracts.
+This is a locally runnable platform, not a deployed team service or a new GPU/DB
+performance result. Team hostname, TLS/auth proxy and actual profiler capture
+remain deployment/experiment follow-ups. No new paid experiment was launched.
+Bead: seocho-rn3p; architecture ADR-0227.

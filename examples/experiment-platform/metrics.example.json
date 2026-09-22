@@ -1,0 +1,10 @@
+[
+  {
+    "id": "llm_client_p95",
+    "label": "LLM client wall p95",
+    "unit": "s",
+    "view": "Runtime",
+    "direction": "lower",
+    "path": "runtime.client_latency_s.p95"
+  }
+]

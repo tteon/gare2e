@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>gare2e · Experiment Lab</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body><header><div class="brand">gare2e <span>EXPERIMENT LAB</span></div><p>Compare → Inspect → Understand</p><div id="workspace"></div></header>
+<main>
+<form id="access"><label>팀 access token <input id="token" type="password" autocomplete="off" placeholder="로컬에서는 생략 가능"></label><button>결과 불러오기</button><span id="status" role="status"></span></form>
+<nav><a href="#compare">01 비교 차트</a><a href="#inspect">02 개별 결과</a><a href="#insights">03 Evidence & insight</a></nav>
+<section id="compare"><div class="section-title"><span>01 / COMPARE</span><h1>어떤 조건에서 달라졌나요?</h1></div>
+<div class="controls"><label>실험자 <select id="owner"></select></label><label>관측 축 <select id="view"><option>Runtime</option><option>Agent</option><option>Tool</option></select></label><label>비교 지표 <select id="metric"></select></label><label>조건 검색 <input id="filter" placeholder="예: mtp, k64"></label></div>
+<p id="metric-note" class="muted"></p><div id="chart"></div><p class="muted">막대를 선택하면 해당 실행으로 이동합니다. 미측정 값은 0으로 표시하지 않습니다.</p>
+<div class="controls"><label>기준 조건 <select id="baseline"></select></label><button id="compare-button">선택한 결과와 비교</button></div><div id="comparison"></div></section>
+<section id="inspect"><div class="section-title"><span>02 / INSPECT</span><h2>개별 실행과 Task 타임라인</h2></div><h3 id="selected-title">비교 차트에서 조건을 선택하세요</h3><div id="cards" class="cards"></div><div id="provenance" class="muted"></div>
+<h3>Profiler 원본·SQL 다운로드</h3><div id="diagnostics"></div><details><summary>실행 계약·관측 범위</summary><pre id="contract"></pre><div id="coverage"></div></details>
+<div class="controls"><label>Task 검색 <input id="task-search" placeholder="case ID 또는 종료 이유"></label><button id="task-search-button">찾기</button><button id="previous">이전</button><button id="next">다음</button><span id="page-note"></span></div>
+<div id="tasks" class="scroll"></div><h3 id="task-title">Task를 선택하세요</h3>
+<div class="controls"><label>타임라인 확대 <input id="zoom" type="range" min="1" max="12" step="1" value="1"></label><button id="download" disabled>Perfetto JSON 다운로드</button><a href="https://ui.perfetto.dev" target="_blank" rel="noreferrer">Perfetto 열기 ↗</a></div>
+<p class="muted">LLM client/server와 graph tool의 겹치는 시간을 별도 lane으로 표시합니다. GPU kernel은 실제 profiler 데이터가 있어야 표시할 수 있습니다. 파일은 외부로 자동 전송되지 않습니다.</p>
+<div id="timeline" class="timeline"></div><pre id="event-detail">구간을 선택하면 해당 관측값을 볼 수 있습니다.</pre><p id="trace-limits" class="muted"></p></section>
+<section id="insights"><div class="section-title"><span>03 / UNDERSTAND</span><h2>근거를 따라가는 Insight</h2></div><p class="muted">규칙 기반 관찰입니다. 자동 인과 판단이나 답변 정확도 평가가 아닙니다.</p><div id="insight-cards" class="cards"></div><h3>선택한 근거</h3><pre id="evidence"></pre></section>
+<footer>새 실험·지표 추가: <code>scripts/benchmarks/experiment_platform.py import</code> · immutable result registry · 원본 payload 제외</footer>
+</main></body></html>

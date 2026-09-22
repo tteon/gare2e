@@ -1,0 +1,14 @@
+{
+  "source_commit": "unknown",
+  "repetitions": 1,
+  "contract": {
+    "dataset_revision": null,
+    "model_revision": null,
+    "hardware": null,
+    "gpu_count": null,
+    "db_build": null,
+    "protocol": null,
+    "measurement_policy": null
+  },
+  "admission": {}
+}

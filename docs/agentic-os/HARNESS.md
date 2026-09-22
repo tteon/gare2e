@@ -1,5 +1,9 @@
 # Experiment harness: read, reproduce, resume
 
+For shared comparison charts, task inspection, evidence insights and Perfetto /
+Nsight artifact downloads, see [the experiment platform](EXPERIMENT_PLATFORM.md).
+Its importer reuses characterization exports; it does not launch experiments.
+
 ## View existing evidence
 
 Clone `tteon/gare2e` with your repository access and open
