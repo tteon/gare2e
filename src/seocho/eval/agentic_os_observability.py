@@ -340,6 +340,7 @@ class HostProcessSampler:
         roles: Mapping[str, int],
         interval_s: float = 1.0,
         process_scope: ProcessScope = ROOT_PROCESS_SCOPE,
+        graph_system_interval_s: float | None = None,
     ) -> None:
         if interval_s <= 0:
             raise ValueError("interval_s must be positive")
@@ -351,6 +352,10 @@ class HostProcessSampler:
         self.roles = dict(roles)
         self.interval_s = float(interval_s)
         self.process_scope = process_scope
+        if graph_system_interval_s is not None and not (0 < graph_system_interval_s < float("inf")):
+            raise ValueError("graph_system_interval_s must be finite and positive")
+        self.graph_system_interval_s = graph_system_interval_s
+        self._last_graph_sample_s = float("-inf")
         self._root_start_ticks = {
             role: snapshot.start_ticks
             if (snapshot := _read_process_snapshot(pid, include_io=False)) is not None
@@ -421,6 +426,15 @@ class HostProcessSampler:
         with self.path.open("a", newline="", encoding="utf-8") as handle:
             writer = csv.DictWriter(handle, fieldnames=HOST_PROCESS_HEADERS, extrasaction="raise")
             writer.writerows(rows)
+        if self.graph_system_interval_s is not None and monotonic_s - self._last_graph_sample_s >= self.graph_system_interval_s:
+            from .agentic_os_graph_system import graph_system_sample
+
+            # Only sample original, still-valid root identities, never reused PIDs.
+            roles = {role: pid for role, pid in self.roles.items() if self._previous_scopes[role].valid}
+            observation = graph_system_sample(roles)
+            with self.path.with_name("graph-system.jsonl").open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(observation) + "\n")
+            self._last_graph_sample_s = monotonic_s
         return rows
 
     def start(self) -> None:

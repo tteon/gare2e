@@ -155,6 +155,9 @@ def main() -> int:
     parser.add_argument("--vllm-metrics-url", default="http://127.0.0.1:8000/metrics")
     parser.add_argument("--role-pid", action="append", type=_parse_role_pid, default=[])
     parser.add_argument("--interval-s", type=float, default=1.0)
+    parser.add_argument("--graph-system-observer", action="store_true",
+                        default=os.environ.get("SEOCHO_GRAPH_SYSTEM_OBSERVER") == "1",
+                        help="Opt-in 5-second root-thread/cgroup/NUMA/device observer; records its cost")
     parser.add_argument("--max-gap-s", type=float, default=2.5)
     parser.add_argument("--no-gpu", action="store_true", help="Testing-only: do not invoke nvidia-smi")
     parser.add_argument(
@@ -182,6 +185,17 @@ def main() -> int:
         parser.error("--role-pid roles must be unique")
     args.artifacts.mkdir(parents=True, exist_ok=True)
     _write_json(args.artifacts / "hardware.json", _hardware_receipt())
+    if args.graph_system_observer:
+        from probe_agentic_os_graph_capabilities import probe_environment
+
+        # Pre-workload only. No SHOW/PROFILE query is injected into timed calls.
+        try:
+            capabilities = probe_environment()
+        except Exception as exc:
+            capabilities = {"status": "unavailable", "error_class": type(exc).__name__}
+        capabilities["run_id"] = os.environ.get("SEOCHO_EXPERIMENT_RUN_ID")
+        capabilities["workspace_id"] = os.environ.get("SEOCHO_WORKSPACE_ID")
+        _write_json(args.artifacts / "graph-capabilities.json", capabilities)
     started_unix_s = time.time()
     started_monotonic_s = time.monotonic()
     stdout_path = args.artifacts / "workload.stdout.private.log"
@@ -197,6 +211,7 @@ def main() -> int:
             roles=roles,
             interval_s=args.interval_s,
             process_scope=PROCESS_TREE_SCOPE,
+            graph_system_interval_s=5.0 if args.graph_system_observer else None,
         )
         vllm_sampler = VllmMetricsSampler(
             args.artifacts / "vllm-metrics.jsonl",

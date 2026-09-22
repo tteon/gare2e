@@ -34,6 +34,12 @@ to open local loopback sockets; their mocked backends are not performance eviden
 
 ## Harness components
 
+For the opt-in DB/thread/CPU/NUMA/I/O collector, capability probe, coverage
+statuses and remaining engine/PMU instrumentation gaps, see
+[Graph-system observability](GRAPH_SYSTEM_OBSERVABILITY.md). Enable with
+`SEOCHO_GRAPH_SYSTEM_OBSERVER=1` for a newly validated source bundle. Historical
+bundles and results remain unchanged.
+
 Paths below are relative to `scripts/benchmarks/` unless stated otherwise.
 
 | Component | Entry point | Responsibility |

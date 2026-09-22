@@ -330,8 +330,11 @@ class GRBenchDozerExecutor:
         if summary.profile is None:
             raise RuntimeError("DozerDB did not return a PROFILE plan")
         audit = audit_profile(summary.profile)
+        from .agentic_os_graph_system import plan_runtime
+
         return {
             "schema_version": "agentic_os.dozer_profile_replay.v1",
+            "actual_runtime": plan_runtime(summary.profile),
             "scope": "separate_read_only_diagnostic_replay",
             "query_digest": hashlib.sha256(statement.encode("utf-8")).hexdigest(),
             "wall_ms": round((time.perf_counter() - started) * 1000, 3),

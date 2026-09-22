@@ -1,5 +1,14 @@
 # Workload factors and observability
 
+## Graph storage, execution and hardware extension (2026-09-22)
+
+[Graph-system observability](GRAPH_SYSTEM_OBSERVABILITY.md) extends all three
+views with store structure/runtime/procedures, thread scheduling, CPU/NUMA,
+DRAM/page cache/heap, device I/O and PMU/traversal coverage. The opt-in collector
+and linked report are implemented; live DB/GPU validation remains pending.
+Missing advanced sources are explicit gaps, not zeros or inferred observations.
+This adds measurement surfaces without expanding the paid intervention matrix.
+
 ## Three linked characterization views
 
 The owner's latest requirement is categorized **results**, following

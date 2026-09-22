@@ -9,6 +9,8 @@ import math
 from pathlib import Path
 from typing import Any
 
+from seocho.eval.agentic_os_graph_system import summarize_graph_system
+
 from summarize_agentic_os_otel_stages import throughput_receipt
 
 
@@ -40,6 +42,7 @@ def summarize(root: Path) -> dict[str, Any]:
     if rate['status'] != 'observed':
         return output
     start, end = rate['started_unix_s'], rate['finished_unix_s']
+    output['graph_system'] = summarize_graph_system(read_rows(root / 'workload/graph-system.jsonl'), start, end)
     selected = [s for s in samples if start <= s['timestamp_unix_s'] <= end]
     gauges = ('vllm:num_requests_running', 'vllm:num_requests_waiting', 'vllm:kv_cache_usage_perc')
     output['sampled_gauges'] = {name: distribution([(s.get('metrics') or {}).get(name) for s in selected]) for name in gauges}

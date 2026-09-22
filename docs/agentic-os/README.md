@@ -9,6 +9,7 @@ token 수를 함께 기록합니다.
 | --- | --- |
 | 조건을 선택하며 차트 보기 | [차트 보고서](reports/characterization-charts/index.html) |
 | 분모, 단위, 누락 처리, 논문 그림과의 대응 | [차트 측정 정의](reports/characterization-charts/README.md) |
+| Graph 저장 구조·procedure·스레드·하드웨어 관측 | [GRAPH_SYSTEM_OBSERVABILITY.md](GRAPH_SYSTEM_OBSERVABILITY.md) |
 | 전체 observability 계약과 미관측 지표 | [OBSERVABILITY_FACTORS.md](OBSERVABILITY_FACTORS.md) |
 | LLM→tool→다음 LLM의 task별 timeline | [최신 실행 보고서](reports/lab025-replicas/index.html) |
 | 실험 조건, 결과, 수집·종료 검증 | [Lab025 결과](reports/lab025-replicas/README.md) |

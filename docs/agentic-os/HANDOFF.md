@@ -516,3 +516,24 @@ Prepared next: `--runtime-timeout-recovery`, max5.00USD, paired high-K controls
 then all context cells. Error IDs/timings preserved,900s transport timeout,
 condition-scoped root traces; strict trace gate unchanged. Details and cost
 receipts in [request026](lab/requests/026-runtime-saturation-kv-pressure.md).
+
+
+## 20. Graph-system observability extension — 2026-09-22
+
+The owner requested storage-structure/runtime/procedure and thread/hardware
+observations in the existing Runtime / Tool / Agent views. See
+[the implementation and coverage contract](GRAPH_SYSTEM_OBSERVABILITY.md).
+`SEOCHO_GRAPH_SYSTEM_OBSERVER=1` enables pre-workload read-only DB capability
+probes and five-second root-thread/cgroup/NUMA/device sampling. Existing
+process-tree and out-of-band PROFILE evidence are reused. PMU, actual store
+metadata, JVM/cache/Bolt and traversal internals remain explicit source gaps
+until measured; no inferred zeros or retroactive claims.
+
+Local Linux collector smoke, focused40tests, historical lab-s25 re-export
+(1616tasks/7479requests/6496tools, unchanged five throughput values), browser
+rendering and basic CI passed. This is implementation/contract validation, not
+a live DozerDB/GPU performance result. Existing source bundles are unchanged;
+a fresh bundle/preflight and observer overhead comparison precede live use.
+No paid run or additional spend was initiated. The prior lab026 timeout recovery
+and long-context execution remain pending; this extension does not close them.
+Bead: seocho-tq2c.

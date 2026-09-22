@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from seocho.eval.agentic_os_characterization import query_shape
+from seocho.eval.agentic_os_graph_system import attach_graph_evidence, summarize_graph_system
 from seocho.eval.agentic_os_otel import build_case_spans, iter_case_receipts
 from seocho.eval.grbench_runtime import validate_grbench_read_query
 from summarize_agentic_os_factors import distribution, read_rows
@@ -146,11 +147,12 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False,
         if rate.get('status') != 'observed':
             continue
         start, end = rate['started_unix_s'], rate['finished_unix_s']
-        tasks, requests, tools = [], [], []
+        tasks, requests, tools, profiles = [], [], [], []
         pass_name = directory.name.removeprefix('run-')
         lifecycle = {r['run_id']: r for p in directory.glob('e2e/*/shard-*/coordinator-receipts.jsonl') for r in read_rows(p)}
         for shard in directory.glob('e2e/*/shard-*'):
             for case, anchor in iter_case_receipts(shard):
+                profiles.extend(case.get('query_plan_replays') or [])
                 spans = [s.to_json() for s in build_case_spans(case, lane='grbench-single',
                          topology='single_agent', anchor_unix_s=anchor)]
                 case_span = spans[0]
@@ -207,6 +209,12 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False,
         gauges = dict(factors.get('sampled_gauges') or {})
         if config.get('replicas') == 2 and 'vllm:kv_cache_usage_perc' in gauges:
             gauges['kv_usage_fraction_sum_across_replicas'] = gauges.pop('vllm:kv_cache_usage_perc')
+        capability_path = directory / 'workload/graph-capabilities.json'
+        graph_system = attach_graph_evidence(
+            summarize_graph_system(read_rows(directory / 'workload/graph-system.jsonl'), start, end),
+            capabilities=json.loads(capability_path.read_text()) if capability_path.exists() else None,
+            tools=ct, profiles=profiles, agent_samples_present=bool(cohort),
+            process_samples_present=(directory / 'workload/host-process.csv').exists())
         summary = {'pass': pass_name, 'application_k': factors.get('application_k'),
                    'router_policy': config.get('router_policy'),
                    'serving_layout': '2 x TP=1' if config.get('replicas') == 2 else 'TP=2' if config.get('replicas') == 1 else 'unrecorded',
@@ -227,6 +235,7 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False,
                    'decode_share_of_summed_request_prefill_decode': decode / (prefill + decode)
                        if prefill is not None and decode is not None and prefill + decode else None,
                    'sampled_gauges': gauges, 'counter_deltas': factors.get('counter_deltas'),
+                   'graph_system': graph_system,
                    'replica_observations': replica_observations(directory, start, end),
                    'actual_constrained_query_ratio': factors.get('actual_constrained_query_ratio'),
                    'tools': [{'shape': key, 'calls': len(rows), 'latency_ms': distribution([t['latency_ms'] for t in rows]),

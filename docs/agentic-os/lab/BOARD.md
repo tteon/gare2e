@@ -148,3 +148,12 @@ rate<=3.60/h =>max7.50; cumulative upper estimate12.492318. Remote6900s,
 session6100s/reserve300s. No replacement while existing ownership is unresolved.
 
 2026-09-17: s25c stopped at MTP K128 trace gate (two180s timeouts); owned51261456 destroyed. Six timed cells valid. s25d high-K paired timeout recovery + context prepared; see request026.
+
+
+### 2026-09-22 — graph-system observation coverage (seocho-tq2c)
+
+Implemented opt-in thread/cgroup/NUMA/device collection, bounded read-only DB
+capability probe, actual runtime label from diagnostic PROFILE, and per-view
+coverage/thread timeline. [Contract](../GRAPH_SYSTEM_OBSERVABILITY.md) separates
+collected sources from required PMU/JVM/cache/traversal instrumentation. Local
+validation passed; live appliance gate pending. No new paid execution or spend.
