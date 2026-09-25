@@ -1450,3 +1450,10 @@ Use this block for new entries:
     so re-export can't clobber approvals); pull → diff → human confirm →
     snapshot save; infra-free review path stays first-class; docs say
     "DataHub integration", never "DataHub-compatible"
+
+## 2026-09-25
+
+- [Accepted] ADR-0228 graph-query-evidence-and-observability — extend the existing
+  gare2e executor/registry/viewer with query attempts, nullable PROFILE counters,
+  snapshot-bound exact reuse, plan/quality/log inspection and an optional local
+  OTel/Prometheus/Tempo/Grafana companion; LangSmith stays an optional destination.

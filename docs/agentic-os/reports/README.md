@@ -24,3 +24,7 @@ Lab024 continuation: [TP/grammar three-view report](lab024-continuation/index.ht
 [findings, trace gap and replica imbalance](lab024-continuation/README.md). Five
 additional comparisons complete the executed27-condition matrix. Sessions remain
 separate because host/runtime conditions differ.
+
+Lab027: [query evidence platform and exact-reuse pilot](lab027-graph-evidence/README.md).
+Fixed-query parity passed; agent comparison sessions had no cache hits. Includes
+observability coverage, costs and verified teardown, without a throughput claim.

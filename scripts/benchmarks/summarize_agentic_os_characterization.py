@@ -131,6 +131,7 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False,
             server_index[(span['trace_id'], span.get('parent_span_id'))].append(span)
     labels = query_shapes(root, use_private_captures)
     all_tasks, all_requests, all_tools, summaries = [], [], [], []
+    query_evidence = []
     excluded_fixed_corpus_passes = []
     for directory in sorted(root.glob('run-*')):
         factor_path = directory / 'otel/factors.json'
@@ -158,6 +159,18 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False,
                 case_span = spans[0]
                 begun, finished = case_span['start_unix_ns'] / 1e9, case_span['end_unix_ns'] / 1e9
                 trace = case_span['trace_id']
+                # Preserve historical diagnostics as separately identified replays.
+                # Their exact start clock was not captured; do not invent one.
+                for index, replay in enumerate(case.get('query_plan_replays') or []):
+                    query_evidence.append({'schema_version': 'gare2e.query_attempt.v1',
+                        'trace_id': trace, 'pass': pass_name,
+                        'query_id': hashlib.sha256(f"{trace}:profile:{index}".encode()).hexdigest()[:32],
+                        'scope': 'diagnostic_replay', 'mode': 'historical',
+                        'outcome': 'error' if replay.get('error_class') else 'ok',
+                        'error_class': replay.get('error_class'), 'query_digest': replay.get('query_digest'),
+                        'db_queries_executed': None, 'latency_ms': replay.get('wall_ms'),
+                        'receipt': {k: replay.get(k) for k in ('server_available_ms', 'server_consumed_ms')},
+                        'plan': replay.get('plan')})
                 task_id = f"{case.get('run_id')}:{case.get('case_id') or case.get('qid')}"
                 turns = case.get('turns') or []
                 coordinator = lifecycle.get(case.get('run_id'), {})
@@ -287,6 +300,12 @@ def summarize(root: Path, output: Path, *, use_private_captures: bool = False,
               ]}
     for name, rows in (('tasks', all_tasks), ('requests', all_requests), ('tools', all_tools)):
         write_csv(output / f'{name}.csv', rows)
+    captured = [row for path in root.rglob('*.queries.jsonl') for row in read_rows(path)]
+    captured_replays = {q.get('trace_id') for q in captured if q.get('scope') == 'diagnostic_replay'}
+    query_evidence = [q for q in query_evidence if q.get('trace_id') not in captured_replays]
+    traces = {t['trace_id'] for t in all_tasks}
+    query_evidence.extend(row for row in captured if row.get('trace_id') in traces)
+    (output / 'queries.jsonl').write_text(''.join(json.dumps(row, ensure_ascii=False) + '\n' for row in query_evidence))
     (output / 'characterization.json').write_text(json.dumps(result, indent=2, ensure_ascii=False) + '\n')
     template = Path(__file__).with_name('agentic_os_characterization.html').read_text()
     (output / 'index.html').write_text(template.replace('__DATA__', json.dumps(result, ensure_ascii=False).replace('<', '\\u003c')))

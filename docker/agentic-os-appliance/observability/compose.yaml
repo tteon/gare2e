@@ -1,0 +1,42 @@
+# Linux loopback companion for the existing gare2e platform. No cloud services.
+services:
+  tempo:
+    image: grafana/tempo:2.7.2
+    network_mode: host
+    user: "${GARE2E_OBSERVER_UID:?set UID}:${GARE2E_OBSERVER_GID:?set GID}"
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml:ro
+      - ${GARE2E_OBSERVER_DATA:?set private data path}/tempo:/var/tempo
+  collector:
+    image: otel/opentelemetry-collector-contrib:0.119.0
+    network_mode: host
+    user: "${GARE2E_OBSERVER_UID}:${GARE2E_OBSERVER_GID}"
+    command: ["--config=/etc/collector.yaml"]
+    volumes:
+      - ./collector.yaml:/etc/collector.yaml:ro
+      - ${GARE2E_OBSERVER_DATA}/logs:/var/observability
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    network_mode: host
+    user: "${GARE2E_OBSERVER_UID}:${GARE2E_OBSERVER_GID}"
+    command: ["--config.file=/etc/prometheus.yaml", "--web.listen-address=127.0.0.1:19090", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=7d"]
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus.yaml:ro
+      - ${GARE2E_OBSERVER_DATA}/prometheus:/prometheus
+  grafana:
+    image: grafana/grafana:11.5.1
+    network_mode: host
+    user: "${GARE2E_OBSERVER_UID}:${GARE2E_OBSERVER_GID}"
+    environment:
+      GF_SERVER_HTTP_ADDR: 127.0.0.1
+      GF_SERVER_HTTP_PORT: "13000"
+      GF_SECURITY_ADMIN_PASSWORD: ${GARE2E_GRAFANA_PASSWORD:?set private admin password}
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+    volumes:
+      - ./grafana:/etc/grafana/provisioning:ro
+      - ${GARE2E_OBSERVER_DATA}/grafana:/var/lib/grafana

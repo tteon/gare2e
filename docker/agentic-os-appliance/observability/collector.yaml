@@ -1,0 +1,33 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 127.0.0.1:14317
+      http:
+        endpoint: 127.0.0.1:14318
+processors:
+  batch:
+    timeout: 1s
+exporters:
+  otlp/tempo:
+    endpoint: 127.0.0.1:14327
+    tls:
+      insecure: true
+  file/logs:
+    path: /var/observability/logs.jsonl
+    rotation:
+      max_megabytes: 20
+      max_backups: 3
+service:
+  telemetry:
+    metrics:
+      address: 127.0.0.1:18888
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/tempo]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [file/logs]

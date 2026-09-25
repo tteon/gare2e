@@ -45,6 +45,7 @@ from seocho.eval.agentic_os_observability import (
 )
 from seocho.eval.agentic_os_trace import case_trace, inject_traceparent
 from seocho.eval.grbench_graphcot import HOP_TOOL_NAMES, GraphCoTTools, graph_description, graphcot_tools
+from seocho.eval.query_evidence import from_environment
 from seocho.eval.grbench_runtime import GRBenchDozerExecutor, QueryPolicyError
 from seocho.eval.prompt_profiles import PROMPT_PROFILES, prompt_profile_receipt
 from seocho.eval.raw_agentic_baseline import RAW_CONDITIONS, openai_tool_fields, raw_condition_spec
@@ -155,6 +156,8 @@ def main() -> int:
     parser.add_argument("--profile-query-plans", action="store_true", help="accepted for parity; templates are not profiled")
     parser.add_argument("--stage", choices=("smoke", "main"), default="smoke")
     args = parser.parse_args()
+    if os.environ.get("GARE2E_QUERY_MODE", "raw") != "raw" and not os.environ.get("GARE2E_QUERY_EVIDENCE_DIR"):
+        raise ValueError("Query intervention requires evidence capture")
     if args.token_budget <= 0 or args.max_output_tokens < 1 or args.max_turns < 1:
         raise ValueError("budgets must be positive")
     spec = raw_condition_spec(args.condition, stage=args.stage)
@@ -171,9 +174,10 @@ def main() -> int:
     tools = graphcot_tools()
     runtime_tool_schema_digest = canonical_digest({"tools": list(tools)})
     driver = GraphDatabase.driver(args.bolt_url, auth=("neo4j", password))
+    query_evidence = from_environment(args.run_id)
     executor = GRBenchDozerExecutor(
         driver, database=args.database, workspace_id=args.workspace_id, row_cap=args.row_cap, byte_cap=args.byte_cap,
-        require_evidence_columns=False, require_anchor=True,
+        require_evidence_columns=False, require_anchor=True, query_evidence=query_evidence,
     )
     hop = GraphCoTTools(executor, retrieve_cap=args.retrieve_cap)
     metrics_client = VllmMetricsClient(args.metrics_url) if args.metrics_url else None
@@ -192,6 +196,8 @@ def main() -> int:
     try:
         for item in questions:
             with case_trace(args.run_id, item["qid"]) as case_trace_ctx:
+                if query_evidence:
+                    query_evidence.session(str(item["qid"]), trace_id=case_trace_ctx.trace_id)
                 case_clock_started = time.perf_counter()
                 process_window = ProcessMetricsWindow(process_roles)
                 process_window.__enter__()
@@ -264,6 +270,8 @@ def main() -> int:
                         try:
                             if tool_name not in HOP_TOOL_NAMES:
                                 raise ValueError("unrecognized tool")
+                            if query_evidence:
+                                query_evidence.tool(f"tool-{len(tool_events) + 1}", len(turns))
                             observation, detail = hop.call(tool_name, arguments if isinstance(arguments, dict) else {})
                             any_tool = True
                             outcome = "ok"
@@ -274,6 +282,8 @@ def main() -> int:
                             outcome = "rejected"
                         detail.update({
                             "name": tool_name,
+                            "tool_call_id": f"tool-{len(tool_events) + 1}",
+                            "parent_request_id": turn_receipt.get("llm_request_id"),
                             "outcome": outcome,
                             "latency_ms": round((time.perf_counter() - tool_started) * 1000, 3),
                             "tool_argument_decode_ms": tool_argument_decode_ms,
@@ -378,6 +388,7 @@ def main() -> int:
     args.predictions_out.parent.mkdir(parents=True, exist_ok=True)
     args.predictions_out.write_text(json.dumps(predictions, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     config = {
+        "query_observation": query_evidence.configuration() if query_evidence else {"enabled": False, "mode": "raw"},
         "model": args.model, "workspace_id": args.workspace_id, "database": args.database, "initial_context": "question_only",
         "max_turns": args.max_turns, "token_budget": args.token_budget, "row_cap": args.row_cap, "byte_cap": args.byte_cap,
         "retrieve_cap": args.retrieve_cap, "enable_thinking": args.enable_thinking, "arm": args.arm, "condition": args.condition,

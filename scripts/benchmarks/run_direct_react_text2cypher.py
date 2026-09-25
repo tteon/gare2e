@@ -31,6 +31,7 @@ from seocho.eval.agentic_os_artifacts import (
 from seocho.eval.agentic_os_replay import append_private_event
 from seocho.eval.agentic_os_characterization import context_bytes, query_shape
 from seocho.eval.agentic_os_trace import case_trace, inject_traceparent
+from seocho.eval.query_evidence import from_environment
 from seocho.eval.grbench_runtime import GRBenchDozerExecutor, QueryPolicyError
 from seocho.eval.agentic_graph_agents import (
     classify_answer_status,
@@ -225,6 +226,8 @@ def main() -> int:
     )
     parser.add_argument("--replay-out", type=Path, help="Opt-in private fixed-request capture for serving diagnostics")
     args = parser.parse_args()
+    if os.environ.get("GARE2E_QUERY_MODE", "raw") != "raw" and not os.environ.get("GARE2E_QUERY_EVIDENCE_DIR"):
+        raise ValueError("Query intervention requires evidence capture")
     if args.replay_out is not None and ".private." not in args.replay_out.name:
         raise ValueError("replay capture must have a .private. filename")
     if args.token_budget <= 0:
@@ -280,12 +283,13 @@ def main() -> int:
     )
     # The only Bolt execution boundary (seocho-5qmw): validator, transaction
     # timeout, caps and receipt fields live in GRBenchDozerExecutor.
+    query_evidence = from_environment(args.run_id)
     executor = (
         GRBenchDozerExecutor(
             driver, database=args.database, workspace_id=args.workspace_id, row_cap=args.row_cap, byte_cap=args.byte_cap,
             require_evidence_columns=False,  # the ReAct runner feeds raw rows back to the model
             require_anchor=os.getenv("SEOCHO_GRBENCH_REQUIRE_ANCHOR", "1") == "1",
-            zero_row_hint=args.zero_row_hint,
+            zero_row_hint=args.zero_row_hint, query_evidence=query_evidence,
         )
         if driver is not None
         else None
@@ -310,6 +314,8 @@ def main() -> int:
     try:
         for item in questions:
           with case_trace(args.run_id, item["qid"]) as case_trace_ctx:
+              if query_evidence:
+                  query_evidence.session(str(item["qid"]), trace_id=case_trace_ctx.trace_id)
               case_started_unix_s = time.time()
               case_clock_started = time.perf_counter()  # absolute offsets for turns/tools (OTel spans)
               process_window = ProcessMetricsWindow(process_roles)
@@ -403,6 +409,8 @@ def main() -> int:
                           elif tool_name == "execute_cypher":
                               if driver is None:
                                   raise RuntimeError("graph driver unavailable")
+                              if query_evidence:
+                                  query_evidence.tool(f"tool-{len(tools) + 1}", len(turns))
                               observation, detail = executor.execute_rows(str(arguments.get("query", "")))
                               query_executed = True
                               profile_queries.append(str(arguments.get("query", "")))
@@ -613,7 +621,7 @@ def main() -> int:
     args.receipt_out.parent.mkdir(parents=True, exist_ok=True)
     args.predictions_out.parent.mkdir(parents=True, exist_ok=True)
     args.predictions_out.write_text(json.dumps(predictions, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    config = {"model": args.model, "workspace_id": args.workspace_id, "database": args.database, "initial_context": "question_only", "max_turns": args.max_turns, "token_budget": args.token_budget, "row_cap": args.row_cap, "byte_cap": args.byte_cap, "enable_thinking": args.enable_thinking, "arm": args.arm, "condition": args.condition, "stage": args.stage, "run_id": args.run_id, "seed": args.seed, "repetition": args.repetition, "cache_phase": args.cache_phase, "evidence_class": spec.evidence_class, "profile_query_plans": args.profile_query_plans, "zero_row_hint": args.zero_row_hint, "private_replay_capture": args.replay_out is not None, "discovery_cache_digest": discovery_cache_digest, "tool_schema_digest": runtime_tool_schema_digest if spec.tools_enabled else None, "system_prompt_digest": _digest(system), **prompt_profile_receipt(args.prompt_profile, "cypher")}
+    config = {"query_observation": query_evidence.configuration() if query_evidence else {"enabled": False, "mode": "raw"}, "model": args.model, "workspace_id": args.workspace_id, "database": args.database, "initial_context": "question_only", "max_turns": args.max_turns, "token_budget": args.token_budget, "row_cap": args.row_cap, "byte_cap": args.byte_cap, "enable_thinking": args.enable_thinking, "arm": args.arm, "condition": args.condition, "stage": args.stage, "run_id": args.run_id, "seed": args.seed, "repetition": args.repetition, "cache_phase": args.cache_phase, "evidence_class": spec.evidence_class, "profile_query_plans": args.profile_query_plans, "zero_row_hint": args.zero_row_hint, "private_replay_capture": args.replay_out is not None, "discovery_cache_digest": discovery_cache_digest, "tool_schema_digest": runtime_tool_schema_digest if spec.tools_enabled else None, "system_prompt_digest": _digest(system), **prompt_profile_receipt(args.prompt_profile, "cypher")}
     receipt = {
         "schema_version": "agentic_os.direct_react_text2cypher_receipt.v3",
         "execution_surface": "direct_openai_compatible_vllm_and_stock_neo4j_driver",

@@ -194,3 +194,11 @@ Tests cover immutable imports, privacy allowlists, unit conversion, overlapping
 interval tracks, metric extensions, incompatible comparisons, authentication,
 workspace isolation and absent artifacts. Historical imports and live local
 HTTP/browser checks validate the platform, not a new DB/GPU experiment.
+
+## Query, plan and quality evidence
+
+The existing viewer now accepts query-attempt JSONL and versioned quality
+records. Task inspection adds searchable structured logs, paired plan tables,
+nullable counter coverage and evidence-linked insight cards. See
+[Graph optimization observability](GRAPH_OPTIMIZATION_OBSERVABILITY.md) for the
+capture/import contract and OTel, Prometheus, Grafana, Tempo and LangSmith roles.

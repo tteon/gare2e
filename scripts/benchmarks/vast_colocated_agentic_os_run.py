@@ -402,6 +402,9 @@ def _copy_to_remote(ssh_prefix: list[str], local: Path, remote: str) -> None:
 # destroy threw away the whole session's receipts).  Everything needed for the
 # funnel / bottleneck / stage tables is small; the private logs are the bulk.
 ESSENTIAL_GLOBS = (
+    "pilot/*.json", "pilot/*.jsonl", "pilot/*/*.json", "pilot/*/*.jsonl",
+    "pilot/*/*.csv", "pilot/*/stderr.private.log", "pilot/*/queries/*.jsonl",
+
     "cuda-compat-probe.json",
     "queue-receipt.jsonl", "appliance-phases.private.tsv", "bootstrap-phases.private.tsv",
     "e2e/*.json", "otel/collector-spans.jsonl", "*discovery-serving.json",

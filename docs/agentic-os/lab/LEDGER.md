@@ -123,3 +123,13 @@ rate<=3.60/h =>max7.50; cumulative upper estimate12.492318. Remote6900s,
 session6100s/reserve300s. No replacement while existing ownership is unresolved.
 
 2026-09-17: s25c51261456:4342.928385s at1.902944444/h =2.295653179USD; destroyed/absent, essential checksum verified. Stage total7.287970750USD; next max5.00 =>12.287971 cumulative cap. Historical cumulative approx125.708USD. Hourly estimates, not invoices.
+
+## 2026-09-25 lab027: new USD100 authorization
+
+Separate budget from lab026. Pilot1 admission failure before creation:$0.
+Pilot2 instance52552894:1339.351786s at disk-inclusive$2.665925926/h =
+$0.991836847 hourly estimate. Transfer charges/final invoice unverified.
+Essential122files checksum verified; intentional bulk skip retains partial
+collection state. Remote workload exit0, destruction/absence verified and
+independent watchdog stopped. No paid continuation scheduled.
+See [result](../reports/lab027-graph-evidence/README.md).

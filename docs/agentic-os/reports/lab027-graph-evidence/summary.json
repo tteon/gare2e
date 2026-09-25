@@ -1,0 +1,451 @@
+{
+  "schema_version": "gare2e.graph_evidence_pilot_summary.v1",
+  "cells": [
+    {
+      "condition": "run-fixed-0-observer_off",
+      "cases": 1,
+      "case_ids": [
+        "lookup"
+      ],
+      "wall_ms": [
+        188.13402205705643
+      ],
+      "mean_wall_ms": 188.13402205705643,
+      "tool_calls": null,
+      "query_attempts": null,
+      "db_submissions": null,
+      "reuses": null,
+      "failed_attempts": null,
+      "failure_classes": [],
+      "profile_replays": 0,
+      "all_final": false,
+      "answer_quality": "unscored"
+    },
+    {
+      "condition": "run-fixed-1-raw",
+      "cases": 1,
+      "case_ids": [
+        "lookup"
+      ],
+      "wall_ms": [
+        102.5513056665659
+      ],
+      "mean_wall_ms": 102.5513056665659,
+      "tool_calls": null,
+      "query_attempts": 20,
+      "db_submissions": 20,
+      "reuses": 0,
+      "failed_attempts": 0,
+      "failure_classes": [],
+      "profile_replays": 1,
+      "all_final": false,
+      "answer_quality": "unscored"
+    },
+    {
+      "condition": "run-fixed-2-exact_result_reuse",
+      "cases": 1,
+      "case_ids": [
+        "lookup"
+      ],
+      "wall_ms": [
+        13.76296766102314
+      ],
+      "mean_wall_ms": 13.76296766102314,
+      "tool_calls": null,
+      "query_attempts": 20,
+      "db_submissions": 1,
+      "reuses": 19,
+      "failed_attempts": 0,
+      "failure_classes": [],
+      "profile_replays": 1,
+      "all_final": false,
+      "answer_quality": "unscored"
+    },
+    {
+      "condition": "run-fixed-3-exact_result_reuse",
+      "cases": 1,
+      "case_ids": [
+        "lookup"
+      ],
+      "wall_ms": [
+        12.039024382829666
+      ],
+      "mean_wall_ms": 12.039024382829666,
+      "tool_calls": null,
+      "query_attempts": 20,
+      "db_submissions": 1,
+      "reuses": 19,
+      "failed_attempts": 0,
+      "failure_classes": [],
+      "profile_replays": 1,
+      "all_final": false,
+      "answer_quality": "unscored"
+    },
+    {
+      "condition": "run-fixed-4-raw",
+      "cases": 1,
+      "case_ids": [
+        "lookup"
+      ],
+      "wall_ms": [
+        87.87457086145878
+      ],
+      "mean_wall_ms": 87.87457086145878,
+      "tool_calls": null,
+      "query_attempts": 20,
+      "db_submissions": 20,
+      "reuses": 0,
+      "failed_attempts": 0,
+      "failure_classes": [],
+      "profile_replays": 1,
+      "all_final": false,
+      "answer_quality": "unscored"
+    },
+    {
+      "condition": "run-fixed-5-observer_off",
+      "cases": 1,
+      "case_ids": [
+        "lookup"
+      ],
+      "wall_ms": [
+        74.33421537280083
+      ],
+      "mean_wall_ms": 74.33421537280083,
+      "tool_calls": null,
+      "query_attempts": null,
+      "db_submissions": null,
+      "reuses": null,
+      "failed_attempts": null,
+      "failure_classes": [],
+      "profile_replays": 0,
+      "all_final": false,
+      "answer_quality": "unscored"
+    },
+    {
+      "condition": "run-graphcot-0-raw",
+      "cases": 3,
+      "case_ids": [
+        "0",
+        "1",
+        "2"
+      ],
+      "wall_ms": [
+        2830.668,
+        3483.24,
+        2673.816
+      ],
+      "mean_wall_ms": 2995.908,
+      "tool_calls": 6,
+      "query_attempts": 6,
+      "db_submissions": 6,
+      "reuses": 0,
+      "failed_attempts": 0,
+      "failure_classes": [],
+      "profile_replays": 0,
+      "all_final": true,
+      "answer_quality": "unscored"
+    },
+    {
+      "condition": "run-graphcot-1-exact_result_reuse",
+      "cases": 3,
+      "case_ids": [
+        "0",
+        "1",
+        "2"
+      ],
+      "wall_ms": [
+        2824.424,
+        3375.771,
+        2677.467
+      ],
+      "mean_wall_ms": 2959.2206666666666,
+      "tool_calls": 6,
+      "query_attempts": 6,
+      "db_submissions": 6,
+      "reuses": 0,
+      "failed_attempts": 0,
+      "failure_classes": [],
+      "profile_replays": 0,
+      "all_final": true,
+      "answer_quality": "unscored"
+    },
+    {
+      "condition": "run-graphcot-2-exact_result_reuse",
+      "cases": 3,
+      "case_ids": [
+        "0",
+        "1",
+        "2"
+      ],
+      "wall_ms": [
+        2832.855,
+        3376.48,
+        2675.195
+      ],
+      "mean_wall_ms": 2961.51,
+      "tool_calls": 6,
+      "query_attempts": 6,
+      "db_submissions": 6,
+      "reuses": 0,
+      "failed_attempts": 0,
+      "failure_classes": [],
+      "profile_replays": 0,
+      "all_final": true,
+      "answer_quality": "unscored"
+    },
+    {
+      "condition": "run-graphcot-3-raw",
+      "cases": 3,
+      "case_ids": [
+        "0",
+        "1",
+        "2"
+      ],
+      "wall_ms": [
+        2832.022,
+        3381.102,
+        2670.537
+      ],
+      "mean_wall_ms": 2961.220333333333,
+      "tool_calls": 6,
+      "query_attempts": 6,
+      "db_submissions": 6,
+      "reuses": 0,
+      "failed_attempts": 0,
+      "failure_classes": [],
+      "profile_replays": 0,
+      "all_final": true,
+      "answer_quality": "unscored"
+    },
+    {
+      "condition": "run-graphcot-gate-raw",
+      "cases": 1,
+      "case_ids": [
+        "0"
+      ],
+      "wall_ms": [
+        3158.969
+      ],
+      "mean_wall_ms": 3158.969,
+      "tool_calls": 2,
+      "query_attempts": 2,
+      "db_submissions": 2,
+      "reuses": 0,
+      "failed_attempts": 0,
+      "failure_classes": [],
+      "profile_replays": 0,
+      "all_final": true,
+      "answer_quality": "unscored"
+    },
+    {
+      "condition": "run-text2cypher-0-raw",
+      "cases": 3,
+      "case_ids": [
+        "0",
+        "1",
+        "2"
+      ],
+      "wall_ms": [
+        13757.346,
+        10309.549,
+        9896.029
+      ],
+      "mean_wall_ms": 11320.974666666667,
+      "tool_calls": 16,
+      "query_attempts": 13,
+      "db_submissions": 11,
+      "reuses": 0,
+      "failed_attempts": 2,
+      "failure_classes": [
+        "QueryPolicyError"
+      ],
+      "profile_replays": 0,
+      "all_final": true,
+      "answer_quality": "unscored"
+    },
+    {
+      "condition": "run-text2cypher-1-exact_result_reuse",
+      "cases": 3,
+      "case_ids": [
+        "0",
+        "1",
+        "2"
+      ],
+      "wall_ms": [
+        13770.467,
+        9769.534,
+        9299.507
+      ],
+      "mean_wall_ms": 10946.502666666667,
+      "tool_calls": 16,
+      "query_attempts": 13,
+      "db_submissions": 11,
+      "reuses": 0,
+      "failed_attempts": 2,
+      "failure_classes": [
+        "QueryPolicyError"
+      ],
+      "profile_replays": 0,
+      "all_final": true,
+      "answer_quality": "unscored"
+    },
+    {
+      "condition": "run-text2cypher-2-exact_result_reuse",
+      "cases": 3,
+      "case_ids": [
+        "0",
+        "1",
+        "2"
+      ],
+      "wall_ms": [
+        13758.067,
+        9804.283,
+        9298.472
+      ],
+      "mean_wall_ms": 10953.607333333333,
+      "tool_calls": 16,
+      "query_attempts": 13,
+      "db_submissions": 11,
+      "reuses": 0,
+      "failed_attempts": 2,
+      "failure_classes": [
+        "QueryPolicyError"
+      ],
+      "profile_replays": 0,
+      "all_final": true,
+      "answer_quality": "unscored"
+    },
+    {
+      "condition": "run-text2cypher-3-raw",
+      "cases": 3,
+      "case_ids": [
+        "0",
+        "1",
+        "2"
+      ],
+      "wall_ms": [
+        13742.491,
+        9805.518,
+        9318.085
+      ],
+      "mean_wall_ms": 10955.364666666666,
+      "tool_calls": 16,
+      "query_attempts": 13,
+      "db_submissions": 11,
+      "reuses": 0,
+      "failed_attempts": 2,
+      "failure_classes": [
+        "QueryPolicyError"
+      ],
+      "profile_replays": 0,
+      "all_final": true,
+      "answer_quality": "unscored"
+    },
+    {
+      "condition": "run-text2cypher-gate-raw",
+      "cases": 1,
+      "case_ids": [
+        "0"
+      ],
+      "wall_ms": [
+        14601.975
+      ],
+      "mean_wall_ms": 14601.975,
+      "tool_calls": 6,
+      "query_attempts": 5,
+      "db_submissions": 4,
+      "reuses": 0,
+      "failed_attempts": 1,
+      "failure_classes": [
+        "QueryPolicyError"
+      ],
+      "profile_replays": 0,
+      "all_final": true,
+      "answer_quality": "unscored"
+    }
+  ],
+  "fixed_lookup": [
+    {
+      "condition": "run-fixed-0-observer_off",
+      "mode": "observer_off",
+      "median_lookup_ms": 4.573545418679714,
+      "total_lookup_ms": 188.13402205705643
+    },
+    {
+      "condition": "run-fixed-1-raw",
+      "mode": "raw",
+      "median_lookup_ms": 4.780890420079231,
+      "total_lookup_ms": 102.5513056665659
+    },
+    {
+      "condition": "run-fixed-2-exact_result_reuse",
+      "mode": "exact_result_reuse",
+      "median_lookup_ms": 0.4460597410798073,
+      "total_lookup_ms": 13.76296766102314
+    },
+    {
+      "condition": "run-fixed-3-exact_result_reuse",
+      "mode": "exact_result_reuse",
+      "median_lookup_ms": 0.4431260749697685,
+      "total_lookup_ms": 12.039024382829666
+    },
+    {
+      "condition": "run-fixed-4-raw",
+      "mode": "raw",
+      "median_lookup_ms": 4.366695880889893,
+      "total_lookup_ms": 87.87457086145878
+    },
+    {
+      "condition": "run-fixed-5-observer_off",
+      "mode": "observer_off",
+      "median_lookup_ms": 3.6491835489869118,
+      "total_lookup_ms": 74.33421537280083
+    }
+  ],
+  "fixed_result_parity": true,
+  "answer_text_parity": [
+    {
+      "condition": "run-graphcot-1-exact_result_reuse",
+      "paired_cases": 3,
+      "identical_answer_text": 3,
+      "quality_claim": false
+    },
+    {
+      "condition": "run-graphcot-2-exact_result_reuse",
+      "paired_cases": 3,
+      "identical_answer_text": 3,
+      "quality_claim": false
+    },
+    {
+      "condition": "run-graphcot-3-raw",
+      "paired_cases": 3,
+      "identical_answer_text": 3,
+      "quality_claim": false
+    },
+    {
+      "condition": "run-text2cypher-1-exact_result_reuse",
+      "paired_cases": 3,
+      "identical_answer_text": 3,
+      "quality_claim": false
+    },
+    {
+      "condition": "run-text2cypher-2-exact_result_reuse",
+      "paired_cases": 3,
+      "identical_answer_text": 3,
+      "quality_claim": false
+    },
+    {
+      "condition": "run-text2cypher-3-raw",
+      "paired_cases": 3,
+      "identical_answer_text": 3,
+      "quality_claim": false
+    }
+  ],
+  "limitations": [
+    "K=1 diagnostic; no throughput or p99 claim.",
+    "Uncontrolled warm caches and fixed cell order.",
+    "Identical output text is not answer correctness.",
+    "No cache hit means timing changes cannot be attributed to result reuse.",
+    "Unknown observations remain null; PROFILE replays are separate."
+  ]
+}

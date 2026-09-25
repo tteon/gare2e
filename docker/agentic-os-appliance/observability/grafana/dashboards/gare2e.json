@@ -1,0 +1,104 @@
+{
+  "uid": "gare2e-evidence",
+  "title": "gare2e Evidence inventory and collector",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Imported tasks (inventory)",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "gare2e-prometheus"
+      },
+      "targets": [
+        {
+          "expr": "gare2e_registry_imported_tasks",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Imported query attempts (inventory)",
+      "type": "stat",
+      "gridPos": {
+        "x": 12,
+        "y": 0,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "gare2e-prometheus"
+      },
+      "targets": [
+        {
+          "expr": "gare2e_registry_imported_query_attempts",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Evaluated tasks (inventory)",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "gare2e-prometheus"
+      },
+      "targets": [
+        {
+          "expr": "gare2e_registry_evaluated_tasks",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Collector received spans",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 12,
+        "y": 8,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "gare2e-prometheus"
+      },
+      "targets": [
+        {
+          "expr": "otelcol_receiver_accepted_spans",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "title": "Question / Query / Plan viewer",
+      "url": "http://127.0.0.1:18775",
+      "type": "link"
+    }
+  ]
+}

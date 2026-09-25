@@ -165,3 +165,12 @@ capability probe, actual runtime label from diagnostic PROFILE, and per-view
 coverage/thread timeline. [Contract](../GRAPH_SYSTEM_OBSERVABILITY.md) separates
 collected sources from required PMU/JVM/cache/traversal instrumentation. Local
 validation passed; live appliance gate pending. No new paid execution or spend.
+
+### 2026-09-25 — lab027 graph query evidence (seocho-ix30)
+
+Extended the existing platform with query logs, nullable plans, quality and
+evidence-linked insights; actual local OTel/Tempo/Prometheus/Grafana passed.
+Live pilot: fixed reuse avoids19/20 submissions at result parity, but zero cache
+hits across24 agent comparison sessions. No agent performance/quality claim.
+[Result](../reports/lab027-graph-evidence/README.md). Instance52552894 destroyed
+and absent; hourly estimate$0.991837 plus unverified transfer charges.

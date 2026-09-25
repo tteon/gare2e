@@ -558,3 +558,32 @@ This is a locally runnable platform, not a deployed team service or a new GPU/DB
 performance result. Team hostname, TLS/auth proxy and actual profiler capture
 remain deployment/experiment follow-ups. No new paid experiment was launched.
 Bead: seocho-rn3p; architecture ADR-0227.
+
+## 22. Graph query evidence and observability — 2026-09-25
+
+Bead seocho-ix30 extends the current platform, not a separate benchmark. See
+[graph optimization observability](GRAPH_OPTIMIZATION_OBSERVABILITY.md).
+Query receipts distinguish attempts, DB submissions, reuse and separate PROFILE
+replay. The viewer adds query logs, plan tables, quality and linked insights.
+The optional local Collector/Tempo/Prometheus/Grafana companion passed actual
+trace/log/scrape/health checks. LangSmith is analyzed but not connected.
+
+Historical lab021 reanalysis: 120 tasks, 317 profiles, 2,309 operators; all DB-hit
+and page-miss counters were present. The parser defect does not invalidate that
+specific historical zero-miss observation. Parent topology remains unavailable.
+A fresh user-authorized USD100 ceiling covers new live work. Pilot1 admission
+failed before creation ($0). Pilot2 completed: 16 diagnostic/gate/comparison
+conditions, 32 tasks, 167 attempts. Fixed reuse avoided19/20 DB submissions with
+identical results; 24 agent comparison sessions had zero cache hits. No agent
+performance benefit or quality promotion. Server joins119/122; three missing.
+
+Owned instance52552894 was destroyed and absence verified; watchdog stopped.
+Hourly cost estimate$0.991837, transfer/invoice unverified. Essential122files
+checksum verified; lifecycle exit2 records intentionally skipped bulk transfer.
+No new paid continuation scheduled. [Full result](reports/lab027-graph-evidence/README.md).
+
+Local viewer at127.0.0.1:18775 uses the private registry with48conditions and
+10,973tasks. Grafana13000, Prometheus19090, Tempo13200, Collector14317/14318;
+actual pilot trace/log ingestion passed. LangSmith and team deployment remain
+optional and unconfigured. The exact local paths/start commands are in ignored
+experiment memory; public docs do not contain credentials.

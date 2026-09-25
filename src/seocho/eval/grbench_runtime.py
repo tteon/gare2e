@@ -11,6 +11,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from .plan_audit import audit_profile
+from .query_evidence import QueryEvidence, observed
 
 try:  # the driver is a runtime dependency of the runners, not of the validator
     from neo4j import Query as _BoltQuery
@@ -146,9 +147,11 @@ class GRBenchDozerExecutor:
         require_anchor: bool = True,
         zero_row_hint: bool = False,
         zero_row_anchor_cap: int = 2,
+        query_evidence: QueryEvidence | None = None,
     ) -> None:
         if query_timeout_s <= 0:
             raise ValueError("query_timeout_s must be positive")
+        self.query_evidence = query_evidence
         self.driver = driver
         self.database = database
         self.workspace_id = workspace_id
@@ -171,6 +174,7 @@ class GRBenchDozerExecutor:
             require_anchor=self.require_anchor,
         )
 
+    @observed
     def execute_rows(self, query: str, parameters: Mapping[str, Any] | None = None) -> tuple[str, dict[str, Any]]:
         """Run a bounded read and return (rows as JSON text, content-free receipt).
 
@@ -189,6 +193,8 @@ class GRBenchDozerExecutor:
         with self.driver.session(database=self.database, default_access_mode="READ") as session:
             pool_acquire_ms = (time.perf_counter() - pool_started) * 1000
             submit_started = time.perf_counter()
+            if self.query_evidence:
+                self.query_evidence.submission()
             result = session.run(bolt_query(statement, timeout_s=self.query_timeout_s), **bound)
             bolt_submit_ms = (time.perf_counter() - submit_started) * 1000
             iterate_started = time.perf_counter()
@@ -238,6 +244,7 @@ class GRBenchDozerExecutor:
             receipt["zero_row_diagnostic"] = diagnostic_receipt
         return text, receipt
 
+    @observed
     def _diagnostic_rows(self, statement: str, parameters: Mapping[str, Any]) -> list[dict[str, Any]]:
         """Bounded read for the diagnostic templates: same validator (anchor
         required, evidence columns not), same Bolt timeout, hard row cap."""
@@ -246,6 +253,8 @@ class GRBenchDozerExecutor:
         )
         bound = {**dict(parameters), "workspace_id": self.workspace_id}
         with self.driver.session(database=self.database, default_access_mode="READ") as session:
+            if self.query_evidence:
+                self.query_evidence.submission()
             result = session.run(bolt_query(checked, timeout_s=self.query_timeout_s), **bound)
             rows = [record.data() for record in result]
             result.consume()
@@ -257,6 +266,7 @@ class GRBenchDozerExecutor:
 
         return zero_row_diagnostic(self._diagnostic_rows, statement, parameters, anchor_cap=self.zero_row_anchor_cap)
 
+    @observed
     def execute_select(self, query: str) -> GRBenchQueryResult:
         started = time.perf_counter()
         validate_started = time.perf_counter()
@@ -266,6 +276,8 @@ class GRBenchDozerExecutor:
         with self.driver.session(database=self.database, default_access_mode="READ") as session:
             pool_acquire_ms = (time.perf_counter() - pool_started) * 1000
             submit_started = time.perf_counter()
+            if self.query_evidence:
+                self.query_evidence.submission()
             result = session.run(bolt_query(statement, timeout_s=self.query_timeout_s), workspace_id=self.workspace_id)
             bolt_submit_ms = (time.perf_counter() - submit_started) * 1000
             iterate_started = time.perf_counter()
@@ -317,14 +329,17 @@ class GRBenchDozerExecutor:
         }
         return GRBenchQueryResult(rows=tuple(rows), receipt=receipt)
 
-    def profile_select(self, query: str) -> dict[str, Any]:
+    @observed
+    def profile_select(self, query: str, parameters: Mapping[str, Any] | None = None) -> dict[str, Any]:
         """Replay one bounded read-only query under PROFILE outside the E2E path."""
         statement = self.validate(query)
         started = time.perf_counter()
         with self.driver.session(database=self.database, default_access_mode="READ") as session:
+            if self.query_evidence:
+                self.query_evidence.submission()
             result = session.run(
                 bolt_query(f"PROFILE {statement}", timeout_s=self.query_timeout_s),
-                workspace_id=self.workspace_id,
+                **{**dict(parameters or {}), "workspace_id": self.workspace_id},
             )
             summary = result.consume()
         if summary.profile is None:
@@ -340,24 +355,7 @@ class GRBenchDozerExecutor:
             "wall_ms": round((time.perf_counter() - started) * 1000, 3),
             "server_available_ms": float(summary.result_available_after or 0),
             "server_consumed_ms": float(summary.result_consumed_after or 0),
-            "plan": {
-                "fingerprint": audit.fingerprint,
-                "operators": [
-                    {
-                        "operator": operator.operator,
-                        "estimated_rows": operator.estimated_rows,
-                        "actual_rows": operator.actual_rows,
-                        "db_hits": operator.db_hits,
-                        "page_cache_hits": operator.page_cache_hits,
-                        "page_cache_misses": operator.page_cache_misses,
-                    }
-                    for operator in audit.operators
-                ],
-                "findings": list(audit.findings),
-                "total_db_hits": audit.total_db_hits,
-                "total_page_cache_hits": audit.total_page_cache_hits,
-                "total_page_cache_misses": audit.total_page_cache_misses,
-            },
+            "plan": {**audit.to_dict(), "operators": [{k: v for k, v in op.items() if k != "details"} for op in audit.to_dict()["operators"]]},
         }
 
 

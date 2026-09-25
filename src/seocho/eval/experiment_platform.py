@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from .agentic_os_graph_system import coverage
+from .experiment_evidence import attach_evidence
 
 SCHEMA = "gare2e.experiment.v1"
 CONTRACT_FIELDS = ("dataset_revision", "model_revision", "hardware", "gpu_count",
@@ -32,7 +33,17 @@ DEFAULT_METRICS = [
         ("turns", "LLM calls / task", "calls", "Agent", "descriptive", "agent.llm_calls.mean"),
         ("repair", "Repairs / task", "calls", "Agent", "lower", "agent.repair_count.mean"),
         ("wall_p95", "Contained task wall p95", "ms", "Agent", "lower", "agent.wall_ms.p95"),
+        ("captured_wall_mean", "Captured task wall mean", "ms", "Agent", "descriptive", "evidence.wall_mean"),
+        ("captured_tool_calls", "Captured tool calls", "calls", "Tool", "descriptive", "evidence.tool_calls"),
+        ("captured_tool_wait", "Captured tool time / task", "ms", "Tool", "descriptive", "evidence.tool_wait"),
         ("tool_p95_max", "Largest tool-family p95", "ms", "Tool", "lower", "platform_summary.tool_p95_max"),
+        ("query_attempts", "Captured query attempts", "attempts", "Tool", "descriptive", "evidence.query_attempts"),
+        ("db_submissions", "Recorded DB submissions", "queries", "Tool", "descriptive", "evidence.db_submissions"),
+        ("profile_db_hits", "Separate PROFILE DB Hits", "hits", "Tool", "descriptive", "evidence.profile_db_hits"),
+        ("profile_page_misses", "Separate PROFILE page misses", "misses", "Tool", "descriptive", "evidence.profile_page_misses"),
+        ("profile_page_hits", "Separate PROFILE page hits", "hits", "Tool", "descriptive", "evidence.profile_page_hits"),
+        ("query_reuse", "Exact result reuses", "queries", "Tool", "descriptive", "evidence.query_reuse"),
+        ("answer_correctness", "Evaluated answer correctness mean", "score", "Agent", "higher", "evidence.answer_correctness"),
         ("tool_calls", "Contained tool calls", "calls", "Tool", "descriptive", "platform_summary.tool_calls"),
     )]
 
@@ -195,6 +206,7 @@ def task_result(task: dict[str, Any], requests: list[dict[str, Any]], tools: lis
         event("Graph tool", f"tool {index} / {_label(tool.get('query_shape'))}",
               begun + offset / 1000 if begun is not None and offset is not None else None, tool.get("latency_ms"), evidence)
     return {"id": task_id, "case_id": _label(task.get("case_id")),
+            "started_unix_s": begun,
             "trace_id": _trace_id(task.get("trace_id"), 32),
             "terminal": _label(task.get("terminal")), "clock_source": _label(task.get("clock_source")),
             "contained": _truth(task.get("fully_contained")),
@@ -244,7 +256,7 @@ def import_characterization(source: Path, registry: Path, *, run_id: str, worksp
         for row in rows or []:
             groups.setdefault((kind, str(row.get("pass")), str(row.get("task_id"))), []).append(row)
     source_hashes = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in source.iterdir()
-                     if p.name in {"characterization.json", "tasks.csv", "tasks.csv.gz", "requests.csv", "requests.csv.gz", "tools.csv", "tools.csv.gz"}}
+                     if p.name in {"characterization.json", "tasks.csv", "tasks.csv.gz", "requests.csv", "requests.csv.gz", "tools.csv", "tools.csv.gz", "evidence-manifest.json"}}
     run: dict[str, Any] = {"schema_version": SCHEMA, "id": run_id, "workspace_id": workspace_id, "owner": owner,
         "source_commit": _label(metadata.get("source_commit")), "source_hashes": source_hashes,
         "contract": {key: metadata.get("contract", {}).get(key) for key in CONTRACT_FIELDS},
@@ -297,6 +309,32 @@ def import_characterization(source: Path, registry: Path, *, run_id: str, worksp
         raise ValueError("No conditions found")
     if any(r["condition"] not in {c["label"] for c in run["conditions"]} for r in diagnostic_records):
         raise ValueError("Diagnostic condition not present in characterization")
+    run["source_hashes"].update(attach_evidence(source, artifacts, run["conditions"]))
+    for condition in run["conditions"]:
+        tasks = artifacts[condition["id"]]["tasks"]
+        queries = [q for t in tasks for q in t.get("queries", [])]
+        plans = [q["plan"] for q in queries if q.get("plan") and q["scope"] == "diagnostic_replay"]
+        scores = [t["quality_evaluation"]["scores"]["answer_correctness"] for t in tasks if t.get("quality_evaluation")]
+        def known_total(values: list[Any]) -> float | None:
+            return sum(values) if values and all(v is not None for v in values) else None
+        condition["query_attempts"] = len(queries)
+        condition["evaluated_tasks"] = sum(bool(t.get("quality_evaluation")) for t in tasks)
+        condition["metrics"].update({
+            "query_attempts": len(queries) if queries else None,
+            "db_submissions": known_total([q["db_queries_executed"] for q in queries]),
+            "profile_db_hits": known_total([p["total_db_hits"] for p in plans]),
+            "profile_page_misses": known_total([p["total_page_cache_misses"] for p in plans]),
+            "profile_page_hits": known_total([p["total_page_cache_hits"] for p in plans]),
+            "query_reuse": sum(q["outcome"] == "reused" for q in queries) if any(q["scope"] == "timed_execution" for q in queries) else None,
+            "answer_correctness": sum(scores)/len(scores) if scores and all(v is not None for v in scores) else None,
+        })
+        tool_events = [e for t in tasks for e in t["events"] if e["lane"] == "Graph tool"]
+        walls = [t["wall_ms"] for t in tasks]
+        condition["metrics"].update({
+            "captured_wall_mean": sum(walls)/len(walls) if walls and all(v is not None for v in walls) else None,
+            "captured_tool_calls": len(tool_events) if tool_events else None,
+            "captured_tool_wait": sum(e["duration_us"] for e in tool_events)/1000/len(tasks) if tool_events and tasks else None,
+        })
     run["content_sha256"] = _digest({"run": run, "artifacts": artifacts})
     registry.mkdir(parents=True, exist_ok=True)
     with (registry / ".import.lock").open("a") as lock:

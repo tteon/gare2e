@@ -470,7 +470,7 @@ def test_essentials_tar_command_limits_private_logs_to_worker_failure_diagnostic
     # Lab026 lost the exact high-K worker failure because stderr was omitted.
     # Preserve this named diagnostic; never include broad service/log globs.
     private_logs = [pattern for pattern in module.ESSENTIAL_GLOBS if pattern.endswith('private.log')]
-    assert private_logs == ['run-*/e2e/*/shard-*/attempts/*/runner.stderr.private.log']
+    assert private_logs == ['pilot/*/stderr.private.log', 'run-*/e2e/*/shard-*/attempts/*/runner.stderr.private.log']
     assert 'vllm.stdout.private.log' not in cmd and 'runner.stdout.private.log' not in cmd
     assert "sha256sum -- /tmp/e.tgz" in cmd and "recursive=False" in cmd
 

@@ -14,7 +14,22 @@
 <div id="tasks" class="scroll"></div><h3 id="task-title">Task를 선택하세요</h3>
 <div class="controls"><label>타임라인 확대 <input id="zoom" type="range" min="1" max="12" step="1" value="1"></label><button id="download" disabled>Perfetto JSON 다운로드</button><a href="https://ui.perfetto.dev" target="_blank" rel="noreferrer">Perfetto 열기 ↗</a></div>
 <p class="muted">LLM client/server와 graph tool의 겹치는 시간을 별도 lane으로 표시합니다. GPU kernel은 실제 profiler 데이터가 있어야 표시할 수 있습니다. 파일은 외부로 자동 전송되지 않습니다.</p>
-<div id="timeline" class="timeline"></div><pre id="event-detail">구간을 선택하면 해당 관측값을 볼 수 있습니다.</pre><p id="trace-limits" class="muted"></p></section>
+<div id="timeline" class="timeline"></div><pre id="event-detail">구간을 선택하면 해당 관측값을 볼 수 있습니다.</pre><p id="trace-limits" class="muted"></p>
+<div class="section-title"><span>QUERY / PLAN / QUALITY</span><h3>질문에서 실제 DB 실행까지</h3></div>
+<div id="query-summary" class="cards"></div>
+<div class="controls"><label>로그 검색 <input id="query-search" placeholder="query ID · error · reused"></label><label>관측 범위 <select id="query-scope"><option value="">전체</option><option>timed_execution</option><option>diagnostic_replay</option><option>auxiliary_query</option></select></label><button id="query-log-download" disabled>구조화 로그 JSONL</button><button id="otlp-log-download" disabled>OTLP Logs JSON</button></div>
+<div id="query-log" class="scroll"></div><pre id="query-detail">Query를 선택하면 식별자·시간·결과·측정 범위를 확인할 수 있습니다.</pre>
+<h3>Execution plan 비교</h3><p class="muted">PROFILE replay는 별도 실행입니다. 누락값은 미측정이며, 두 plan의 차이만으로 semantic equivalence를 보장하지 않습니다.</p>
+<div class="controls"><label>기준 plan <select id="plan-before"></select></label><label>비교 plan <select id="plan-after"></select></label></div>
+<div class="plan-grid"><div id="plan-left" class="scroll"></div><div id="plan-right" class="scroll"></div></div>
+<h3>답변 품질·증거 평가</h3><div id="task-quality"></div><div id="task-insights" class="cards"></div>
+</section>
 <section id="insights"><div class="section-title"><span>03 / UNDERSTAND</span><h2>근거를 따라가는 Insight</h2></div><p class="muted">규칙 기반 관찰입니다. 자동 인과 판단이나 답변 정확도 평가가 아닙니다.</p><div id="insight-cards" class="cards"></div><h3>선택한 근거</h3><pre id="evidence"></pre></section>
-<footer>새 실험·지표 추가: <code>scripts/benchmarks/experiment_platform.py import</code> · immutable result registry · 원본 payload 제외</footer>
+<section id="observability"><div class="section-title"><span>OBSERVABILITY</span><h2>어떤 관점에서 확인하나요?</h2></div>
+<div class="cards">
+<div class="card"><h3>OpenTelemetry</h3><p>동일 trace ID로 Agent·LLM·DB와 구조화 로그를 연결합니다. 수집하지 않은 span은 생성하지 않습니다.</p></div>
+<div class="card"><h3>Prometheus</h3><p>지연 분포·처리량·자원 상태를 집계합니다. 이 viewer의 /metrics는 registry 현황만 제공합니다. 실행 지표와 구분합니다.</p></div>
+<div class="card"><h3>Grafana · Tempo</h3><p>서비스 trace와 운영 지표를 연결합니다. 아래 query를 팀의 Tempo에서 사용하세요. 외부 저장소 연결은 운영자가 설정합니다.</p></div>
+<div class="card"><h3>LangSmith</h3><p>LLM 호출·dataset·evaluator 관점으로 평가를 비교합니다. 버전이 있는 품질 결과를 이 화면에 가져올 수 있습니다. 자동 업로드하지 않습니다.</p></div>
+</div><p><a href="http://127.0.0.1:13000/d/gare2e-evidence" target="_blank" rel="noreferrer">로컬 Grafana ↗</a> · <a href="http://127.0.0.1:19090" target="_blank" rel="noreferrer">로컬 Prometheus ↗</a> · 선택 companion 실행 시 사용 가능합니다.</p><pre id="trace-correlation">Task를 선택하면 실제 trace ID를 표시합니다.</pre></section><footer>새 실험·지표 추가: <code>scripts/benchmarks/experiment_platform.py import</code> · immutable result registry · 원본 payload 제외</footer>
 </main></body></html>

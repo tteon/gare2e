@@ -69,8 +69,8 @@ def test_profile_audit_attributes_scan_expand_and_cardinality_error() -> None:
         "variable_length_expansion",
     )
     assert audit.total_db_hits == 1903
-    assert audit.total_page_cache_hits == 4
-    assert audit.total_page_cache_misses == 1
+    assert audit.total_page_cache_hits is None  # child counters were not collected
+    assert audit.total_page_cache_misses is None
     assert len(audit.fingerprint) == 16
 
 
@@ -139,3 +139,26 @@ def test_plan_comparison_emits_bounded_aggregate_metrics(monkeypatch) -> None:
     assert meter.instruments["seocho.query.plan.finding.count"].calls == [
         (1, {"variant": "baseline", "finding": "global_node_scan"})
     ]
+
+
+def test_driver_counters_topology_and_unknown_are_preserved() -> None:
+    audit = audit_profile({"operatorType": "Filter", "args": {"EstimatedRows": 5},
+        "rows": 0, "dbHits": 0, "pageCacheHits": 0, "pageCacheMisses": 0,
+        "children": [{"operatorType": "Expand(All)", "args": {"EstimatedRows": 10},
+                      "rows": 100000, "dbHits": 200000, "pageCacheHits": 15, "pageCacheMisses": 2}]})
+    assert audit.total_db_hits == 200000
+    assert audit.total_page_cache_misses == 2
+    assert audit.operators[1].parent_id == audit.operators[0].operator_id
+    assert audit.operators[1].cardinality_error > 9
+    assert "cardinality_explosion" in audit.findings
+    missing = audit_profile({"operatorType": "ProduceResults", "args": {}})
+    assert missing.total_db_hits is None
+    assert missing.to_dict()["counter_coverage"]["db_hits"] == {"known": 0, "operators": 1}
+
+
+def test_zero_actual_cardinality_and_invalid_counters() -> None:
+    audit = audit_profile({"operatorType": "Filter", "args": {"EstimatedRows": 100},
+                          "rows": 0, "dbHits": float("nan"), "pageCacheHits": -1})
+    assert "cardinality_misestimation" in audit.findings
+    assert audit.total_db_hits is None
+    assert audit.total_page_cache_hits is None

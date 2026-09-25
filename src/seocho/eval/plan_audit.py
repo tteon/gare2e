@@ -9,6 +9,7 @@ candidate rewrite, and compare the plan and latency without changing semantics.
 from __future__ import annotations
 
 import hashlib
+import math
 from dataclasses import asdict, dataclass
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -23,6 +24,18 @@ class PlanOperator:
     page_cache_hits: float | None = None
     page_cache_misses: float | None = None
 
+    operator_id: str = ""
+    parent_id: str | None = None
+    pipeline: str | None = None
+    memory_bytes: float | None = None
+    time_ns: float | None = None
+
+    @property
+    def cardinality_error(self) -> float | None:
+        if self.actual_rows is None or self.estimated_rows is None:
+            return None
+        return abs(math.log((self.actual_rows + 1) / (self.estimated_rows + 1)))
+
     @property
     def cardinality_ratio(self) -> float | None:
         if self.actual_rows is None or self.estimated_rows is None:
@@ -35,14 +48,15 @@ class PlanAudit:
     fingerprint: str
     operators: tuple[PlanOperator, ...]
     findings: tuple[str, ...]
-    total_db_hits: float
-    total_page_cache_hits: float
-    total_page_cache_misses: float
+    total_db_hits: float | None
+    total_page_cache_hits: float | None
+    total_page_cache_misses: float | None
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "fingerprint": self.fingerprint,
-            "operators": [asdict(operator) for operator in self.operators],
+            "operators": [{**asdict(operator), "cardinality_error": operator.cardinality_error} for operator in self.operators],
+            "counter_coverage": {key: {"known": sum(getattr(op, key) is not None for op in self.operators), "operators": len(self.operators)} for key in ("db_hits", "page_cache_hits", "page_cache_misses")},
             "findings": list(self.findings),
             "total_db_hits": self.total_db_hits,
             "total_page_cache_hits": self.total_page_cache_hits,
@@ -65,7 +79,9 @@ class PlanComparison:
         return self.baseline_p95_ms / self.candidate_p95_ms
 
     @property
-    def db_hits_reduction(self) -> float:
+    def db_hits_reduction(self) -> float | None:
+        if self.baseline.total_db_hits is None or self.candidate.total_db_hits is None:
+            return None
         if self.baseline.total_db_hits <= 0:
             return 0.0
         return 1.0 - self.candidate.total_db_hits / self.baseline.total_db_hits
@@ -93,42 +109,49 @@ def _number(arguments: Mapping[str, Any], *keys: str) -> float | None:
         if value is None:
             continue
         try:
-            return float(value)
+            number = float(value)
+            return number if math.isfinite(number) and number >= 0 and not isinstance(value, bool) else None
         except (TypeError, ValueError):
             return None
     return None
 
 
-def _flatten(plan: Any) -> Iterable[PlanOperator]:
+def _flatten(plan: Any, path: str = "0", parent_id: str | None = None) -> Iterable[PlanOperator]:
     if isinstance(plan, Mapping):
         operator = str(plan.get("operatorType", plan.get("operator_type", "unknown")))
         arguments = plan.get("args", plan.get("arguments", {})) or {}
         children = plan.get("children", ()) or ()
+        counters = {**arguments, **{k: v for k, v in plan.items() if k not in {"args", "arguments", "children"}}}
     else:
         operator = str(plan.operator_type)
         arguments = plan.arguments or {}
         children = plan.children or ()
+        counters = {**arguments, **{key: getattr(plan, key) for key in ("rows", "db_hits", "page_cache_hits", "page_cache_misses") if hasattr(plan, key)}}
     yield PlanOperator(
         operator=operator,
+        operator_id=path, parent_id=parent_id,
+        pipeline=str(arguments["PipelineInfo"]) if "PipelineInfo" in arguments else None,
+        memory_bytes=_number(counters, "Memory", "memory"),
+        time_ns=_number(counters, "Time", "time"),
         details=str(arguments.get("Details", ""))[:240],
         estimated_rows=_number(arguments, "EstimatedRows", "estimatedRows"),
-        actual_rows=_number(arguments, "Rows", "rows"),
-        db_hits=_number(arguments, "DbHits", "DB Hits", "dbHits"),
+        actual_rows=_number(counters, "rows", "Rows"),
+        db_hits=_number(counters, "dbHits", "db_hits", "DbHits", "DB Hits"),
         page_cache_hits=_number(
-            arguments,
+            counters,
             "PageCacheHits",
             "Page Cache Hits",
-            "pageCacheHits",
+            "pageCacheHits", "page_cache_hits",
         ),
         page_cache_misses=_number(
-            arguments,
+            counters,
             "PageCacheMisses",
             "Page Cache Misses",
-            "pageCacheMisses",
+            "pageCacheMisses", "page_cache_misses",
         ),
     )
-    for child in children:
-        yield from _flatten(child)
+    for index, child in enumerate(children):
+        yield from _flatten(child, f"{path}.{index}", path)
 
 
 def audit_profile(plan: Any, *, cardinality_ratio_threshold: float = 10.0) -> PlanAudit:
@@ -151,6 +174,19 @@ def audit_profile(plan: Any, *, cardinality_ratio_threshold: float = 10.0) -> Pl
         for ratio in (operator.cardinality_ratio for operator in operators)
     ):
         findings.add("cardinality_misestimation")
+    if any("CartesianProduct" in name for name in names):
+        findings.add("cartesian_product")
+    by_id = {op.operator_id: op for op in operators}
+    for op in operators:
+        if op.actual_rows is not None and op.actual_rows == 0 and op.estimated_rows and op.estimated_rows >= cardinality_ratio_threshold:
+            findings.add("cardinality_misestimation")
+        parent = by_id.get(op.parent_id or "")
+        if parent and "Filter" in parent.operator and op.actual_rows is not None and parent.actual_rows is not None and op.actual_rows >= 1000 and op.actual_rows >= 10 * (parent.actual_rows + 1):
+            findings.add("cardinality_explosion")
+    def complete_sum(key: str) -> float | None:
+        values = [getattr(op, key) for op in operators]
+        # Missing/fused metrics cannot safely be interpreted as per-operator zeros.
+        return sum(values) if values and all(v is not None for v in values) else None
     fingerprint_input = "|".join(
         f"{operator.operator}:{operator.details}" for operator in operators
     )
@@ -158,9 +194,9 @@ def audit_profile(plan: Any, *, cardinality_ratio_threshold: float = 10.0) -> Pl
         fingerprint=hashlib.sha256(fingerprint_input.encode()).hexdigest()[:16],
         operators=operators,
         findings=tuple(sorted(findings)),
-        total_db_hits=sum(operator.db_hits or 0.0 for operator in operators),
-        total_page_cache_hits=sum(operator.page_cache_hits or 0.0 for operator in operators),
-        total_page_cache_misses=sum(operator.page_cache_misses or 0.0 for operator in operators),
+        total_db_hits=complete_sum("db_hits"),
+        total_page_cache_hits=complete_sum("page_cache_hits"),
+        total_page_cache_misses=complete_sum("page_cache_misses"),
     )
 
 
@@ -198,11 +234,12 @@ def emit_plan_comparison_metrics(
         metrics.record(
             "seocho.query.plan.speedup", comparison.speedup, {"cohort": cohort}
         )
-        metrics.record(
-            "seocho.query.plan.db_hits_reduction",
-            max(0.0, comparison.db_hits_reduction),
-            {"cohort": cohort},
-        )
+        if comparison.db_hits_reduction is not None:
+            metrics.record(
+                "seocho.query.plan.db_hits_reduction",
+                comparison.db_hits_reduction,
+                {"cohort": cohort},
+            )
     for variant, audit in (
         ("baseline", comparison.baseline),
         ("candidate", comparison.candidate),
