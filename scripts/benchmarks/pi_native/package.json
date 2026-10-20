@@ -1,0 +1,11 @@
+{
+  "name": "gare2e-pi-native-benchmark",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "0.80.10"
+  }
+}
