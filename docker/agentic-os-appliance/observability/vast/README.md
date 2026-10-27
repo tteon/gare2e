@@ -36,6 +36,8 @@ OTLP metric archive는 Prometheus TSDB가 아니다. RAM cache가 사라진 뒤 
 
 저장소 root에서 실행한다. `--project-directory .`를 유지한다. GPU 이미지·모델·DB·pi runner를 새로 만들거나 다른 실험의 설정을 바꾸는 Compose가 아니다.
 
+vLLM·pi·Neo4j·loader까지 새 서버에 설치할 때는 [전체 runtime overlay](../../vast-runtime/README.md)를 함께 사용한다. 이 관측 전용 파일만으로 모델이나 데이터셋이 설치되는 것은 아니다.
+
 서버에 private mode0600 파일 두 개를 준비한다. `GARE2E_GRAFANA_PASSWORD_FILE`은 Grafana 암호 파일, `GARE2E_AWS_CREDENTIALS_FILE`은 **연구 S3 prefix에만 접근하는 서버용 AWS credentials 파일**이다. 개인 Mac의 전체 `.aws`, SSO cache, 다른 프로젝트 키를 복사하지 않는다. 파일의 `[default]` profile에 operator가 관리하는 credential을 제공하며, 단기 credential이면 갱신과 만료 감시도 서버에서 운영해야 한다. 원격 credential 갱신을 Mac에 의존하는 방식은 이 구성의 자율 보관 조건을 충족하지 않는다.
 
 ```bash

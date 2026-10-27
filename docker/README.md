@@ -13,6 +13,7 @@ rather than a list of environments.
 | `compose.opik.yaml` | Side stack: self-hosted Opik observability | `make opik-up` |
 | `compose.tutorials.yaml` | Side stack: FinDER tutorial JupyterLab + Neo4j | `make tutorials-up` |
 | `compose.vast-observability.yaml` | Vast 실험의 중앙 Collector·Tempo·Prometheus·Grafana | [설정과 검증](agentic-os-appliance/observability/vast/README.md) |
+| `compose.vast-runtime.yaml` | 위 관측 스택에 vLLM 0.31.0·pi 0.80.10·Neo4j·공통 loader를 더하는 overlay | [전체 설치](agentic-os-appliance/vast-runtime/README.md) |
 | `compose.tls-enterprise.yaml` | Side stack: Neo4j Enterprise with bolt TLS, for cert-rotation qualification | manual, see below |
 
 Example-scoped stacks stay next to the configs they load and are **not** listed
