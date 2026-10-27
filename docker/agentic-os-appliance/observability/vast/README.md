@@ -1,18 +1,49 @@
-# Vast 실험용 중앙 관측 스택
+# Vast 서버 관측과 S3 영구 보관
 
-Vast의 GPU appliance가 보내는 OTLP trace와 지표를 중앙 Collector → Tempo·Prometheus → Grafana로 연결한다. 기존 실험에서 확인한 workload 대시보드 14개 패널을 포함한다. 루트 `compose.yaml`의 SDK 개발 스택과 기존 Linux host-network registry companion은 변경하지 않는다.
+Vast 또는 별도 Linux 서버에서 Collector·Tempo·Prometheus·Grafana를 실행한다. **Mac은 Grafana를 여는 클라이언트일 뿐 수집·보관 서버가 아니다.** GPU와 같은 호스트에 배치하면 GPU의 OTLP exporter는 서버 loopback을 사용하고 reverse SSH를 거치지 않는다. 다른 Linux 서버를 쓰는 경우에도 수집 연결의 수명은 Mac과 분리한다.
 
-이 Compose는 **중앙 관측용**이다. GPU 이미지 설치, 모델 다운로드, 데이터셋 적재, pi 실행, Vast 대여·재시작을 수행하지 않는다. GPU appliance의 sampler·OTLP exporter가 별도로 동작해야 실제 실험 데이터가 보인다. 레지스트리 인증정보와 모델·원문·DB 파일은 이 스택에 넣지 않는다.
+```mermaid
+flowchart LR
+  G[GPU · pi · DB sampler] --> C[서버 Collector]
+  C --> T[Tempo]
+  T --> S[(Private S3: 조회용 trace blocks)]
+  C --> A[(Private S3: OTLP archive)]
+  C --> P[Prometheus: RAM 임시 cache]
+  R[기존 run wrapper · private 원자료] --> E[서버 S3 exporter · GET SHA]
+  E --> B[(Private S3: run archive)]
+  P --> F[서버 Grafana]
+  T --> F
+  F --> M[Mac Chrome: 화면 조회만]
+```
 
-## 시작
+## 저장 정책
 
-저장소 루트에서 실행한다. `--project-directory .`를 유지해야 설정 파일의 상대 경로가 맞는다. macOS Docker Desktop과 Linux Docker에서 같은 bridge 네트워크를 사용하며, 호스트에 노출하는 포트는 모두 `127.0.0.1`에만 바인딩한다.
+| 자료 | 영구 저장 | 서버 임시 상태 |
+| --- | --- | --- |
+| Trace 조회용 blocks | S3의 `tempo-query/` | Tempo WAL: 아직 flush되지 않은 데이터 |
+| OTLP trace·metric·log | S3의 `otlp/` | Collector persistent 전송 대기열 |
+| 원 SDK 이벤트·질문별 결과·실패·계측·source pin | S3의 `runs/` | 실행 중 run과 업로드 staging |
+| Live PromQL 조회 | 별도 영구 TSDB 없음 | Prometheus RAM cache, 2시간/256MB |
+| Grafana 상태 | dashboard/provisioning은 코드·암호는 secret | SQLite/session cache는 RAM |
+
+Tempo 조회용 S3 blocks는 7일 retention이다. **영구 원본은 다른 prefix의 OTLP 및 full-run archive**이며 이 Compose는 해당 원본을 삭제하거나 lifecycle을 설정하지 않는다. 운영자가 archive prefix에 별도 만료 정책을 걸면 그 정책이 우선한다. Collector의 awss3 exporter는 0.119.0에서 alpha이며 Put 성공/queue drain만으로 원자료 보존을 완료 처리하지 않는다.
+
+OTLP metric archive는 Prometheus TSDB가 아니다. RAM cache가 사라진 뒤 S3 자료를 기존 dashboard가 직접 PromQL로 조회할 수 있다고 주장하지 않는다. 장기 분석은 원자료를 서버에서 재계산하거나 별도 S3 지원 metric query backend가 필요하다. 본 구성에는 Mimir/Thanos를 추가하지 않았다. Collector 자체 metric과 recording rule이 모두 OTLP archive에 복제된다는 뜻도 아니다. 기존 run sampler의 metric snapshot과 receipt는 full-run archive에 보존한다.
+
+전송 queue·WAL·미검증 raw는 장애 복구용 서버 버퍼다. 이를 영구 저장소라고 부르지 않으며 S3 GET 검증 전에 지우지 않는다. 신규 Mac 자동 다운로드는 사용하지 않는다. 이전 Mac raw/volume도 회수 검증 전에는 삭제하지 않는다.
+
+## 서버에서 시작
+
+저장소 root에서 실행한다. `--project-directory .`를 유지한다. GPU 이미지·모델·DB·pi runner를 새로 만들거나 다른 실험의 설정을 바꾸는 Compose가 아니다.
+
+서버에 private mode0600 파일 두 개를 준비한다. `GARE2E_GRAFANA_PASSWORD_FILE`은 Grafana 암호 파일, `GARE2E_AWS_CREDENTIALS_FILE`은 **연구 S3 prefix에만 접근하는 서버용 AWS credentials 파일**이다. 개인 Mac의 전체 `.aws`, SSO cache, 다른 프로젝트 키를 복사하지 않는다. 파일의 `[default]` profile에 operator가 관리하는 credential을 제공하며, 단기 credential이면 갱신과 만료 감시도 서버에서 운영해야 한다. 원격 credential 갱신을 Mac에 의존하는 방식은 이 구성의 자율 보관 조건을 충족하지 않는다.
 
 ```bash
-mkdir -p data/vast-observer
-chmod 700 data/vast-observer
-(umask 077; openssl rand -hex 32 > data/vast-observer/grafana_password)
-export GARE2E_GRAFANA_PASSWORD_FILE="$(pwd)/data/vast-observer/grafana_password"
+export AWS_REGION=<approved-region>
+export GARE2E_S3_BUCKET=<approved-private-research-bucket>
+export GARE2E_S3_PREFIX=<project/campaign-prefix>
+export GARE2E_AWS_CREDENTIALS_FILE=<server-private-credentials-file>
+export GARE2E_GRAFANA_PASSWORD_FILE=<server-private-grafana-password-file>
 
 docker compose --project-directory . -p gare2e-vast-observer \
   -f docker/compose.vast-observability.yaml config --quiet
@@ -20,56 +51,45 @@ docker compose --project-directory . -p gare2e-vast-observer \
   -f docker/compose.vast-observability.yaml up -d
 ```
 
-암호 파일은 최초 한 번만 생성하고 재실행 때 보존한다. Grafana 계정은 `admin`이며 익명 접근·회원가입은 꺼져 있다. 파일을 다시 생성해도 기존 Grafana volume의 계정 암호가 자동 변경되지는 않는다. 암호값을 Git이나 로그에 넣지 않는다. 실제 운영에서는 해당 파일을 읽을 수 있는 로컬 사용자도 제한한다.
+S3 설정이 없으면 Compose는 실패한다. 로컬 storage로 조용히 대체하지 않는다. 승인된 bucket의 region/role/prefix를 확인하고 다른 프로젝트 bucket은 사용하지 않는다. Tempo에는 List/Get/Put과 조회용 prefix에 필요한 Delete 권한, archive에는 Put/Get 권한을 분리한다. 실제 권한·암호화·만료·네트워크는 실행 서버에서 확인한다. File-backed secret의0600 파일을 읽도록 Tempo/Collector/Grafana는uid0이며 privileged/socket/host-root mount는 쓰지 않는다.
 
-Linux의 file-backed Compose secret은 호스트 파일 권한을 유지한다. 이 로컬 companion은 Grafana도 컨테이너 사용자 `0:0`으로 실행해, 호스트의 `0600` 파일을 읽도록 했다. 파일을 모든 사용자에게 읽히게 하거나 호스트 소유권을 바꾸지 않는다. privileged 모드나 Docker socket/호스트 루트 mount는 사용하지 않는다. 비root 실행이 필요한 운영 환경에서는 별도 secret 배치·권한 계약을 확인해야 한다.
+Vast managed container에 Docker daemon/socket이 없으면 같은 고정 버전의 Linux binary와 server 설정으로 기동한다. 기존 GPU Collector/sampler를 재구현하지 않고 loopback 목적지와 Docker 서비스 이름만 실제 port에 맞춘다. Mac Docker Desktop을 수집 서버로 대체하지 않는다. 모델/DB와 별도의 소유 observer process로 관리한다.
 
-| 연결 | 기본 주소 | 포트 재정의 환경변수 |
-| --- | --- | --- |
-| Grafana | `http://127.0.0.1:23000/d/gare2e-vast-workload` | `GARE2E_OBSERVER_GRAFANA_PORT` |
-| Tempo HTTP | `http://127.0.0.1:23200` | `GARE2E_OBSERVER_TEMPO_PORT` |
-| Prometheus | `http://127.0.0.1:29090` | `GARE2E_OBSERVER_PROMETHEUS_PORT` |
-| Collector OTLP gRPC | `127.0.0.1:24317` | `GARE2E_OBSERVER_OTLP_GRPC_PORT` |
-| Collector OTLP HTTP | `http://127.0.0.1:24318` | `GARE2E_OBSERVER_OTLP_HTTP_PORT` |
+## 실험 시작·종료 보관 gate
 
-여러 스택을 켜면 다른 project 이름과 위의 다섯 포트를 모두 지정한다. container/network/volume 이름은 Compose project별로 분리되며 고정 `container_name`은 없다. 기본 SDK 스택과 같은 네트워크나 DB를 요구하지 않는다.
+기존 private exporter의 PUT→GET SHA 절차를 서버 AWS SDK credential chain으로 실행한다. Mac이 presigned URL을 계속 발행할 필요가 없다. `boto3`가 필요하며 비밀값을 인자나 결과 JSON에 넣지 않는다. CLI는 명시한 credential 파일의 완전한 키 쌍만 읽고, profile이 비어 있으면 실패한다. 다른 개인 profile이나 credential provider로 넘어가지 않는다. 명시한 process 환경 키 쌍은 우선한다. `AWS_REGION`은 `.env`의 기본값을 추측해 쓰지 말고 실제 버킷 지역과 맞춘다.
 
-## GPU 호스트 연결
+```bash
+python3 docker/agentic-os-appliance/observability/vast/export_private_run.py \
+  --preflight --s3-uri "s3://$GARE2E_S3_BUCKET/$GARE2E_S3_PREFIX"
 
-GPU 컨테이너 안에서 중앙 호스트의 loopback에 직접 접속할 수는 없다. 승인된 SSH 연결에서 reverse tunnel을 유지한다. 아래 변수에는 자신이 소유한 인스턴스의 접속값을 사용한다. 기존 owner의 터널이 있으면 재사용한다.
+# 기존 wrapper가 자손을 회수하고 raw를 닫은 뒤 실행. staging은 run 밖에 둔다.
+python3 docker/agentic-os-appliance/observability/vast/export_private_run.py \
+  --run "$RUN_ROOT" --output "$STAGING/run.private.tar.gz" \
+  --s3-uri "s3://$GARE2E_S3_BUCKET/$GARE2E_S3_PREFIX"
+```
+
+Preflight는 내용이 없는 storage probe를 S3에 보존하고 GET SHA를 검증한다. Benchmark 증거가 아니다. 종료 시 full-run archive를 같은 run ID의 immutable key로 PUT하고 GET 전체 크기/SHA를 검증한다. 같은 key는 덮어쓰지 않는다. 거절·불일치·credential 만료는 nonzero/failed이며 source/staging을 남긴다. `--local-only`로 S3 성공을 대신하는 선택지는 없다. 검증한 staging/raw의 정리는 별도 소유 cleanup에서 수행하며 이 exporter가 자동 삭제하지 않는다.
+
+awss3 연속 전송의 queue/retry와 이 원자료 보관 gate는 별개다. Exporter 실패나 queue drop은 run의 gap으로 기록한다. S3 권한이 없다면 새 유료 benchmark를 시작하지 않는다. 기존 serving/DB를 임의로 중지하지도 않는다.
+
+## Mac에서 조회
+
+공개 WAN에 metrics/OTLP를 노출하지 않고 필요한 화면만 local forward한다. Mac이 잠들어 연결이 끊겨도 서버 수집은 계속된다.
 
 ```bash
 ssh -N -o ExitOnForwardFailure=yes \
   -i "$VAST_SSH_KEY" -p "$VAST_SSH_PORT" \
-  -R "127.0.0.1:14317:127.0.0.1:${GARE2E_OBSERVER_OTLP_GRPC_PORT:-24317}" \
+  -L "127.0.0.1:23000:127.0.0.1:23000" \
   "$VAST_SSH_USER@$VAST_SSH_HOST"
 ```
 
-GPU-side Collector의 중앙 OTLP gRPC exporter를 `127.0.0.1:14317`로 설정한다. 이 스택은 exporter를 자동 변경하지 않는다. 중앙 HTTP를 쓰는 exporter라면 별도 `14318 → 24318` tunnel과 HTTP/protobuf endpoint를 명시한다. vLLM 내부 metric endpoint를 인터넷에 열거나 Prometheus가 임의의 GPU 주소를 직접 scrape하게 하지 않는다.
+Compose Grafana는 server `127.0.0.1:23000`이다. Native 배치는 실제 port에 맞춘다. 브라우저는 `http://127.0.0.1:23000/d/gare2e-vast-workload`, admin/secret-file 인증과5초 갱신을 사용한다. 화면 조회용 forward이며 GPU→Mac reverse tunnel은 필요 없다.
 
-GPU sampler가 관측한 `gare2e_gpu_*`, `gare2e_process_*`와 vLLM 지표는 OTLP로 보내고, 중앙 Prometheus는 Collector의 `8889` 및 자체 계측 `8888`을 scrape한다. 중앙 Collector에 hostmetrics receiver를 켜지 않았다. 중앙 컨테이너의 CPU/RAM을 GPU 호스트 자원으로 오인하지 않기 위해서다.
+## 실제 확인과 종료
 
-## 확인과 해석
+실제 GPU/sample이 서버 Prometheus에 나타나고, Mac의 이전 수집 스택을 중지해도 timestamp가 진행되는지 확인한다. Tempo는 실제 trace/span/parent ID로 대조하고 S3 원자료는 GET SHA와 region/prefix를 기록한다. Service health·빈 queue·mock S3만으로 완료 판정하지 않는다. HTTP latency를 GPU kernel 시간으로 해석하거나 결측을0으로 채우지 않는다.
 
-```bash
-curl --fail http://127.0.0.1:23200/ready
-curl --fail http://127.0.0.1:29090/-/ready
-curl --fail http://127.0.0.1:23000/api/health
-curl --fail --get http://127.0.0.1:29090/api/v1/query \
-  --data-urlencode 'query=up{job="seocho-otel-collector-self"}'
-```
+`down` 후 서버 cache/session은 사라질 수 있다. 미전송 WAL·queue는 named volume에 남긴다. S3 검증 전 `down -v`를 쓰지 않는다. Vast stop/destroy·S3 권한 변경·다른 인스턴스 조작은 각 owner 계약에 따른다.
 
-서비스 readiness만으로 실험 관측 완료를 판정하지 않는다. 실제 pi·모델·DB 한 사례를 보낸 뒤 정확한 trace/span ID로 Tempo `/api/traces/<trace_id>`를 조회하고, Prometheus에 해당 배포의 sampler 지표가 도착하는지 확인한다. Grafana 로그인 후 Prometheus·Tempo datasource와 14개 패널을 확인한다. 데이터가 없는 패널은 0으로 해석하지 않는다.
-
-CPU는 process tree 누적 CPU 시간이고 GPU utilization은 sampler의 순간값이다. 요청별 GPU kernel 시간이나 병목의 직접 증거가 아니다. prefill/decode 패널도 엔진이 내보낸 server 지표이며 HTTP 시간을 임의로 분해하지 않는다. dashboard의 prefix 비율·rate는 표본과 시간 창이 필요하다. 프로토콜 검사용으로 넣은 지표는 실제 GPU 성능 결과와 구분한다.
-
-## 보존과 종료
-
-Tempo·Prometheus는 7일 보존 설정을 재사용한다. Grafana 설정과 중앙 trace 전송 큐는 별도 named volume에 보존한다. Collector의 persistent queue는 **Tempo로 보내는 trace**에 적용되며 OTLP metrics 전체나 GPU private raw의 백업을 뜻하지 않는다. 중앙 호스트가 꺼지면 실시간 조회·수신은 중단된다. GPU-side spool/queue 보존도 별도로 확인해야 한다.
-
-```bash
-docker compose --project-directory . -p gare2e-vast-observer \
-  -f docker/compose.vast-observability.yaml down
-```
-
-`down`은 해당 project의 컨테이너·네트워크만 정리하고 named volume을 보존한다. 검증 전 `down -v`로 자료를 지우지 않는다. 이 명령은 Vast 인스턴스를 stop/destroy하지 않는다. S3 업로드·GET SHA, Notion 기록, GRBench 적재·평가, pi/GraphCoT 연결과 성능 비교는 별도 gate이며 이 Compose 기동만으로 완료되지 않는다.
+설정 근거: [Tempo2.7.2 S3 config](https://github.com/grafana/tempo/blob/v2.7.2/tempodb/backend/s3/config.go), [Collector0.119 awss3](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/v0.119.0/exporter/awss3exporter/README.md).

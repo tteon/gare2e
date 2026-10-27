@@ -1,13 +1,21 @@
-# Standalone central companion. The GPU appliance runs separately on Vast.
+# Run on Vast/a Linux observer host. Mac is a browser only; S3 is durable storage.
 # Paths are relative to the repository root: use --project-directory .
 services:
   tempo:
     image: grafana/tempo:2.7.2
     user: "0:0"
-    command: ["-config.file=/etc/tempo.yaml"]
+    command: ["-config.file=/etc/tempo.yaml", "-config.expand-env=true"]
+    environment: &s3_environment
+      AWS_REGION: ${AWS_REGION:?Set the approved S3 region}
+      GARE2E_S3_BUCKET: ${GARE2E_S3_BUCKET:?Set the approved private research bucket}
+      GARE2E_S3_PREFIX: ${GARE2E_S3_PREFIX:?Set the private experiment prefix}
+      AWS_SHARED_CREDENTIALS_FILE: /run/secrets/aws_credentials
+      AWS_PROFILE: default
+      AWS_EC2_METADATA_DISABLED: "true"
+    secrets: [aws_credentials]
     volumes:
-      - ./examples/observability/tempo.yaml:/etc/tempo.yaml:ro
-      - tempo-data:/var/tempo
+      - ./docker/agentic-os-appliance/observability/vast/server/tempo.yaml:/etc/tempo.yaml:ro
+      - tempo-wal:/var/tempo
     ports:
       - "127.0.0.1:${GARE2E_OBSERVER_TEMPO_PORT:-23200}:3200"
     restart: unless-stopped
@@ -16,8 +24,10 @@ services:
     image: otel/opentelemetry-collector-contrib:0.119.0
     user: "0:0"
     command: ["--config=/etc/otel-collector.yaml"]
+    environment: *s3_environment
+    secrets: [aws_credentials]
     volumes:
-      - ./docker/agentic-os-appliance/observability/vast/collector.yaml:/etc/otel-collector.yaml:ro
+      - ./docker/agentic-os-appliance/observability/vast/server/collector.yaml:/etc/otel-collector.yaml:ro
       - collector-data:/var/lib/otelcol
     ports:
       - "127.0.0.1:${GARE2E_OBSERVER_OTLP_GRPC_PORT:-24317}:4317"
@@ -29,11 +39,13 @@ services:
     image: prom/prometheus:v2.55.1
     command:
       - --config.file=/etc/prometheus/prometheus.yml
-      - --storage.tsdb.retention.time=7d
+      - --storage.tsdb.retention.time=2h
+      - --storage.tsdb.retention.size=256MB
     volumes:
       - ./examples/observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./examples/observability/prometheus-rules.yml:/etc/prometheus/seocho-rules.yml:ro
-      - prometheus-data:/prometheus
+    tmpfs:
+      - /prometheus:size=536870912,uid=65534,gid=65534
     ports:
       - "127.0.0.1:${GARE2E_OBSERVER_PROMETHEUS_PORT:-29090}:9090"
     restart: unless-stopped
@@ -52,18 +64,19 @@ services:
     secrets: [grafana_password]
     volumes:
       - ./docker/agentic-os-appliance/observability/vast/grafana:/etc/grafana/provisioning:ro
-      - grafana-data:/var/lib/grafana
+    tmpfs:
+      - /var/lib/grafana:size=134217728
     ports:
       - "127.0.0.1:${GARE2E_OBSERVER_GRAFANA_PORT:-23000}:3000"
     depends_on: [prometheus, tempo]
     restart: unless-stopped
 
 secrets:
+  aws_credentials:
+    file: ${GARE2E_AWS_CREDENTIALS_FILE:?Set the server-only least-privilege AWS credential file}
   grafana_password:
     file: ${GARE2E_GRAFANA_PASSWORD_FILE:?Set an absolute path to the private Grafana password file}
 
 volumes:
-  tempo-data:
+  tempo-wal:
   collector-data:
-  prometheus-data:
-  grafana-data:
