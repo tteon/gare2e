@@ -76,6 +76,10 @@ uv run pytest \
   tests/seocho/test_agent_design.py \
   tests/seocho/test_benchmarking.py \
   tests/seocho/test_sf1_handoff.py \
+  tests/seocho/test_sf1_fp8_profile.py \
+  tests/seocho/test_finbench_tools.py \
+  tests/seocho/test_llm_strict_policy.py \
+  tests/seocho/test_neo4j_pool_config.py \
   tests/seocho/test_erb_edge_source.py \
   tests/seocho/test_context_arms.py \
   tests/seocho/test_run_arms.py \

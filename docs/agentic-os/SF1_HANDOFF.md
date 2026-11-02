@@ -119,6 +119,10 @@ model, driver, or token-budget conditions. Their timings cannot establish a new
 FP8 query optimization effect. That comparison needs original versus optimized
 queries under the same FP8 target and receiving configuration.
 
+For opt-in deployment profiles, strict request handling and private query binding,
+use [Prepare the frozen SF1 runtime](SF1_RUNTIME.md). These interfaces have no
+automatic live execution or campaign-resume behavior.
+
 For authorized live work, continue through [HARNESS](HARNESS.md) and the
 [campaign's experiment guide](AGENTS.md). Preserve source and raw evidence under
 the campaign's private artifact policy. An offline inspection starts no live
