@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "collection_id": "gug-20261030-20261102",
+  "kind": "Historical experiment evidence, not a new scientific trial",
+  "storage_scope": "private_evidence_with_originals; not a content-free shared trace package",
+  "archive_run_id": "20261102T021020Z-gug-handoff-private-archive-r1",
+  "object": {
+    "uri": "s3://seocho-agentic-os-traces/seocho-agentic-os/traces/vast-57874888/gug-handoff-20261102/private/runs/20261102T021020Z-gug-handoff-private-archive-r1/20261102T021020Z-gug-handoff-private-archive-r1.private.tar.gz",
+    "bytes": 290165757,
+    "sha256": "fc03836cfde1872c0c3be41c708bafe6d7a8e794fccadee31d6a97240f2c1cd5",
+    "status": "S3_FULL_GET_SHA_VERIFIED",
+    "get_sha_verified": true,
+    "verified_at_utc": "2026-11-02T02:18:06.838400+00:00"
+  },
+  "coverage": {
+    "source_root_directories": 44,
+    "standalone_source_files": 19,
+    "captured_original_files": 26646,
+    "captured_original_bytes": 1556970106,
+    "classified_source_files": 3291,
+    "summary_files": 835,
+    "object_summary_files": 828,
+    "array_summary_files": 7,
+    "array_summary_entries": 122,
+    "dataset_request_files": 7,
+    "zip_members": 22,
+    "packaged_collection_files": 1503,
+    "outer_archive_layout": [
+      "collection/",
+      "archive-migration.json"
+    ]
+  },
+  "zip_sha256": "590cef205b2ad94161c58f0ffabf13e67e48d6e0f697c59084d23ddfa81657ab",
+  "sf1_requests_sha256": "265a339a1bb652f139e28e8326ec245df377559c98347813aff40a577ab30b2c",
+  "verification": {
+    "instance_staging_collection_SHA_verified_files": 1503,
+    "private_collection_verifier_status": "ARCHIVE_BYTES_VERIFIED_NOT_RUNTIME",
+    "verifier": "scripts/benchmarks/verify_gug_archive.py",
+    "verifier_sha256": "e7c4b16104335feb0455a3432e9eb38b2311fec077b663065dfeb2eec9c47d6a"
+  },
+  "retention": {
+    "bucket_lifecycle": "NOT_AUDITED_OR_MODIFIED_BY_THIS_MIGRATION",
+    "local_originals_retained": true,
+    "instance_staging_retained": true
+  },
+  "limitations": [
+    "No model or DB execution, scorer re-evaluation, performance reproduction, or new heldout evaluation.",
+    "Complete original path/hash inventories and raw summary values are in the private object, not Git.",
+    "Source scope excludes independent graph snapshots, live DB stores, model weights and toolchain/build caches.",
+    "Old Git exception wording inside the private historical collection is superseded by the current raw-in-S3 policy."
+  ]
+}

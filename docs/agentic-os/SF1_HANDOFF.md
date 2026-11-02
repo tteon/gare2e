@@ -24,6 +24,8 @@ The validator limits archives to 8 MiB, members to 1 MiB each, total expanded
 content to 8 MiB, and member count to 128.
 Keep the original ZIP private. Do not commit questions, expected answers, raw
 provider payloads, connection details, or the full handoff archive.
+The reviewed GUG summaries and private S3 evidence pointer are in the
+[experiment record](../../experiments/gug-20261030-20261102/README.md).
 
 The validator reads ZIP members without extracting or executing them. It checks
 manifest coverage and hashes, request identities, paired variants, schema tool
