@@ -1,0 +1,7 @@
+# Only reviewed summaries and external evidence pointers belong in Git.
+*
+!.gitignore
+!README.md
+!CATALOG.md
+!RESULTS_KO.md
+!manifest.json

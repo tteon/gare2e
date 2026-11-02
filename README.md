@@ -318,6 +318,7 @@ Same order as the [docs onboarding path](docs/README.md), top to bottom:
 | Query internals | [docs/QUERY_ARCHITECTURE.md](docs/QUERY_ARCHITECTURE.md) |
 | Runtime deployment | [docs/RUNTIME_DEPLOYMENT.md](docs/RUNTIME_DEPLOYMENT.md) |
 | Graph Agentic RAG experiments, observability, and reproducible charts | [Experiment results and harness](docs/agentic-os/README.md) |
+| GUG/FinBench reviewed summaries and private evidence pointers | [Experiment summaries](experiments/README.md) |
 | Resume the graph-agent experiments with another coding agent | [Experiment AGENTS.md](docs/agentic-os/AGENTS.md) |
 | Contributing | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Maintainer workflow | [docs/WORKFLOW.md](docs/WORKFLOW.md) |

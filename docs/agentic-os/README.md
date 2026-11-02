@@ -15,6 +15,9 @@ token 수를 함께 기록합니다.
 | LLM→tool→다음 LLM의 task별 timeline | [최신 실행 보고서](reports/lab025-replicas/index.html) |
 | 실험 조건, 결과, 수집·종료 검증 | [Lab025 결과](reports/lab025-replicas/README.md) |
 | 새 checkout에서 하네스 사용 | [HARNESS.md](HARNESS.md) |
+| SF1 동결 ZIP의 무결성·실행 경계 확인 | [SF1_HANDOFF.md](SF1_HANDOFF.md) |
+| SF1 FP8 실행 계획·고정 쿼리 도구 연결 | [SF1_RUNTIME.md](SF1_RUNTIME.md) |
+| GUG·FinBench 검토 요약·원본 S3 위치 | [실험 요약과 manifest](../../experiments/gug-20261030-20261102/README.md) |
 | Coding agent 실행·재개 규칙 | [AGENTS.md](AGENTS.md) |
 | 최신 인계, 요청, 비용 | [HANDOFF.md](HANDOFF.md), [BOARD](lab/BOARD.md), [LEDGER](lab/LEDGER.md) |
 
