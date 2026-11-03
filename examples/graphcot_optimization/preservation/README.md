@@ -84,3 +84,8 @@ or3,152 newly downloaded and hash-verified remote-only files. These counts apply
 to the explicitly selected GUG evidence scope, not the entire instance.
 Seven encrypted volumes total1,672,089,562 bytes; the exact values are in
 [BACKUP-MANIFEST.json](BACKUP-MANIFEST.json) and [COLLECTION-RECEIPT.json](COLLECTION-RECEIPT.json).
+
+**Verified:** every encrypted volume was downloaded again from GitHub and fully
+decrypted; all22,695 object hashes and35,631 path mappings matched. A separate
+full materialized restoration also passed the original pilot result validator.
+See [VERIFICATION.json](VERIFICATION.json). No new inference or DB query was run.

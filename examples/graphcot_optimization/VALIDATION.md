@@ -1,5 +1,18 @@
 # Packaging validation — 2026-11-04 KST
 
+## Preservation extension
+
+The user clarified instance-retirement preservation as the primary goal.
+The [encrypted release snapshot](preservation/README.md) retains35,631 logical
+files/22,695 unique objects. Remote candidates26,902/26,902 covered; newly fetched
+3,152files all SHA-verified. Nested credential-pattern audit returned zero hits.
+Seven uploaded volumes were all downloaded from GitHub again and verified through
+decryption/object SHA/path mapping. Full materialization and the restored pilot
+validator also passed. Scoped tests now **9passed**, including real local
+age/zstd dedup round trip, tamper rejection and unsafe-path rejection. Neither
+these tests nor snapshot verification is a new Neo4j/vLLM performance measurement.
+Model weights/live physical DB/toolchains/peer campaigns/keys remain excluded.
+
 ## Completed local gates
 
 - `python3 examples/graphcot_optimization/lab.py verify` — copied source SHA,

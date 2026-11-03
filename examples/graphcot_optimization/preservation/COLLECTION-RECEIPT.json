@@ -14,6 +14,21 @@
   "nested_audit_scanned_bytes": 10018217319,
   "known_secret_pattern_hits": 0,
   "local_full_decryption_and_object_hash_verification": true,
-  "github_readback_verification": "pending",
-  "scope": "Original GUG research file evidence only; excludes credentials/private keys, model weights/toolchains/live DB stores and unrelated campaigns. Not a physical instance backup or new performance result."
+  "github_readback_verification": true,
+  "scope": "Original GUG research file evidence only; excludes credentials/private keys, model weights/toolchains/live DB stores and unrelated campaigns. Not a physical instance backup or new performance result.",
+  "materialized_restore_and_original_pilot_validator_passed": true,
+  "encryption_tool": "age1.3.2",
+  "compression_tool": "zstd1.5.7",
+  "restore_helper_sha256": "92ae70f5a83f91f6fe92102c538ba3d5e62644fb6f579f703080c2cba2f7f668",
+  "manifest_sha256": "845ff2ca1cad8836736b9301f2c8fa7a0c1fd63e5a6d65231d557763f145311f",
+  "checked_at_kst": "2026-11-04T00:44:21.013068+09:00",
+  "verification": {
+    "verified": true,
+    "logical_files": 35631,
+    "unique_objects": 22695,
+    "object_bytes": 4600691363,
+    "materialized": false
+  },
+  "downloaded_ciphertext_sha256_all_match": true,
+  "recovery_identity_included_in_release": false
 }

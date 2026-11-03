@@ -35,3 +35,15 @@ Review the package and the independent env-contract gap before landing.
 New live work requires its own operator resource authorization and B0 gate.
 Historical BF16, Python frozen baseline, new neo4rs wrapper and other FP8/multi-turn
 workloads are not interchangeable performance controls. No ledger spend change.
+
+## Preservation extension — user clarification,2026-11-04
+
+Bead gug-g7p: the primary objective is retaining evidence before instance retirement.
+The [preservation entrypoint](../../../../examples/graphcot_optimization/preservation/README.md)
+adds21historical report/method exports and a private-repository encrypted Release.
+35,631logical files/22,695objects; all26,902remote candidates covered by hash,
+3,152remote-only files newly fetched/verified. Seven encrypted volumes total
+1,672,089,562bytes. Full GitHub readback/decrypt/object/path verification and
+actual materialization/restored pilot validation passed. Scoped local tests9passed.
+Key is outside Git/release/instance; model weights/live physicalDB/toolchains/peer
+campaigns are excluded. This is evidence preservation, no paid/live experiment.

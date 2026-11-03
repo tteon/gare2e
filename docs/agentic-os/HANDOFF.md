@@ -12,6 +12,13 @@ defaults and is not a new paid run or part of the existing30-condition chartbook
 Seven local contracts and notebook/chart reproduction pass; full basic CI has
 two unchanged env-contract failures. Rust build/live service checks remain open.
 
+User's preservation extension (gug-g7p): [full backup/restore guide](../../examples/graphcot_optimization/preservation/README.md)
+and21historical report exports are now included.35,631logical files/22,695objects
+are retained in7encrypted Release volumes; full GitHub readback and local
+materialized restoration passed. Remote26,902candidate files are covered and
+3,152remote-only files were fetched. Scoped tests9passed. Separate age identity
+is required; models/live physicalDB/toolchains/peer campaigns remain excluded.
+
 What another engineer needs to run the same e2e (co-located Vast appliance:
 vLLM + DozerDB + embedded Oxigraph, 8 one-case gate cells, telemetry
 decomposition, serving sweeps). Everything in this repo is code and procedure;

@@ -1,0 +1,24 @@
+{
+  "github_download_and_decrypt": {
+    "verified": true,
+    "logical_files": 35631,
+    "unique_objects": 22695,
+    "object_bytes": 4600691363,
+    "materialized": false
+  },
+  "local_materialized_restore": {
+    "verified": true,
+    "logical_files": 35631,
+    "unique_objects": 22695,
+    "object_bytes": 4600691363,
+    "materialized": true,
+    "restored_pilot_validator_passed": true,
+    "validator_output": "Validated 3 model arms, 6 oracle queries, 54 sweep cells, reference counterexamples, and original graph preservation. Model failures retained."
+  },
+  "known_secret_pattern_review_hits": 0,
+  "credential_and_private_key_files_excluded": true,
+  "remote_files_covered": 26902,
+  "remote_only_downloaded_verified": 3152,
+  "key_stored_separately_not_in_repository_or_instance": true,
+  "scope": "GUG evidence selection; no model weight or live physical DB backup"
+}
