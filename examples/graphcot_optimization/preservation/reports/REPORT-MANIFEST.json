@@ -1,0 +1,131 @@
+{
+  "reports": [
+    {
+      "source_path": "docs/BF16_REPEATABILITY.md",
+      "source_sha256": "7c0081139bd903102d12ca73b76266177cc78492a55f6b7d241574047042017f",
+      "exported_file": "docs__BF16_REPEATABILITY.md",
+      "export_sha256": "4560f42a43584ab98401a327cca592ec24c6ea1d1e014989aa56d9cb4107533a"
+    },
+    {
+      "source_path": "docs/NEO4J_RUNTIME_FINDINGS.md",
+      "source_sha256": "178b8646390ff298e375b9175690cf48550ed74753d8b20ab71da4465c59dec6",
+      "exported_file": "docs__NEO4J_RUNTIME_FINDINGS.md",
+      "export_sha256": "59747c288d35b070881830248769db2775fd34c97dd0f2b54ebfc8f7cbc16b05"
+    },
+    {
+      "source_path": "docs/NEO4RS_INTERVENTION_RESULTS.md",
+      "source_sha256": "61b3faf61b945de378002e1ba3cbe52483e74b652cff250cc3744cf34de3091c",
+      "exported_file": "docs__NEO4RS_INTERVENTION_RESULTS.md",
+      "export_sha256": "6292b1f8ddd6d22a247b89b113ae3e473512e92d1a52c82833f508887f12197f"
+    },
+    {
+      "source_path": "docs/NEO4RS_TUNING_RESULTS.md",
+      "source_sha256": "ed9629072f89fdaac9e1a93ce81e1538b8e353c3fd94da334e230d154e004fa8",
+      "exported_file": "docs__NEO4RS_TUNING_RESULTS.md",
+      "export_sha256": "5dbc64cbff8acbe348745bbf5bdb6752ed90107876e0b6600da1f46a3050e97c"
+    },
+    {
+      "source_path": "docs/QUANTIZATION_ABLATION.md",
+      "source_sha256": "7fd62b9b4284cb08c80e3f14b8a74bcf230318adab253d0d712f92134dc3deae",
+      "exported_file": "docs__QUANTIZATION_ABLATION.md",
+      "export_sha256": "debb39be29364c25103d858cb830fbe867c9359a970fe68acb48033d245c483a"
+    },
+    {
+      "source_path": "docs/RUNTIME_MEASUREMENTS.md",
+      "source_sha256": "c100e75961291557419b5a19cb0acb75a2fa373df228d11759cef08db46294f1",
+      "exported_file": "docs__RUNTIME_MEASUREMENTS.md",
+      "export_sha256": "14b4b2a1a5c0a2770f6bc015fad7c986de11836fada2dab88d3ab057bb169ed0"
+    },
+    {
+      "source_path": "docs/SINGLE_TOOL_AXES_RESULTS.md",
+      "source_sha256": "c464b287809b9b7947083cb60e1e04b5cf0f9d1754ed77179867e244de750c4a",
+      "exported_file": "docs__SINGLE_TOOL_AXES_RESULTS.md",
+      "export_sha256": "96e7b65218594df9d05a623283b4656681c22148e27dad9c16f5845d20ffad58"
+    },
+    {
+      "source_path": "docs/STUDY_RESULTS.md",
+      "source_sha256": "4e44096b378e9f4aa933e169e3981245cd50c9d7f0e6de9ec6a8ac188fa2eb31",
+      "exported_file": "docs__STUDY_RESULTS.md",
+      "export_sha256": "b46f31afc60b18ac496dd49e30e590d3c4931ffa1d5bd6a574f91d7712af962f"
+    },
+    {
+      "source_path": "docs/VLLM_RESEARCH_HANDOFF_SUMMARY.md",
+      "source_sha256": "878bbc3fb6d1cffe0b1d19813bc55767b9e995b236d548874de543cba04a8e82",
+      "exported_file": "docs__VLLM_RESEARCH_HANDOFF_SUMMARY.md",
+      "export_sha256": "4d6fd0028976f301973bc8fe17a9c63639a33801e92b83bcb4a739484db3b847"
+    },
+    {
+      "source_path": "results/handoff_isolation_c_resume1/final-evidence/FINDINGS.md",
+      "source_sha256": "2fca3e6bc6ee002c78066b40d833a43e423ea061fa90666335dc6d4a132be8ce",
+      "exported_file": "results__handoff_isolation_c_resume1__final-evidence__FINDINGS.md",
+      "export_sha256": "6f73fb258395e5a6e30005d705e82602a62d5c5aecd684303308266f98696129"
+    },
+    {
+      "source_path": "results/hard_tools_20261101_a/FINDINGS.md",
+      "source_sha256": "30e0ae717bba1f7b1868facbb549b79c4f4de3e329aceab832649a937dc3f5ab",
+      "exported_file": "results__hard_tools_20261101_a__FINDINGS.md",
+      "export_sha256": "c9717dac8d6030d4a28d449067fd318042e4edb93d6036a3f4b983da37daa4cd"
+    },
+    {
+      "source_path": "results/neo4j_combined_c/final-evidence/FINDINGS.md",
+      "source_sha256": "dc4652ac1d6a1da97200f5bd81824e813667bbceb718ea45e3bea70c759fb125",
+      "exported_file": "results__neo4j_combined_c__final-evidence__FINDINGS.md",
+      "export_sha256": "2d5cb764f40588cbcc396288766a51a66dd8fc48ebd840f637dd3315c560031e"
+    },
+    {
+      "source_path": "results/neo4rs_adapter_20261101_b/FINDINGS.md",
+      "source_sha256": "b26efcfa8f4966b6aa3583a1c1e5ce649e81e4239c01ae20c9ff5f67473e932b",
+      "exported_file": "results__neo4rs_adapter_20261101_b__FINDINGS.md",
+      "export_sha256": "7a28ffd4822d4de3fe48cf458c247be13ae923934106a2cecf407766968e2176"
+    },
+    {
+      "source_path": "results/neo4rs_default_20261101_a/FINDINGS.md",
+      "source_sha256": "ca8cc37c7ca5d810a662e15d92ce27c17e23c02da8209f14d75b551632646bb3",
+      "exported_file": "results__neo4rs_default_20261101_a__FINDINGS.md",
+      "export_sha256": "4c313753e00cf387a115361667553e51cb5d174286cd238e9d7e608a6e24fb6d"
+    },
+    {
+      "source_path": "results/neo4rs_index_diagnostic_20261102_a/FINDINGS.md",
+      "source_sha256": "829527d3372a21ea5d4a570c68f13599f70e723b4209c3069f98a7f039258d9c",
+      "exported_file": "results__neo4rs_index_diagnostic_20261102_a__FINDINGS.md",
+      "export_sha256": "b72b97553b8dd785d24238496c50dde9cbed640b06e3dba16aafe336344ccd13"
+    },
+    {
+      "source_path": "results/neo4rs_memory_confirm_20261102_a/FINDINGS.md",
+      "source_sha256": "b218393a285ce50d0c4da6fb67d5181ccdfdb3956a63bced05bec7fdacc923c8",
+      "exported_file": "results__neo4rs_memory_confirm_20261102_a__FINDINGS.md",
+      "export_sha256": "2a773dba757842fada37eb2470976b22c3e1f3ea61b393cdd07f3e6ac916a15e"
+    },
+    {
+      "source_path": "results/neo4rs_memory_e2e_20261102_a/FINDINGS.md",
+      "source_sha256": "42a4356e60bbd3788c8efb6945365329470cca194160594b1d84f10d9849b082",
+      "exported_file": "results__neo4rs_memory_e2e_20261102_a__FINDINGS.md",
+      "export_sha256": "e2a9d5964a97e16cfe279dd8e63fd02a3560c83e46e1e5c9cc0daf8c0d6429a2"
+    },
+    {
+      "source_path": "results/neo4rs_tuning_20261101_a/FINDINGS.md",
+      "source_sha256": "386501e9e1d67af2fe378d34757791aca445ee06ac1ff26f832adc5c444ba085",
+      "exported_file": "results__neo4rs_tuning_20261101_a__FINDINGS.md",
+      "export_sha256": "8227526f97bfd0be631e16ff6792f8d06543344af49245d225ff900c36a09e5f"
+    },
+    {
+      "source_path": "results/neo4rs_tuning_followup_20261102_a/FINDINGS.md",
+      "source_sha256": "3fc9a1dbd9d4ff68398aaaca76e02432c16b6646806a26c77f103d426aa1140e",
+      "exported_file": "results__neo4rs_tuning_followup_20261102_a__FINDINGS.md",
+      "export_sha256": "ebb025d1ae53e35f3c8bd295940f11aa4127935170f89839d17f716ecae3d504"
+    },
+    {
+      "source_path": "results/physical_scale_a/final-evidence/FINDINGS.md",
+      "source_sha256": "31c02e7aafd34f462bb08c00a321809ed2bc4090ddfa94b8e40ea992f2da44f2",
+      "exported_file": "results__physical_scale_a__final-evidence__FINDINGS.md",
+      "export_sha256": "bb5229c720692f8329c39642ebf6520b26cfc8fe7c6562a6df284c6d5a16702c"
+    },
+    {
+      "source_path": "results/sf1_optimization_a/final-evidence/FINDINGS.md",
+      "source_sha256": "007e1db41be94abe3faadbe468364b32afc57121373f00c9279191d0116cfbc9",
+      "exported_file": "results__sf1_optimization_a__final-evidence__FINDINGS.md",
+      "export_sha256": "74dcfca1347992ead4c98d8ea50a79b13e93964fc4cb7c76c93cf5afa4579cde"
+    }
+  ],
+  "changes": "Mask private absolute paths, endpoint/email/host strings; replace unavailable attachment links; preserve numerical prose."
+}

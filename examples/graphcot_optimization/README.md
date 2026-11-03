@@ -8,6 +8,11 @@ DozerDB 기본 backend나 agent routing을 바꾸지 않습니다. 이 예제의
 **출발점:** [튜토리얼](TUTORIAL.md) → [실험 결과](RESULTS.md) →
 [실험 프로토콜](PROTOCOL.md) → [vLLM 전달 계약](VLLM_HANDOFF.md).
 
+**인스턴스 종료 전 연구 보존:** [전체 결과·원시 자료 복구 안내](preservation/README.md),
+[과거 결과/방법 보고서21개](preservation/reports/README.md),
+[56개 연구 결과 폴더 목록](preservation/STUDIES.md). 원시 자료는 비공개 저장소의
+암호화 Release 첨부에 보존하며 복구 키는 별도로 보관합니다.
+
 ![DB gains and model re-entry](assets/neo4j-to-vllm-overview.png)
 
 ## 3분 offline 시작

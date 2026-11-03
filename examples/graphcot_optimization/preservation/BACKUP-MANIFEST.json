@@ -1,0 +1,53 @@
+{
+  "format": "gug-content-backup-v1",
+  "logical_files": 35631,
+  "unique_objects": 22695,
+  "logical_bytes": 5157195060,
+  "unique_bytes": 4600691363,
+  "recipient": "age1peup6jq7rlyzy3lhazf7ahw33zg9uj5wgkyqzrklwne837r2z9rst26ngj",
+  "volumes": [
+    {
+      "name": "gug-research-20261104-volume-01.tar.zst.age",
+      "bytes": 39415357,
+      "sha256": "a62cc7c6f6ff66d7fa79d271f7208ea66c266819e3db893b71978eac2a079374",
+      "objects": 1919
+    },
+    {
+      "name": "gug-research-20261104-volume-02.tar.zst.age",
+      "bytes": 267590793,
+      "sha256": "2a91421060be0c685263f356b3ee96c975846ff2f1097d88425e9d94115011fb",
+      "objects": 1
+    },
+    {
+      "name": "gug-research-20261104-volume-03.tar.zst.age",
+      "bytes": 391560878,
+      "sha256": "91d37ffbc0977c01e3ee1bfaae8c43f8fe6d7615f2877bc65f24d4c382f40bf3",
+      "objects": 4811
+    },
+    {
+      "name": "gug-research-20261104-volume-04.tar.zst.age",
+      "bytes": 34595613,
+      "sha256": "fb51599f37b3585f7173ee74bdf4f792c805bcccfc6e7ed0af56f74596819863",
+      "objects": 1028
+    },
+    {
+      "name": "gug-research-20261104-volume-05.tar.zst.age",
+      "bytes": 691769635,
+      "sha256": "69397e078b5817b467574055a04850f5ab8f84a403bb7ee2f76324d187df76a4",
+      "objects": 1616
+    },
+    {
+      "name": "gug-research-20261104-volume-06.tar.zst.age",
+      "bytes": 146272754,
+      "sha256": "e3cca8064f6b7fa78490ba86d389b942bf2faf4866a551db862be23b918daa8f",
+      "objects": 11215
+    },
+    {
+      "name": "gug-research-20261104-volume-07.tar.zst.age",
+      "bytes": 100884532,
+      "sha256": "2e13cd0e9c522d592b6a89bede42e0675ed61224620946d845a4704b696607c9",
+      "objects": 2105
+    }
+  ],
+  "recovery": "The private age identity is deliberately outside this release. Index is encrypted in volume01."
+}
