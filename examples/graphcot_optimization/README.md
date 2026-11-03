@@ -1,5 +1,7 @@
 # Graph-CoT optimization lab: Neo4j → tool runtime → vLLM
 
+**새 인스턴스로 이전:** [준비물·복원·neo4rs·재현 명령 순서](FRESH_INSTANCE_RUNBOOK.md).
+
 금융 그래프 tool call의 비용을 분해하고 최적화를 검증하는 재사용 예제입니다.
 GPU/DB 없는 첫 경로와 실제 서비스 측정 경로를 분리합니다. 기존 SEOCHO SDK,
 DozerDB 기본 backend나 agent routing을 바꾸지 않습니다. 이 예제의 측정 근거는
@@ -68,7 +70,8 @@ python examples/graphcot_optimization/render.py --output /tmp/graphcot-figures-n
 - 사용자C32에서도 tool HTTP overlap peak는3~4였습니다. DB-only C32와 다릅니다.
 - 물리 disk 포화, NUMA, 순수 GC, CPU scheduler compute 포화 또는 KV 재계산
   원인은 입증하지 않았습니다. finite cohort는 steady capacity가 아닙니다.
-- 이 패키징 작업에서 새로운 live DB/LLM 실행은 하지 않았습니다.
+- 초기 패키징에서는 live DB/LLM을 실행하지 않았습니다. 이후 복원 helper는 격리된
+  소형 Neo4j에서 검증했습니다. 전체 SF1 새 VM 복원과 GPU E2E 재측정은 미실행입니다.
 
 ## Third-party / provenance
 

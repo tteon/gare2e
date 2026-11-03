@@ -47,3 +47,14 @@ adds21historical report/method exports and a private-repository encrypted Releas
 actual materialization/restored pilot validation passed. Scoped local tests9passed.
 Key is outside Git/release/instance; model weights/live physicalDB/toolchains/peer
 campaigns are excluded. This is evidence preservation, no paid/live experiment.
+
+## Fresh-instance recovery extension — 2026-11-04
+
+[Sequential recovery/reproduction runbook](../../../../examples/graphcot_optimization/FRESH_INSTANCE_RUNBOOK.md)
+adds backup download/decrypt, actual SF1 path discovery, streaming import, complete
+property/parallel-edge/schema audit, sidecar reconstruction, authenticated neo4rs,
+new B0 measurements and explicit BF16 E2E portability gates. Recovery helpers and
+model/distribution SHA pins accompany the guide. An owned isolated Neo4j5.26
+fixture passed import/audit and negative corruption/nonempty tests, then stopped
+with PID/start-time validation; port closure verified. No full new-VM SF1/model
+rerun or performance claim. See [validation](../../../../examples/graphcot_optimization/RECOVERY_VALIDATION.md).

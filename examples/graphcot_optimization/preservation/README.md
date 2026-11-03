@@ -1,5 +1,7 @@
 # Full research preservation — 2026-11-04
 
+**새 인스턴스로 이전:** [준비물·복원·neo4rs·재현 명령 순서](../FRESH_INSTANCE_RUNBOOK.md).
+
 The tutorial is a small reviewed example. This separate preservation snapshot
 retains the original GUG code, configurations, raw experiment results, interrupted
 runs, diagnostics, figures and available FinBench inputs/snapshots before the
