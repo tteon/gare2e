@@ -282,6 +282,7 @@ operator guide.
 | [examples/quickstart.ipynb](examples/quickstart.ipynb) | Notebook tour of ontology, indexing, provider setup, and tracing. |
 | [examples/bring_your_data.ipynb](examples/bring_your_data.ipynb) | Pattern for using your own files and ontology. |
 | [examples/finder/](examples/finder/) | FinDER/FIBO tutorials for graph RAG, RDF vs LPG, and private tracing. |
+| [examples/graphcot_optimization/](examples/graphcot_optimization/) | Offline tool-contract tutorial, reviewed Neo4j/vLLM optimization evidence, and an opt-in DB measurement framework. |
 
 ## Repository Map
 

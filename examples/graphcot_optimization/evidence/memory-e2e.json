@@ -1,0 +1,84 @@
+{
+  "status": "complete and validated; no universal E2E gain",
+  "model": "Qwen/Qwen3.8-27B",
+  "dtype": "bfloat16",
+  "model_revision": "1d4bf0f2ff6012fd82039f2fa52739d0dd7c60c0",
+  "hardware": "A100-SXM4-80GB",
+  "baseline_memory_mib": {
+    "heap": 512,
+    "pagecache": 256
+  },
+  "candidate_memory_mib": {
+    "heap": 1024,
+    "pagecache": 1024
+  },
+  "model_max_num_seqs": 8,
+  "model_max_num_batched_tokens": 8192,
+  "model_max_tokens_per_call": 2048,
+  "cells": 24,
+  "measured": 864,
+  "correct": 864,
+  "failed": 0,
+  "dropped": 0,
+  "warmup_correct": 156,
+  "model_calls_joined": 2040,
+  "paired_inputs": 432,
+  "all_paired_evidence_tokens_and_scheduled_work_equal": true,
+  "actual_tool_concurrency_peak_range": [
+    3,
+    4
+  ],
+  "comparisons": [
+    {
+      "workload": "frozen32",
+      "concurrency": 8,
+      "baseline_batch_seconds": 48.67099670832977,
+      "candidate_batch_seconds": 48.67836023122072,
+      "candidate_batch_change_percent": 0.015129180392747799,
+      "baseline_request_p95_seconds": 21.235207099933177,
+      "candidate_request_p95_seconds": 21.3045534058474,
+      "success_baseline": 96,
+      "success_candidate": 96,
+      "offered_per_arm": 96
+    },
+    {
+      "workload": "frozen32",
+      "concurrency": 32,
+      "baseline_batch_seconds": 46.577984171919525,
+      "candidate_batch_seconds": 46.03846805682406,
+      "candidate_batch_change_percent": -1.1583071373465037,
+      "baseline_request_p95_seconds": 38.08557404810563,
+      "candidate_request_p95_seconds": 37.81300818407908,
+      "success_baseline": 96,
+      "success_candidate": 96,
+      "offered_per_arm": 96
+    },
+    {
+      "workload": "hard40",
+      "concurrency": 8,
+      "baseline_batch_seconds": 131.70857043983415,
+      "candidate_batch_seconds": 130.66796906804666,
+      "candidate_batch_change_percent": -0.7900787080995952,
+      "baseline_request_p95_seconds": 77.67719696462154,
+      "candidate_request_p95_seconds": 77.74365034885705,
+      "success_baseline": 120,
+      "success_candidate": 120,
+      "offered_per_arm": 120
+    },
+    {
+      "workload": "hard40",
+      "concurrency": 32,
+      "baseline_batch_seconds": 132.93321456806734,
+      "candidate_batch_seconds": 137.29689937876537,
+      "candidate_batch_change_percent": 3.28261437510311,
+      "baseline_request_p95_seconds": 94.36248999880627,
+      "candidate_request_p95_seconds": 92.49065137188882,
+      "success_baseline": 120,
+      "success_candidate": 120,
+      "offered_per_arm": 120
+    }
+  ],
+  "decision": "Retain baseline default; keep memory candidate as a DB-specific option. Final admission/batching work is a separate unexecuted follow-up, not a tested solution.",
+  "scope": "Finite known-contract cohorts on shared CPU/DRAM; no steady capacity or CPU scheduler compute causality claim",
+  "evidence": "RESULTS.md"
+}

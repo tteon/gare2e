@@ -7,6 +7,7 @@ token 수를 함께 기록합니다.
 
 | 필요한 것 | 진입점 |
 | --- | --- |
+| Neo4j tool 최적화와 vLLM 재진입을 배우는 offline 튜토리얼 | [GUG optimization lab](../../examples/graphcot_optimization/README.md) — 별도 FinBench 연구; 기존30조건과 미혼합 |
 | 공용 실험 비교 → 개별 task → 근거, Perfetto·Nsight 다운로드 | [실험 플랫폼 실행·기여 가이드](EXPERIMENT_PLATFORM.md) |
 | 조건을 선택하며 차트 보기 | [차트 보고서](reports/characterization-charts/index.html) |
 | 분모, 단위, 누락 처리, 논문 그림과의 대응 | [차트 측정 정의](reports/characterization-charts/README.md) |

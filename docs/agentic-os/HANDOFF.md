@@ -1,5 +1,17 @@
 # AgenticOS graph-agent e2e — handoff package
 
+## GUG teaching package — 2026-11-04
+
+[Request028](lab/requests/028-gug-optimization-tutorial.md) publishes a separate
+FinBench/Neo4j research teaching package under
+[examples/graphcot_optimization](../../examples/graphcot_optimization/README.md).
+Offline notebook, trusted tool binding, reviewed numerical exports and optional
+DB cohort CLI require no private operator memory to inspect. Original private
+raw workloads/archives/models/stores are excluded. It changes no SDK/backend
+defaults and is not a new paid run or part of the existing30-condition chartbook.
+Seven local contracts and notebook/chart reproduction pass; full basic CI has
+two unchanged env-contract failures. Rust build/live service checks remain open.
+
 What another engineer needs to run the same e2e (co-located Vast appliance:
 vLLM + DozerDB + embedded Oxigraph, 8 one-case gate cells, telemetry
 decomposition, serving sweeps). Everything in this repo is code and procedure;

@@ -9,6 +9,7 @@ LLM steps live. For the broader grab-bag of examples, datasets, and demos, see
 | Notebook | What you'll learn | Needs a key? |
 |----------|-------------------|--------------|
 | [`ontology_guardrail_before_after.ipynb`](ontology_guardrail_before_after.ipynb) | Profile a corpus → score candidate ontologies with the corpus-aware scorecard → let `select_guardrail` pick the best guardrail → **measure LLM answer quality BEFORE vs AFTER** applying it, and read the result honestly. | Optional (ships cached results; MARA to re-run live) |
+| [`graphcot_optimization.ipynb`](graphcot_optimization.ipynb) | Bind financial tool arguments to checked Cypher, inspect independent oracle contracts and reviewed DB/E2E results, then design a controlled optimization experiment. Offline checks are not performance measurements. | No (optional live DB setup is documented separately) |
 
 ## Running
 

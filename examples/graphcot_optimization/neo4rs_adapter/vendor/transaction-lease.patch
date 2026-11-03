@@ -1,0 +1,64 @@
+--- neo4rs-0.8.0/src/txn.rs
++++ neo4rs-0.8.0/src/txn.rs
+@@ -14,15 +14,16 @@
+ pub struct Txn {
+     db: Database,
+     fetch_size: usize,
+-    connection: ManagedConnection,
++    connection: Lease,
+ }
+ 
+ impl Txn {
+     pub(crate) async fn new(
+         db: Database,
+         fetch_size: usize,
+-        mut connection: ManagedConnection,
++        connection: ManagedConnection,
+     ) -> Result<Self> {
++        let mut connection = Lease(Some(connection));
+         let begin = BoltRequest::begin(&db);
+         match connection.send_recv(begin).await? {
+             BoltResponse::Success(_) => Ok(Txn {
+@@ -60,7 +61,7 @@
+     pub async fn commit(mut self) -> Result<()> {
+         let commit = BoltRequest::commit();
+         match self.connection.send_recv(commit).await? {
+-            BoltResponse::Success(_) => Ok(()),
++            BoltResponse::Success(_) => { self.connection.release(); Ok(()) },
+             msg => Err(unexpected(msg, "COMMIT")),
+         }
+     }
+@@ -69,7 +70,7 @@
+     pub async fn rollback(mut self) -> Result<()> {
+         let rollback = BoltRequest::rollback();
+         match self.connection.send_recv(rollback).await? {
+-            BoltResponse::Success(_) => Ok(()),
++            BoltResponse::Success(_) => { self.connection.release(); Ok(()) },
+             msg => Err(unexpected(msg, "ROLLBACK")),
+         }
+     }
+@@ -115,3 +116,24 @@
+         }
+     }
+ }
++
++// GUG experiment patch: cancellation/error must not recycle an active transaction.
++// Successful COMMIT/ROLLBACK releases normally; otherwise take closes the socket.
++struct Lease(Option<ManagedConnection>);
++impl Lease {
++    fn release(&mut self) { drop(self.0.take()); }
++}
++impl std::ops::Deref for Lease {
++    type Target = ManagedConnection;
++    fn deref(&self) -> &Self::Target { self.0.as_ref().expect("released transaction") }
++}
++impl std::ops::DerefMut for Lease {
++    fn deref_mut(&mut self) -> &mut Self::Target { self.0.as_mut().expect("released transaction") }
++}
++impl Drop for Lease {
++    fn drop(&mut self) {
++        if let Some(connection) = self.0.take() {
++            drop(ManagedConnection::take(connection));
++        }
++    }
++}

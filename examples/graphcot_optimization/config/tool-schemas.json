@@ -1,0 +1,339 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "list_transfer_recipients",
+      "description": "Find distinct direct outgoing transfer recipients of account with amount >= min_amount. Order by recipient account; return account.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807,
+            "description": "Account identifier from the user request."
+          },
+          "min_amount": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000000000000000.0,
+            "description": "Inclusive minimum transfer amount in stored dataset units."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum rows to return, after the documented ordering."
+          }
+        },
+        "required": [
+          "account",
+          "min_amount",
+          "limit"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "trace_transfer_reachability",
+      "description": "Find outgoing transfer reachable accounts within max_hops (1 to 3), exclude starting account. Return account and minimum min_hops; order by account.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807,
+            "description": "Account identifier from the user request."
+          },
+          "max_hops": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3,
+            "description": "Maximum transfer hop count."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum rows to return, after the documented ordering."
+          }
+        },
+        "required": [
+          "account",
+          "max_hops",
+          "limit"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "trace_time_ordered_fund_paths",
+      "description": "Find simple paths of exactly three outgoing transfers from account. Every edge meets min_amount and [start_ts,end_ts); timestamps must be nondecreasing. Return accounts arrays ordered lexicographically.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807,
+            "description": "Account identifier from the user request."
+          },
+          "min_amount": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000000000000000.0,
+            "description": "Inclusive minimum transfer amount in stored dataset units."
+          },
+          "start_ts": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807,
+            "description": "Inclusive Unix timestamp in seconds."
+          },
+          "end_ts": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9223372036854775807,
+            "description": "Exclusive Unix timestamp in seconds; must exceed start_ts."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum rows to return, after the documented ordering."
+          }
+        },
+        "required": [
+          "account",
+          "min_amount",
+          "start_ts",
+          "end_ts",
+          "limit"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "find_fan_in_accounts",
+      "description": "Find recipients with at least min_senders DISTINCT senders during [start_ts,end_ts). Exclude self transfers. Return account, senders and total_amount; order by account.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "min_senders": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000000,
+            "description": "Minimum distinct senders."
+          },
+          "start_ts": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807,
+            "description": "Inclusive Unix timestamp in seconds."
+          },
+          "end_ts": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9223372036854775807,
+            "description": "Exclusive Unix timestamp in seconds; must exceed start_ts."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum rows to return, after the documented ordering."
+          }
+        },
+        "required": [
+          "min_senders",
+          "start_ts",
+          "end_ts",
+          "limit"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "find_linked_account_pairs",
+      "description": "Find relationship-linked account pairs: a<b, transfer a to b, DISTINCT owners p and q with guarantee p to q, and a shared sign-in medium. Restrict lower account a to inclusive [account_min,account_max]. Return account_a,account_b ordered by these keys.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "account_min": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807,
+            "description": "Account identifier from the user request."
+          },
+          "account_max": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807,
+            "description": "Account identifier from the user request."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum rows to return, after the documented ordering."
+          }
+        },
+        "required": [
+          "account_min",
+          "account_max",
+          "limit"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "rank_linked_account_flows",
+      "description": "Rank relationship-linked pairs (same relationship rules as find_linked_account_pairs) by BIDIRECTIONAL transfer sum, excluding either account with loan repayments. Restrict lower account a to inclusive [account_min,account_max]. Return account_a,account_b,total_amount; descending total then ascending IDs, top_k rows.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "account_min": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807,
+            "description": "Account identifier from the user request."
+          },
+          "account_max": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807,
+            "description": "Account identifier from the user request."
+          },
+          "top_k": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum rows to return, after the documented ordering."
+          }
+        },
+        "required": [
+          "account_min",
+          "account_max",
+          "top_k"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "trace_rapid_pass_through",
+      "description": "Find simple two-transfer paths from account through an intermediary to a different destination. Both amounts >= min_amount and timestamps in [start_ts,end_ts). Second timestamp minus first must be between 0 and max_gap_seconds inclusive. Return DISTINCT source, intermediary, destination ordered by these IDs. Investigation candidates, not proof of wrongdoing.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807,
+            "description": "Account identifier from the user request."
+          },
+          "min_amount": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000000000000000.0,
+            "description": "Inclusive minimum transfer amount in stored dataset units."
+          },
+          "start_ts": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807,
+            "description": "Inclusive Unix timestamp in seconds."
+          },
+          "end_ts": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9223372036854775807,
+            "description": "Exclusive Unix timestamp in seconds; must exceed start_ts."
+          },
+          "max_gap_seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 31536000,
+            "description": "Inclusive maximum delay in seconds between transfers."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum rows to return, after the documented ordering."
+          }
+        },
+        "required": [
+          "account",
+          "min_amount",
+          "start_ts",
+          "end_ts",
+          "max_gap_seconds",
+          "limit"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "find_shared_access_accounts",
+      "description": "Find other accounts sharing a Medium with account, with both SIGN_IN timestamps in [start_ts,end_ts). Return DISTINCT account, shared_media count of distinct Medium nodes; order by account. Medium is a recorded access medium, not necessarily an IP or device; shared access does not prove common ownership.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807,
+            "description": "Account identifier from the user request."
+          },
+          "start_ts": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9223372036854775807,
+            "description": "Inclusive Unix timestamp in seconds."
+          },
+          "end_ts": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9223372036854775807,
+            "description": "Exclusive Unix timestamp in seconds; must exceed start_ts."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum rows to return, after the documented ordering."
+          }
+        },
+        "required": [
+          "account",
+          "start_ts",
+          "end_ts",
+          "limit"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+]
