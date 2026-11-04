@@ -1,0 +1,27 @@
+{
+  "file": "l4-l6-subgraph-before-after.mp4",
+  "sha256": "1c0b362e79760c7d5a2ac19abfa88ef77283109d337df323d9dd87685a3e6d1b",
+  "bytes": 1734954,
+  "width": 1920,
+  "height": 1080,
+  "fps": 24,
+  "duration_seconds": 63,
+  "audio": false,
+  "kind": "educational synthetic graph, not profiler replay",
+  "data_sha256": "ee0a20b4de4e7c9e1d3c31b230252a736d7757ed91915b49d5b9ac99fa0bc1e0",
+  "font_sha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+  "checks": {
+    "ffprobe": "h264 /1920x1080 /24fps /yuv420p /63seconds",
+    "chrome": "scenario/play/pause/steps/mobile-no-overflow; no JS errors",
+    "data_identifiers": "all edges/phases reference defined nodes and relationships",
+    "visual_review": "mid/final frames across three chapters; separate bidirectional arcs"
+  },
+  "pillow_version": "11.3.0",
+  "ffmpeg_version": "ffmpeg version 9.0.1 Copyright (c) 2000-2026 the FFmpeg developers",
+  "source_hashes": {
+    "subgraph-data.json": "ee0a20b4de4e7c9e1d3c31b230252a736d7757ed91915b49d5b9ac99fa0bc1e0",
+    "render_video.py": "347377bcda8f21d82e06ae2d0ed08bf84d99ad8ce8322b54fb736e51cffb8c1b",
+    "subgraph-template.html": "ca7bd95e892e7b533cfaaa18a65b63c31057d600440104e82aee79d129f24a08",
+    "measured-profile-summary.json": "1cdf23738cbeb7da05f38fbb7edc099324acf8c5fff87f2947d7c8fdda3745ef"
+  }
+}

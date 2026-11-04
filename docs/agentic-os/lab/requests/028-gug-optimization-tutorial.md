@@ -58,3 +58,16 @@ model/distribution SHA pins accompany the guide. An owned isolated Neo4j5.26
 fixture passed import/audit and negative corruption/nonempty tests, then stopped
 with PID/start-time validation; port closure verified. No full new-VM SF1/model
 rerun or performance claim. See [validation](../../../../examples/graphcot_optimization/RECOVERY_VALIDATION.md).
+
+## Subgraph animation extension — 2026-11-04
+
+[Node-edge comparison and63second MP4](../../../../examples/graphcot_optimization/animation/README.md)
+replaces workflow-only explanation with small synthetic before/after graphs.
+Contains interactive SVG playback,1080p24fps H.264 MP4, Korean burned-in labels/SRT,
+shared graph JSON, generation source and hash receipt. The animation is explicitly
+educational, not an SF1 edge-level trace or proportional time/count simulation.
+L4 toy LIMIT2 is distinct from measured LIMIT5; L5/L6 toy positives are distinct
+from official zero-row profiles. Six v0 measured totals/query hashes were checked
+against preserved profiles. Chrome playback/scenario/step/mobile checks, visual
+frame review, ffprobe/full decode, Python compilation/Ruff/docs checks passed.
+No DB/model execution or new speedup evidence.

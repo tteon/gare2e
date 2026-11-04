@@ -1,0 +1,83 @@
+<div id="gug-subgraph">
+<style>
+#gug-subgraph{color:var(--foreground);display:flex;flex-direction:column;gap:calc(var(--font-size-base)*1)}
+#gug-subgraph .heading{padding-right:100px}
+#gug-subgraph .graph-pair{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--font-size-base)*1.5)}
+#gug-subgraph .graph-lane{min-width:0;display:flex;flex-direction:column;gap:calc(var(--font-size-base)*.5)}
+#gug-subgraph .network{width:100%;display:block;overflow:visible}
+#gug-subgraph .network text{fill:var(--foreground);font-size:12px;font-weight:400}
+#gug-subgraph .network .node-type{font-size:11px;fill:var(--muted-foreground)}
+#gug-subgraph .phase-label{min-height:calc(var(--font-size-base)*2.5)}
+#gug-subgraph .measured{display:flex;flex-wrap:wrap;gap:calc(var(--font-size-base)*.5)}
+@media(max-width:600px){#gug-subgraph .graph-pair{grid-template-columns:1fr}}
+</style>
+<div class="heading"><h2>작은 서브그래프부터 탐색하기</h2><div class="text-small text-muted">설명용 합성 그래프 · 실제 PROFILE trace 재생 아님 · 동작 속도는 실측 시간과 무관</div></div>
+<div class="viz-controls">
+<label class="form-label" for="gug-sg-query">시나리오<select id="gug-sg-query" class="form-select"><option value="0">L4 · 수신 계좌 집계</option><option value="1">L5 · 연결 계좌 쌍</option><option value="2">L6 · 연결 계좌 자금 순위</option></select></label>
+<button class="btn btn-primary" id="gug-sg-play" type="button">재생</button>
+<button class="btn" id="gug-sg-back" type="button">이전</button>
+<button class="btn" id="gug-sg-next" type="button">다음</button>
+<span class="text-small tabular-nums" id="gug-sg-step">1 / 7</span>
+</div>
+<div class="graph-pair">
+<div class="graph-lane"><h3>기존 · 넓은 후보 탐색</h3><svg id="gug-sg-before" class="network" role="img" aria-label="기존 쿼리의 노드 관계 탐색"></svg><div id="gug-sg-before-label" class="phase-label"></div></div>
+<div class="graph-lane"><h3>최적화 · 후보 서브그래프 축소</h3><svg id="gug-sg-after" class="network" role="img" aria-label="최적화 쿼리의 노드 관계 탐색"></svg><div id="gug-sg-after-label" class="phase-label"></div></div>
+</div>
+<div id="gug-sg-measured" class="measured tabular-nums"></div>
+<div id="gug-sg-scope" class="text-small text-muted" aria-live="polite"></div>
+<script type="application/json" id="gug-sg-data">__DATA__</script>
+<script>
+(()=>{
+ const root=document.getElementById('gug-subgraph');
+ const get=id=>root.querySelector('#gug-sg-'+id);
+ const source=JSON.parse(get('data').textContent);
+ const remembered=window.openai?.widgetState;
+ let ci=Math.max(0,Math.min(2,Number(remembered?.modelContent?.caseIndex)||0));
+ let step=Math.max(0,Math.min(6,Number(remembered?.privateContent?.step)||0));
+ let playing=false,started=0,raf=0,lastSaved=null;
+ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;');
+ function save(){const snapshot={modelContent:{caseIndex:ci,query:source.cases[ci].id},privateContent:{step}};lastSaved=JSON.stringify(snapshot);window.openai?.setWidgetState?.(snapshot)?.catch(()=>{});}
+ function paint(side,p){
+  const svg=get(side), d=source.cases[ci],phase=d[side][step];
+  const width=Math.max(260,svg.parentElement.clientWidth),height=width*.65,s=width/800;
+  svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.style.height=height+'px';
+  const coords=Object.fromEntries(d.nodes.map(n=>[n.id,{...n,x:n.x*s,y:n.y*s}]));
+  const color=side==='before'?'var(--viz-series-1)':'var(--viz-series-2)';
+  const active=phase.edges.slice(0,Math.min(phase.edges.length,Math.floor(p*phase.edges.length)+1));
+  const focus=active[active.length-1],nodes=new Set(active.flatMap(id=>{const e=d.edges.find(e=>e.id===id);return [e.a,e.b];}));
+  let out=`<title>${d.id} ${side==='before'?'기존':'최적화'} · ${esc(phase.label)}</title><defs><marker id="gug-sg-arrow-${side}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10" fill="context-stroke"/></marker></defs>`;
+  for(const e of d.edges){
+   const a=coords[e.a],b=coords[e.b],dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy),r=18;
+   const x1=a.x+dx*r/len,y1=a.y+dy*r/len,x2=b.x-dx*r/len,y2=b.y-dy*r/len;
+   const bend=(e.id==='rev'?24:(e.id==='t1'&&d.id==='L6'?24:0))*s;
+   const cx=(x1+x2)/2-dy/len*bend,cy=(y1+y2)/2+dx/len*bend;
+   const lit=active.includes(e.id),col=lit?color:'var(--border)';
+   out+=`<path d="M${x1},${y1} Q${cx},${cy} ${x2},${y2}" fill="none" stroke="${col}" stroke-width="${lit?2.5:1}" marker-end="url(#gug-sg-arrow-${side})"/>`;
+   if(lit){const vertical=Math.abs(dx)<20;out+=`<text x="${cx+(vertical?25:0)}" y="${cy+(vertical?4:-7)}" text-anchor="${vertical?'start':'middle'}">${esc(e.label)}</text>`;}
+   if(e.id===focus&&playing&&!reduced){const t=(p*phase.edges.length)%1,q=1-t;const x=q*q*x1+2*q*t*cx+t*t*x2,y=q*q*y1+2*q*t*cy+t*t*y2;out+=`<circle cx="${x}" cy="${y}" r="4" fill="${color}"/>`;}
+  }
+  for(const n of Object.values(coords)){
+   const selected=phase.selected.includes(n.id),rejected=phase.rejected.includes(n.id),lit=nodes.has(n.id)||selected;
+   const fill=selected?'color-mix(in srgb,var(--green) 20%,var(--background))':lit?`color-mix(in srgb,${color} 18%,var(--background))`:'var(--background)';
+   const stroke=rejected?'var(--red)':lit?color:'var(--border)';
+   if(n.type==='Medium'){out+=`<polygon points="${n.x},${n.y-19} ${n.x+23},${n.y} ${n.x},${n.y+19} ${n.x-23},${n.y}" fill="${fill}" stroke="${stroke}"/>`;}
+   else if(n.type==='Account'){out+=`<circle cx="${n.x}" cy="${n.y}" r="18" fill="${fill}" stroke="${stroke}" stroke-width="${lit?2:1}"/>`;}
+   else{out+=`<rect x="${n.x-20}" y="${n.y-16}" width="40" height="32" rx="${n.type==='Loan'?0:6}" fill="${fill}" stroke="${stroke}"/>`;}
+   out+=`<text x="${n.x}" y="${n.y+4}" text-anchor="middle">${n.id}</text><text class="node-type" x="${n.x}" y="${n.y+33}" text-anchor="middle">${n.type}</text>`;
+   if(rejected)out+=`<path d="M${n.x-13} ${n.y-13}L${n.x+13} ${n.y+13}M${n.x+13} ${n.y-13}L${n.x-13} ${n.y+13}" stroke="var(--red)" stroke-width="2"/>`;
+  }
+  svg.innerHTML=out;
+ }
+ function draw(p=1){const d=source.cases[ci];paint('before',p);paint('after',p);get('query').value=ci;get('step').textContent=(step+1)+' / 7';get('before-label').textContent=d.before[step].label;get('after-label').textContent=d.after[step].label;get('scope').textContent=d.scope;get('measured').textContent='별도 SF1 실측 DB hits: '+d.hits[0].toLocaleString()+' → '+d.hits[1].toLocaleString();get('back').disabled=step===0;get('next').disabled=step===6;get('play').textContent=playing?'일시정지':step===6?'다시 재생':'재생';}
+ function halt(){playing=false;cancelAnimationFrame(raf);}
+ function run(ts){if(!playing)return;if(!started)started=ts;const elapsed=ts-started;const now=Math.min(6,Math.floor(elapsed/3000));step=now;draw(reduced?1:Math.min(.999,(elapsed%3000)/3000));if(elapsed>=21000){halt();draw();save();return;}raf=requestAnimationFrame(run);}
+ get('play').onclick=()=>{if(playing){halt();draw();save();return;}if(step===6)step=0;playing=true;started=performance.now()-step*3000;raf=requestAnimationFrame(run);};
+ get('query').onchange=e=>{halt();ci=Number(e.target.value);step=0;draw();save();};
+ get('back').onclick=()=>{halt();step=Math.max(0,step-1);draw();save();};get('next').onclick=()=>{halt();step=Math.min(6,step+1);draw();save();};
+ new ResizeObserver(()=>draw()).observe(root.querySelector('.graph-pair'));
+ window.addEventListener('openai:set_globals',e=>{const state=e.detail?.globals?.widgetState;if(!Number.isInteger(state?.modelContent?.caseIndex)||JSON.stringify({modelContent:state.modelContent,privateContent:state.privateContent})===lastSaved)return;if(state.modelContent.caseIndex===ci&&state.privateContent?.step===step)return;halt();ci=Math.max(0,Math.min(2,state.modelContent.caseIndex));step=Math.max(0,Math.min(6,Number(state.privateContent?.step)||0));draw();});
+ draw();
+})();
+</script>
+</div>

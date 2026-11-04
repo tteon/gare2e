@@ -15,6 +15,8 @@ DozerDB 기본 backend나 agent routing을 바꾸지 않습니다. 이 예제의
 [56개 연구 결과 폴더 목록](preservation/STUDIES.md). 원시 자료는 비공개 저장소의
 암호화 Release 첨부에 보존하며 복구 키는 별도로 보관합니다.
 
+**노드·관계로 설명하기:** [L4–L6 전/후 애니메이션·63초 MP4·재생성 코드](animation/README.md).
+
 ![DB gains and model re-entry](assets/neo4j-to-vllm-overview.png)
 
 ## 3분 offline 시작
