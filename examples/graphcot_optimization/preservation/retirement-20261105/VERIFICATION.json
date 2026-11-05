@@ -11,5 +11,8 @@
   "all_previous_remote_paths_present": 26902,
   "delta_gc_log_bytes": 862110,
   "toolchain_installer_excluded": true,
-  "github_incremental_readback_decrypt_verified": false
+  "github_incremental_readback_decrypt_verified": true,
+  "github_incremental_materialized_restore_verified": true,
+  "restored_gc_hash_matches": true,
+  "original_pilot_result_validator_passed_again": true
 }
