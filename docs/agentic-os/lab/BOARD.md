@@ -1,5 +1,14 @@
 # Lab board
 
+2026-11-04: [028 GUG optimization tutorial](requests/028-gug-optimization-tutorial.md)
+prepared with offline contracts/notebook/figures and an opt-in DB CLI. Bead gug-anl;
+review/landing pending, no new paid experiment/spend. Seven focused tests pass;
+two existing full-CI env-contract failures and Rust/live gates are documented.
+
+Preservation extension gug-g7p:35,631logical files/22,695objects preserved in
+7encrypted private-release volumes; full GitHub download/decrypt/hash/path and
+materialized-restore checks passed.9scoped tests passed; no new experiment/spend.
+
 | id | bead | title | state | waiting on | next |
 |---|---|---|---|---|---|
 | 001 | seocho-q174 | One-case gate criterion for raw B0 | approved (A) | — | close after first attempted-criterion run |

@@ -1,0 +1,156 @@
+{
+  "query_source": "RESULTS.md#cypher",
+  "query_seconds": {
+    "reference": [
+      6.234,
+      7.586,
+      4.611
+    ],
+    "optimized": [
+      0.234,
+      1.283,
+      1.114
+    ]
+  },
+  "query_scope": "256MiB cache; median of 4 normal-run samples per tool/version; separate PROFILE",
+  "memory_source": "RESULTS.md#memory",
+  "memory_seconds": {
+    "mixed": [
+      10.026,
+      9.621,
+      3.602
+    ],
+    "fanin": [
+      null,
+      9.546,
+      3.633
+    ]
+  },
+  "memory_success": {
+    "mixed": [
+      "240/240",
+      "240/240",
+      "240/240"
+    ],
+    "fanin": [
+      "42/96",
+      "96/96",
+      "96/96"
+    ]
+  },
+  "e2e_source": "evidence/memory-e2e.json",
+  "e2e": [
+    {
+      "workload": "frozen32",
+      "concurrency": 8,
+      "baseline_batch_seconds": 48.67099670832977,
+      "candidate_batch_seconds": 48.67836023122072,
+      "candidate_batch_change_percent": 0.015129180392747799,
+      "baseline_request_p95_seconds": 21.235207099933177,
+      "candidate_request_p95_seconds": 21.3045534058474,
+      "success_baseline": 96,
+      "success_candidate": 96,
+      "offered_per_arm": 96
+    },
+    {
+      "workload": "frozen32",
+      "concurrency": 32,
+      "baseline_batch_seconds": 46.577984171919525,
+      "candidate_batch_seconds": 46.03846805682406,
+      "candidate_batch_change_percent": -1.1583071373465037,
+      "baseline_request_p95_seconds": 38.08557404810563,
+      "candidate_request_p95_seconds": 37.81300818407908,
+      "success_baseline": 96,
+      "success_candidate": 96,
+      "offered_per_arm": 96
+    },
+    {
+      "workload": "hard40",
+      "concurrency": 8,
+      "baseline_batch_seconds": 131.70857043983415,
+      "candidate_batch_seconds": 130.66796906804666,
+      "candidate_batch_change_percent": -0.7900787080995952,
+      "baseline_request_p95_seconds": 77.67719696462154,
+      "candidate_request_p95_seconds": 77.74365034885705,
+      "success_baseline": 120,
+      "success_candidate": 120,
+      "offered_per_arm": 120
+    },
+    {
+      "workload": "hard40",
+      "concurrency": 32,
+      "baseline_batch_seconds": 132.93321456806734,
+      "candidate_batch_seconds": 137.29689937876537,
+      "candidate_batch_change_percent": 3.28261437510311,
+      "baseline_request_p95_seconds": 94.36248999880627,
+      "candidate_request_p95_seconds": 92.49065137188882,
+      "success_baseline": 120,
+      "success_candidate": 120,
+      "offered_per_arm": 120
+    }
+  ],
+  "tail_source": "evidence/overview.json#tail",
+  "tail": [
+    {
+      "block": 0,
+      "arm": "baseline",
+      "request_id": "e2e-hard-2-positive-09",
+      "enqueue_s": 23.843166214879602,
+      "first_schedule_s": 66.68976338673383,
+      "end_s": 131.33927475102246,
+      "engine_queue_s": 42.84659717185423,
+      "completion_tokens": 1728
+    },
+    {
+      "block": 0,
+      "arm": "candidate",
+      "request_id": "e2e-hard-2-positive-09",
+      "enqueue_s": 22.885373048949987,
+      "first_schedule_s": 73.13875777181238,
+      "end_s": 137.29048008099198,
+      "engine_queue_s": 50.25338472286239,
+      "completion_tokens": 1728
+    },
+    {
+      "block": 1,
+      "arm": "baseline",
+      "request_id": "e2e-hard-2-positive-09",
+      "enqueue_s": 24.095686325337738,
+      "first_schedule_s": 68.05533278407529,
+      "end_s": 132.9266217262484,
+      "engine_queue_s": 43.95964645873755,
+      "completion_tokens": 1728
+    },
+    {
+      "block": 1,
+      "arm": "candidate",
+      "request_id": "e2e-hard-2-positive-09",
+      "enqueue_s": 23.628656796179712,
+      "first_schedule_s": 73.47357395105064,
+      "end_s": 138.28502124501392,
+      "engine_queue_s": 49.84491715487093,
+      "completion_tokens": 1728
+    },
+    {
+      "block": 2,
+      "arm": "baseline",
+      "request_id": "e2e-hard-2-positive-09",
+      "enqueue_s": 23.60781801631674,
+      "first_schedule_s": 71.7716442802921,
+      "end_s": 135.9724493199028,
+      "engine_queue_s": 48.16382626397535,
+      "completion_tokens": 1728
+    },
+    {
+      "block": 2,
+      "arm": "candidate",
+      "request_id": "e2e-hard-2-positive-09",
+      "enqueue_s": 23.706551758106798,
+      "first_schedule_s": 72.41696785902604,
+      "end_s": 136.51794835785404,
+      "engine_queue_s": 48.71041610091925,
+      "completion_tokens": 1728
+    }
+  ],
+  "limits": "Different experiments: no summed speedup; finite cohorts, shared host; not steady capacity."
+}

@@ -1,0 +1,5 @@
+# Optional live DB and chart dependencies; offline demo uses Python standard library only.
+neo4j==5.28.2
+httpx==0.28.1
+matplotlib>=3.8,<4
+numpy>=1.26,<3

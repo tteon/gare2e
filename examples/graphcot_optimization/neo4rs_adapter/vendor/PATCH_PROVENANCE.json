@@ -1,0 +1,8 @@
+{
+  "upstream": "neo4rs 0.8.0 crates.io package from existing locked registry",
+  "changed_file": "src/txn.rs",
+  "upstream_sha256": "0fa5a61fdd6340d8b70b096eed95d0535a41cf4b840e8e3c9e8cf6e75445068d",
+  "patched_sha256": "7379dfc2b9c8747e13a3a78d3bab2fbb45752fc7530aa6e357cf0d14dd751d7b",
+  "policy": "explicit Txn lease discarded on drop unless COMMIT/ROLLBACK succeeded; auto-commit API unchanged",
+  "license": "MIT; see upstream Cargo.toml metadata"
+}

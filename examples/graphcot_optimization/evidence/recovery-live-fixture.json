@@ -1,0 +1,122 @@
+{
+  "fixture": "isolated-synthetic-not-SF1",
+  "tests": {
+    "import": {
+      "stage": "complete",
+      "snapshot_sha256": "e25e4a9c35f27cd840e9b25a99d9f62a4363f96d0899b6fd3685afbaea5539c1",
+      "nodes": 3,
+      "edges": 4,
+      "sidecar": true,
+      "note": "Logical reimport; original physical layout/cache/transaction history not reproduced."
+    },
+    "audit": {
+      "validated": true,
+      "snapshot_sha256": "e25e4a9c35f27cd840e9b25a99d9f62a4363f96d0899b6fd3685afbaea5539c1",
+      "counts": {
+        "bucket": 3,
+        "bucket_edge": 4,
+        "edge": 4,
+        "has": 3,
+        "node": 3
+      },
+      "total_nodes": 6,
+      "total_edges": 11,
+      "schema": {
+        "components": [
+          {
+            "name": "Neo4j Kernel",
+            "versions": [
+              "5.26.0"
+            ],
+            "edition": "community"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "account_anchor",
+            "type": "RANGE",
+            "entityType": "NODE",
+            "labelsOrTypes": [
+              "Account"
+            ],
+            "properties": [
+              "_workspace_id",
+              "acct_no"
+            ],
+            "state": "ONLINE"
+          },
+          {
+            "name": "bucket_id",
+            "type": "RANGE",
+            "entityType": "NODE",
+            "labelsOrTypes": [
+              "TransferBucket"
+            ],
+            "properties": [
+              "id"
+            ],
+            "state": "ONLINE"
+          },
+          {
+            "name": "entity_id",
+            "type": "RANGE",
+            "entityType": "NODE",
+            "labelsOrTypes": [
+              "Entity"
+            ],
+            "properties": [
+              "id"
+            ],
+            "state": "ONLINE"
+          },
+          {
+            "name": "index_343aff4e",
+            "type": "LOOKUP",
+            "entityType": "NODE",
+            "labelsOrTypes": null,
+            "properties": null,
+            "state": "ONLINE"
+          },
+          {
+            "name": "index_f7700477",
+            "type": "LOOKUP",
+            "entityType": "RELATIONSHIP",
+            "labelsOrTypes": null,
+            "properties": null,
+            "state": "ONLINE"
+          }
+        ],
+        "constraints": [
+          {
+            "name": "bucket_id",
+            "type": "UNIQUENESS",
+            "entityType": "NODE",
+            "labelsOrTypes": [
+              "TransferBucket"
+            ],
+            "properties": [
+              "id"
+            ]
+          },
+          {
+            "name": "entity_id",
+            "type": "UNIQUENESS",
+            "entityType": "NODE",
+            "labelsOrTypes": [
+              "Entity"
+            ],
+            "properties": [
+              "id"
+            ]
+          }
+        ]
+      },
+      "normalization": "Only sidecar _projection_owner ignored; canonical labels/properties and parallel multiplicity exact."
+    },
+    "nonempty_refused": true,
+    "property_corruption_rejected": true
+  },
+  "validated": true,
+  "cleanup_port_closed": true,
+  "recovery_sha256": "9c97a0dd937664ee0ca743307a414349255c0cbb9adfc671ada9053b3577b2ce"
+}

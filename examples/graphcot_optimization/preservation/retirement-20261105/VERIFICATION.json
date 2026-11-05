@@ -1,0 +1,18 @@
+{
+  "incremental_logical_files": 31,
+  "incremental_unique_objects": 26,
+  "encrypted_bytes": 5620225,
+  "local_full_decrypt_hash_verification": true,
+  "known_secret_pattern_hits": 0,
+  "baseline_ciphertext_rechecked": 7,
+  "baseline_release_assets_present": true,
+  "prior_baseline_full_github_readback_decrypt_and_materialization_passed": true,
+  "remote_final_files": 26903,
+  "all_previous_remote_paths_present": 26902,
+  "delta_gc_log_bytes": 862110,
+  "toolchain_installer_excluded": true,
+  "github_incremental_readback_decrypt_verified": true,
+  "github_incremental_materialized_restore_verified": true,
+  "restored_gc_hash_matches": true,
+  "original_pilot_result_validator_passed_again": true
+}

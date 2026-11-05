@@ -1,0 +1,2 @@
+# A unified diff has space-only context lines; preserve the measured patch bytes.
+neo4rs_adapter/vendor/transaction-lease.patch -whitespace

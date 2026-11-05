@@ -1,0 +1,49 @@
+{
+  "source": "results/sf1_optimization_a/final-evidence/db-b/profiles.jsonl",
+  "source_sha256": "31766533ce288463ffe35de99c896bca5a56c9ebb19fedc80e3fb4ce71af1017",
+  "scope": "Separate PROFILE v0, SF1 /pagecache256MiB. Logical DB hits, not physical reads. L5/L6 result0.",
+  "records": [
+    {
+      "case": "L4",
+      "version": "reference",
+      "db_hits": 7977853,
+      "output_rows": 5,
+      "query_sha256": "c28249151973225188815c919b573d5f116b201776a1bfb2d5b7ecd9500bfae7"
+    },
+    {
+      "case": "L4",
+      "version": "optimized",
+      "db_hits": 614551,
+      "output_rows": 5,
+      "query_sha256": "6e97c18ee708f7018fcac07836adca71554c3a3e4fbdb2d935f12b89d7ece920"
+    },
+    {
+      "case": "L5",
+      "version": "reference",
+      "db_hits": 46275114,
+      "output_rows": 0,
+      "query_sha256": "9cf931f01f0a437425b72ea362f1c7a4c3d2f9d93ae794b576a23d10e46ddb59"
+    },
+    {
+      "case": "L5",
+      "version": "optimized",
+      "db_hits": 6833676,
+      "output_rows": 0,
+      "query_sha256": "2d3be038695f43c436dc2fce050100948d4b31fd43c13a2aefa9fc1634745177"
+    },
+    {
+      "case": "L6",
+      "version": "reference",
+      "db_hits": 26012494,
+      "output_rows": 0,
+      "query_sha256": "ca5a1cfe1a0160ee0eedf01a56b7eeddca72d3822de5d25c255cc4c00cdd9c51"
+    },
+    {
+      "case": "L6",
+      "version": "optimized",
+      "db_hits": 6572609,
+      "output_rows": 0,
+      "query_sha256": "c29ab133aec1583a910bed2528a93df46aafc9cc40de81245d295d949dff1844"
+    }
+  ]
+}

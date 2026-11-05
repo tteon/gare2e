@@ -1,0 +1,229 @@
+{
+  "scope": "Original GUG local study directories; remote-only files additionally indexed inside encrypted backup. Counts describe saved files, not successful trials.",
+  "studies": {
+    "neo4rs_index_diagnostic_20261102_a": {
+      "files": 20,
+      "bytes": 1017399
+    },
+    "neo4j_combined_b": {
+      "files": 73,
+      "bytes": 437562
+    },
+    "vllm_handoff_summary_20261103": {
+      "files": 5,
+      "bytes": 339750
+    },
+    "window_interrupted": {
+      "files": 611,
+      "bytes": 32904464
+    },
+    "neo4j_combined_c": {
+      "files": 1082,
+      "bytes": 31382008
+    },
+    "study": {
+      "files": 2180,
+      "bytes": 113082563
+    },
+    "counterexamples": {
+      "files": 3,
+      "bytes": 27677
+    },
+    "sf10_capacity_20261101_a": {
+      "files": 3,
+      "bytes": 11297
+    },
+    "window_interrupted_e": {
+      "files": 3,
+      "bytes": 676109
+    },
+    "parameter_tools_d": {
+      "files": 320,
+      "bytes": 30084279
+    },
+    "handoff_isolation_c": {
+      "files": 3,
+      "bytes": 1784
+    },
+    "hard_tools_heldout_20261101_a": {
+      "files": 84,
+      "bytes": 4441219
+    },
+    "window_interrupted_d": {
+      "files": 2,
+      "bytes": 518578
+    },
+    "window_interrupted_c": {
+      "files": 2,
+      "bytes": 816244
+    },
+    "handoff_isolation_b": {
+      "files": 3,
+      "bytes": 1289
+    },
+    "posting_charts_20261101_a": {
+      "files": 16,
+      "bytes": 1278513
+    },
+    "window_retry_g": {
+      "files": 4,
+      "bytes": 2617
+    },
+    "sf1_fullcache_a": {
+      "files": 247,
+      "bytes": 1834633
+    },
+    "hard_tools_pool_20261101_a": {
+      "files": 42,
+      "bytes": 1969856
+    },
+    "neo4rs_memory_e2e_20261102_a": {
+      "files": 2941,
+      "bytes": 239803628
+    },
+    "neo4rs_adapter_20261101_a": {
+      "files": 22,
+      "bytes": 248164
+    },
+    "runtime": {
+      "files": 153,
+      "bytes": 7152997
+    },
+    "awq": {
+      "files": 11,
+      "bytes": 408688
+    },
+    "parameter_tools_interrupted_a": {
+      "files": 2,
+      "bytes": 895020
+    },
+    "handoff_isolation_c_resume1": {
+      "files": 2111,
+      "bytes": 200160824
+    },
+    "neo4rs_tuning_followup_20261102_a": {
+      "files": 735,
+      "bytes": 18825870
+    },
+    "neo4rs": {
+      "files": 911,
+      "bytes": 135020845
+    },
+    "sf1_optimization_a": {
+      "files": 4888,
+      "bytes": 290946130
+    },
+    "single_tool_axes": {
+      "files": 1176,
+      "bytes": 56456275
+    },
+    "neo4j_combined_a": {
+      "files": 72,
+      "bytes": 2288856
+    },
+    "controls": {
+      "files": 4,
+      "bytes": 222693
+    },
+    "hard_tool_selection_20261101_a": {
+      "files": 3,
+      "bytes": 12401
+    },
+    "training_stop": {
+      "files": 1,
+      "bytes": 415
+    },
+    "neo4rs_default_20261101_a": {
+      "files": 18,
+      "bytes": 175578
+    },
+    "window_interrupted_f": {
+      "files": 7,
+      "bytes": 14887105
+    },
+    "physical_scale_a": {
+      "files": 2206,
+      "bytes": 3082503284
+    },
+    "review_20261101": {
+      "files": 8793,
+      "bytes": 474472462
+    },
+    "financial_tools_a": {
+      "files": 598,
+      "bytes": 40369963
+    },
+    "handoff_isolation_a": {
+      "files": 3,
+      "bytes": 2460
+    },
+    "db": {
+      "files": 8,
+      "bytes": 11358143
+    },
+    "window_failed_startup": {
+      "files": 56,
+      "bytes": 1380168
+    },
+    "hard_tools_20261101_a": {
+      "files": 475,
+      "bytes": 32949305
+    },
+    "posting_overview_20261101_a": {
+      "files": 6,
+      "bytes": 739004
+    },
+    "bf16": {
+      "files": 11,
+      "bytes": 460553
+    },
+    "parameter_output_diagnostic_c": {
+      "files": 2,
+      "bytes": 13186
+    },
+    "neo4rs_memory_confirm_20261102_a": {
+      "files": 292,
+      "bytes": 4003073
+    },
+    "posting_charts_20261101_b": {
+      "files": 16,
+      "bytes": 1266849
+    },
+    "neo4rs_tuning_20261101_a": {
+      "files": 1564,
+      "bytes": 84612969
+    },
+    "vanilla": {
+      "files": 59,
+      "bytes": 2332831
+    },
+    "posting_charts_20261101_c": {
+      "files": 37,
+      "bytes": 3376383
+    },
+    "neo4rs_adapter_20261101_b": {
+      "files": 32,
+      "bytes": 388138
+    },
+    "tool_path_audit": {
+      "files": 1,
+      "bytes": 371
+    },
+    "parameter_tools_interrupted_b": {
+      "files": 2,
+      "bytes": 587818
+    },
+    "fp8": {
+      "files": 11,
+      "bytes": 410584
+    },
+    "window_redesigned_g": {
+      "files": 2,
+      "bytes": 1167295
+    },
+    "environment_handoff_20261101": {
+      "files": 1,
+      "bytes": 2596
+    }
+  }
+}

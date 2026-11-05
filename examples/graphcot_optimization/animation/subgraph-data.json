@@ -1,0 +1,915 @@
+{
+  "educational": true,
+  "seconds_per_case": 21,
+  "steps_per_case": 7,
+  "measured_profile": "SF1 2026-10-31 / pagecache256MiB / v0",
+  "cases": [
+    {
+      "id": "L4",
+      "title": "다수 송신자의 자금 유입 계좌",
+      "pattern": "Account → TRANSFER → Account",
+      "scope": "그림: 합성 예시, min_senders=2 / LIMIT=2 · 실측: SF1 v0, LIMIT=5",
+      "hits": [
+        7977853,
+        614551
+      ],
+      "nodes": [
+        {
+          "id": "S1",
+          "x": 90,
+          "y": 80,
+          "type": "Account"
+        },
+        {
+          "id": "S2",
+          "x": 90,
+          "y": 170,
+          "type": "Account"
+        },
+        {
+          "id": "S3",
+          "x": 90,
+          "y": 260,
+          "type": "Account"
+        },
+        {
+          "id": "S4",
+          "x": 90,
+          "y": 350,
+          "type": "Account"
+        },
+        {
+          "id": "S5",
+          "x": 90,
+          "y": 440,
+          "type": "Account"
+        },
+        {
+          "id": "R1",
+          "x": 710,
+          "y": 80,
+          "type": "Account"
+        },
+        {
+          "id": "R2",
+          "x": 710,
+          "y": 170,
+          "type": "Account"
+        },
+        {
+          "id": "R3",
+          "x": 710,
+          "y": 260,
+          "type": "Account"
+        },
+        {
+          "id": "R4",
+          "x": 710,
+          "y": 350,
+          "type": "Account"
+        },
+        {
+          "id": "R5",
+          "x": 710,
+          "y": 440,
+          "type": "Account"
+        }
+      ],
+      "edges": [
+        {
+          "id": "t0",
+          "a": "S1",
+          "b": "R1",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "t1",
+          "a": "S2",
+          "b": "R1",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "t2",
+          "a": "S3",
+          "b": "R2",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "t3",
+          "a": "S1",
+          "b": "R3",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "t4",
+          "a": "S4",
+          "b": "R3",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "t5",
+          "a": "S5",
+          "b": "R3",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "t6",
+          "a": "S2",
+          "b": "R4",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "t7",
+          "a": "S4",
+          "b": "R4",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "t8",
+          "a": "S1",
+          "b": "R5",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "t9",
+          "a": "S2",
+          "b": "R5",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "t10",
+          "a": "S3",
+          "b": "R5",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "t11",
+          "a": "S5",
+          "b": "R5",
+          "label": "TRANSFER"
+        }
+      ],
+      "before": [
+        {
+          "label": "모든 계좌를 후보로 읽기",
+          "edges": [],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "여러 계좌의 송금을 넓게 확장",
+          "edges": [
+            "t0",
+            "t1",
+            "t2",
+            "t3"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "송금 확장을 계속 수행",
+          "edges": [
+            "t4",
+            "t5",
+            "t6",
+            "t7"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "나머지 송금까지 모두 확인",
+          "edges": [
+            "t8",
+            "t9",
+            "t10",
+            "t11"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "모든 수신 계좌의 송신자 집계",
+          "edges": [
+            "t0",
+            "t1",
+            "t2",
+            "t3",
+            "t4",
+            "t5",
+            "t6",
+            "t7",
+            "t8",
+            "t9",
+            "t10",
+            "t11"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "조건 충족 계좌 정렬",
+          "edges": [
+            "t0",
+            "t1",
+            "t2",
+            "t3",
+            "t4",
+            "t5",
+            "t6",
+            "t7",
+            "t8",
+            "t9",
+            "t10",
+            "t11"
+          ],
+          "selected": [
+            "R1",
+            "R3",
+            "R4",
+            "R5"
+          ],
+          "rejected": [
+            "R2"
+          ]
+        },
+        {
+          "label": "상위 2개 반환",
+          "edges": [
+            "t0",
+            "t1",
+            "t3",
+            "t4",
+            "t5"
+          ],
+          "selected": [
+            "R1",
+            "R3"
+          ],
+          "rejected": []
+        }
+      ],
+      "after": [
+        {
+          "label": "수신 계좌를 번호순으로 준비",
+          "edges": [],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "R1의 incoming 관계만 확인",
+          "edges": [
+            "t0",
+            "t1"
+          ],
+          "selected": [
+            "R1"
+          ],
+          "rejected": []
+        },
+        {
+          "label": "R2 확인: 송신자가 1명",
+          "edges": [
+            "t2"
+          ],
+          "selected": [
+            "R1"
+          ],
+          "rejected": [
+            "R2"
+          ]
+        },
+        {
+          "label": "R3 확인: 두 번째 결과 확보",
+          "edges": [
+            "t3",
+            "t4",
+            "t5"
+          ],
+          "selected": [
+            "R1",
+            "R3"
+          ],
+          "rejected": [
+            "R2"
+          ]
+        },
+        {
+          "label": "LIMIT=2 충족: R4·R5 탐색 생략",
+          "edges": [],
+          "selected": [
+            "R1",
+            "R3"
+          ],
+          "rejected": [
+            "R2"
+          ]
+        },
+        {
+          "label": "선택된 작은 서브그래프만 유지",
+          "edges": [
+            "t0",
+            "t1",
+            "t3",
+            "t4",
+            "t5"
+          ],
+          "selected": [
+            "R1",
+            "R3"
+          ],
+          "rejected": []
+        },
+        {
+          "label": "같은 2개 반환 · 조기 종료",
+          "edges": [
+            "t0",
+            "t1",
+            "t3",
+            "t4",
+            "t5"
+          ],
+          "selected": [
+            "R1",
+            "R3"
+          ],
+          "rejected": []
+        }
+      ]
+    },
+    {
+      "id": "L5",
+      "title": "연결 계좌 쌍 탐지",
+      "pattern": "Owner → GUARANTEE → Owner · OWN → Account · Medium → SIGN_IN → Account",
+      "scope": "그림: 설명용 합성 양성 그래프 · 공식 SF1 L5/L6 실측 결과는 0행 (합산·정렬 양성 성능 미검증)",
+      "hits": [
+        46275114,
+        6833676
+      ],
+      "nodes": [
+        {
+          "id": "P1",
+          "x": 220,
+          "y": 70,
+          "type": "Owner"
+        },
+        {
+          "id": "Q1",
+          "x": 580,
+          "y": 70,
+          "type": "Owner"
+        },
+        {
+          "id": "A1",
+          "x": 220,
+          "y": 230,
+          "type": "Account"
+        },
+        {
+          "id": "B1",
+          "x": 580,
+          "y": 230,
+          "type": "Account"
+        },
+        {
+          "id": "P2",
+          "x": 65,
+          "y": 130,
+          "type": "Owner"
+        },
+        {
+          "id": "Q2",
+          "x": 735,
+          "y": 130,
+          "type": "Owner"
+        },
+        {
+          "id": "A2",
+          "x": 65,
+          "y": 350,
+          "type": "Account"
+        },
+        {
+          "id": "B2",
+          "x": 735,
+          "y": 350,
+          "type": "Account"
+        },
+        {
+          "id": "M1",
+          "x": 400,
+          "y": 455,
+          "type": "Medium"
+        }
+      ],
+      "edges": [
+        {
+          "id": "g1",
+          "a": "P1",
+          "b": "Q1",
+          "label": "GUARANTEE"
+        },
+        {
+          "id": "o1",
+          "a": "P1",
+          "b": "A1",
+          "label": "OWN"
+        },
+        {
+          "id": "o2",
+          "a": "Q1",
+          "b": "B1",
+          "label": "OWN"
+        },
+        {
+          "id": "o3",
+          "a": "P2",
+          "b": "A2",
+          "label": "OWN"
+        },
+        {
+          "id": "o4",
+          "a": "Q2",
+          "b": "B2",
+          "label": "OWN"
+        },
+        {
+          "id": "t1",
+          "a": "A1",
+          "b": "B1",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "t2",
+          "a": "A2",
+          "b": "B2",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "t3",
+          "a": "A1",
+          "b": "B2",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "s1",
+          "a": "M1",
+          "b": "A1",
+          "label": "SIGN_IN"
+        },
+        {
+          "id": "s2",
+          "a": "M1",
+          "b": "B1",
+          "label": "SIGN_IN"
+        }
+      ],
+      "before": [
+        {
+          "label": "송금 계좌 쌍에서 시작",
+          "edges": [],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "여러 TRANSFER 쌍을 후보로 확장",
+          "edges": [
+            "t1",
+            "t2",
+            "t3"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "각 후보의 소유자를 반복 탐색",
+          "edges": [
+            "o1",
+            "o2",
+            "o3",
+            "o4"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "소유자 사이 보증 관계 확인",
+          "edges": [
+            "g1"
+          ],
+          "selected": [],
+          "rejected": [
+            "A2",
+            "B2"
+          ]
+        },
+        {
+          "label": "공유 접속 매체 서브그래프 검사",
+          "edges": [
+            "s1",
+            "s2"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "조건 충족 쌍의 중복 제거",
+          "edges": [
+            "g1",
+            "o1",
+            "o2",
+            "t1",
+            "s1",
+            "s2"
+          ],
+          "selected": [
+            "A1",
+            "B1"
+          ],
+          "rejected": []
+        },
+        {
+          "label": "선택 계좌 쌍 반환",
+          "edges": [
+            "t1"
+          ],
+          "selected": [
+            "A1",
+            "B1"
+          ],
+          "rejected": []
+        }
+      ],
+      "after": [
+        {
+          "label": "선택적인 보증 관계에서 시작",
+          "edges": [],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "P1 → GUARANTEE → Q1",
+          "edges": [
+            "g1"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "소유 계좌 A1·B1만 후보로 구성",
+          "edges": [
+            "o1",
+            "o2"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "공유 매체부터 존재 검사",
+          "edges": [
+            "s1",
+            "s2"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "A1 → TRANSFER → B1 확인",
+          "edges": [
+            "t1"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "작은 후보 서브그래프에서 DISTINCT",
+          "edges": [
+            "g1",
+            "o1",
+            "o2",
+            "t1",
+            "s1",
+            "s2"
+          ],
+          "selected": [
+            "A1",
+            "B1"
+          ],
+          "rejected": []
+        },
+        {
+          "label": "같은 계좌 쌍 반환",
+          "edges": [
+            "t1"
+          ],
+          "selected": [
+            "A1",
+            "B1"
+          ],
+          "rejected": []
+        }
+      ]
+    },
+    {
+      "id": "L6",
+      "title": "연결 계좌의 양방향 자금 순위",
+      "pattern": "Owner → GUARANTEE → Owner · OWN → Account · Medium → SIGN_IN → Account",
+      "scope": "그림: 설명용 합성 양성 그래프 · 공식 SF1 L5/L6 실측 결과는 0행 (합산·정렬 양성 성능 미검증)",
+      "hits": [
+        26012494,
+        6572609
+      ],
+      "nodes": [
+        {
+          "id": "P1",
+          "x": 220,
+          "y": 70,
+          "type": "Owner"
+        },
+        {
+          "id": "Q1",
+          "x": 580,
+          "y": 70,
+          "type": "Owner"
+        },
+        {
+          "id": "A1",
+          "x": 220,
+          "y": 230,
+          "type": "Account"
+        },
+        {
+          "id": "B1",
+          "x": 580,
+          "y": 230,
+          "type": "Account"
+        },
+        {
+          "id": "P2",
+          "x": 65,
+          "y": 130,
+          "type": "Owner"
+        },
+        {
+          "id": "Q2",
+          "x": 735,
+          "y": 130,
+          "type": "Owner"
+        },
+        {
+          "id": "A2",
+          "x": 65,
+          "y": 350,
+          "type": "Account"
+        },
+        {
+          "id": "B2",
+          "x": 735,
+          "y": 350,
+          "type": "Account"
+        },
+        {
+          "id": "M1",
+          "x": 400,
+          "y": 455,
+          "type": "Medium"
+        },
+        {
+          "id": "L1",
+          "x": 735,
+          "y": 455,
+          "type": "Loan"
+        }
+      ],
+      "edges": [
+        {
+          "id": "g1",
+          "a": "P1",
+          "b": "Q1",
+          "label": "GUARANTEE"
+        },
+        {
+          "id": "o1",
+          "a": "P1",
+          "b": "A1",
+          "label": "OWN"
+        },
+        {
+          "id": "o2",
+          "a": "Q1",
+          "b": "B1",
+          "label": "OWN"
+        },
+        {
+          "id": "o3",
+          "a": "P2",
+          "b": "A2",
+          "label": "OWN"
+        },
+        {
+          "id": "o4",
+          "a": "Q2",
+          "b": "B2",
+          "label": "OWN"
+        },
+        {
+          "id": "t1",
+          "a": "A1",
+          "b": "B1",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "t2",
+          "a": "A2",
+          "b": "B2",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "t3",
+          "a": "A1",
+          "b": "B2",
+          "label": "TRANSFER"
+        },
+        {
+          "id": "s1",
+          "a": "M1",
+          "b": "A1",
+          "label": "SIGN_IN"
+        },
+        {
+          "id": "s2",
+          "a": "M1",
+          "b": "B1",
+          "label": "SIGN_IN"
+        },
+        {
+          "id": "g2",
+          "a": "P2",
+          "b": "Q2",
+          "label": "GUARANTEE"
+        },
+        {
+          "id": "rep",
+          "a": "B2",
+          "b": "L1",
+          "label": "REPAY"
+        },
+        {
+          "id": "rev",
+          "a": "B1",
+          "b": "A1",
+          "label": "TRANSFER"
+        }
+      ],
+      "before": [
+        {
+          "label": "송금 후보와 상환 여부부터 확인",
+          "edges": [],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "넓은 송금 후보 탐색",
+          "edges": [
+            "t1",
+            "t2",
+            "t3",
+            "rev"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "후보별 OWN·보증 반복 검사",
+          "edges": [
+            "o1",
+            "o2",
+            "o3",
+            "o4",
+            "g1",
+            "g2"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "상환 계좌 B2가 포함된 쌍 제외",
+          "edges": [
+            "rep"
+          ],
+          "selected": [],
+          "rejected": [
+            "B2"
+          ]
+        },
+        {
+          "label": "공유 매체·방향·중복 조건 검사",
+          "edges": [
+            "s1",
+            "s2",
+            "t1"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "남은 쌍의 양방향 송금 합산",
+          "edges": [
+            "t1",
+            "rev"
+          ],
+          "selected": [
+            "A1",
+            "B1"
+          ],
+          "rejected": []
+        },
+        {
+          "label": "합계 순위 반환",
+          "edges": [
+            "t1",
+            "rev"
+          ],
+          "selected": [
+            "A1",
+            "B1"
+          ],
+          "rejected": []
+        }
+      ],
+      "after": [
+        {
+          "label": "보증으로 연결된 소유자부터 시작",
+          "edges": [],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "GUARANTEE 서브그래프 선택",
+          "edges": [
+            "g1",
+            "g2"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "OWN으로 후보 계좌 구성",
+          "edges": [
+            "o1",
+            "o2",
+            "o3",
+            "o4"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "상환 제외로 후보 축소",
+          "edges": [
+            "rep"
+          ],
+          "selected": [],
+          "rejected": [
+            "B2"
+          ]
+        },
+        {
+          "label": "공유 접속·송금 존재 검사",
+          "edges": [
+            "s1",
+            "s2",
+            "t1"
+          ],
+          "selected": [],
+          "rejected": []
+        },
+        {
+          "label": "DISTINCT 후 양방향 합계 유지",
+          "edges": [
+            "t1",
+            "rev"
+          ],
+          "selected": [
+            "A1",
+            "B1"
+          ],
+          "rejected": []
+        },
+        {
+          "label": "같은 순위 계약 유지",
+          "edges": [
+            "t1",
+            "rev"
+          ],
+          "selected": [
+            "A1",
+            "B1"
+          ],
+          "rejected": []
+        }
+      ]
+    }
+  ]
+}

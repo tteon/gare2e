@@ -1,0 +1,274 @@
+{
+  "origin": "GUG research workspace; reviewed export 2026-11-04 KST",
+  "mode": "selected source files copied byte-for-byte; summaries are reviewed derived exports",
+  "files": [
+    {
+      "source_path": "scripts/financial_tools.py",
+      "package_path": "core/financial_tools.py",
+      "sha256": "9df0e9edc2b26467980095a3020a791226e8ae024d062a817f29fccf3b552f2c"
+    },
+    {
+      "source_path": "scripts/export_neo4rs_contract.py",
+      "package_path": "core/export_neo4rs_contract.py",
+      "sha256": "b188726df44e8b1ca7a99ce0bfaca4f4a80c91104755416c03aa9cb6748b8836"
+    },
+    {
+      "source_path": "scripts/financial_oracle.py",
+      "package_path": "core/financial_oracle.py",
+      "sha256": "838039eadbaad5448dfd3aa1407e3590eb45713279b5ce3fd178c35c38b6ce6b"
+    },
+    {
+      "source_path": "queries/financial_tools/A1.cypher",
+      "package_path": "queries/financial_tools/A1.cypher",
+      "sha256": "598bd8fd6aa0a4d40675613fc696c2fd93e5d5e0c9b374cb218645f2fd01e952"
+    },
+    {
+      "source_path": "queries/financial_tools/L1.cypher",
+      "package_path": "queries/financial_tools/L1.cypher",
+      "sha256": "9c127953bea37a96d16bbbef1416a02741e8f4f37f42d1300e7bcf3b0be3f4dc"
+    },
+    {
+      "source_path": "queries/financial_tools/L2-hops1.cypher",
+      "package_path": "queries/financial_tools/L2-hops1.cypher",
+      "sha256": "e8c45af5c6240b8ebd985da1c85f5076b42d15501a18bf74f095525c0a2274dc"
+    },
+    {
+      "source_path": "queries/financial_tools/L2-hops2.cypher",
+      "package_path": "queries/financial_tools/L2-hops2.cypher",
+      "sha256": "ff2df91ef76af00ff52d69e7d1577d9ceb7cc72c6ad529aa17e557924f494bc3"
+    },
+    {
+      "source_path": "queries/financial_tools/L2-hops3.cypher",
+      "package_path": "queries/financial_tools/L2-hops3.cypher",
+      "sha256": "c4b774f6d3c453bd31ea35da6b32b4adb504c6f2d1ee84a9b2ba93145bac07fe"
+    },
+    {
+      "source_path": "queries/financial_tools/L3.cypher",
+      "package_path": "queries/financial_tools/L3.cypher",
+      "sha256": "94ac7a3f4be343a1fd961d448cd7838ac71e9b5d12990c3ea0eb93502d684141"
+    },
+    {
+      "source_path": "queries/financial_tools/L4.cypher",
+      "package_path": "queries/financial_tools/L4.cypher",
+      "sha256": "c28249151973225188815c919b573d5f116b201776a1bfb2d5b7ecd9500bfae7"
+    },
+    {
+      "source_path": "queries/financial_tools/L5-rewrite.cypher",
+      "package_path": "queries/financial_tools/L5-rewrite.cypher",
+      "sha256": "2d3be038695f43c436dc2fce050100948d4b31fd43c13a2aefa9fc1634745177"
+    },
+    {
+      "source_path": "queries/financial_tools/L5.cypher",
+      "package_path": "queries/financial_tools/L5.cypher",
+      "sha256": "9cf931f01f0a437425b72ea362f1c7a4c3d2f9d93ae794b576a23d10e46ddb59"
+    },
+    {
+      "source_path": "queries/financial_tools/L6-rewrite.cypher",
+      "package_path": "queries/financial_tools/L6-rewrite.cypher",
+      "sha256": "c29ab133aec1583a910bed2528a93df46aafc9cc40de81245d295d949dff1844"
+    },
+    {
+      "source_path": "queries/financial_tools/L6.cypher",
+      "package_path": "queries/financial_tools/L6.cypher",
+      "sha256": "ca5a1cfe1a0160ee0eedf01a56b7eeddca72d3822de5d25c255cc4c00cdd9c51"
+    },
+    {
+      "source_path": "queries/financial_tools/P1-bucket.cypher",
+      "package_path": "queries/financial_tools/P1-bucket.cypher",
+      "sha256": "c14ef8a6ac429a7d6a2cc8fd3c0e0b07202ab90ac44bf218c0d8ff707315ed6b"
+    },
+    {
+      "source_path": "queries/financial_tools/P1.cypher",
+      "package_path": "queries/financial_tools/P1.cypher",
+      "sha256": "2b04a9ceebdb783e90c983be63e6478cf9a03bd2ae41a27ce728d0d8ac058e4f"
+    },
+    {
+      "source_path": "queries/sf1_optimized/A1.cypher",
+      "package_path": "queries/sf1_optimized/A1.cypher",
+      "sha256": "598bd8fd6aa0a4d40675613fc696c2fd93e5d5e0c9b374cb218645f2fd01e952"
+    },
+    {
+      "source_path": "queries/sf1_optimized/L1.cypher",
+      "package_path": "queries/sf1_optimized/L1.cypher",
+      "sha256": "9c127953bea37a96d16bbbef1416a02741e8f4f37f42d1300e7bcf3b0be3f4dc"
+    },
+    {
+      "source_path": "queries/sf1_optimized/L2-hops1.cypher",
+      "package_path": "queries/sf1_optimized/L2-hops1.cypher",
+      "sha256": "e8c45af5c6240b8ebd985da1c85f5076b42d15501a18bf74f095525c0a2274dc"
+    },
+    {
+      "source_path": "queries/sf1_optimized/L2-hops2.cypher",
+      "package_path": "queries/sf1_optimized/L2-hops2.cypher",
+      "sha256": "ff2df91ef76af00ff52d69e7d1577d9ceb7cc72c6ad529aa17e557924f494bc3"
+    },
+    {
+      "source_path": "queries/sf1_optimized/L2-hops3.cypher",
+      "package_path": "queries/sf1_optimized/L2-hops3.cypher",
+      "sha256": "c4b774f6d3c453bd31ea35da6b32b4adb504c6f2d1ee84a9b2ba93145bac07fe"
+    },
+    {
+      "source_path": "queries/sf1_optimized/L3.cypher",
+      "package_path": "queries/sf1_optimized/L3.cypher",
+      "sha256": "94ac7a3f4be343a1fd961d448cd7838ac71e9b5d12990c3ea0eb93502d684141"
+    },
+    {
+      "source_path": "queries/sf1_optimized/L4.cypher",
+      "package_path": "queries/sf1_optimized/L4.cypher",
+      "sha256": "6e97c18ee708f7018fcac07836adca71554c3a3e4fbdb2d935f12b89d7ece920"
+    },
+    {
+      "source_path": "queries/sf1_optimized/L5-rewrite.cypher",
+      "package_path": "queries/sf1_optimized/L5-rewrite.cypher",
+      "sha256": "2d3be038695f43c436dc2fce050100948d4b31fd43c13a2aefa9fc1634745177"
+    },
+    {
+      "source_path": "queries/sf1_optimized/L5.cypher",
+      "package_path": "queries/sf1_optimized/L5.cypher",
+      "sha256": "2d3be038695f43c436dc2fce050100948d4b31fd43c13a2aefa9fc1634745177"
+    },
+    {
+      "source_path": "queries/sf1_optimized/L6-rewrite.cypher",
+      "package_path": "queries/sf1_optimized/L6-rewrite.cypher",
+      "sha256": "c29ab133aec1583a910bed2528a93df46aafc9cc40de81245d295d949dff1844"
+    },
+    {
+      "source_path": "queries/sf1_optimized/L6.cypher",
+      "package_path": "queries/sf1_optimized/L6.cypher",
+      "sha256": "c29ab133aec1583a910bed2528a93df46aafc9cc40de81245d295d949dff1844"
+    },
+    {
+      "source_path": "queries/sf1_optimized/P1-bucket.cypher",
+      "package_path": "queries/sf1_optimized/P1-bucket.cypher",
+      "sha256": "c14ef8a6ac429a7d6a2cc8fd3c0e0b07202ab90ac44bf218c0d8ff707315ed6b"
+    },
+    {
+      "source_path": "queries/sf1_optimized/P1.cypher",
+      "package_path": "queries/sf1_optimized/P1.cypher",
+      "sha256": "2b04a9ceebdb783e90c983be63e6478cf9a03bd2ae41a27ce728d0d8ac058e4f"
+    },
+    {
+      "source_path": "queries/hard_tools_optimized/A1.cypher",
+      "package_path": "queries/hard_tools_optimized/A1.cypher",
+      "sha256": "b0242d98059d05f21ff5950fde0fea017d29599c3280f82aadc86ee9eb7eada1"
+    },
+    {
+      "source_path": "queries/hard_tools_optimized/L1.cypher",
+      "package_path": "queries/hard_tools_optimized/L1.cypher",
+      "sha256": "9c127953bea37a96d16bbbef1416a02741e8f4f37f42d1300e7bcf3b0be3f4dc"
+    },
+    {
+      "source_path": "queries/hard_tools_optimized/L2-hops1.cypher",
+      "package_path": "queries/hard_tools_optimized/L2-hops1.cypher",
+      "sha256": "e8c45af5c6240b8ebd985da1c85f5076b42d15501a18bf74f095525c0a2274dc"
+    },
+    {
+      "source_path": "queries/hard_tools_optimized/L2-hops2.cypher",
+      "package_path": "queries/hard_tools_optimized/L2-hops2.cypher",
+      "sha256": "ff2df91ef76af00ff52d69e7d1577d9ceb7cc72c6ad529aa17e557924f494bc3"
+    },
+    {
+      "source_path": "queries/hard_tools_optimized/L2-hops3.cypher",
+      "package_path": "queries/hard_tools_optimized/L2-hops3.cypher",
+      "sha256": "c4b774f6d3c453bd31ea35da6b32b4adb504c6f2d1ee84a9b2ba93145bac07fe"
+    },
+    {
+      "source_path": "queries/hard_tools_optimized/L3.cypher",
+      "package_path": "queries/hard_tools_optimized/L3.cypher",
+      "sha256": "6eaa9d939c269b9ac63189fabb9de8dd34d6c486b5677ca9d41cad2b0145e24d"
+    },
+    {
+      "source_path": "queries/hard_tools_optimized/L4.cypher",
+      "package_path": "queries/hard_tools_optimized/L4.cypher",
+      "sha256": "6e97c18ee708f7018fcac07836adca71554c3a3e4fbdb2d935f12b89d7ece920"
+    },
+    {
+      "source_path": "queries/hard_tools_optimized/L5-rewrite.cypher",
+      "package_path": "queries/hard_tools_optimized/L5-rewrite.cypher",
+      "sha256": "2d3be038695f43c436dc2fce050100948d4b31fd43c13a2aefa9fc1634745177"
+    },
+    {
+      "source_path": "queries/hard_tools_optimized/L5.cypher",
+      "package_path": "queries/hard_tools_optimized/L5.cypher",
+      "sha256": "9cf931f01f0a437425b72ea362f1c7a4c3d2f9d93ae794b576a23d10e46ddb59"
+    },
+    {
+      "source_path": "queries/hard_tools_optimized/L6-rewrite.cypher",
+      "package_path": "queries/hard_tools_optimized/L6-rewrite.cypher",
+      "sha256": "c29ab133aec1583a910bed2528a93df46aafc9cc40de81245d295d949dff1844"
+    },
+    {
+      "source_path": "queries/hard_tools_optimized/L6.cypher",
+      "package_path": "queries/hard_tools_optimized/L6.cypher",
+      "sha256": "ca5a1cfe1a0160ee0eedf01a56b7eeddca72d3822de5d25c255cc4c00cdd9c51"
+    },
+    {
+      "source_path": "queries/hard_tools_optimized/P1-bucket.cypher",
+      "package_path": "queries/hard_tools_optimized/P1-bucket.cypher",
+      "sha256": "c14ef8a6ac429a7d6a2cc8fd3c0e0b07202ab90ac44bf218c0d8ff707315ed6b"
+    },
+    {
+      "source_path": "queries/hard_tools_optimized/P1.cypher",
+      "package_path": "queries/hard_tools_optimized/P1.cypher",
+      "sha256": "fd531f4bfad86d03b12d7fff6a6f33254584fd0f1ea8da85a03fba41ff4354d0"
+    },
+    {
+      "source_path": "configs/financial_tools/schemas.json",
+      "package_path": "config/tool-schemas.json",
+      "sha256": "38b1f087ab8398b5468eb4eb628718a16cb1c9b680e07c7f6d2ef0153dce4ca6"
+    },
+    {
+      "source_path": "neo4rs_adapter/Cargo.toml",
+      "package_path": "neo4rs_adapter/Cargo.toml",
+      "sha256": "0210d63c960d96ceefd3230e0705743cbac501d1570b8fcb0cc4c69828f69fed"
+    },
+    {
+      "source_path": "neo4rs_adapter/Cargo.lock",
+      "package_path": "neo4rs_adapter/Cargo.lock",
+      "sha256": "11287f39fad19d4823bb4111de6564f9dea1957f86fe4230e2d14e43405cf03b"
+    },
+    {
+      "source_path": "neo4rs_adapter/vendor/PATCH_PROVENANCE.json",
+      "package_path": "neo4rs_adapter/vendor/PATCH_PROVENANCE.json",
+      "sha256": "09e07bc0c0d7cfd9df24860b595279c9caac993f039a24e01fce7d38eb4ea558"
+    },
+    {
+      "source_path": "neo4rs_adapter/vendor/transaction-lease.patch",
+      "package_path": "neo4rs_adapter/vendor/transaction-lease.patch",
+      "sha256": "2af8a27621162e66f5ad1c5b4b304643158fb481b0b2dff0fb0d22358846e963"
+    },
+    {
+      "source_path": "neo4rs_adapter/src/lib.rs",
+      "package_path": "neo4rs_adapter/src/lib.rs",
+      "sha256": "fb057e880cbb1f7e0b3bfe6769420a40dcd29514100811c6a664b4f30a861cec"
+    },
+    {
+      "source_path": "neo4rs_adapter/src/main.rs",
+      "package_path": "neo4rs_adapter/src/main.rs",
+      "sha256": "dcff6b67e65d3a5317591d4d19059f0f3a15263b57bc64b7c0d7aa85d6a6c1e8"
+    }
+  ],
+  "derived": [
+    {
+      "source_path": "scripts/parameter_oracle.py",
+      "source_sha256": "08517046cb4f7e7b0e3347a8661dd51cf184d0df67b40f872291dfd6d761e1d4",
+      "package_path": "core/parameter_oracle.py",
+      "change": "Import the identical sha helper from financial_tools to remove legacy registry dependency.",
+      "package_sha256": "025a2a2e8359a167eb73c5fc2943519e3e209f0b8b2005c70aa48e81aa312f16"
+    },
+    {
+      "source_path": "results/vllm_handoff_summary_20261103/neo4j-to-vllm-overview.png",
+      "source_sha256": "fddd64bb31a941e8c04da7e61e598547c15c30895593b8cbb02461bcab09565f",
+      "package_path": "assets/neo4j-to-vllm-overview.png",
+      "change": "Re-render same reviewed values with portable package references; historical source figure untouched.",
+      "package_sha256": "bccbe78ed1159451fbdf2d3808f704fa5de12bd4a8b0aeb6382b17f6e649f725"
+    },
+    {
+      "source_path": "results/vllm_handoff_summary_20261103/neo4j-to-vllm-overview.pdf",
+      "source_sha256": "6400fcb2dc87456d250241102f7c9c16f3d84c490f9d4794fae168b9135068ff",
+      "package_path": "assets/neo4j-to-vllm-overview.pdf",
+      "change": "Re-render same reviewed values with portable package references; historical source figure untouched.",
+      "package_sha256": "fa3c1974dfe87e8b1e8596342322b2756af884dcbd160b258d12eb0e76d9ea6e"
+    }
+  ]
+}

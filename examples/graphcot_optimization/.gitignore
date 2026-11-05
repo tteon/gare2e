@@ -1,0 +1,7 @@
+__pycache__/
+.venv/
+outputs/
+neo4rs_adapter/target/
+neo4rs_adapter/vendor/neo4rs-0.8.0/
+.env
+!neo4rs_adapter/Cargo.lock
