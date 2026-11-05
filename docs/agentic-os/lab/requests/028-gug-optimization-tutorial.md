@@ -71,3 +71,16 @@ from official zero-row profiles. Six v0 measured totals/query hashes were checke
 against preserved profiles. Chrome playback/scenario/step/mobile checks, visual
 frame review, ffprobe/full decode, Python compilation/Ruff/docs checks passed.
 No DB/model execution or new speedup evidence.
+
+## Closeout and instance Stop — 2026-11-05
+
+User authorized consolidating GUG work and ending instance execution. Exact
+instance57874888 matched the known SSH endpoint before action; GPU jobs absent.
+Baseline backup ciphertext/assets rechecked, all26,902previous remote paths still
+present; only changed research evidence was862,110byte GC log, fetched/hashchecked.
+A toolchain installer remains excluded. Stop accepted; provider verified
+actual_status=exited/intended_status=stopped at09:34:35UTC. Disk was retained and
+storage charges can continue; no Destroy action. Both related monitors already PAUSED.
+[Complete handoff](../../../../examples/graphcot_optimization/PROJECT_CLOSEOUT.md)
+and a supplemental encrypted Release preserve final evidence. No new benchmark,
+no model/scale change, no universal E2E/GC/disk-causality or remote Dolt-sync claim.

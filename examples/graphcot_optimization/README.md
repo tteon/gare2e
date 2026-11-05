@@ -1,5 +1,8 @@
 # Graph-CoT optimization lab: Neo4j → tool runtime → vLLM
 
+**2026-11-05 연구 정리·실행 종료:** [전체 인수인계와 남은 과제](PROJECT_CLOSEOUT.md).
+원래 Vast 인스턴스는 Stop 완료이며, 재현은 새 환경 복원 절차를 사용하세요.
+
 **새 인스턴스로 이전:** [준비물·복원·neo4rs·재현 명령 순서](FRESH_INSTANCE_RUNBOOK.md).
 
 금융 그래프 tool call의 비용을 분해하고 최적화를 검증하는 재사용 예제입니다.

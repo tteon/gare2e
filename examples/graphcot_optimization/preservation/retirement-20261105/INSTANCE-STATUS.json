@@ -1,0 +1,11 @@
+{
+  "instance_id": 57874888,
+  "requested_action": "stop",
+  "disk_deleted": false,
+  "actual_status": "exited",
+  "intended_status": "stopped",
+  "verified_utc": "2026-11-05T09:34:35.783718+00:00",
+  "backup_verified_before_stop": true,
+  "gpu_jobs_before_stop": 0,
+  "storage_charges_may_continue": true
+}

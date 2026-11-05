@@ -1,0 +1,17 @@
+{
+  "format": "gug-content-backup-v1",
+  "logical_files": 31,
+  "unique_objects": 26,
+  "logical_bytes": 12094959,
+  "unique_bytes": 11549112,
+  "recipient": "age1peup6jq7rlyzy3lhazf7ahw33zg9uj5wgkyqzrklwne837r2z9rst26ngj",
+  "volumes": [
+    {
+      "name": "gug-retirement-20261105-volume-01.tar.zst.age",
+      "bytes": 5620225,
+      "sha256": "6341e0024eb13debc82b90459ae6fc045125ee25ecdca397279ede0abc8f114e",
+      "objects": 26
+    }
+  ],
+  "recovery": "The private age identity is deliberately outside this release. Index is encrypted in volume01."
+}

@@ -91,3 +91,15 @@ Seven encrypted volumes total1,672,089,562 bytes; the exact values are in
 decrypted; all22,695 object hashes and35,631 path mappings matched. A separate
 full materialized restoration also passed the original pilot result validator.
 See [VERIFICATION.json](VERIFICATION.json). No new inference or DB query was run.
+
+## Final incremental preservation — 2026-11-05
+
+The original instance was stopped (disk retained) after backup verification.
+[Project closeout](../PROJECT_CLOSEOUT.md) and [final supplemental release](https://github.com/tteon/gare2e/releases/tag/gug-retirement-20261105)
+retain the last GC log and final inventory/status plus recent illustrative artifacts.
+31logical files/26objects, one encrypted volume5,620,225bytes; this supplements
+the original seven-volume backup. Restore into a separate new directory, never
+over an active DB. Same separately held age identity; no key/weights/physicalDB.
+[Supplement manifest](retirement-20261105/BACKUP-MANIFEST.json),
+[stop receipt](retirement-20261105/INSTANCE-STATUS.json),
+[verification](retirement-20261105/VERIFICATION.json).
