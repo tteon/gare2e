@@ -1,13 +1,30 @@
 # Repository Layout
 
-This document explains which top-level directories are active product surfaces,
-which ones exist for contributor tooling, and which ones are legacy or
-local-only.
+This map separates GARE2E experiment surfaces from inherited SEOCHO support,
+contributor tooling, historical references and local-only state. See
+[the scope and provenance contract](GARE2E_SCOPE.md) before assigning ownership.
 
 Use this when the repo root feels crowded and you need to know where new work
 should actually go.
 
-## Active Product Code
+## GARE2E experiment surfaces
+
+| Path | Role |
+|---|---|
+| `scripts/benchmarks/` | Runners, frozen cohorts/schedules, admission, lifecycle, exporters and analysis |
+| `src/seocho/eval/` | Experiment measurement, exact trace joins, query evidence and immutable registry modules; also contains inherited evaluation support |
+| `runtime/experiment_platform.py`, `runtime/experiment_platform_web/` | Read-only comparison API and browser UI |
+| `docker/agentic-os-appliance/` | Co-located serving/graph setup and opt-in observation |
+| `examples/experiment-platform/` | Reviewed import examples and metadata contracts |
+| `docs/agentic-os/` | Methods, published receipts/results, limits and handoff |
+| `scripts/benchmarks/pi_native/` | Native-agent sessions and workload/data-source adapters |
+
+GARE2E-specific modules retain the existing `seocho` import namespace. The
+primary viewer is **not** the older `evaluation/` application UI. General SDK,
+FinBench generator and application surfaces below remain inherited support;
+their presence is not a claim that GARE2E introduced them.
+
+## Inherited SDK and shared runtime support
 
 | Path | Role | Notes |
 |---|---|---|
@@ -29,7 +46,7 @@ metadata, and one-command local stack entry points.
 | Path | Keep in root? | Role |
 |---|---:|---|
 | `README.md`, `QUICKSTART.md`, `CONTRIBUTING.md`, `SECURITY.md`, `CHANGELOG.md`, `LICENSE` | yes | Standard public project entry points |
-| `AGENTS.md`, `CLAUDE.md` | yes | Coding-agent orientation and SEOCHO-specific guardrails |
+| `AGENTS.md`, `CLAUDE.md` | yes | GARE2E scope and inherited-runtime guardrails |
 | `pyproject.toml`, `Makefile`, `.env.example`, `.gitignore`, `.dockerignore` | yes | Python packaging, common commands, and repo/tool defaults |
 | `compose.yaml` | yes | The one default local stack; every other compose file lives under `docker/` |
 | `llms.txt` | yes | Machine-readable docs index; the convention requires the repository root |
@@ -98,9 +115,11 @@ These paths are usually not where feature work should land.
 | `build/`, `dist/`, `seocho.egg-info/` | Build artifacts |
 | `dolt/` | Local Dolt runtime state when a developer tool creates it |
 
-## Compose Files
+## Inherited application Compose files
 
-The repository root holds exactly one compose file. Overlays and optional side
+For GARE2E live experiments use the pinned appliance contract in
+`docker/agentic-os-appliance/` and the harness, not an assumed default application
+stack. The repository root holds exactly one inherited application compose file. Overlays and optional side
 stacks live under `docker/`, documented in `docker/README.md`.
 
 | Path | Role |

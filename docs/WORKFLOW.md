@@ -1,300 +1,101 @@
-# Workflow
+# GARE2E Workflow
 
-This document is the canonical workflow reference for SEOCHO operations.
+This is the workflow for graph-agent experiments, measurement/evidence changes
+and the read-only comparison platform. Start with [project scope](GARE2E_SCOPE.md),
+[Quickstart](../QUICKSTART.md) and [the harness](agentic-os/HARNESS.md).
 
-Use this page as an operator checklist. It is not the first-run tutorial; for
-that, start with `QUICKSTART.md` or `docs/RUNTIME_DEPLOYMENT.md`.
+## Workflow map
 
-## Workflow Map
+| Goal | Contract |
+|---|---|
+| Read existing results | [Published index](agentic-os/README.md) and original report limits |
+| Reproduce analysis | [Harness](agentic-os/HARNESS.md); new output directory and preserved inputs |
+| Add or compare results | [Platform](agentic-os/EXPERIMENT_PLATFORM.md); immutable import and compatible contracts |
+| Change query/plan/quality capture | [Graph evidence](agentic-os/GRAPH_OPTIMIZATION_OBSERVABILITY.md) |
+| Run a new live experiment | [Experiment agent guide](agentic-os/AGENTS.md); explicit resource scope and lifecycle gates |
+| Change source and land it | [Contributing](../CONTRIBUTING.md) and validation below |
 
-| Area | What it answers | Read when |
-|---|---|---|
-| [Stack Baseline](#stack-baseline) | which runtime, graph, and tracing assumptions are current | starting any repo work |
-| [Operating Planes](#operating-planes) | which module owns control-plane vs data-plane behavior | choosing where to edit |
-| [End-to-End Workflow](#end-to-end-workflow) | how work moves from issue to landing | preparing a PR |
-| [Docs Website](#docs-website) | how source docs reach `seocho.blog` | changing public docs |
-| [Basic CI](#basic-ci) | which local and CI gates matter | before pushing |
+## 1. Define the comparison
 
-## Stack Baseline
+Name the unresolved question and closest existing condition. Reuse published
+receipts before scheduling another run. Distinguish a GARE2E experiment change
+from a shared SDK dependency fix; unrelated SDK product features belong upstream.
 
-- Agent runtime: OpenAI Agents SDK
-- Tracing/evaluation contract: vendor-neutral (`none|console|jsonl|opik`)
-- Preferred team observability backend: Opik
-- Canonical neutral trace artifact: JSONL
-- Graph backend: DozerDB
-- MVP tenancy: single-tenant with `workspace_id` propagated end-to-end
+Freeze the source/data/model/DB revisions, prompt/tool contracts, resource and
+concurrency limits, warmup, measurement window, observer configuration, result
+contract and repetition count. The current maintainer-designated tracker owns
+work state; GitHub review carries public change context. Keep private tracker
+state out of commits. See [ISSUE_TASK_SYSTEM.md](ISSUE_TASK_SYSTEM.md).
 
-## Operating Planes
+## 2. Preserve and validate evidence
 
-### Control Plane
+Keep successful, failed, stopped and ambiguous assignments in their original
+denominators. Unknown counters remain unknown. Join server requests by recorded
+identity; time proximity does not establish a trace relationship. Keep shared
+and exclusive resource time, output demand and output speed distinct.
 
-Responsibilities:
+Use reviewed numeric exports, manifests and hashes for public analysis. Preserve
+raw query/parameter/result payloads, model/provider content, connection addresses,
+credentials and unreviewed profiler files privately. Diagnostic PROFILE or kernel
+captures require separate windows and explicit overhead/clock scope.
 
-- agent definitions and routing policy
-- runtime authorization policy (app-level RBAC/ABAC)
-- deployment, versioning, and quality gates
-- decision records (ADRs) and change governance
+Mocks and offline tests validate contracts. Performance or answer-quality claims
+need their actual workload, services and evaluation receipts. A source change,
+chart or normal protocol stop alone is not a result.
 
-Primary surfaces:
+## 3. Choose execution or postprocessing
 
-- `runtime/agent_server.py`
-- `runtime/memory_service.py`
-- `runtime/middleware.py`
-- `runtime/policy.py`
-- `docs/decisions/`
-- `docs/ISSUE_TASK_SYSTEM.md`
+Offline chart reproduction and immutable registry import do not launch model,
+DB or cloud workloads. Write derived reports to a fresh output directory.
 
-Long-term target:
+For a new live run, obtain the named resource authorization and private inputs.
+Use admission, verified staging, readiness, bounded scheduling, collection and
+teardown/absence checks from the existing lifecycle runner. Historical spending
+approvals do not create a new budget. Update the experiment request, handoff and
+cost ledger only when their actual state changes.
 
-- `runtime/` becomes the canonical deployment-shell package
-- `extraction/` shrinks to extraction-only concerns or compatibility wrappers
-- runtime-package slices are landing incrementally: `agent_server`,
-  `agent_readiness`, `middleware`, `memory_service`, `server_runtime`,
-  `public_memory_api`, `runtime_ingest`, and `policy` now live under
-  `runtime/` with flat `extraction/*` compatibility aliases
+## 4. Review and validate source changes
 
-### Data Plane
+| Surface | Check |
+|---|---|
+| Docs and agent orientation | `bash scripts/ci/check-doc-contracts.sh`, `scripts/pm/lint-agent-docs.sh` |
+| Public root/layout | `bash scripts/ci/check-root-hierarchy-contract.sh` |
+| Doc links and layout | `python3 scripts/ci/check_doc_structure.py`, `python3 scripts/ci/check_adr_index.py` |
+| Shared source, packaging or CI | `bash scripts/ci/run_basic_ci.sh` plus focused tests |
+| Platform/query evidence | `PYTHONPATH=src:. uv run pytest tests/seocho/test_experiment_platform.py tests/seocho/test_query_evidence.py -q` |
+| Browser source | `node --check runtime/experiment_platform_web/app.js` |
 
-Responsibilities:
+The docs CI entrypoint is `.github/workflows/docs-consistency.yml`. Report exact
+commands and remaining gaps. Keep compatible imports, `workspace_id`, policy and
+read-only validation when touching inherited SDK/runtime dependencies. Existing
+module ownership contracts still apply.
 
-- data ingestion from CSV/JSON/API
-- extraction, linking, deduplication
-- rule inference and validation annotations
-- graph load/query execution against DozerDB
+## 5. Land the reviewed change
 
-Primary surfaces:
+Stage explicit paths from an isolated checkout. Confirm this repository's remote
+is `tteon/gare2e`; never infer permission to publish in `tteon/seocho` or its
+website. Preserve published results and upstream license/history.
 
-- `src/seocho/rules.py` — canonical rule inference/validation
-- `src/seocho/index/pipeline.py` — canonical indexing with `enable_rule_constraints` + `embedding_backend`
-- `src/seocho/index/linker.py` — canonical embedding-based entity linker
-- `extraction/pipeline.py` — legacy batch pipeline
-- `extraction/rule_constraints.py` — re-export shim to `seocho.rules`
-- `extraction/data_source.py`
-- `extraction/graph_loader.py`
+Run `git diff --check`, pull/rebase, push the authorized change to `main`, and
+confirm a clean checkout aligned with `origin/main`. If branch protection needs
+a PR, keep the diff and validation reviewable and follow its required checks.
+Describe the concrete behavior, evidence, validation and limits in the review.
 
-## End-to-End Workflow
+## Inherited SDK and website tooling
 
-| Stage | Goal | Main evidence |
-|---|---|---|
-| Intake | make the scope reviewable before coding | issue, acceptance criteria, relevant docs |
-| Ingestion and graph build | turn records into graph facts and governance artifacts | graph payloads, rule profiles, semantic artifacts |
-| Agent execution | query graph memory through the intended runtime path | traces, route metadata, answer support |
-| Validation and landing | prove the change and publish it safely | CI output, PR notes, release/community updates |
+The `seocho` package and CLI remain compatible support for existing experiment
+imports. General application instructions live in `docs/RUNTIME_DEPLOYMENT.md`
+and other inherited references linked from [the docs index](README.md). Shared
+orchestration seams remain documented in `docs/INTERNAL_CLASS_DESIGN.md`.
 
-### 1. Intake
+`website/` is the inherited SEOCHO site source. Its
+`website/scripts/generate-docs.mjs` generates mirrors; edit source docs rather
+than generated files. `npm run check:docs` is that site's documentation check,
+not a graph-agent benchmark.
 
-- define issue scope and acceptance criteria
-- assign `workspace_id`
-- fill or update the relevant `docs/*` sections using the `DEV-*` prefixes defined in `docs/DEVELOPER_INPUT_CONVENTIONS.md`
-- mark any blocker that should stop implementation as `DEV-INPUT-REQUIRED`
-- capture public work state in GitHub issues, pull requests, or the current
-  maintainer-designated tracker
-- keep local agent coordination tools private to the developer workspace; do
-  not commit `.beads/`, `.agents/`, `.claude/`, or similar local tool state
-- for semantic retrieval or graph-grounded answer work, align the change with
-  `docs/GRAPH_RAG_AGENT_HANDOFF_SPEC.md`
-- confirm philosophy alignment against `docs/PHILOSOPHY.md` (ontology evidence, router/graph mapping, traceability)
-- for architecture-significant work, run a panel feasibility review using `docs/PHILOSOPHY_FEASIBILITY_REVIEW.md`
-- before coding, have the agent restate the active `DEV-DECISION`, `DEV-CONSTRAINT`, `DEV-API-CONTRACT`, and `DEV-ACCEPTANCE` lines it will implement
-
-### 2. Ingestion And Graph Build
-
-- run extraction pipeline
-- for interactive runtime onboarding, ingest raw text via `/platform/ingest/raw`
-- parse heterogeneous sources (`text`/`csv`/`pdf`) to normalized text before extraction
-- run LLM 3-pass semantic extraction (ontology candidate -> SHACL candidate -> entity graph)
-- evaluate relatedness against known entities and run linking only when relatedness gate is satisfied
-- select semantic artifact policy (`auto`, `draft_only`, `approved_only`) before rule application
-- when governance review is required, persist draft artifacts and promote via approval lifecycle API (`/semantic/artifacts/*`)
-- apply SHACL-like rule inference/validation
-- run readiness check with `/rules/assess` before promoting profile to governance baseline
-- save reusable rule profiles (`/rules/profiles`) in durable registry (`RULE_PROFILE_DIR/rule_profiles.db`)
-- export governance artifacts (`/rules/export/cypher`, `/rules/export/shacl`)
-- load graph into DozerDB
-
-### 3. Agent Execution
-
-- run `/run_agent` or `/run_debate`
-- for query-time entity disambiguation, run `/run_agent_semantic`
-- for custom interactive UX, run `/platform/chat/send`
-- monitor split health surfaces (`/health/runtime`, `/health/batch`)
-- enforce runtime policy checks
-- capture traces through the configured observability backend
-- prefer `jsonl` as the portable artifact and Opik as the optional team exporter
-
-### Semantic Path Summary
-
-- semantic layer extracts entities from question
-- ensure fulltext index exists (`/indexes/fulltext/ensure`) for target DBs
-- fulltext search resolves graph entity candidates
-- optional ontology-hint artifact generated offline via `scripts/ontology/build_ontology_hints.py`
-- dedup/disambiguation reranks candidates
-- router dispatches to LPG or RDF specialist agent
-- answer generation agent synthesizes final response
-
-### 4. Validation And Landing
-
-- run code and ops gates
-- run runtime flow smoke gate (`make e2e-smoke`) when API/UI/data-plane contracts change
-- run quickstart reproducibility check (raw ingest -> semantic/debate chat) before release notes
-- when performance work is in scope, run the relevant benchmark track before and
-  after the change:
-  - `private finance corpus` for ingestion / finance-domain QA
-  - `GraphRAG-Bench` for retrieval / reasoning
-  - the bundled tutorial sample is onboarding-only and must not be reported as
-    benchmark evidence
-- run agent docs lint (`scripts/pm/lint-agent-docs.sh`)
-- close or update the linked public issue or PR
-- rebase, push
-- verify branch is up to date with origin
-- for releases, follow `docs/RELEASE_AND_COMMUNITY_OPERATIONS.md`, update
-  `CHANGELOG.md`, and draft the `#seocho-updates` Discord announcement before
-  publishing
-
-### Operational Notes
-
-- local tracker linting may be used in maintainer workspaces, but it is not a
-  public repository contract
-- current dev quality gates in `Makefile` run against `extraction-service`
-- default `make up` now rebuilds an image-backed `extraction-service` so the
-  running runtime matches a known source snapshot
-- use `make up-live` or `make dev-up` only when you explicitly want bind-mounted
-  edits from `extraction/`, `runtime/`, and `seocho/` reflected immediately
-- keep graph procedure privileges scoped (`apoc.*,n10s.*`) in `compose.yaml`
-- default local compose stack is `neo4j + extraction-service + evaluation-interface`
-- when decomposing large files, prefer the internal seam classes documented in
-  `docs/INTERNAL_CLASS_DESIGN.md` before introducing new top-level services
-- local SDK orchestration extracted from `src/seocho/client.py` should land in
-  `src/seocho/local_engine.py` before any broader facade redesign
-
-## Docs Website
-
-- source of truth: `README.md` + `docs/*` in this repository
-- publish-critical docs for seocho.blog sync:
-  - `docs/README.md`
-  - `docs/RUNTIME_DEPLOYMENT.md`
-  - `docs/APPLY_YOUR_DATA.md`
-  - `docs/CONNECTORS.md`
-  - `docs/PYTHON_INTERFACE_QUICKSTART.md`
-  - `docs/TUTORIAL_FIRST_RUN.md`
-  - `docs/OPEN_SOURCE_PLAYBOOK.md`
-  - `docs/RUN_SPECS.md`
-  - `docs/RELEASE_AND_COMMUNITY_OPERATIONS.md`
-  - `docs/ARCHITECTURE.md`
-  - `docs/RUNTIME_ARCHITECTURE.md`
-  - `docs/QUERY_ARCHITECTURE.md`
-  - `docs/MAINTAINER_ARCHITECTURE_NOTES.md`
-  - `docs/WORKFLOW.md`
-- repo-side source-doc contract is checked by `.github/workflows/docs-consistency.yml`
-  using `bash scripts/ci/check-doc-contracts.sh`
-- the tracked website source app lives in `website/`
-- current public deployment for `https://seocho.blog` is still
-  `tteon/tteon.github.io` GitHub Pages until Pages is enabled on `tteon/seocho`
-- `website/scripts/generate-docs.mjs` materializes selected `/docs/*` and
-  `/blog/*` pages from repo-root source docs for the in-repo site app
-- the `scripts/sync.mjs` helper in `tteon/tteon.github.io` mirrors the selected
-  source docs into the live GitHub Pages repository
-- generated mirror files under `website/src/content/docs/docs/` are derived
-  artifacts; edit the repo-root source docs instead
-- website validation currently lives in `.github/workflows/docs-site-quality.yml`
-  and includes:
-  - `cd website && npm ci`
-  - `cd website && npm run check:docs`
-  - `cd website && npm run build`
-  - `cd website && bash scripts/check-built-links.sh`
-- this workflow runs on every PR so it can be required by branch protection
-  without path-filter skip deadlocks
-- the same workflow also checks the live `seocho.blog` presentation contract by
-  checking out `tteon/tteon.github.io`, rendering its mirrors with
-  `SEOCHO_SOURCE_REPO=$GITHUB_WORKSPACE/seocho`, and running:
-  - `npm run check:sync`
-  - `npm run check:docs`
-  - `npm run build:ci`
-  - `bash scripts/check-built-links.sh`
-- the in-repo deployment workflow is `.github/workflows/docs-site-deploy.yml`,
-  but it performs a Pages preflight, reruns `npm run check:docs`, rebuilds the
-  site, checks built links, and skips deployment while Pages is not enabled on
-  `tteon/seocho`
-- `.github/workflows/docs-website-sync-dispatch.yml` dispatches the
-  `tteon/tteon.github.io` auto-sync workflow after docs changes land on main
-  when `SEOCHO_BLOG_SYNC_TOKEN` is configured; the scheduled site-side sync is
-  the fallback
-- for live docs changes today, the Pages repository's mirror contract lives in
-  `scripts/docs-contract.mjs`; both `scripts/sync.mjs` and
-  `scripts/check-doc-sync.mjs` consume that same contract
-
-## Basic CI
-
-- workflow: `.github/workflows/ci-basic.yml`
-- canonical local command: `bash scripts/ci/run_basic_ci.sh`
-- GitHub runs this gate on Python 3.10, 3.11, and 3.12
-- current scope:
-  - tracked runtime/extraction/SDK/CI Python files via `py_compile`
-  - focused Ruff lint for CI scripts and run-spec/onboarding surfaces
-  - focused semantic/runtime/SDK pytest
-  - `git diff --check`
-  - `bash scripts/ci/check-runtime-shell-contract.sh`
-  - `bash scripts/ci/check-module-ownership-contract.sh`
-  - `python3 scripts/ci/check-import-boundaries.py`
-  - `scripts/pm/lint-agent-docs.sh`
-
-Runtime migration slices should follow `docs/RUNTIME_PACKAGE_MIGRATION.md` and
-the runtime shell validation contract in `scripts/ci/check-runtime-shell-contract.sh`.
-
-## Daily Codex Maintenance Automation
-
-- workflow: `.github/workflows/daily-codex-maintenance.yml`
-- cadence: daily at `00:15 UTC` (`09:15 Asia/Seoul`) plus `workflow_dispatch`
-- required secrets:
-  - `OPENAI_API_KEY`
-  - `SEOCHO_GITHUB_APP_ID`
-  - `SEOCHO_GITHUB_APP_PRIVATE_KEY`
-- if any required secret is missing, the workflow exits successfully after an
-  explicit skip notice and creates no PR
-- prompt contract: `.github/codex/prompts/daily-maintenance-pr.md`
-- PR contract:
-  - draft PR only
-  - branch `codex/daily-maintenance`
-  - run `bash scripts/ci/run_basic_ci.sh` before creating/updating the PR
-  - PR body must include `Feature`, `Why`, `Design`, `Expected Effect`,
-    `Impact Results`, `Validation`, and `Risks`
-  - no direct push to `main`
-
-## Periodic Codex Review Automation
-
-- workflow: `.github/workflows/periodic-codex-review.yml`
-- cadence: weekly on Monday at `00:45 UTC` (`09:45 Asia/Seoul`) plus
-  `workflow_dispatch`
-- required secrets:
-  - `OPENAI_API_KEY`
-  - `SEOCHO_GITHUB_APP_ID`
-  - `SEOCHO_GITHUB_APP_PRIVATE_KEY`
-- if any required secret is missing, the workflow exits successfully after an
-  explicit skip notice and creates no PR
-- prompt contract: `.github/codex/prompts/periodic-review-pr.md`
-- PR contract:
-  - draft PR only
-  - branch `codex/periodic-review`
-  - run `bash scripts/ci/run_basic_ci.sh` before creating/updating the PR
-  - PR body must include `Feature`, `Why`, `Design`, `Expected Effect`,
-    `Impact Results`, `Validation`, and `Risks`
-  - no direct push to `main`
-
-## Comment-Based Merge Automation
-
-- workflow: `.github/workflows/pr-comment-merge.yml`
-- trigger: `issue_comment` on PRs with command exactly `/go`
-- authorization:
-  - commenter must have repository permission `write`, `maintain`, or `admin`
-- merge behavior:
-  - PR must be open and not draft
-  - PR merge state must be `CLEAN`
-  - merge method is `squash` with branch deletion
-  - maintainers should mark automation PRs ready for review before `/go`
-
-## Governance Loop
-- log architecture decisions as ADRs
-- track context graph events and quality metrics
-- schedule follow-up issues for unresolved risks
-- keep release readiness and open-source community operations aligned with
-  `docs/RELEASE_AND_COMMUNITY_OPERATIONS.md`
+The inherited `.github/workflows/docs-site-quality.yml` site jobs,
+`.github/workflows/docs-site-deploy.yml`, and
+`.github/workflows/docs-website-sync-dispatch.yml` run only in `tteon/seocho`.
+GARE2E does not dispatch another site's mirror updates via
+`SEOCHO_BLOG_SYNC_TOKEN`. GitHub source docs and the local result viewer are
+GARE2E's current public entrypoints; no GARE2E site deployment is implied.

@@ -1,5 +1,20 @@
 # GitHub Automation
 
+## GARE2E scope
+
+This repository's active public path is graph-agent experiments, reviewed
+measurement/evidence and the local comparison viewer. Maintenance/review prompts
+follow [GARE2E scope](GARE2E_SCOPE.md). General SDK/site instructions below are
+inherited SEOCHO reference; they do not make this repository the SDK's release
+or website source.
+
+GARE2E continues to run documentation consistency, root/layout and relevant
+source checks. The inherited website-quality, Pages deployment and
+`docs-website-sync-dispatch.yml` jobs are restricted to `tteon/seocho`; GARE2E
+must not dispatch updates to the separate SEOCHO site. No GARE2E Pages or
+external documentation deployment is configured by this scope clarification.
+
+
 SEOCHO uses GitHub-hosted automation for CI, docs checks, docs deploy, and
 narrow maintainer workflows. Most contributors should start with
 `CONTRIBUTING.md`, `AGENTS.md`, and `docs/WORKFLOW.md` before editing this

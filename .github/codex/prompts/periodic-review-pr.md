@@ -1,7 +1,10 @@
 Task:
 
-- Inspect the current SEOCHO repository and prepare one reviewable improvement
+- Inspect the current GARE2E repository and prepare one reviewable improvement
   that is suitable for a draft pull request.
+- Scope work to the experiment harness, measurement/query evidence, reproducible
+  analysis or result viewer in `docs/GARE2E_SCOPE.md`. Treat general SEOCHO SDK
+  capabilities as inherited support and avoid unrelated SDK product expansion.
 - Respect `AGENTS.md`, `README.md`, `docs/WORKFLOW.md`, and
   `docs/GRAPH_RAG_AGENT_HANDOFF_SPEC.md` when relevant.
 

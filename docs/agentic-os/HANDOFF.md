@@ -1,4 +1,12 @@
-# AgenticOS graph-agent e2e — handoff package
+# GARE2E graph-agent experiments — handoff
+
+For the current repository scope and onboarding, read
+[the 2026-11-18 identity update](#23-gare2e-identity-and-onboarding--2026-11-18)
+and [GARE2E scope](../GARE2E_SCOPE.md) first. The access labels, running-service
+statements, branch names and budgets in older sections are dated historical
+snapshots; they do not establish current service state or authorize a new run.
+Published reports can be read without live-service credentials.
+
 
 What another engineer needs to run the same e2e (co-located Vast appliance:
 vLLM + DozerDB + embedded Oxigraph, 8 one-case gate cells, telemetry
@@ -587,3 +595,51 @@ Local viewer at127.0.0.1:18775 uses the private registry with48conditions and
 actual pilot trace/log ingestion passed. LangSmith and team deployment remain
 optional and unconfigured. The exact local paths/start commands are in ignored
 experiment memory; public docs do not contain credentials.
+
+
+## 23. GARE2E identity and onboarding — 2026-11-18
+
+The repository front door now describes the experiment harness, Agent/LLM/Tool
+measurement, query/plan evidence and read-only comparison platform. README,
+Quickstart, docs index, contribution/agent guides and machine-readable index
+use [the same provenance boundary](../GARE2E_SCOPE.md). General SEOCHO SDK,
+FinBench generator, inherited version and import namespace remain attributed
+support, not newly claimed GARE2E features. No experiment runtime or published
+result was rewritten.
+
+The Quickstart was exercised in a fresh Python 3.10 virtual environment using
+`pip install -e . fastapi uvicorn`. Published imports loaded three reports and
+30 conditions. Actual loopback HTTP and Chrome checks passed: condition/task
+navigation, measured timeline and suppressed percentages for unverified
+comparison contracts. No model, graph service or cloud workload was started.
+
+Validation: `PYTHONPATH=src:. UV_NO_SYNC=1 bash scripts/ci/run_basic_ci.sh`
+with the CI dependencies installed passed, including 1,093 tests and all
+post-test contracts; five optional tests were skipped. The focused platform,
+query-evidence, experiment-evidence, chart and graph-export suites passed
+36 tests with:
+
+```bash
+PYTHONPATH=src:. UV_NO_SYNC=1 uv run pytest \
+  tests/seocho/test_experiment_platform.py \
+  tests/seocho/test_query_evidence.py \
+  tests/seocho/test_experiment_evidence.py \
+  tests/seocho/test_agentic_os_characterization_figures.py \
+  tests/seocho/test_graph_evidence_export.py -q -o faulthandler_timeout=45
+```
+
+The documented chart reproduction generated 91 SVGs and exactly matched the
+published numeric JSON.
+Doc contracts, relative links, ADR index and root/layout checks passed.
+
+CI exposed four existing query-evidence settings missing from `.env.example`.
+They are now documented as commented opt-ins, together with the viewer token;
+logging, raw mode and private-replay defaults are unchanged. Package changes
+are limited to description, keywords and project URLs. Existing distribution
+name/version, dependencies, entrypoints and imports are preserved.
+
+Inherited SEOCHO site quality/deployment/mirror jobs are restricted to
+`tteon/seocho`, while GARE2E docs and source checks remain active. Maintenance
+prompts now follow the experiment scope. GARE2E's entrypoints remain GitHub
+source documentation and its local viewer. No separate site or team service
+was deployed, and no live experiment or additional spend was initiated.

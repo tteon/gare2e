@@ -1,4 +1,4 @@
-# Shared experiment platform
+# GARE2E experiment platform
 
 The platform connects **comparison chart → condition/task results → evidence
 insights**. It is a runnable read-only web application with an immutable result

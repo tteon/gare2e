@@ -1,29 +1,35 @@
 # CLAUDE.md
 
-Claude-specific execution guide for SEOCHO. Use `AGENTS.md` as the primary
-coding-agent guide; this file adds SEOCHO product context and review discipline.
+Claude-specific execution guide for GARE2E. Use `AGENTS.md` as the primary
+coding-agent guide; this file adds experiment scope and review discipline.
 
 ## Product Frame
 
-SEOCHO is middleware, not an experiment dump. Public code should help users
-build ontology-aligned graph memory systems through the SDK, runtime, examples,
-and docs.
+GARE2E owns the graph-agent experiment/measurement workflow and read-only
+comparison platform described in `docs/GARE2E_SCOPE.md`. Lead public docs with
+workload admission, Agent/LLM/Tool evidence, query/plan inspection and reproducible
+results. Existing general SDK, graph-memory, ontology and FinBench generator
+features are inherited SEOCHO support; keep their attribution explicit.
 
-Current product consensus:
+New work should answer a named experiment or evidence-inspection question.
+Preserve published results and distinguish implementation, offline validation
+and actual service measurements. Separate local research checkouts are not a
+source of published GARE2E results until reviewed and transferred.
 
-- agent runtime: OpenAI Agents SDK
-- graph backend: DozerDB
-- tenancy: single-tenant MVP, with `workspace_id` propagated end-to-end
-- tracing: vendor-neutral contract, no third-party observability vendor —
-  `none | console | jsonl | otlp`, with metrics in `src/seocho/metrics.py`
-  (ADR-0172 removed the Opik backend)
+Inherited runtime invariants remain relevant when a shared dependency is touched:
+
+- agent runtime: OpenAI Agents SDK; preserve each report's actual runner/model
+- graph backend baseline: DozerDB; preserve each report's actual DB revision
+- tenancy: `workspace_id` propagated end-to-end
+- tracing: vendor-neutral `none | console | jsonl | otlp`; keep metric definitions
+  and source coverage with exports
 - ontology governance: Owlready2 only in offline governance paths
 
 ## Read Order
 
 For most changes:
 
-1. `README.md`
+1. `README.md` and `docs/GARE2E_SCOPE.md`
 2. `AGENTS.md`
 3. `docs/REPOSITORY_LAYOUT.md`
 4. `docs/WORKFLOW.md`
@@ -33,6 +39,11 @@ For Graph-RAG, semantic retrieval, public memory answering, or multi-agent query
 flow, also read `docs/GRAPH_RAG_AGENT_HANDOFF_SPEC.md`.
 
 ## Architecture Boundaries
+
+GARE2E's primary surfaces are `scripts/benchmarks/`, `src/seocho/eval/`,
+`runtime/experiment_platform.py`, `runtime/experiment_platform_web/` and
+`docs/agentic-os/`. The following shared SDK/runtime boundaries are inherited
+support; use them deliberately when the experiment path needs a dependency fix.
 
 Control-plane surfaces:
 
@@ -97,6 +108,10 @@ chat context alone.
   broader sweep.
 - Surface tradeoffs when changing public SDK/runtime behavior.
 - For docs-only changes, avoid pretending runtime behavior changed.
+- Scope public framing to GARE2E-specific work. Keep the inherited `seocho`
+  distribution/import namespace compatible and credit upstream.
+- `website/` remains inherited site source. GARE2E docs changes must not dispatch
+  publication to the separate SEOCHO website.
 - For architecture changes, update docs and ADRs in the same change.
 - Do not commit local agent/editor/tool state directories.
 

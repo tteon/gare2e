@@ -1,4 +1,7 @@
-# Graph Agentic RAG: observability, metrics, and harness
+# GARE2E: graph-agent observability, metrics, and harness
+
+[GARE2E](../../README.md)의 실험 결과·계측·하네스 진입점입니다.
+프로젝트 고유 작업과 상속한 SDK의 경계는 [범위 문서](../GARE2E_SCOPE.md)에 정리했습니다.
 
 이 디렉터리는 다른 사람이나 coding agent가 같은 결과와 계측 정의를 확인하고
 실험을 이어받는 진입점입니다. **30개 비교 조건**의 결과를 Runtime / Tool / Agent

@@ -1,106 +1,45 @@
-# Security Policy
+# GARE2E Security Policy
 
-## Supported Versions
+This policy covers the graph-agent experiment harness, evidence importers and
+result viewer in this repository. The inherited SEOCHO package/version does not
+establish a separate GARE2E release-support or compliance commitment.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.0.x   | :white_check_mark: |
-| < 1.0   | :x:                |
+## Reporting a vulnerability
 
-## Reporting a Vulnerability
+Use the repository's Security tab to submit a private vulnerability report when
+that feature is enabled. If it is unavailable, arrange a private contact with
+the repository owner through their published GitHub profile contact information.
+Do not put credentials, private datasets or exploit payloads in a public issue.
 
-**Please do not file public issues for security vulnerabilities.**
+Include the source commit, affected component, reproduction steps and potential
+impact. Share a minimal redacted example rather than original model/provider or
+experiment payloads. This project does not publish a response-time SLA.
 
-Instead, please report vulnerabilities by emailing: **security@seocho-project.org**
+## Result viewer and imports
 
-Include:
-- Description of the vulnerability
-- Steps to reproduce (if applicable)
-- Potential impact
-- Suggested fix (if any)
+- The viewer binds to loopback by default. Non-loopback use requires
+  `GARE2E_PLATFORM_TOKEN`; the operator supplies HTTPS at a proxy.
+- The shared token is an access boundary, not per-user SSO or RBAC. Import owner
+  names are provenance, not authenticated identities.
+- Imports use the existing allowlists, directory-boundary checks and checksums.
+  Diagnostic attachments require contributor review; checksums do not establish
+  that an attachment contains no sensitive content.
+- Keep the registry private and mount it read-only in viewer deployments.
+  Importing or browsing a run does not upload it to another observability service.
 
-We will respond within 48 hours and work with you to coordinate disclosure.
+See [the platform contract](docs/agentic-os/EXPERIMENT_PLATFORM.md) and
+[trace sharing](docs/agentic-os/TRACE_SHARING.md) for exact behavior and limits.
 
-## Security Best Practices
+## Experiment data and services
 
-### Data Protection
-- All data lineage information is encrypted at rest
-- Neo4j connections use TLS encryption
-- Sensitive configuration values use environment variables
-- No hardcoded credentials in source code
+Keep credentials, provider responses, raw prompts/answers, exact query inputs,
+connection addresses and unreviewed profiler captures outside Git and shared
+exports. Use bounded owned-resource lifecycle controls for live runs and retain
+private artifact permissions. External model, DB and cloud services have their
+own security/configuration requirements; the local viewer does not certify them.
 
-### Container Security
-- Use official base images only
-- Regular security scanning with Trivy
-- Minimal container images (distroless where possible)
-- Non-root user execution
-
-### Network Security
-- All services communicate over internal Docker networks
-- No exposed ports beyond necessary endpoints
-- Rate limiting on API endpoints
-- Input validation on all data ingestion points
-
-### Access Control
-- Default credentials must be changed in production
-- Role-based access for DataHub
-- Neo4j authentication enabled
-- Regular access reviews
-
-## Security Scanning
-
-### Automated Checks
-- GitHub Actions security scanning on PRs
-- Docker image vulnerability scanning
-- Dependency vulnerability checks (Dependabot)
-- CodeQL static analysis
-
-### Manual Reviews
-- Security review required for new data connectors
-- Penetration testing before major releases
-- Security architecture review for new features
-
-## Compliance
-
-Seocho is designed to support:
-- SOC 2 Type II compliance
-- GDPR data lineage requirements
-- HIPAA audit trails
-- ISO 27001 information security management
-
-## Security Configuration Examples
-
-### Production Hardening
-```yaml
-# Example override file, not tracked in this repo
-services:
-  dozerdb:
-    environment:
-      - NEO4J_dbms_security_procedures_unrestricted=gds.*,apoc.*
-      - NEO4J_dbms_security_auth__minimum__password__length=12
-      - NEO4J_dbms_logs_security__level=DEBUG
-```
-
-### TLS Configuration
-```bash
-# Generate certificates
-openssl req -x509 -newkey rsa:4096 -keyout neo4j.key -out neo4j.crt -days 365 -nodes
-```
-
-## Incident Response
-
-1. **Detection**: Security alerts from monitoring tools
-2. **Assessment**: Impact analysis and severity classification
-3. **Containment**: Isolate affected systems
-4. **Recovery**: Patch and restore services
-5. **Post-incident**: Review and improve security measures
-
-## Security Updates
-
-Security patches are released as:
-- **Critical**: Within 24 hours
-- **High**: Within 72 hours
-- **Medium**: Next scheduled release
-- **Low**: Quarterly security updates
-
-Subscribe to security announcements: security@seocho-project.org
+The repository makes no blanket claim of encryption-at-rest, production
+hardening, regulatory compliance or security certification. Review the actual
+services and deployment being used. Unrelated standalone SDK issues should be
+reported to [upstream SEOCHO](https://github.com/tteon/seocho) through its current
+private reporting channel.

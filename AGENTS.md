@@ -1,16 +1,20 @@
 # AGENTS.md
 
-Coding-agent guide for SEOCHO.
+Coding-agent guide for GARE2E.
 
-SEOCHO is ontology-aligned middleware between agents and graph databases. Keep
-the public repository focused on the SDK, runtime, examples, docs, and tests.
+GARE2E develops graph-agent experiment execution, measurement/evidence exports,
+and the read-only result-comparison platform. Keep work grounded in tracked
+harness code and published receipts. Read `docs/GARE2E_SCOPE.md` before changing
+project framing or choosing a new feature. General SDK, ontology/indexing and
+FinBench generator code inherited from SEOCHO is support, not a new GARE2E claim.
+Preserve compatible `seocho` imports and upstream attribution.
 Do not commit local agent/editor state.
 
 ## Start Here
 
 Read these first for non-trivial work:
 
-1. `README.md`
+1. `README.md` and `docs/GARE2E_SCOPE.md`
 2. `CLAUDE.md`
 3. `docs/REPOSITORY_LAYOUT.md`
 4. `docs/WORKFLOW.md`
@@ -31,7 +35,7 @@ multi-agent query flow.
 
 This file (`AGENTS.md`) is the canonical execution contract — coding standards,
 repo map, review discipline. The dotfile `docs/maintainers/AGENT_EXECPLAN_CONVENTIONS.md` is a thin supplement that
-defines only SEOCHO's **ExecPlan** shorthand (per `docs/maintainers/EXECPLAN_SPEC.md`) for complex
+defines the inherited **ExecPlan** shorthand (per `docs/maintainers/EXECPLAN_SPEC.md`) for complex
 features/refactors; it does not restate or override anything here. Boundary:
 durable agent rules go in `AGENTS.md`; ExecPlan format/decision-style goes in
 `docs/maintainers/AGENT_EXECPLAN_CONVENTIONS.md`. The ADR index is validated by `scripts/ci/check_adr_index.py`
@@ -41,7 +45,11 @@ durable agent rules go in `AGENTS.md`; ExecPlan format/decision-style goes in
 
 | Path | Role |
 |---|---|
-| `src/seocho/` | Distributable Python SDK and canonical engine code |
+| `scripts/benchmarks/` | GARE2E runners, schedules, lifecycle, analysis and adapters |
+| `src/seocho/eval/` | GARE2E measurement, query evidence and registry modules alongside inherited evaluation support |
+| `runtime/experiment_platform.py`, `runtime/experiment_platform_web/` | GARE2E viewer server and UI |
+| `docs/agentic-os/` | Experiment methods, published results and handoff |
+| `src/seocho/` | Inherited SDK and canonical engine support; preserve compatibility |
 | `runtime/` | Deployment shell, runtime API wiring, policy checks |
 | `extraction/` | Extraction service plus compatibility shims |
 | `tests/seocho/` | SDK and engine regression tests |
@@ -50,19 +58,20 @@ durable agent rules go in `AGENTS.md`; ExecPlan format/decision-style goes in
 | `docs/` | Product, architecture, workflow, and operator contracts |
 | `.github/` | GitHub workflows and scheduled Codex prompt contracts |
 | `scripts/` | CI, setup, benchmark, and maintenance helpers |
-| `website/` | Tracked Astro/Starlight docs site |
+| `website/` | Inherited SEOCHO site source; its publication runs only upstream |
 
 Local-only directories such as `.agents/`, `.beads/`, `.githooks/`, `.jules/`,
 `.serena/`, `.seocho/`, `data/`, `logs/`, and `outputs/` must stay out of Git.
 The only `.claude/` exception is `.claude/skills/`: shared, reviewable project
 skills may be tracked there so Claude Code and Codex-adjacent users can run
-SEOCHO workflows without hand-building local setup.
+experiment workflows without hand-building local setup.
 Work is tracked in the local beads tracker (`bd`); see `CLAUDE.md` "Work Tracking (beads)" for the claim/notes/close cadence.
 
 ## Module Playbook
 
-Use this map before editing code. It keeps new behavior in the module that owns
-the architectural decision, not just the nearest import.
+Use this map before editing code. GARE2E work starts in the experiment surfaces
+above. The inherited SDK playbook below applies when an experiment needs a
+shared runtime fix; unrelated standalone SDK features belong upstream.
 
 | Concern | Start here | Watch for |
 |---|---|---|
@@ -74,7 +83,7 @@ the architectural decision, not just the nearest import.
 | Runtime API and policy | `runtime/agent_server.py`, `runtime/memory_service.py`, `runtime/policy.py`, `runtime/models/` | Preserve `workspace_id`, policy checks, and deployment-shell boundaries. |
 | Extraction compatibility | `extraction/` | Prefer wrappers and migration shims; do not add new canonical engine logic here. |
 | Evaluation and benchmarks | `src/seocho/eval/`, `src/seocho/benchmarking.py`, `evaluation/`, `scripts/benchmarks/` | Keep one-off corpora/results private unless promoted to supported examples. |
-| Public examples and docs | `examples/`, `docs/`, `website/` | Keep README product-first and avoid editing generated website mirrors directly. |
+| Public examples and docs | `examples/`, `docs/`, `website/` | Keep README GARE2E-first, label inherited references, and avoid editing generated website mirrors directly. |
 
 ## Impact Map
 
@@ -92,8 +101,9 @@ surface in the same commit or PR.
 
 ## Stack Invariants
 
-- OpenAI Agents SDK is the agent runtime baseline.
-- DozerDB is the graph database backend baseline.
+- Published experiment contracts pin their model, DB, runner and resource identities.
+- The inherited OpenAI Agents SDK / DozerDB baseline remains compatible support;
+  do not generalize its settings across experiments or silently change a comparator.
 - `workspace_id` must be propagated in runtime-facing models, APIs, and traces.
 - Tracing stays vendor-neutral (`none|console|jsonl|otlp`); use JSONL artifacts
   and an operator-selected OTLP backend.
@@ -170,7 +180,12 @@ remaining validation gap.
   an entry in `docs/decisions/DECISION_LOG.md`.
 - Do not edit generated mirrored docs under `website/src/content/docs/docs/`
   directly; regenerate them from repo-root docs.
-- Keep README product-first. Move operational detail to focused docs.
+- Keep README focused on GARE2E experiments, evidence and the viewer. Move
+  operational detail to focused docs and credit inherited SEOCHO support.
+- Do not present local-only results from separate research checkouts as published
+  GARE2E work. A transfer requires source/evidence review.
+- SEOCHO-site deployment and mirror dispatch are upstream-only; GitHub docs and
+  the local experiment viewer are GARE2E's current user entrypoints.
 
 ## Git And Landing
 

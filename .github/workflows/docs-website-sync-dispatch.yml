@@ -12,6 +12,8 @@ on:
 
 jobs:
   dispatch:
+    # This inherited publication job belongs to the upstream SEOCHO site.
+    if: github.repository == 'tteon/seocho'
     runs-on: ubuntu-latest
 
     steps:

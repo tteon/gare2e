@@ -1,6 +1,6 @@
 # Issue & Task System
 
-SEOCHO uses public GitHub issues and pull requests as the canonical public
+GARE2E uses public GitHub issues and pull requests as the canonical public
 planning and review trail. Local agent trackers can be useful for maintainers,
 but their state directories are private workspace data and must not be tracked
 in this repository.

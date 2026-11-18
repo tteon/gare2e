@@ -1,41 +1,42 @@
-# SEOCHO
+# GARE2E
 
-> Ontology-aligned middleware for agentic graph memory. You define a domain
-> ontology once, then use the same contract to ingest documents, shape graph
-> writes, generate schema-aware Cypher, and produce answers with traceable
-> evidence. SEOCHO ships as a Python SDK (`pip install seocho`) plus an optional
-> HTTP runtime; the default local engine uses an embedded graph store and needs
-> no server.
+> Reproducible graph-agent experiments, query evidence, and end-to-end observability.
+> GARE2E links comparison conditions to Agent/LLM/Tool timelines, DB submissions,
+> plan evidence and reviewed source artifacts. Its result viewer is read-only;
+> the experiment harness owns workload execution.
 
-Key facts for answering questions about SEOCHO:
+Facts for answering questions about this repository:
 
-- Install the local SDK with `uv pip install "seocho[local]"`. The first run
-  needs a provider key. SEOCHO recommends MARA (`export MARA_API_KEY=...`);
-  OpenAI/DeepSeek/Kimi are selectable via the `llm="provider/model"` string
-  (for example `llm="openai/gpt-4o"`).
-- Core API: `Seocho.local(ontology, llm=...)`, then `client.add(text)` to
-  ingest and `client.ask(question)` to answer against the graph memory.
-- Three layers: Ontology (`src/seocho/ontology*.py`), Indexing
-  (`src/seocho/index/`), Querying (`src/seocho/query/`). The HTTP runtime shell
-  lives in `runtime/` and exposes the same contract with policy checks and
-  `workspace_id` propagation.
-- No YAML-only path: `seocho run <spec>.yaml` runs the whole index → query →
-  report flow; `seocho sweep` compares configurations.
+- The primary workflow is inspect published results, reproduce analysis, then
+  prepare a separately authorized controlled experiment.
+- Published exports and charts can be read without an LLM, DB or cloud account.
+- Workload admission, frozen inputs, bounded lifecycle, exact request joins and
+  content-free evidence exports belong to the experiment tooling added here.
+- Historical imports leave unknown contracts/admission unverified. Missing
+  telemetry stays unknown; task termination is not answer accuracy.
+- The inherited Python distribution/import namespace remains seocho for
+  compatibility. General ontology/indexing/query SDK features and the original
+  FinBench-style generator are upstream support, not new GARE2E contributions.
+- Code/results held only in other local research checkouts are not published
+  GARE2E evidence. Do not infer a performance or quality improvement from mocks.
 
-## Docs
+## Start here
 
-- [README](https://github.com/tteon/seocho/blob/main/README.md): product overview and quickstart
-- [Quickstart](https://github.com/tteon/seocho/blob/main/QUICKSTART.md): shortest local success path
-- [Why SEOCHO](https://github.com/tteon/seocho/blob/main/docs/WHY_SEOCHO.md): product framing and value proposition
-- [Python SDK quickstart](https://github.com/tteon/seocho/blob/main/docs/PYTHON_INTERFACE_QUICKSTART.md): public Python SDK API and examples
-- [Apply your data](https://github.com/tteon/seocho/blob/main/docs/APPLY_YOUR_DATA.md): ingest your own files and ontology
-- [Run specs](https://github.com/tteon/seocho/blob/main/docs/RUN_SPECS.md): YAML `seocho run` / `seocho sweep` flow
-- [Architecture](https://github.com/tteon/seocho/blob/main/docs/ARCHITECTURE.md): system design and module map
-- [Docs index](https://github.com/tteon/seocho/blob/main/docs/README.md): full documentation map
+- [Overview](https://github.com/tteon/gare2e/blob/main/README.md): scope, workflow and source map
+- [Quickstart](https://github.com/tteon/gare2e/blob/main/QUICKSTART.md): read existing evidence and launch the local viewer
+- [Scope and provenance](https://github.com/tteon/gare2e/blob/main/docs/GARE2E_SCOPE.md): repository-specific work and inherited boundary
+- [Result index](https://github.com/tteon/gare2e/blob/main/docs/agentic-os/README.md): published experiments and charts
+- [Experiment platform](https://github.com/tteon/gare2e/blob/main/docs/agentic-os/EXPERIMENT_PLATFORM.md): import, compare, inspect and download
+- [Harness](https://github.com/tteon/gare2e/blob/main/docs/agentic-os/HARNESS.md): reproduction entrypoints and live-run prerequisites
 
-## Optional
+## Measurement and contributions
 
-- [Runtime deployment](https://github.com/tteon/seocho/blob/main/docs/RUNTIME_DEPLOYMENT.md): full local stack (UI, API, DozerDB)
-- [Graph-RAG handoff spec](https://github.com/tteon/seocho/blob/main/docs/GRAPH_RAG_AGENT_HANDOFF_SPEC.md): intent-first graph answer contract
-- [Contributing](https://github.com/tteon/seocho/blob/main/CONTRIBUTING.md): contribution flow and PR rules
-- [Documentation site](https://seocho.blog): published documentation
+- [Metric definitions](https://github.com/tteon/gare2e/blob/main/docs/agentic-os/OBSERVABILITY_FACTORS.md): units, denominators and coverage
+- [Query evidence](https://github.com/tteon/gare2e/blob/main/docs/agentic-os/GRAPH_OPTIMIZATION_OBSERVABILITY.md): query/plan/quality contracts
+- [Graph-system observability](https://github.com/tteon/gare2e/blob/main/docs/agentic-os/GRAPH_SYSTEM_OBSERVABILITY.md): capability-qualified system evidence
+- [Contributing](https://github.com/tteon/gare2e/blob/main/CONTRIBUTING.md): source ownership and validation
+- [Experiment agent guide](https://github.com/tteon/gare2e/blob/main/docs/agentic-os/AGENTS.md): preserve evidence, scope and resource boundaries
+
+## Inherited SDK
+
+- [SEOCHO](https://github.com/tteon/seocho): standalone ontology-aligned graph-memory SDK and upstream documentation

@@ -1,207 +1,61 @@
-# SEOCHO Documentation
+# GARE2E Documentation
 
-SEOCHO helps agents use graph memory with an explicit ontology contract.
+GARE2E studies and inspects the end-to-end path from an agent's LLM requests to
+its graph tools. Begin with published evidence, then the measurement contracts
+and the harness that produced it.
 
-This page is the front door. It explains what SEOCHO does, which document to
-read first, and which words matter before you go deeper.
+## Start here
 
-## Start Here
-
-| Goal | Read | You are done when |
-|---|---|---|
-| Understand the idea | [Why SEOCHO](WHY_SEOCHO.md) | you can explain ontology-aligned graph memory in one paragraph |
-| Run the smallest example | [Quickstart](../QUICKSTART.md) | you can define one ontology, add text, and ask one question |
-| Use Python directly | [Python SDK](PYTHON_INTERFACE_QUICKSTART.md) | you know when to use local, remote, or explicit backend mode |
-| Bring files and connectors | [Bring Your Data](APPLY_YOUR_DATA.md) -> [Connectors](https://github.com/tteon/seocho/blob/main/docs/CONNECTORS.md) | you know how records from your tools enter the graph |
-| Run a service | [Runtime Deployment](RUNTIME_DEPLOYMENT.md) | you can start the API, UI, and graph services |
-| Share memory across agents | [Cross-Agent Memory Sharing](MEMORY_SHARING.md) | you know which namespace is private, which is shared, and why user identity stays out of the graph |
-| Contribute | [Open Source Playbook](OPEN_SOURCE_PLAYBOOK.md) | you know how to open a scoped issue or PR |
-
-If you only have ten minutes, read [Why SEOCHO](WHY_SEOCHO.md), then run the
-[Quickstart](../QUICKSTART.md).
-
-## Reader Map
-
-Do not read the docs tree from top to bottom. Pick the path closest to your job
-and move one step at a time.
-
-<figure class="docs-figure">
-  <img src="../website/public/images/docs-reader-map.svg" alt="SEOCHO documentation reader paths">
-  <figcaption>SEOCHO docs follow a common open-source pattern: understand the idea, try the smallest example, then move into build, operate, or contribute paths.</figcaption>
-</figure>
-
-## The Core Loop
-
-SEOCHO keeps the same ontology contract across ingestion, graph writes,
-retrieval, answer synthesis, and runtime APIs.
-
-<figure class="docs-figure">
-  <img src="../website/public/images/docs-core-loop.svg" alt="SEOCHO core loop">
-  <figcaption>The product loop is small on purpose: define the contract, ingest data, shape graph facts, query evidence, and improve the contract.</figcaption>
-</figure>
-
-In plain terms:
-
-| Step | What happens | What you can inspect |
-|---|---|---|
-| Define ontology | Name the allowed entities, relationships, and properties. | ontology file or Python object |
-| Ingest data | Load text, records, or files. | input files and run config |
-| Shape graph facts | Extract entities and relationships that fit the ontology. | graph payloads and validation notes |
-| Query graph memory | Ask questions with schema-aware retrieval. | Cypher, evidence, and traces |
-| Improve the contract | Review failures, add rules, and rerun. | artifacts, reports, and PRs |
-
-Everything else in the repository exists to make this loop repeatable,
-observable, or deployable.
-
-## Quick Vocabulary
-
-| Term | Meaning here | Simple example |
-|---|---|---|
-| Ontology | The schema the agent must respect. | `Person WORKS_AT Company` |
-| Graph memory | Stored facts plus provenance and constraints. | who said a fact, where it came from, and how it links |
-| Indexing | Turning documents into graph-shaped facts. | extracting companies, incidents, controls, and relationships |
-| Semantic query | Resolving intent before generating a graph query. | mapping "risk owner" to the right node and relation |
-| Runtime | The HTTP service for shared usage. | an app or agent calls SEOCHO instead of local Python |
-| Artifact | A generated file you can review. | trace, rule profile, report, or graph export |
-
-## Choose A Path
-
-| Reader | Best first path |
+| Goal | Read |
 |---|---|
-| New user | [Quickstart](../QUICKSTART.md) -> [Python SDK](PYTHON_INTERFACE_QUICKSTART.md) |
-| Data or RAG builder | [Bring Your Data](APPLY_YOUR_DATA.md) -> [Connectors](https://github.com/tteon/seocho/blob/main/docs/CONNECTORS.md) -> [Run Specs](RUN_SPECS.md) |
-| Agent developer | [Python SDK](PYTHON_INTERFACE_QUICKSTART.md) -> [Files and Artifacts](FILES_AND_ARTIFACTS.md) |
-| Operator | [Runtime Deployment](RUNTIME_DEPLOYMENT.md) -> [Workflow](WORKFLOW.md) |
-| Contributor | [Open Source Playbook](OPEN_SOURCE_PLAYBOOK.md) -> [Issue Task System](ISSUE_TASK_SYSTEM.md) |
-| Maintainer | [Release And Community Operations](RELEASE_AND_COMMUNITY_OPERATIONS.md) -> [Decision Log](decisions/DECISION_LOG.md) |
+| Understand GARE2E and its inherited boundary | [Project overview](../README.md), [scope and provenance](GARE2E_SCOPE.md) |
+| View results without model/DB credentials | [Quickstart](../QUICKSTART.md), [published result index](agentic-os/README.md) |
+| Compare conditions and inspect a task | [Experiment platform](agentic-os/EXPERIMENT_PLATFORM.md) |
+| Read Agent / Runtime / Tool metric definitions | [Observability factors](agentic-os/OBSERVABILITY_FACTORS.md) |
+| Inspect query attempts, plans and quality records | [Graph optimization evidence](agentic-os/GRAPH_OPTIMIZATION_OBSERVABILITY.md) |
+| Inspect thread, storage and hardware coverage | [Graph-system observability](agentic-os/GRAPH_SYSTEM_OBSERVABILITY.md) |
+| Reproduce analysis or prepare a controlled run | [Harness](agentic-os/HARNESS.md) |
+| Resume with another operator or coding agent | [Experiment AGENTS](agentic-os/AGENTS.md), [handoff](agentic-os/HANDOFF.md) |
 
-## First Local Success
+## Published evidence
 
-The fastest path is local. It does not require Neo4j, DozerDB, Docker, or a
-web server.
+- [Characterization chartbook](agentic-os/reports/characterization-charts/README.md): serving demand, tool activity and agent behavior.
+- [Replica / affinity results](agentic-os/reports/lab025-replicas/README.md): recorded conditions, gates and source coverage.
+- [Runtime recovery](agentic-os/reports/lab026-worker-recovery/README.md): valid windows and retained startup failures.
+- [Query-evidence pilot](agentic-os/reports/lab027-graph-evidence/README.md): fixed-query reuse and live-agent observations.
+- [Report catalogue](agentic-os/reports/README.md): other published reports and their scopes.
 
-```bash
-uv pip install "seocho[local]"
-```
+A graph, chart or successful protocol termination does not certify answer
+correctness. Keep original conditions, missing values, failed attempts and
+measurement limits with any result you reuse.
 
-Then run the quickstart from a checkout:
-
-```bash
-export MARA_API_KEY=...
-uv run python examples/finance-compliance/quickstart.py --llm mara/MiniMax-M2.7
-```
-
-Use the runtime later, when another process needs the same graph contract over
-HTTP.
-
-## Evidence And Artifacts
-
-SEOCHO docs should make evidence visible. Every serious run should leave files
-or links that another person can inspect.
-
-<figure class="docs-figure">
-  <img src="../website/public/images/docs-evidence-loop.svg" alt="SEOCHO evidence and artifact loop">
-  <figcaption>Artifacts turn graph behavior into reviewable evidence. Use them to debug extraction, validate answers, and decide the next ontology or rule change.</figcaption>
-</figure>
-
-| Artifact | Why it exists | Read next |
-|---|---|---|
-| Run config | shows which ontology, documents, questions, and models were used | [Run Specs](RUN_SPECS.md) |
-| Graph payloads | show the nodes, relationships, and evidence before or after write | [Files and Artifacts](FILES_AND_ARTIFACTS.md) |
-| Traces | show how retrieval, routing, and answer synthesis behaved | [Files and Artifacts](FILES_AND_ARTIFACTS.md) |
-| Reports | compare runs, gaps, costs, and failure modes | [Tutorial First Run](TUTORIAL_FIRST_RUN.md) |
-| PRs and issues | keep public work reviewable and scoped | [Open Source Playbook](OPEN_SOURCE_PLAYBOOK.md) |
-
-## Document Map
-
-| Area | Documents |
-|---|---|
-| Product idea | [Why SEOCHO](WHY_SEOCHO.md), [Philosophy](PHILOSOPHY.md), [Architecture Overview](ARCHITECTURE.md) |
-| Getting started | [Quickstart](../QUICKSTART.md), [Python SDK](PYTHON_INTERFACE_QUICKSTART.md), [Bring Your Data](APPLY_YOUR_DATA.md), [Connectors](https://github.com/tteon/seocho/blob/main/docs/CONNECTORS.md) |
-| Repeatable runs | [Run Specs](RUN_SPECS.md), [Tutorial First Run](TUTORIAL_FIRST_RUN.md), [Files and Artifacts](FILES_AND_ARTIFACTS.md) |
-| Operations | [Runtime Deployment](RUNTIME_DEPLOYMENT.md), [Runtime Architecture](RUNTIME_ARCHITECTURE.md), [Workflow](WORKFLOW.md), [Release And Community Operations](RELEASE_AND_COMMUNITY_OPERATIONS.md) |
-| Open source work | [Open Source Playbook](OPEN_SOURCE_PLAYBOOK.md), [Issue Task System](ISSUE_TASK_SYSTEM.md), [Contributing](../CONTRIBUTING.md) |
-
-The map follows this structure:
-
-| Docs pattern | Purpose | SEOCHO examples |
-|---|---|---|
-| Concepts | explain why the system exists and which words matter | [Why SEOCHO](WHY_SEOCHO.md), [Architecture Overview](ARCHITECTURE.md) |
-| Tutorials | guide a first successful run | [Quickstart](../QUICKSTART.md), [Tutorial First Run](TUTORIAL_FIRST_RUN.md) |
-| How-to guides | solve a concrete task | [Bring Your Data](APPLY_YOUR_DATA.md), [Connectors](https://github.com/tteon/seocho/blob/main/docs/CONNECTORS.md), [Run Specs](RUN_SPECS.md) |
-| Reference | preserve contracts, surfaces, and decisions | [Files and Artifacts](FILES_AND_ARTIFACTS.md), [Query Architecture](QUERY_ARCHITECTURE.md), [Decision Log](decisions/DECISION_LOG.md) |
-
-## System Deep-Dive Map
-
-Generated code indexes such as [DeepWiki](https://deepwiki.com/tteon/seocho)
-are useful as secondary maps, but the source docs in this repository remain the
-contract. Use this table to move from a system area to the maintained guide.
-
-| System area | What you are trying to understand | Maintained docs |
-|---|---|---|
-| Product overview | why SEOCHO exists and where it fits | [Why SEOCHO](WHY_SEOCHO.md), [Architecture Overview](ARCHITECTURE.md) |
-| SDK and client interface | how users call SEOCHO from Python | [Python SDK](PYTHON_INTERFACE_QUICKSTART.md), [Quickstart](../QUICKSTART.md) |
-| Ontology system | how schema, context, drift checks, and governance shape behavior | [Why SEOCHO](WHY_SEOCHO.md), [SDK Ontology Guide](https://seocho.blog/sdk/ontology-guide/), [Maintainer Architecture Notes](MAINTAINER_ARCHITECTURE_NOTES.md) |
-| Indexing and ingestion | how documents become graph facts | [Bring Your Data](APPLY_YOUR_DATA.md), [Connectors](https://github.com/tteon/seocho/blob/main/docs/CONNECTORS.md), [Run Specs](RUN_SPECS.md), [Files and Artifacts](FILES_AND_ARTIFACTS.md) |
-| Query and agent orchestration | how questions become evidence-backed answers | [Query Architecture](QUERY_ARCHITECTURE.md), [Graph-RAG Agent Handoff Spec](GRAPH_RAG_AGENT_HANDOFF_SPEC.md) |
-| Runtime and HTTP API | how the shared service is composed and operated | [Runtime Deployment](RUNTIME_DEPLOYMENT.md), [Runtime Architecture](RUNTIME_ARCHITECTURE.md) |
-| Storage and graph backends | where graph state, generated files, and backend assumptions live | [Files and Artifacts](FILES_AND_ARTIFACTS.md), [Runtime Architecture](RUNTIME_ARCHITECTURE.md) |
-| LLM, tracing, and evaluation | how runs stay inspectable and how claims are validated | [Files and Artifacts](FILES_AND_ARTIFACTS.md), [Runtime Architecture](RUNTIME_ARCHITECTURE.md), [Workflow](WORKFLOW.md) |
-| Developer tooling and CI | how contributors keep changes reviewable and deployable | [Open Source Playbook](OPEN_SOURCE_PLAYBOOK.md), [Workflow](WORKFLOW.md), [Maintainer Architecture Notes](MAINTAINER_ARCHITECTURE_NOTES.md) |
-
-Current gap list:
-
-| Gap | Current workaround | Good future doc |
-|---|---|---|
-| ontology internals are split across product, SDK, and maintainer docs | start from the SDK ontology guide, then read maintainer notes | `Ontology Architecture` |
-| indexing/data-plane internals are spread across how-to and artifact docs | start from Bring Your Data, Run Specs, and Files and Artifacts | `Indexing Architecture` |
-| graph backend details are mostly operational today | start from Files and Artifacts and Runtime Architecture | `Storage And Backend Guide` |
-| tracing/evaluation guidance is distributed across workflow and runtime docs | start from Files and Artifacts, Runtime Architecture, and Workflow | `Tracing And Evaluation Guide` |
-
-## Common Questions
-
-| Question | Short answer | Read next |
-|---|---|---|
-| Do I need a graph database for hello world? | No. Start with the embedded local path. | [Quickstart](../QUICKSTART.md) |
-| When should I use the runtime? | When another app or agent needs a shared HTTP boundary. | [Runtime Deployment](RUNTIME_DEPLOYMENT.md) |
-| What does the ontology control? | It guides extraction, validation, graph writes, retrieval, and answers. | [Why SEOCHO](WHY_SEOCHO.md) |
-| Where do generated files go? | SEOCHO writes reviewable artifacts such as traces, reports, and profiles. | [Files and Artifacts](FILES_AND_ARTIFACTS.md) |
-| Is debate mode the default? | No. Start with semantic graph QA. Use debate for explicit comparison. | [Python SDK](PYTHON_INTERFACE_QUICKSTART.md) |
-| How do GitHub, Ghost, and Discord fit together? | GitHub is source of truth, Ghost is the public archive, Discord is real-time discussion. | [Release And Community Operations](RELEASE_AND_COMMUNITY_OPERATIONS.md) |
-
-## System Surfaces
-
-| Surface | Owner path | Main question |
-|---|---|---|
-| Public SDK | `src/seocho/` | how do users ingest, query, and configure SEOCHO from Python? |
-| Query and retrieval | `src/seocho/query/` | how does intent become graph-grounded evidence? |
-| Indexing and graph shaping | `src/seocho/index/` | how do documents become graph facts? |
-| Runtime API | `runtime/` | how do external agents and apps consume the graph contract? |
-| Extraction compatibility | `extraction/` | which legacy imports or batch paths still need to work? |
-| Examples | `examples/` | what should a real user copy first? |
-| Docs and governance | `docs/` | what contract should future contributors preserve? |
-
-## Deeper References
-
-Use these after the first local success:
+## Contribute and operate
 
 | Topic | Reference |
 |---|---|
-| Architecture details | [Architecture Overview](ARCHITECTURE.md), [Runtime Architecture](RUNTIME_ARCHITECTURE.md), [Query Architecture](QUERY_ARCHITECTURE.md), [Maintainer Architecture Notes](MAINTAINER_ARCHITECTURE_NOTES.md), [Internal Class Design](INTERNAL_CLASS_DESIGN.md) |
-| Repository shape | [Repository Layout](REPOSITORY_LAYOUT.md), [Workflow](WORKFLOW.md) |
-| Automation | [GitHub Automation](GITHUB_AUTOMATION.md), [Release And Community Operations](RELEASE_AND_COMMUNITY_OPERATIONS.md) |
-| Design history | [Decision Log](decisions/DECISION_LOG.md), [Reference Docs](reference/README.md) |
-| Historical material | [Archive](archive/README.md), [Maintainer Docs](maintainers/README.md) |
+| Source ownership and inherited code | [Repository layout](REPOSITORY_LAYOUT.md) |
+| Change and validation workflow | [Workflow](WORKFLOW.md), [contributing](../CONTRIBUTING.md) |
+| Public review contract | [Issue/task system](ISSUE_TASK_SYSTEM.md) |
+| Architecture decisions | [Decision log](decisions/DECISION_LOG.md) |
+| Result import, comparison and download API | [Platform guide](agentic-os/EXPERIMENT_PLATFORM.md) |
+| Artifact privacy and trace sharing | [Trace sharing](agentic-os/TRACE_SHARING.md) |
 
-## Docs Site Integration
+## Inherited SEOCHO reference
 
-- GitHub `README.md` is the fastest product landing page.
-- `docs/*` is the source of truth for long-form product, operator, and system
-  contracts.
-- `website/` is the tracked Astro/Starlight source app in this repository.
-- `website/scripts/generate-docs.mjs` materializes selected `/docs/*` and
-  `/blog/*` pages from repo-root source docs for the in-repo site app.
-- Generated mirror files under `website/src/content/docs/docs/` are derived
-  site artifacts. Do not edit them by hand; regenerate them when source docs
-  change.
-- Validate the site with `cd website && npm run check:docs && npm run build`.
+The following documents describe SDK or application behavior inherited from
+SEOCHO. Their presence does not make them GARE2E-specific contributions.
+
+| Topic | Reference |
+|---|---|
+| Standalone SDK onboarding | [Upstream SEOCHO](https://github.com/tteon/seocho) |
+| Python interfaces used by existing code | [SDK interface](PYTHON_INTERFACE_QUICKSTART.md) |
+| Ontology/indexing/query architecture | [Architecture](ARCHITECTURE.md), [module ownership](MODULE_OWNERSHIP_MAP.md) |
+| SDK orchestration seams | [Internal class design](INTERNAL_CLASS_DESIGN.md) |
+| Full inherited application deployment | [docs/RUNTIME_DEPLOYMENT.md](RUNTIME_DEPLOYMENT.md) |
+| Historical design and operations | [Archive](archive/README.md), [maintainer docs](maintainers/README.md) |
+
+`website/` is the inherited SEOCHO documentation-site source. Its
+`website/scripts/generate-docs.mjs` generates mirrors from source documents;
+those mirrors should not be edited directly. GARE2E's current entrypoints are
+this GitHub documentation and its local experiment viewer. SEOCHO-site deployment
+and mirror dispatch are restricted to the upstream repository.

@@ -8,6 +8,8 @@ on:
 
 jobs:
   docs-site-quality:
+    # GARE2E uses GitHub source docs; inherited site checks run upstream.
+    if: github.repository == 'tteon/seocho'
     runs-on: ubuntu-latest
 
     steps:
@@ -38,6 +40,8 @@ jobs:
         run: bash scripts/check-built-links.sh
 
   seocho-blog-contract:
+    # GARE2E uses GitHub source docs; inherited site checks run upstream.
+    if: github.repository == 'tteon/seocho'
     runs-on: ubuntu-latest
 
     steps:
