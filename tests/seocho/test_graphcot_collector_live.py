@@ -1,5 +1,7 @@
 """Real Collector transport/retry gate; test endpoints are not vLLM/Tempo evidence."""
+import errno
 import json
+import socket
 import os
 from pathlib import Path
 import subprocess
@@ -18,6 +20,16 @@ def test_collector_forwards_after_endpoint_recovers(tmp_path):
     from opentelemetry.proto.collector.trace.v1 import trace_service_pb2, trace_service_pb2_grpc
     from opentelemetry.proto.collector.metrics.v1 import metrics_service_pb2, metrics_service_pb2_grpc
 
+    # The wrapper intentionally owns fixed loopback ports. Never disturb a
+    # running observer just to make this opt-in fixture available.
+    for port in (4317, 4318, 13133, 8888):
+        with socket.socket() as probe:
+            try:
+                probe.bind(("127.0.0.1", port))
+            except OSError as error:
+                if error.errno == errno.EADDRINUSE:
+                    pytest.skip(f"dedicated Collector fixture port {port} is already in use")
+                raise
     traces = []
     metrics = []
 
@@ -64,7 +76,8 @@ def test_collector_forwards_after_endpoint_recovers(tmp_path):
         time.sleep(5)
         sink.start()
         stdout, stderr = process.communicate(timeout=55)
-        assert process.returncode == 0, (stdout, stderr, (tmp_path / 'run/collector.log').read_text())
+        collector_log = tmp_path / 'run/collector.log'
+        assert process.returncode == 0, (stdout, stderr, collector_log.read_text() if collector_log.exists() else 'collector not started')
         status = json.loads((tmp_path / 'run/observability-status.json').read_text())
         assert status['collector_queue_drained'] is True
         assert status['private_delivery_verified'] is False

@@ -1,0 +1,63 @@
+# In-container receiver/sampler, forwarded to the server Compose collector.
+# The private Docker network is not a public OTLP endpoint.
+extensions:
+  file_storage:
+    directory: ${env:SEOCHO_OTEL_QUEUE_DIR}
+    create_directory: true
+  health_check:
+    endpoint: 127.0.0.1:13133
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 127.0.0.1:4317
+      http:
+        endpoint: 127.0.0.1:4318
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: vllm
+          scrape_interval: 5s
+          static_configs:
+            - targets: ["${env:SEOCHO_VLLM_METRICS_TARGET}"]
+        - job_name: gare2e-resources
+          scrape_interval: 5s
+          static_configs:
+            - targets: ["127.0.0.1:19100"]
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+  batch:
+    timeout: 1s
+    send_batch_size: 512
+exporters:
+  otlp/central:
+    endpoint: ${env:SEOCHO_OBSERVABILITY_ENDPOINT}
+    # Same-host private Docker network only; never a public WAN endpoint.
+    tls:
+      insecure: true
+    sending_queue:
+      storage: file_storage
+      queue_size: 10000
+    retry_on_failure:
+      max_elapsed_time: 0s
+service:
+  extensions: [file_storage, health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/central]
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/central]
+  telemetry:
+    metrics:
+      readers:
+        - pull:
+            exporter:
+              prometheus:
+                host: 127.0.0.1
+                port: 8888
