@@ -74,9 +74,25 @@ def case_trace(run_id: str, case_id: str) -> Iterator[CaseTrace]:
         root_span_id=derived_span_id(run_id, case_id, "case"),
     )
     token = _CURRENT.set(trace)
+    otel_token = None
     try:
+        # Native GraphCoT spans and receipt exports share this exact case trace.
+        # The OTel API is optional; receipt-only experiments keep working without it.
+        try:
+            from opentelemetry import context as otel_context
+            from opentelemetry.trace import NonRecordingSpan, SpanContext, TraceFlags, set_span_in_context
+        except ImportError:
+            pass
+        else:
+            parent = NonRecordingSpan(SpanContext(
+                trace_id=int(trace.trace_id, 16), span_id=int(trace.root_span_id, 16),
+                is_remote=True, trace_flags=TraceFlags(TraceFlags.SAMPLED),
+            ))
+            otel_token = otel_context.attach(set_span_in_context(parent))
         yield trace
     finally:
+        if otel_token is not None:
+            otel_context.detach(otel_token)
         _CURRENT.reset(token)
 
 

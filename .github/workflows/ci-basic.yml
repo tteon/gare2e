@@ -44,7 +44,7 @@ jobs:
       - name: Sync CI dependencies
         env:
           UV_CACHE_DIR: /tmp/uv-cache
-        run: uv sync --extra ci
+        run: uv sync --extra ci --extra otel
 
       - name: Run basic checks
         env:

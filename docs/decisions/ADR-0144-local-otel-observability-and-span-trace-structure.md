@@ -217,3 +217,25 @@ slices (tracked as `seocho-*` beads under this ADR):
   ADR-0123 (guardrail selector audit span). Ticket `seocho-ub5` (provider/model-
   aware meta-prompt) is adjacent but distinct (output robustness, not
   observability).
+
+
+## 2026-09-13 amendment: GraphCoT experiments
+
+Reuse this stack for Vast experiments (Opik was subsequently removed by ADR-0172).
+Native trace and span IDs are authoritative in private manifests. Original
+Recorder/Timer summaries remain compatible. Raw requests and results stay in
+private S3, separated by project/campaign/experiment/run. Experiment spans redact
+exception messages and propagate W3C context to model endpoints.
+
+The appliance owns a pinned Collector process with a persistent sending queue
+and vLLM metrics scrape. The central stack lives outside the GPU lease; use the
+authenticated Grafana override and a private tunnel. A one-shot storage init
+sets the queue volume owner so the Collector remains non-root. Startup waits
+for an actual scrape; shutdown checks accepted/sent counts and queue drain.
+Neither state proves Tempo storage or private S3 delivery: those need explicit
+receipts. GPU deletion before queue/spool recovery can lose data.
+
+See [operating contract](../GRAPHCOT_OBSERVABILITY.md) and
+[execution plan](../execplans/graphcot-observability.md). Actual Collector transport
+and SDK contracts are tested; full Docker/GPU deployment remains a separate
+live gate. Server histograms are aggregate measurements, not per-call GPU time.

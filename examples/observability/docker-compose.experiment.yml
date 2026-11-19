@@ -1,0 +1,11 @@
+# Merge with docker-compose.observability.yml. Supply a private password file.
+services:
+  grafana:
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_AUTH_DISABLE_LOGIN_FORM: "false"
+      GF_SECURITY_ADMIN_PASSWORD__FILE: /run/secrets/grafana_password
+    secrets: [grafana_password]
+secrets:
+  grafana_password:
+    file: ${SEOCHO_GRAFANA_PASSWORD_FILE:?provide a private password file}

@@ -1457,3 +1457,5 @@ Use this block for new entries:
   gare2e executor/registry/viewer with query attempts, nullable PROFILE counters,
   snapshot-bound exact reuse, plan/quality/log inspection and an optional local
   OTel/Prometheus/Tempo/Grafana companion; LangSmith stays an optional destination.
+
+- [Accepted] ADR-0144 amendment — GraphCoT experiments reuse native OTel IDs, persistent Collector queues and private S3 linkage; see [operating contract](../GRAPHCOT_OBSERVABILITY.md).

@@ -128,3 +128,7 @@ are documented in `docs/WORKFLOW.md`.
   root `README.md`.
 - Keep root hierarchy changes covered by
   `scripts/ci/check-root-hierarchy-contract.sh`.
+
+Basic CI installs the `ci` and `otel` extras. Its offline graph-agent checks
+include native OTel IDs, receipt trace propagation, HTTP retries and private
+spool contracts; local fixture passes are not GPU/DB deployment measurements.

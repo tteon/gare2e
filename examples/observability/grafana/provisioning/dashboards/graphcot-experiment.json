@@ -1,0 +1,205 @@
+{
+  "uid": "graphcot-experiment",
+  "title": "GraphCoT 실험",
+  "schemaVersion": 39,
+  "version": 1,
+  "tags": [
+    "graphcot",
+    "experiment"
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "refresh": "10s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "최종 생성 token throughput",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate({__name__=~\"vllm[:_]generation_tokens_total\"}[$__rate_interval]))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "tps"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "title": "Queue / prefill / decode 평균 (서버 집계)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "0",
+          "legendFormat": "queue",
+          "expr": "sum(rate({__name__=~\"vllm[:_]request_queue_time_seconds_sum\"}[$__rate_interval])) / sum(rate({__name__=~\"vllm[:_]request_queue_time_seconds_count\"}[$__rate_interval]))"
+        },
+        {
+          "refId": "1",
+          "legendFormat": "prefill",
+          "expr": "sum(rate({__name__=~\"vllm[:_]request_prefill_time_seconds_sum\"}[$__rate_interval])) / sum(rate({__name__=~\"vllm[:_]request_prefill_time_seconds_count\"}[$__rate_interval]))"
+        },
+        {
+          "refId": "2",
+          "legendFormat": "decode",
+          "expr": "sum(rate({__name__=~\"vllm[:_]request_decode_time_seconds_sum\"}[$__rate_interval])) / sum(rate({__name__=~\"vllm[:_]request_decode_time_seconds_count\"}[$__rate_interval]))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 3,
+      "title": "Prefix cache hit (token 기준)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate({__name__=~\"vllm[:_]prefix_cache_hits_total\"}[$__rate_interval])) / sum(rate({__name__=~\"vllm[:_]prefix_cache_queries_total\"}[$__rate_interval]))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "title": "KV cache 점유율",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{__name__=~\"vllm[:_](kv_cache_usage_perc|gpu_cache_usage_perc)\"}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 5,
+      "title": "Speculative token acceptance",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate({__name__=~\"vllm[:_]spec_decode_num_accepted_tokens_total\"}[$__rate_interval])) / sum(rate({__name__=~\"vllm[:_]spec_decode_num_draft_tokens_total\"}[$__rate_interval]))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 6,
+      "title": "Collector export failures",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (exporter) (rate(otelcol_exporter_send_failed_spans_total[$__rate_interval]))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 7,
+      "title": "사용법과 측정 경계",
+      "type": "text",
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "Tempo Explore에서 `{ span.run_id = \"run ID\" }`로 사례 trace를 조회하세요. Private manifest의 trace_id도 직접 조회할 수 있습니다. 서버 지표는 동시 요청의 집계이며 개별 호출 GPU 시간으로 해석하지 않습니다. 빈 패널은 해당 버전 지표가 없거나 수집되지 않은 상태입니다. 실행 전 저장한 vllm-metrics-before.prom에서 지표 이름과 정의를 확인하세요. 0으로 대체하지 않습니다."
+      }
+    }
+  ]
+}

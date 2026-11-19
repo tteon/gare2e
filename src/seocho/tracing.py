@@ -734,6 +734,12 @@ class SpanHandle:
         self._tags.extend(tags)
 
 
+def current_span_identity() -> Dict[str, str]:
+    """Return the active span IDs without exposing inputs or outputs."""
+    stack = _span_stack.get()
+    return {"trace_id": stack[0], "span_id": stack[-1]} if stack else {}
+
+
 @contextmanager
 def start_span(
     name: str,
@@ -742,6 +748,7 @@ def start_span(
     output_data: Optional[Dict[str, Any]] = None,
     metadata: Optional[Dict[str, Any]] = None,
     tags: Optional[List[str]] = None,
+    redact_errors: bool = False,
 ) -> Iterator[Any]:
     """Open a timed span with parent/child nesting, across all backends.
 
@@ -798,7 +805,7 @@ def start_span(
     # OTLP creates the authoritative trace identity. Expose that identity on
     # the public handle so receipts and Grafana links address the trace Tempo
     # actually stores, rather than SEOCHO's fallback correlation UUID.
-    if parent_span_id is None and opened:
+    if opened:
         try:
             native_handle = opened[0][1]
             native_span = (
@@ -813,7 +820,11 @@ def start_span(
             if native_trace_id != "0" * 32:
                 trace_id = native_trace_id
                 handle.trace_id = native_trace_id
-                new_stack = (native_trace_id, span_id)
+                native_span_id = getattr(native_context, "span_id", 0)
+                if native_span_id:
+                    span_id = f"{native_span_id:016x}"
+                    handle.span_id = span_id
+                new_stack = (native_trace_id,) + parent[1:] + (span_id,)
         except Exception:
             pass
 
@@ -822,7 +833,7 @@ def start_span(
     try:
         yield handle
     except BaseException as exc:  # record then re-raise — never swallow business errors
-        handle.error = exc
+        handle.error = RuntimeError(type(exc).__name__) if redact_errors else exc
         raise
     finally:
         duration_ms = round((time.perf_counter() - start) * 1000.0, 2)
@@ -835,7 +846,7 @@ def start_span(
         for b, native in opened:
             try:
                 close_attrs = (
-                    b._attributes(None, handle._output, {"duration_ms": duration_ms}, None)
+                    b._attributes(None, handle._output, {**handle._metadata, "duration_ms": duration_ms}, handle._tags)
                     if hasattr(b, "_attributes")
                     else None
                 )

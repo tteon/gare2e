@@ -203,3 +203,23 @@ remaining validation gap.
   permission, clean non-draft PR, squash merge.
 - Agent/tool-specific private state belongs in local ignored directories, not in
   the public repo.
+
+
+## Vast experiment observability
+
+- Before a new Vast GraphCoT experiment, follow `docs/GRAPHCOT_OBSERVABILITY.md`
+  in the actual execution checkout. It must contain the tested Collector
+  configuration and `scripts/benchmarks/run_observed_experiment.py`; do not
+  silently fall back to Recorder/Timer-only collection in an older checkout.
+- Use the observed wrapper with project/campaign/experiment/run IDs, private
+  capture configuration and the authorized central OTLP tunnel. Keep raw
+  content private and preserve frozen workload settings across arms.
+- Gate each deployment on an actual model/tool case, native trace lookup,
+  vLLM metrics snapshot and private S3 SHA verification. A unit test, Collector
+  readiness or empty queue alone does not establish this gate. Record missing
+  components as gaps; do not mark them ready or report GPU timing from HTTP.
+- Keep the existing samplers and measure instrumentation off/on overhead before
+  performance comparisons. Unsupported server timing remains unavailable.
+- Retain the queue/spool until export and artifact receipts are verified.
+  Resource ownership, budget and keep/delete rules remain in the workspace's
+  master registry; this instrumentation policy never authorizes GPU mutation.

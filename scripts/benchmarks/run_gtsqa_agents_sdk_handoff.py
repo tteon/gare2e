@@ -31,9 +31,11 @@ from seocho.eval.agentic_graph_agents import (
     gtsqa_react_tools,
     LLMRequestTimer,
     make_vllm_chat_model,
+    PrivateTrace,
     redacted_episode_error,
     run_agents_sdk_agent_tool_episode,
 )
+from seocho.eval.private_trace_store import store_from_env
 from seocho.eval.agentic_os_artifacts import (
     Correlation,
     append_jsonl,
@@ -96,13 +98,16 @@ async def _run(args: argparse.Namespace) -> int:
             root / "receipts.jsonl",
             root / "predictions.private.jsonl",
             root / "evidence.private.jsonl",
+            root / "events.private.jsonl",
             root / "manifest.json",
             root / "metrics" / "agent-oxigraph-process.csv",
             args.gpu_samples_out,
         )
     )
     root.mkdir(parents=True, exist_ok=True)
-    llm_timer = LLMRequestTimer()
+    private_store = store_from_env()
+    dataset_sha256 = _sha256(args.parquet)
+    llm_timer = LLMRequestTimer(capture_token_ids=bool(private_store and private_store.config.get("capture_token_ids")))
     model = make_vllm_chat_model(
         base_url=f"{args.base_url.rstrip('/')}/v1", api_key="EMPTY", model=args.model, request_timer=llm_timer
     )
@@ -169,6 +174,8 @@ async def _run(args: argparse.Namespace) -> int:
               "manager_specialist_as_tool",
               args.seed,
           ).receipt_fields()
+          trace_metadata = {**correlation, "workspace_id": case.workspace_id}
+          private_trace = private_store.trace(correlation, case=case, dataset_sha256=dataset_sha256, model=args.model, condition="manager_specialist_as_tool") if private_store else PrivateTrace(correlation)
           window = VllmMetricsWindow(metrics) if metrics else None
           process_window = ProcessMetricsWindow({"agent_oxigraph": os.getpid()})
           case_started = time.perf_counter()
@@ -176,8 +183,11 @@ async def _run(args: argparse.Namespace) -> int:
           process_window.__enter__()
           if window:
               window.__enter__()
+          episode = None
           try:
               episode = await run_agents_sdk_agent_tool_episode(
+                  private_trace=private_trace,
+                  trace_metadata=trace_metadata,
                   question=case.question,
                   model=model,
                   execute_query=execute,
@@ -278,6 +288,12 @@ async def _run(args: argparse.Namespace) -> int:
                   window.__exit__(None, None, None)
                   receipt["vllm_metrics_window"] = window.receipt()
               process_window.__exit__(None, None, None)
+              if episode is not None:
+                  private_trace.record_final_answer(episode.answer)
+              for event in private_trace.records():
+                  append_private_jsonl(root / "events.private.jsonl", event)
+              if private_store:
+                  private_store.finish(private_trace)
               window_delta = receipt.get("vllm_metrics_window", {}).get("metrics_delta") or {}
               observability_overhead_ms = float(
                   receipt.get("vllm_metrics_window", {}).get("observer_overhead_ms") or 0
