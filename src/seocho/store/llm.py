@@ -14,7 +14,7 @@ import os
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Mapping, Optional, Sequence
+from typing import Any, Dict, List, Literal, Mapping, Optional, Sequence
 
 from ..tracing import capture_text, start_span
 from ..metrics import get_metrics
@@ -417,6 +417,8 @@ def complete_with_task_hints(
         kwargs["model"] = model
     if provider_options:
         kwargs["provider_options"] = provider_options
+    if getattr(llm, "request_policy", "compatible") == "strict":
+        return llm.complete(**kwargs)
     # Older backends predate some optional kwargs (mode/reasoning_mode/
     # task_hint/model/provider_options, and the task-hint max_tokens
     # default). Strip ONLY the kwarg each TypeError names, so a double that
@@ -460,7 +462,13 @@ class EmbeddingBackend(ABC):
 
 
 class OpenAICompatibleBackend(LLMBackend):
-    """LLM backend for OpenAI-compatible chat-completions APIs."""
+    """LLM backend for OpenAI-compatible chat-completions APIs.
+
+    ``request_policy="compatible"`` retains provider fallback requests.
+    ``"strict"`` propagates failures without stripping controls, changing
+    prompts, or increasing generation budgets. Transport retries by the
+    OpenAI client may still resend the same request.
+    """
 
     def __init__(
         self,
@@ -470,7 +478,10 @@ class OpenAICompatibleBackend(LLMBackend):
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         timeout: float = 120.0,
+        request_policy: Literal["compatible", "strict"] = "compatible",
     ) -> None:
+        if request_policy not in ("compatible", "strict"):
+            raise ValueError("request_policy must be 'compatible' or 'strict'")
         try:
             import openai
         except ImportError as exc:
@@ -491,6 +502,7 @@ class OpenAICompatibleBackend(LLMBackend):
         self.provider = spec.name
         self.provider_spec = spec
         self.model = _strip_text(model) or spec.default_model
+        self.request_policy = request_policy
         self._api_key = resolved_api_key
         self._api_key_env = spec.api_key_env
         self._base_url = resolved_base_url
@@ -696,6 +708,8 @@ class OpenAICompatibleBackend(LLMBackend):
 
     def _completion_retry_variants(self, kwargs: Dict[str, Any]) -> List[Dict[str, Any]]:
         variants = [self._clone_completion_request_kwargs(kwargs)]
+        if self.request_policy == "strict":
+            return variants
         has_provider_overrides = any(
             key in kwargs for key in ("extra_body", "reasoning_effort")
         )
@@ -863,7 +877,7 @@ class OpenAICompatibleBackend(LLMBackend):
                     return result
                 except Exception as exc:
                     last_exc = exc
-                    if not budget_boosted:
+                    if self.request_policy == "compatible" and not budget_boosted:
                         # list.insert during iteration is safe here: the
                         # boosted variant lands at the position the loop
                         # visits next.
@@ -1005,7 +1019,7 @@ class OpenAICompatibleBackend(LLMBackend):
                     return result
                 except Exception as exc:
                     last_exc = exc
-                    if not budget_boosted:
+                    if self.request_policy == "compatible" and not budget_boosted:
                         # list.insert during iteration is safe here: the
                         # boosted variant lands at the position the loop
                         # visits next.
@@ -1348,6 +1362,7 @@ class VLLMBackend(OpenAICompatibleBackend):
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         timeout: float = 120.0,
+        request_policy: Literal["compatible", "strict"] = "compatible",
     ) -> None:
         # vLLM convention: pass "EMPTY" when no key is needed so the
         # OpenAI client's hard requirement of a non-empty api_key is met.
@@ -1367,6 +1382,7 @@ class VLLMBackend(OpenAICompatibleBackend):
             api_key=resolved_key,
             base_url=base_url,
             timeout=timeout,
+            request_policy=request_policy,
         )
 
 

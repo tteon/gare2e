@@ -18,13 +18,13 @@ Usage::
 
 from __future__ import annotations
 
-import json
 import logging
+import math
 import os
 import re
 import time
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 from seocho.cypher_ident import IDENT_RE, is_valid_identifier
 from seocho.ontology import Ontology
@@ -547,7 +547,22 @@ class Neo4jGraphStore(GraphStore):
         Database password.
     """
 
-    def __init__(self, uri: str, user: str, password: str) -> None:
+    def __init__(
+        self, uri: str, user: str, password: str, *,
+        max_connection_pool_size: Optional[int] = None,
+        connection_acquisition_timeout: Optional[float] = None,
+    ) -> None:
+        driver_options: Dict[str, Any] = {}
+        if max_connection_pool_size is not None:
+            if type(max_connection_pool_size) is not int or max_connection_pool_size < 1:
+                raise ValueError("max_connection_pool_size must be a positive integer")
+            driver_options["max_connection_pool_size"] = max_connection_pool_size
+        if connection_acquisition_timeout is not None:
+            if (type(connection_acquisition_timeout) not in (int, float)
+                    or not math.isfinite(connection_acquisition_timeout)
+                    or connection_acquisition_timeout <= 0):
+                raise ValueError("connection_acquisition_timeout must be positive and finite")
+            driver_options["connection_acquisition_timeout"] = connection_acquisition_timeout
         try:
             from neo4j import GraphDatabase
         except ImportError as exc:
@@ -557,7 +572,7 @@ class Neo4jGraphStore(GraphStore):
             ) from exc
 
         _log_packstream_codec_once()
-        self._driver = GraphDatabase.driver(uri, auth=(user, password))
+        self._driver = GraphDatabase.driver(uri, auth=(user, password), **driver_options)
         self._closed = False
         self._uri = uri
         self._user = user

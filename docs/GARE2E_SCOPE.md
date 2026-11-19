@@ -18,6 +18,15 @@ read-only comparison platform, built on existing agent and graph components.
 | Query attempts, plan/quality records and bounded exact reuse | `src/seocho/eval/query_evidence.py`, `src/seocho/eval/experiment_evidence.py`, `scripts/benchmarks/export_graph_query_evidence.py` | [Evidence contract](agentic-os/GRAPH_OPTIMIZATION_OBSERVABILITY.md), [pilot](agentic-os/reports/lab027-graph-evidence/README.md) |
 | Native-agent workload/data-source adapters | `scripts/benchmarks/pi_native/`, `scripts/benchmarks/load_benchmark_tasks.py` | [Adapter guide](../scripts/benchmarks/pi_native/README.md), [task loader](BENCHMARK_TASK_LOADER.md) |
 
+The collaborator PR integration on 2026-11-19 also retains:
+
+| Area | Tracked implementation | Evidence boundary |
+|---|---|---|
+| Private model/tool capture and native OTel linkage | `src/seocho/eval/private_trace_store.py`, `experiment_observability.py`, `scripts/benchmarks/run_observed_experiment.py` | [GraphCoT observability](GRAPHCOT_OBSERVABILITY.md); prompts, responses and queries remain private |
+| Pinned Vast runtime and server-side archive recipes | `docker/compose.vast-runtime.yaml`, `docker/compose.vast-observability.yaml` | [Runtime guide](../docker/agentic-os-appliance/vast-runtime/README.md); integration tests do not establish a fresh GPU deployment |
+| Frozen SF1 comparison controls | `src/seocho/eval/sf1_fp8.py`, `src/seocho/integrations/finbench.py` | [SF1 runtime](agentic-os/SF1_RUNTIME.md); opt-in interfaces, no measured improvement implied |
+| Imported collaborator campaign summaries | `experiments/gug-20261030-20261102/` | Reviewed summaries and private archive manifest; preserved historical conditions, not a new rerun or independent semantic validation |
+
 The paths above identify additions made along this experiment repository's
 history. Existing components and algorithms retain their original attribution;
 a new adapter or measurement does not establish a new underlying algorithm.

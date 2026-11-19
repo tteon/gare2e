@@ -49,7 +49,7 @@ for(const thinking of ['off','high'])test(`retained native session tool roundtri
  pi.on('tool_execution_end',async(e,ctx)=>{if(e.toolName==='finish_task')await ctx.abort();});
  }`);
  const config=join(dir,'config.json');const out=join(dir,'run');
- writeFileSync(config,JSON.stringify({output:out,cwd:dir,extension,question:'fixture question',system_prompt:'Use the three tools.',profile:{...legacy,thinking},env:{PI_MODEL_ID:'fixture',PI_TOOL_EPISODE_ID:'e1'}}));
+ writeFileSync(config,JSON.stringify({output:out,cwd:dir,extension,question:'fixture question',system_prompt:'Use the three tools.',profile:{...legacy,thinking,...(thinking==='high'?{seed:42}:{})},env:{PI_MODEL_ID:'fixture',PI_TOOL_EPISODE_ID:'e1'}}));
  try{
   let stderr='';const child=spawn(process.execPath,[join(root,'native_case.mjs'),config],{stdio:['ignore','pipe','pipe']});
   child.stdout.resume();child.stderr.on('data',b=>stderr+=b);
@@ -59,7 +59,7 @@ for(const thinking of ['off','high'])test(`retained native session tool roundtri
   assert.equal(requests.length,3);
   assert.equal(requests[1].input.find(x=>x.type==='function_call_output').call_id,'call1');
   assert.equal(requests[2].input.filter(x=>x.type==='function_call_output').length,2);
-  for(const p of requests){assert.equal(p.store,false);assert.equal(p.previous_response_id,undefined);assert.equal(p.max_output_tokens,512);if(thinking==='high')assert.equal(p.reasoning.effort,'xhigh');}
+  for(const p of requests){assert.equal(p.store,false);assert.equal(p.previous_response_id,undefined);assert.equal(p.max_output_tokens,512);if(thinking==='high'){assert.equal(p.reasoning.effort,'xhigh');assert.equal(p.seed,42);}else assert.equal(p.seed,undefined);}
   const result=JSON.parse(readFileSync(join(out,'native-result.json')));
   assert.equal(result.shutdown,true);assert.equal(result.abortSettled,true);assert.equal(result.error,null);
   const identities=JSON.parse(readFileSync(join(out,'identity.json')));assert.ok(identities.session_id);
