@@ -6,6 +6,8 @@ and [GARE2E scope](../GARE2E_SCOPE.md) first. The access labels, running-service
 statements, branch names and budgets in older sections are dated historical
 snapshots; they do not establish current service state or authorize a new run.
 Published reports can be read without live-service credentials.
+For the collaborator PR integration and its validation boundary, read
+[the 2026-11-19 integration record](#24-collaborator-pr-integration--2026-11-19).
 
 
 What another engineer needs to run the same e2e (co-located Vast appliance:
@@ -643,3 +645,59 @@ Inherited SEOCHO site quality/deployment/mirror jobs are restricted to
 prompts now follow the experiment scope. GARE2E's entrypoints remain GitHub
 source documentation and its local viewer. No separate site or team service
 was deployed, and no live experiment or additional spend was initiated.
+
+
+## 24. Collaborator PR integration — 2026-11-19
+
+JayYun98's previously open PRs are incorporated into `tteon/gare2e` main. PR #3
+was already merged and remains present. The user's separate draft PR #7 stays
+outside this integration.
+
+| PR | Retained change | Main merge |
+|---|---|---|
+| [#1](https://github.com/tteon/gare2e/pull/1) | GraphCoT native OTel linkage, private model/tool call journals and resumable S3 delivery | [`d79e800`](https://github.com/tteon/gare2e/commit/d79e800b50aca4a01b274dc5867ec1d9f873fda0) |
+| [#3](https://github.com/tteon/gare2e/pull/3) | Existing pi SDK, common task loader and Poisson/FIFO adapters | Already present in [`07d7453`](https://github.com/tteon/gare2e/commit/07d7453c1be7da2b814d4590cd5d7a64e7b7d24b) |
+| [#4](https://github.com/tteon/gare2e/pull/4) | Pinned Vast runtime recipes, server-side observer and immutable private run archives | [`930ee55`](https://github.com/tteon/gare2e/commit/930ee553cafc58e0c3032fcd1d87e7a316bc588f) |
+| [#6](https://github.com/tteon/gare2e/pull/6) | Frozen SF1/FP8 preparation, strict request policy, query bindings, pool controls, admission receipts and historical private-evidence handoff | [`7afb0df`](https://github.com/tteon/gare2e/commit/7afb0df88deac89ee928e3154e151b601716ecf5) |
+
+Conflict resolution preserves the GARE2E README/scope, deterministic case traces,
+existing request timers and SDK defaults. Native OTel spans, JSONL spans, private
+capture and outbound W3C headers share the case trace. Flat backends bind the
+same external parent; the context is restored on exit. The standalone observed
+wrapper keeps its original Collector config, while the Vast pi launcher selects
+the runtime config explicitly. Basic CI installs the `ci` and `otel` extras and
+includes the private-capture, runtime/archive and SF1 regressions. Website
+publication remains restricted to the separate upstream SEOCHO repository.
+
+PRs #4 and #6 use squash commits with public GitHub noreply attribution. Original
+PR history is preserved; no contributor branch was force-pushed and the identity
+contract was not weakened.
+
+### Integration validation
+
+These checks verify code and configuration contracts. Counts overlap across
+suites and must not be added into a single independent-test total.
+
+| Check | Result | Boundary |
+|---|---|---|
+| `bash scripts/ci/run_basic_ci.sh` with locked `ci` + `otel` dependencies | 1,377 passed, 3 skipped; lint, environment, ownership and identity gates passed | Local Python 3.10; optional dependencies explain basic skips |
+| GraphCoT/private capture/case tracing regression set | 67 passed | Native OTel SDK, JSONL, loopback HTTP retry and mocked storage; no model service |
+| SF1/strict backend/pool regression set | 244 passed | Offline fixtures; no FP8 hardware or live graph validation |
+| Existing platform/query-evidence/figure regressions | 36 passed | Existing viewer and published export behavior retained |
+| Native pi 0.80.10 `npm test` | 3 passed | Real SDK with a loopback scripted provider; off/high tool roundtrips and seed42 |
+| Common loader and Poisson/FIFO adapter regressions | 13 passed | Local fixtures; not six-database deployment validation |
+| Vast launcher and S3 export regressions | 21 passed | Owned test child cleanup and mock object-store GET/SHA/failure paths |
+| Both Vast Compose configurations, shell syntax and dashboard JSON | Passed | Configuration-only; no Docker build or service startup |
+| Collector 0.119.0 standalone and runtime config validation | Passed | Official release archive SHA256 verified before use |
+| Actual Collector transport/recovery fixture | Skipped: shared loopback port 4317 already in use | Existing observer left running; transport recovery was not revalidated here |
+
+The final integrated tree also passes documentation structure and ADR-reference
+checks. Main's GitHub Basic CI covers Python 3.10/3.11/3.12; use the current main
+workflow run for its remote status. The scope of this integration is local and CI
+verification, not a fresh performance experiment.
+
+No new Vast resource, GPU/model request, live database trial or private S3 upload
+was initiated. Historical collaborator summaries and their private archive
+manifest were preserved; their raw results were not downloaded or rescored.
+Fresh FP8/model/tool/trace and S3 readback gates remain prerequisites for a future
+live comparison under its own authorization. No new spend was recorded.

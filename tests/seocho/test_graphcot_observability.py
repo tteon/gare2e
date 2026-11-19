@@ -184,3 +184,34 @@ def test_native_completion_keeps_case_trace_in_private_and_receipt_ids(monkeypat
     finally:
         tracing.disable_tracing()
         backend._provider.shutdown()
+
+
+def test_jsonl_completion_shares_case_private_and_request_ids(monkeypatch, tmp_path):
+    import io
+    from contextlib import contextmanager
+    from seocho.eval.agentic_graph_agents import OpenAICompatibleNativeToolModel
+    from seocho.eval.agentic_os_trace import case_trace
+
+    headers = []
+
+    @contextmanager
+    def send(request, **kwargs):
+        headers.append({key.lower(): value for key, value in request.header_items()})
+        yield io.BytesIO(json.dumps({"choices": [{"message": {"content": "done"}, "finish_reason": "stop"}]}).encode())
+
+    monkeypatch.setattr("seocho.eval.agentic_graph_agents.urlopen", send)
+    path = tmp_path / "trace.jsonl"
+    tracing.enable_tracing(backend=tracing.JSONLBackend(path))
+    private = PrivateTrace({"run_id": "flat", "case_id": "1"})
+    try:
+        model = OpenAICompatibleNativeToolModel(base_url="http://localhost", model="fixture", private_trace=private)
+        with case_trace("flat", "1") as case:
+            reply = model.complete(messages=[], tools=[])
+        spans = [json.loads(line) for line in path.read_text().splitlines()]
+        assert {span["metadata"]["trace_id"] for span in spans} == {case.trace_id}
+        assert headers[0]["traceparent"] == f"00-{case.trace_id}-{reply.span_id}-01"
+        assert private.events[0]["trace_id"] == case.trace_id
+        assert private.events[0]["span_id"] == reply.span_id
+        assert not tracing.current_span_identity()
+    finally:
+        tracing.disable_tracing()

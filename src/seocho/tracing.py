@@ -734,6 +734,35 @@ class SpanHandle:
         self._tags.extend(tags)
 
 
+@contextmanager
+def bind_span_parent(trace_id: str, span_id: str) -> Iterator[None]:
+    """Bind an external W3C parent for flat and optional native OTel spans."""
+    for value, width in ((trace_id, 32), (span_id, 16)):
+        if (not isinstance(value, str) or len(value) != width
+                or any(char not in "0123456789abcdef" for char in value)
+                or int(value, 16) == 0):
+            raise ValueError("invalid_external_span_identity")
+    token = _span_stack.set((trace_id, span_id))
+    otel_token = None
+    try:
+        try:
+            from opentelemetry import context as otel_context
+            from opentelemetry.trace import NonRecordingSpan, SpanContext, TraceFlags, set_span_in_context
+        except ImportError:
+            pass
+        else:
+            parent = NonRecordingSpan(SpanContext(
+                trace_id=int(trace_id, 16), span_id=int(span_id, 16),
+                is_remote=True, trace_flags=TraceFlags(TraceFlags.SAMPLED),
+            ))
+            otel_token = otel_context.attach(set_span_in_context(parent))
+        yield
+    finally:
+        if otel_token is not None:
+            otel_context.detach(otel_token)
+        _span_stack.reset(token)
+
+
 def current_span_identity() -> Dict[str, str]:
     """Return the active span IDs without exposing inputs or outputs."""
     stack = _span_stack.get()

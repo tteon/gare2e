@@ -40,19 +40,29 @@ def _trace_headers() -> dict[str, str]:
     from .agentic_os_trace import current_case_trace
 
     headers: dict[str, str] = {}
+    case = current_case_trace()
     try:
         from opentelemetry.trace import get_current_span
         from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
         context = get_current_span().get_span_context()
-        case = current_case_trace()
         # The bound, non-recording case root is a parent, not an HTTP attempt.
         if context.is_valid and (case is None or context.span_id != int(case.root_span_id, 16)):
             TraceContextTextMapPropagator().inject(headers)
     except ImportError:
         pass
     if TRACEPARENT_HEADER not in headers:
-        inject_traceparent(headers)
+        identity = current_span_identity()
+        if identity and (case is None or identity["span_id"] != case.root_span_id):
+            headers[TRACEPARENT_HEADER] = f'00-{identity["trace_id"]}-{identity["span_id"]}-01'
+        else:
+            inject_traceparent(headers)
     return headers
+
+
+def _trace_identity(headers: Mapping[str, str]) -> dict[str, str]:
+    value = headers.get(TRACEPARENT_HEADER, "")
+    match = re.fullmatch(r"00-([0-9a-f]{32})-([0-9a-f]{16})-[0-9a-f]{2}", value)
+    return {"trace_id": match[1], "span_id": match[2]} if match else {}
 
 
 def _digest(value: str) -> str:
@@ -507,6 +517,7 @@ class OpenAICompatibleNativeToolModel:
             )
         if trace_event_id is not None:
             event = next(e for e in self.private_trace.events if e["event_id"] == trace_event_id)
+            event.update(_trace_identity(headers))
             event["http_request"] = payload
             if self.capture_wire_bytes:
                 event["wire_request_json"] = request_body.decode()
@@ -1689,8 +1700,9 @@ class LLMRequestTimer:
 
             async def handle_async_request(self, request: Any) -> Any:
                 with experiment_span("graphcot.http_attempt") as span:
-                    identity = current_span_identity()
-                    request.headers.update(_trace_headers())
+                    headers = _trace_headers()
+                    request.headers.update(headers)
+                    identity = _trace_identity(headers) or current_span_identity()
                     if TRACEPARENT_HEADER in request.headers:
                         request.extensions["seocho_span_id"] = request.headers[TRACEPARENT_HEADER].split("-")[2]
                     context = request.extensions.get("seocho_private_model_context")

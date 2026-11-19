@@ -124,3 +124,12 @@ bash scripts/ci/run_basic_ci.sh
 endpoint 사이의 전송 복구를 검증한다. 테스트 endpoint는 실제 vLLM·Tempo가
 아니므로 GPU 성능이나 전체 배포 검증의 증거가 아니다. 본 실험 전에 실제
 모델·DB·중앙 스택의 한 사례 smoke와 tracing off/on overhead 확인을 수행한다.
+
+
+## Case identity across backends
+
+The experiment case binds its deterministic W3C parent to the shared tracing
+context. Native OTel and flat JSONL/console spans inherit that case trace, and
+HTTP attempts retain the IDs actually sent in `traceparent`. Context is restored
+when the case exits. This preserves receipt-only propagation when OTel is absent
+and prevents private call records from drifting into a separate trace.
