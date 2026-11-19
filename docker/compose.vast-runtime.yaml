@@ -1,0 +1,121 @@
+# Merge with compose.vast-observability.yaml, never with the SDK root compose.
+# Run on an authorized Linux NVIDIA Docker host; not on the viewing Mac.
+x-runtime-image: &runtime-image
+  image: ${GARE2E_RUNTIME_IMAGE:-gare2e-vast:runtime031-pi08010}
+  platform: linux/amd64
+  build:
+    context: .
+    dockerfile: docker/agentic-os-appliance/vast-runtime/runtime.Dockerfile
+    args:
+      RUNTIME_BASE: ${GARE2E_RUNTIME_BASE:-jayyun98/gare2e-vast@sha256:e6a806183f35a58de0de5e7c6f6d27d45652801d1d44317723ce28edc28fdf29}
+      SOURCE_REVISION: ${GARE2E_SOURCE_REVISION:-unrecorded}
+
+x-storage: &storage
+  AWS_REGION: ${AWS_REGION:?Set the actual private bucket region}
+  GARE2E_S3_BUCKET: ${GARE2E_S3_BUCKET:?Set the private bucket}
+  GARE2E_S3_PREFIX: ${GARE2E_S3_PREFIX:?Set the campaign prefix}
+  AWS_SHARED_CREDENTIALS_FILE: /run/secrets/aws_credentials
+  AWS_PROFILE: default
+  AWS_EC2_METADATA_DISABLED: "true"
+
+services:
+  runtime:
+    <<: *runtime-image
+    environment:
+      <<: *storage
+      NEO4J_PASSWORD_FILE: /run/secrets/neo4j_password
+      MODEL_PATH: /models/qwen3.8-27b
+      LISTEN_HOST: 0.0.0.0
+      MAX_MODEL_LEN: ${GARE2E_MAX_MODEL_LEN:-32768}
+      MAX_NUM_SEQS: ${GARE2E_ENGINE_MAX_SEQS:-4}
+      SEOCHO_OBSERVABILITY_ENDPOINT: otel-collector:4317
+      GARE2E_SERVER_TRACING: "1"
+      GARE2E_ENGINE_OBSERVER: "1"
+    secrets: [neo4j_password, aws_credentials]
+    volumes:
+      - model-cache:/models:ro
+      - runtime-data:/data
+      - runtime-artifacts:/artifacts
+    ports:
+      - "127.0.0.1:${GARE2E_VLLM_PORT:-28000}:8000"
+      - "127.0.0.1:${GARE2E_NEO4J_HTTP_PORT:-27474}:7474"
+      - "127.0.0.1:${GARE2E_NEO4J_BOLT_PORT:-27687}:7687"
+    shm_size: 8gb
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    depends_on: [otel-collector]
+    # Avoid an automatic model restart loop after a failed runtime preflight.
+    restart: "no"
+    stop_grace_period: 45s
+
+  model-download:
+    <<: *runtime-image
+    profiles: [setup]
+    entrypoint: [python, /opt/gare2e-pilot/download-model.py]
+    environment:
+      MODEL_PATH: /models/qwen3.8-27b
+    volumes:
+      - model-cache:/models
+    restart: "no"
+
+  pi:
+    <<: *runtime-image
+    profiles: [experiment]
+    # Existing extension/owner may use loopback. Share only this runtime's
+    # network namespace; do not expose any additional host endpoint.
+    network_mode: service:runtime
+    entrypoint: [/usr/bin/tini, -g, --, bash, /opt/gare2e-pilot/source/docker/agentic-os-appliance/vast-runtime/run-pi.sh]
+    command: [/run/worker-config.json]
+    environment:
+      <<: *storage
+      NEO4J_PASSWORD_FILE: /run/secrets/neo4j_password
+    secrets: [neo4j_password, aws_credentials]
+    volumes:
+      - runtime-artifacts:/artifacts
+      - type: bind
+        source: ${GARE2E_PI_CONFIG:-./data/pi/worker-config.json}
+        target: /run/worker-config.json
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${GARE2E_WORKER_DIR:-./data/pi/worker}
+        target: /worker
+        read_only: true
+        bind:
+          create_host_path: false
+    depends_on:
+      runtime:
+        condition: service_healthy
+    restart: "no"
+    stop_grace_period: 3m
+
+  datasource:
+    <<: *runtime-image
+    profiles: [dataset]
+    entrypoint: [python, /opt/gare2e-pilot/source/scripts/benchmarks/load_benchmark_tasks.py]
+    command: [--help]
+    environment:
+      PYTHONPATH: /opt/gare2e-pilot/source/src
+    volumes:
+      - type: bind
+        source: ${GARE2E_DATASET_DIR:-./data/benchmarks}
+        target: /datasets
+        read_only: true
+        bind:
+          create_host_path: false
+    restart: "no"
+
+secrets:
+  neo4j_password:
+    file: ${GARE2E_NEO4J_PASSWORD_FILE:?Set the server-only Neo4j password file}
+
+volumes:
+  model-cache:
+  runtime-data:
+  runtime-artifacts:

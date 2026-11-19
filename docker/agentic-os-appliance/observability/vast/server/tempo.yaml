@@ -1,0 +1,30 @@
+# Durable query blocks in S3; WAL is only an unflushed server buffer.
+# Archive OTLP and full-run raw under separate prefixes without retention deletion.
+server:
+  http_listen_port: 3200
+usage_report:
+  reporting_enabled: false
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+ingester:
+  max_block_duration: 1m
+compactor:
+  compaction:
+    block_retention: 168h
+storage:
+  trace:
+    backend: s3
+    s3:
+      bucket: ${GARE2E_S3_BUCKET}
+      region: ${AWS_REGION}
+      endpoint: s3.${AWS_REGION}.amazonaws.com
+      prefix: ${GARE2E_S3_PREFIX}/tempo-query
+      native_aws_auth_enabled: true
+    wal:
+      path: /var/tempo/wal

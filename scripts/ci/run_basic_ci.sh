@@ -106,6 +106,8 @@ uv run pytest \
   tests/seocho/test_agentic_graph_agents.py \
   tests/seocho/test_graphcot_observability.py \
   tests/seocho/test_private_trace_store.py \
+  tests/seocho/test_vast_runtime_launcher.py \
+  tests/seocho/test_vast_s3_export.py \
   tests/seocho/test_observability_wiring.py \
   tests/seocho/test_metrics_never_fail_the_work.py \
   tests/seocho/test_histogram_buckets.py \

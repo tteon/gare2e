@@ -1,5 +1,9 @@
 # Local observability companion
 
+Vast GPU appliance의 원격 OTLP와 workload 대시보드가 필요하면
+[중앙 관측용 Compose](vast/README.md)를 사용한다. 이 문서의 Linux host-network
+registry companion과는 별도 project이며, 기존 설정은 그대로 유지한다.
+
 Reuses the gare2e platform with a Linux host-network, loopback-only Collector,
 Prometheus, Tempo and Grafana. Versions are pinned for reproducibility, not a
 claim that these are the newest releases. The stack is optional. LangSmith is
