@@ -4,6 +4,12 @@ For shared comparison charts, task inspection, evidence insights and Perfetto /
 Nsight artifact downloads, see [the experiment platform](EXPERIMENT_PLATFORM.md).
 Its importer reuses characterization exports; it does not launch experiments.
 
+## Inspect a private SF1 handoff
+
+Use [the SF1 handoff guide](SF1_HANDOFF.md) for the offline ZIP validator, query
+hash meanings, and historical versus receiving model conditions. Static bundle
+validation does not launch a model, load a graph, or establish live readiness.
+
 ## View existing evidence
 
 Clone `tteon/gare2e` with your repository access and open

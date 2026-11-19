@@ -24,6 +24,7 @@ result → reproduce its analysis → register a controlled experiment**.
 | Serving and graph-system diagnostics | Exact server trace joins, replica metrics, available thread/CPU/NUMA/I/O observations | [Graph-system observability](docs/agentic-os/GRAPH_SYSTEM_OBSERVABILITY.md) |
 | Query and plan evidence | Actual DB submissions, reuse outcomes, plan rows/DB hits and versioned quality records | [Query evidence](docs/agentic-os/GRAPH_OPTIMIZATION_OBSERVABILITY.md) |
 | Shared result inspection | Immutable imports, compatible-condition checks, task drilldown and evidence-linked observations | [Platform guide](docs/agentic-os/EXPERIMENT_PLATFORM.md) |
+| Frozen comparison controls | Pinned FP8 plans, private query hashes, strict generation requests and optional stage admission | [SF1 runtime](docs/agentic-os/SF1_RUNTIME.md) |
 | Portable artifact review | Content-free exports, source hashes, Perfetto-compatible timelines and reviewed profiler attachments | [Sharing contract](docs/agentic-os/TRACE_SHARING.md) |
 
 ## Workflow
@@ -64,6 +65,7 @@ improvement percentages until the required evidence is supplied.
 | [Characterization chartbook](docs/agentic-os/reports/characterization-charts/README.md) | How do agent behavior, tool activity and serving demand change across conditions? | Exploratory conditions; report denominators and source exports accompany the charts |
 | [Replica and task-affinity study](docs/agentic-os/reports/lab025-replicas/README.md) | How do serving topology and request affinity affect the observed workload? | Keep the recorded hardware, concurrency, input/output demand and trace coverage |
 | [Runtime pressure and recovery](docs/agentic-os/reports/lab026-worker-recovery/README.md) | Which settings reached a valid measurement window, and which hit client resource limits? | Startup failures are preserved; fixed-corpus diagnostics and live-agent results stay separate |
+| [GUG/FinBench collaborator summaries](experiments/gug-20261030-20261102/README.md) | What did the imported historical campaigns observe? | Reviewed summaries and private archive pointers; this integration did not rerun or rescore them |
 | [Graph-query evidence pilot](docs/agentic-os/reports/lab027-graph-evidence/README.md) | When does exact-result reuse avoid DB submissions, and does that reuse occur in agent sessions? | Fixed-query replay and live-agent reuse are separate findings |
 
 ![Published baseline and MTP throughput conditions](docs/agentic-os/reports/characterization-charts/throughput-overview.svg)
@@ -85,6 +87,7 @@ those performance effects.
 | Co-located appliance and observability companion | [`docker/agentic-os-appliance/`](docker/agentic-os-appliance/) |
 | Portable native-agent / workload adapters | [`scripts/benchmarks/pi_native/`](scripts/benchmarks/pi_native/), [task loader](docs/BENCHMARK_TASK_LOADER.md) |
 | Published methods, results and handoff | [`docs/agentic-os/`](docs/agentic-os/) |
+| Reviewed summaries and private archive manifests | [`experiments/`](experiments/) |
 | Reviewed registry import examples | [`examples/experiment-platform/`](examples/experiment-platform/) |
 
 ## Relationship to SEOCHO

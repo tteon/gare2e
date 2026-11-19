@@ -37,6 +37,7 @@ their presence is not a claim that GARE2E introduced them.
 | `docs/` | Product and operator contracts | Source-of-truth docs shipped with the repo. |
 | `docker/` | Compose overlays and optional side stacks | Only the default `compose.yaml` stays in the root; see `docker/README.md`. |
 | `tests/` | Top-level regression anchors | Most focused tests still live nearer to the owning package. |
+| `experiments/` | Reviewed summaries and external evidence manifests | Raw benchmark inputs, results, logs and bundles remain in approved private S3. Reusable verification code belongs in `scripts/`. |
 
 ## Root Files
 
