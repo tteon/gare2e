@@ -680,7 +680,7 @@ suites and must not be added into a single independent-test total.
 
 | Check | Result | Boundary |
 |---|---|---|
-| `bash scripts/ci/run_basic_ci.sh` with locked `ci` + `otel` dependencies | 1,377 passed, 3 skipped; lint, environment, ownership and identity gates passed | Local Python 3.10; optional dependencies explain basic skips |
+| `bash scripts/ci/run_basic_ci.sh` with locked `ci` + `otel` dependencies | 1,377 passed, 3 skipped; lint, environment, ownership and identity gates passed | Local Python 3.10; two MARA live gates and one DozerDB live gate skipped |
 | GraphCoT/private capture/case tracing regression set | 67 passed | Native OTel SDK, JSONL, loopback HTTP retry and mocked storage; no model service |
 | SF1/strict backend/pool regression set | 244 passed | Offline fixtures; no FP8 hardware or live graph validation |
 | Existing platform/query-evidence/figure regressions | 36 passed | Existing viewer and published export behavior retained |
